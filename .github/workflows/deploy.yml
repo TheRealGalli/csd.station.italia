@@ -28,9 +28,7 @@ jobs:
       - name: Install
         run: npm ci
       - name: Build
-        run: |
-          echo "VITE_BASE_PATH=/${{ github.event.repository.name }}/" >> $GITHUB_ENV
-          npm run build
+        run: npm run build
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
