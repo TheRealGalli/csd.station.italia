@@ -427,17 +427,21 @@ function createBallpit(e: HTMLCanvasElement, t: any = {}) {
   (e.style as any).touchAction = 'none';
   e.style.userSelect = 'none';
   (e.style as any).webkitUserSelect = 'none';
-  const h = S({
-    domElement: e,
-    onMove() {
-      n.setFromCamera(h.nPosition, i.camera);
-      i.camera.getWorldDirection(o.normal);
-      n.ray.intersectPlane(o, r);
-      s.physics.center.copy(r);
-      s.config.controlSphere0 = true;
-    },
-    onLeave() { s.config.controlSphere0 = false; }
-  });
+  // Registra gli handler solo se il follow del cursore è abilitato
+  let h: any = null;
+  if (t.followCursor) {
+    h = S({
+      domElement: e,
+      onMove() {
+        n.setFromCamera(h.nPosition, i.camera);
+        i.camera.getWorldDirection(o.normal);
+        n.ray.intersectPlane(o, r);
+        s.physics.center.copy(r);
+        s.config.controlSphere0 = true;
+      },
+      onLeave() { s.config.controlSphere0 = false; }
+    });
+  }
   function initialize(e2: any) {
     if (s) { i.clear(); i.scene.remove(s); }
     // Usa le dimensioni mondo correnti per inizializzare con campo pieno (no cluster iniziale)
@@ -454,7 +458,7 @@ function createBallpit(e: HTMLCanvasElement, t: any = {}) {
     get spheres() { return s; },
     setCount(e5: number) { initialize({ ...s.config, count: e5 }); },
     togglePause() { c = !c; },
-    dispose() { h.dispose(); i.dispose(); }
+    dispose() { if (h && typeof h.dispose === 'function') { h.dispose(); } i.dispose(); }
   };
 }
 
@@ -517,7 +521,7 @@ const Ballpit = ({ className = '', followCursor = true, obstacleSelectors = [] a
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
-  return <canvas className={className} ref={canvasRef} style={{ width: '100%', height: '100%' }} />;
+  return <canvas className={className} ref={canvasRef} style={{ width: '100%', height: '100%', pointerEvents: 'none' }} />;
 };
 export default Ballpit;
 

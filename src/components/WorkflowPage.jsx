@@ -1,7 +1,7 @@
 import React, { useEffect, useMemo, useState } from 'react';
 
 export default function WorkflowPage({ workflow, onClose }) {
-	const workerUrl = import.meta.env.VITE_WORKER_URL || '';
+	const workerUrl = import.meta.env.VITE_WORKER_URL || 'https://csd-station-api-346681848489.europe-west8.run.app';
 	const [prompt, setPrompt] = useState('');
 	const [content, setContent] = useState('');
 	const [loading, setLoading] = useState(true);

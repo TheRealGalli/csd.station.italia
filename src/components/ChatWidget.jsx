@@ -9,7 +9,7 @@ export default function ChatWidget({ open = false, onClose, onOpen }) {
 	const listRef = useRef(null);
 	const [openReasoning, setOpenReasoning] = useState({});
 
-	const workerUrl = import.meta.env.VITE_WORKER_URL || '';
+	const workerUrl = import.meta.env.VITE_WORKER_URL || 'https://csd-station-api-346681848489.europe-west8.run.app';
 
 	function resetConversation() {
 		setMessages([{ role: 'assistant', content: 'Ciao! Sono l’assistente CSD Station Italia. Come posso aiutarti?' }]);
