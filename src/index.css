@@ -1,0 +1,120 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Glass panel utility to emulate the mockup style */
+.glass-panel {
+	background-color: rgba(16, 25, 34, 0.5);
+	backdrop-filter: blur(12px);
+	-webkit-backdrop-filter: blur(12px);
+	border: 1px solid rgba(59, 71, 84, 0.3);
+}
+
+/* Brand cream text */
+:root {
+	--csd-cream: #FDF5E6;
+}
+.text-cream {
+	color: var(--csd-cream);
+}
+
+/* Decorative background gradient blobs */
+.bg-blob {
+	position: absolute;
+	border-radius: 9999px;
+	filter: blur(150px);
+	pointer-events: none;
+}
+
+/* Animated gradient for header bar (green <-> blue sweep) */
+.header-anim {
+	background: linear-gradient(
+		90deg,
+		rgba(16,185,129,0.35),
+		rgba(59,130,246,0.25),
+		rgba(16,185,129,0.35)
+	);
+	background-size: 200% 100%;
+	animation: headerGradient 10s ease-in-out infinite alternate;
+}
+
+@keyframes headerGradient {
+	0% { background-position: 0% 0%; }
+	100% { background-position: 100% 0%; }
+}
+
+/* Animated azure title (matches primary button colour) */
+.title-azure {
+	/* gradiente con 40% di bianco centrale, ai lati azzurro coerente con i bottoni */
+	background-image: linear-gradient(
+		90deg,
+		rgba(58,125,255,0.95) 0%,
+		/* verde coordinato con header (#10B981) ma soft */
+		rgba(16,185,129,0.28) 15%,
+		rgba(255,255,255,0.98) 30%,
+		rgba(255,255,255,0.98) 70%,
+		rgba(16,185,129,0.28) 85%,
+		rgba(58,125,255,0.95) 100%
+	);
+	background-size: 100% 100%; /* nessun movimento del gradiente per evitare bordi che “scintillano” */
+	-webkit-background-clip: text;
+	background-clip: text;
+	color: transparent;
+	/* effetto “soft” tramite leggero glow e pulsazione di luminosità, non movimento del gradiente */
+	text-shadow: 0 0 14px rgba(58,125,255,0.18), 0 2px 14px rgba(0,0,0,0.12);
+	animation: titleAzurePulse 18s ease-in-out infinite;
+	will-change: filter;
+}
+
+@keyframes titleAzurePulse {
+	0% { filter: brightness(1) saturate(1); }
+	50% { filter: brightness(1.03) saturate(1.02); }
+	100% { filter: brightness(1) saturate(1); }
+}
+
+/* Wireframe 3D square loader */
+.wire-square {
+	width: 64px;
+	height: 64px;
+	position: relative;
+	border: 2px solid rgba(154,224,255,0.6);
+	border-radius: 8px;
+	transform-style: preserve-3d;
+}
+.wire-square::before,
+.wire-square::after {
+	content: "";
+	position: absolute;
+	inset: 0;
+	border: 2px solid rgba(16,185,129,0.45);
+	border-radius: 8px;
+	transform: translateZ(12px);
+}
+.wire-square::after {
+	border-color: rgba(58,125,255,0.6);
+	transform: translateZ(-12px);
+}
+.animate-wire-spin {
+	animation: wireSpin 1.8s linear infinite;
+}
+@keyframes wireSpin {
+	0% { transform: rotateX(0deg) rotateY(0deg); }
+	100% { transform: rotateX(360deg) rotateY(360deg); }
+}
+
+/* Ghost text scroll per streaming */
+.ghost-scroll {
+	max-height: 40vh;
+	position: absolute;
+	left: 0;
+	right: 0;
+	top: 0;
+	animation: ghostScrollDownVH 14s linear infinite;
+	will-change: margin-top;
+}
+@keyframes ghostScrollDownVH {
+	0% { margin-top: 0vh; }
+	100% { margin-top: 30vh; }
+}
+
+

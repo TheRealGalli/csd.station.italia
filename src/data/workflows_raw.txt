@@ -1,0 +1,1650 @@
+Catalogo Nominale dei Workflow per Settore, Categoria e Livello di Digitalizzazione
+Settore
+Workflow Nome (Nominale)
+Macro Categoria
+Livello Digitalizzazione
+
+No-Profit
+Registrazione Donazione > Aggiornamento Airtable
+No-IA
+L0
+No-Profit
+Generazione Ringraziamento Personalizzato Donatore (GPT)
+Generativo
+L1
+No-Profit
+Notifica Nuovi Donatori su Slack/Teams
+No-IA
+L0
+No-Profit
+Onboarding Volontari con Calendly Booking
+No-IA
+L0
+No-Profit
+Promemoria Impegni Volontari via Telegram/WhatsApp (Spoki)
+Conversazionale
+L0
+No-Profit
+Aggregazione Dati Social Media e Sito (Reporting)
+No-IA
+L0
+No-Profit
+Analisi Sentiment (OpenAI) Feedback Progetti
+Agentico
+L1
+No-Profit
+Segmentazione Mailing List Basata sul Valore Donato
+No-IA
+L1
+No-Profit
+Creazione Automatica Bozza di Post Social Campagna
+Generativo
+L1
+No-Profit
+Invio File Rendicontazione Periodica ai Finanziatori
+No-IA
+L0
+No-Profit
+Parsing Email Richieste Partnership per Triage Interno
+Altro
+L1
+No-Profit
+Gestione Richieste Diritto all'Oblio (GDPR)
+No-IA
+L1
+No-Profit
+Allerta Scadenze Progetto (Bando) via Email
+No-IA
+L0
+No-Profit
+Sincronizzazione Contatti Mailchimp/Salesforce
+No-IA
+L0
+No-Profit
+Archiviazione Certificati Donazione in Cloud Storage (GCP)
+No-IA
+L0
+No-Profit
+Gestione Pagamenti Ricorrenti (Stripe) per Membri
+No-IA
+L1
+No-Profit
+Generazione Report KPI Settimanali (Email)
+No-IA
+L0
+No-Profit
+Monitoraggio Menzioni Brand sui Social Media (Scraping)
+Altro
+L1
+No-Profit
+Conversazionale Chatbot FAQ Istituzionali
+Conversazionale
+L1
+No-Profit
+Qualificazione Automatica Lead Istituzionali (AI)
+Agentico
+L2
+Notai
+Parsing Dati Cliente per Preventivo (IA)
+Generativo
+L1
+Notai
+Generazione Bozza Preventivo Dettagliato (GPT-4)
+Generativo
+L1
+Notai
+Raccolta Documenti Cliente in Portale Protetta (n8n/Jotform)
+No-IA
+L1
+Notai
+Rinominazione e Archiviazione Documenti su Google Drive
+No-IA
+L0
+Notai
+Creazione Task Adempimenti Post-Atto (Asana/Trello)
+No-IA
+L1
+Notai
+Reminder Scadenze Adempimenti Telematici (PEC/Email)
+No-IA
+L0
+Notai
+Notifica Collaboratore su Arrivo Documenti Essenziali
+No-IA
+L0
+Notai
+Chatbot (WhatsApp Business) Stato Pratica (FAQ)
+Conversazionale
+L1
+Notai
+Analisi Scadenze Fisco Post-Stipula (Predittiva)
+Predittiva
+L2
+Notai
+Onboarding Cliente Sicuro (Invio Dati Accesso Protetti)
+No-IA
+L1
+Notai
+Integrazione Dati Pratiche Gestionale-CRM (n8n/API)
+No-IA
+L1
+Notai
+Automazione Invio PEC per Convocazione Parti
+No-IA
+L0
+Notai
+Report Statistiche Pratiche/Tempi di Chiusura
+No-IA
+L0
+Notai
+Triage Richieste Via Email con Classificazione Intento (AI)
+Agentico
+L2
+Notai
+Backup Quotidiano Archivi su GCP Storage
+No-IA
+L1
+Notai
+Creazione Schede Cliente Dettagliate Pre-Preventivo
+No-IA
+L0
+Notai
+Monitoraggio Pubblicazione Avvisi Legali Online
+Altro
+L2
+Notai
+Generazione Abstract Bilingue Brevi Atti (Non Vincolante)
+Generativo
+L1
+Notai
+Controllo Congruità Campi Preventivo (Rule-Based)
+No-IA
+L1
+Notai
+Aggiornamento Tabella Storico Clienti Post-Stipula
+No-IA
+L0
+Gioiellerie
+Sincronizzazione Inventario POS Fisico - Shopify (Omnichannel)
+No-IA
+L1
+Gioiellerie
+Notifica Esaurimento Scorta in Negozio/Online (n8n)
+No-IA
+L0
+Gioiellerie
+Clienteling Anniversario Acquisto (Email/SMS)
+Generativo
+L1
+Gioiellerie
+Generazione Suggerimenti Acquisto Correlato (IA)
+Generativo
+L1
+Gioiellerie
+Creazione Ticket Riparazione/Ordine Speciale (Notion)
+No-IA
+L0
+Gioiellerie
+Notifica Stato Riparazione/Pronto Ritiro (Twilio/Spoki)
+Conversazionale
+L1
+Gioiellerie
+Recupero Carrello Abbandonato E-commerce (WhatsApp)
+Conversazionale
+L1
+Gioiellerie
+Analisi Sentiment (OpenAI) Recensioni Google Store
+Agentico
+L2
+Gioiellerie
+Pubblicazione Automatica Nuovo Pezzo Alta Gioielleria su Instagram
+No-IA
+L0
+Gioiellerie
+Matching Dati Acquisto con Newsletter Casa Madre (GDPR OK)
+No-IA
+L1
+Gioiellerie
+Etichettatura Automatica Pezzi (QR Code) per Magazzino
+No-IA
+L0
+Gioiellerie
+Generazione Scheda Tecnica Prodotto Dettagliata (GPT)
+Generativo
+L1
+Gioiellerie
+Gestione Ordini Fornitori in Base a Sottoscorta (No-IA)
+No-IA
+L0
+Gioiellerie
+Sincronizzazione Tassi di Cambio per Prezzi Internazionali
+No-IA
+L0
+Gioiellerie
+Richiesta Feedback Post-Acquisto (CSAT/NPS)
+No-IA
+L0
+Gioiellerie
+Triage Richieste WhatsApp (es. "Prezzo/Disponibilità")
+Agentico
+L1
+Gioiellerie
+Archiviazione Scatti Fotografo in Cartelle Cloud Dedicate
+No-IA
+L0
+Gioiellerie
+Allerta Variazione Prezzi Materie Prime (Scraping)
+Altro
+L2
+Gioiellerie
+Gestione Garanzie e Scadenze (CRM Notifiche)
+No-IA
+L0
+Food-Chain
+Calcolo Consumo Ingredienti da Dati Vendita POS
+No-IA
+L1
+Food-Chain
+Generazione Bozza Ordine Fornitore Sottoscorta
+No-IA
+L1
+Food-Chain
+Invio Ordine Fornitore Via Email (Approvazione Manager)
+No-IA
+L1
+Food-Chain
+Aggregazione Ordini Piattaforme Delivery (Tilby/Glovo/n8n)
+No-IA
+L1
+Food-Chain
+Analisi Sentiment (AI) Recensioni Online (Google/TripAdvisor)
+Agentico
+L2
+Food-Chain
+Report Sintesi Settimanale Sentiment/Trend al Manager
+Generativo
+L2
+Food-Chain
+Promemoria Turni di Lavoro via WhatsApp (Spoki)
+Conversazionale
+L0
+Food-Chain
+Inserimento Dati Prenotazione TheFork in CRM Interno
+No-IA
+L1
+Food-Chain
+Invio Richiesta Recensione Automatica Post-Visita
+No-IA
+L0
+Food-Chain
+Iscrizione Automatica Cliente a Programma Fedeltà (Bonus)
+No-IA
+L1
+Food-Chain
+Controllo Differenze Prezzi Tra Sedi (Multi-Sede Check)
+No-IA
+L1
+Food-Chain
+Predizione Flussi Clienti e Fabbisogno Personale (IA)
+Predittiva
+L2
+Food-Chain
+Aggregazione Dati Vendita Multi-Sede su Power BI/Looker Studio
+No-IA
+L1
+Food-Chain
+Parsing Fatture Fornitori (OCR) per Contabilità
+Altro
+L2
+Food-Chain
+Gestione Schede Pulizia e Manutenzione (Notifica Staff)
+No-IA
+L0
+Food-Chain
+Notifica Ritardo Ordine Delivery al Cliente (Spoki)
+Conversazionale
+L1
+Food-Chain
+Generazione Automatica Schede Ricetta Standardizzate (GPT)
+Generativo
+L1
+Food-Chain
+Allerta Variazione Food Cost (F&B Cost Monitoring)
+No-IA
+L1
+Food-Chain
+Ottimizzazione Piano Turni Basato su Previsione Domanda
+Agentico
+L2
+Agenzie Immobiliari
+Parsing Lead Immobiliare.it (Email) per Estrazione Dati
+Altro
+L1
+Agenzie Immobiliari
+Inserimento Automatico Lead in CRM (Gestim/Getrix)
+No-IA
+L1
+Agenzie Immobiliari
+Invio SMS Immediato di Conferma Ricezione Lead (Twilio)
+Conversazionale
+L0
+Agenzie Immobiliari
+Assegnazione 'Score di Priorità' Lead (Agentico AI)
+Agentico
+L2
+Agenzie Immobiliari
+Creazione Task Richiamo Agente (Entro 1 Ora)
+No-IA
+L0
+Agenzie Immobiliari
+Generazione Descrizione Immobile (Multi-Lingua GPT-4)
+Generativo
+L1
+Agenzie Immobiliari
+Bozza Post Social Network (Instagram/LinkedIn Hashtag)
+Generativo
+L1
+Agenzial Immobiliari
+Promemoria Visita Immobile Cliente (WhatsApp/Spoki)
+Conversazionale
+L1
+Agenzie Immobiliari
+Richiesta Feedback Post-Visita (Form)
+No-IA
+L0
+Agenzie Immobiliari
+Matching Domanda/Offerta Notturno (AI)
+Agentico
+L2
+Agenzie Immobiliari
+Notifica Agenti Nuovi Immobili Interfacciabili a Clienti
+No-IA
+L1
+Agenzie Immobiliari
+Aggiornamento Status Immobile Post-Proposta Accettata
+No-IA
+L1
+Agenzie Immobiliari
+Automazione Adempimenti Post-Vendita (n8n/Task)
+No-IA
+L0
+Agenzie Immobiliari
+Creazione Scheda Cliente Potenziale Proprietario (GPT)
+Generativo
+L1
+Agenzie Immobiliari
+Monitoraggio Prezzi Concorrenza (Scraping/Predittiva)
+Predittiva
+L2
+Agenzie Immobiliari
+Gestione Richieste Diritto all'Oblio (GDPR)
+No-IA
+L1
+Agenzie Immobiliari
+Creazione Report Mensili Performance Agenti/Lead
+No-IA
+L0
+Agenzie Immobiliari
+Sincronizzazione Pubblicazione Annunci (Portale/Sito Web)
+No-IA
+L1
+Agenzie Immobiliari
+Triage Email Ufficio Legale/Amministrativo (AI)
+Agentico
+L2
+Agenzie Immobiliari
+Gestione Documenti Preliminari in Cloud Protetta
+No-IA
+L0
+Farmacie
+Notifica Disponibilità Prodotto Ordinato (No Ricetta)
+No-IA
+L0
+Farmacie
+Chatbot Informativo FAQ (Non Mediche) Architettura RAG
+Conversazionale
+L1
+Farmacie
+Automazione Reportistica Semplice Vendite Settimanali
+No-IA
+L0
+Farmacie
+Gestione Prenotazioni Servizi e Reminder Appuntamento (SMS)
+Conversazionale
+L1
+Farmacie
+Parsing Automatico DDT/Fatture Fornitori (XML/PDF)
+Altro
+L2
+Farmacie
+Proposta di Riordino AI-Powered (GAIA Model)
+Predittiva
+L2
+Farmacie
+Reminder Terapeutici (Aderenza Cronica) - Consenso Esplicito
+Conversazionale
+L2
+Farmacie
+Pubblicazione Post Social da Calendario Contenuti Marketing
+No-IA
+L0
+Farmacie
+Sincronizzazione Ordine E-commerce - Gestionale (WF2Web/API)
+No-IA
+L1
+Farmacie
+Generazione Notifica Spedizione/Tracking al Cliente E-commerce
+No-IA
+L0
+Farmacie
+Invio Ricette Elettroniche Aggregate al Commercialista
+No-IA
+L0
+Farmacie
+Analisi Sentiment Recensioni Online (OpenAI)
+Agentico
+L2
+Farmacie
+Triage Richieste Via Chat (Intento Medico vs. Logistico)
+Agentico
+L2
+Farmacie
+Allerta Sottoscorta Critica e Prodotti a Breve Scadenza
+No-IA
+L1
+Farmacie
+Analisi Predittiva Domanda per Prodotti Stagionali (IA)
+Predittiva
+L2
+Farmacie
+Generazione Etichette Magazzino Ottimizzate
+Generativo
+L1
+Farmacie
+Gestione Consensi Marketing (Registrazione e Revoca GDPR)
+No-IA
+L1
+Farmacie
+Recupero Carrello Abbandonato E-commerce (Targeting)
+Conversazionale
+L1
+Farmacie
+Generazione di Bozza Risposta Recensioni Negative (GPT)
+Generativo
+L1
+Farmacie
+Invio di Offerte Commerciali Mirate (Consenso Marketing)
+No-IA
+L1
+Hotel e B&B
+Comunicazione Pre-Arrivo Personalizzata (Benvenuto/Info)
+No-IA
+L1
+Hotel e B&B
+Gestione e Risposta Intelligente Recensioni (OpenAI)
+Generativo
+L2
+Hotel e B&B
+Sincronizzazione Automatica Pagamenti (PMS-Contabilità)
+No-IA
+L1
+Hotel e B&B
+Chatbot FAQ Ospite H24 (Orari, Wi-Fi, Servizi)
+Conversazionale
+L1
+Hotel e B&B
+Automazione Invio Codice Self Check-in (Serratura Smart API)
+No-IA
+L1
+Hotel e B&B
+Upselling Pre-Soggiorno (Transfer, Colazione, Servizi Extra)
+Generativo
+L1
+Hotel e B&B
+Notifica Staff Pulizia (Trigger Check-out/Arrivo Previsto)
+No-IA
+L0
+Hotel e B&B
+Invio Messaggio Richiesta Recensione Post-Soggiorno
+No-IA
+L0
+Hotel e B&B
+Sincronizzazione Prenotazioni OTA in Google Sheets Log
+No-IA
+L0
+Hotel e B&B
+Predizione Tasso di Cancellazione e Dynamic Pricing (IA)
+Predittiva
+L2
+Hotel e B&B
+Creazione Scheda Cliente (PMS) da Dati Prenotazione OTA
+No-IA
+L1
+Hotel e B&B
+Gestione Richieste Speciali Ospite (Triage AI)
+Agentico
+L2
+Hotel e B&B
+Registrazione Consensi Privacy Ospiti (GDPR Log)
+No-IA
+L0
+Hotel e B&B
+Invio Offerte Loyalty/Sconto Diretto (Post-Soggiorno)
+No-IA
+L1
+Hotel e B&B
+Generazione Report KPI Occupazione/RevPAR Settimanale
+No-IA
+L0
+Hotel e B&B
+Parsing Email Richieste Gruppi per Creazione Bozza Offerta
+Generativo
+L1
+Hotel e B&B
+Monitoraggio Prezzi Competitor in Tempo Reale (Scraping)
+Altro
+L2
+Hotel e B&B
+Gestione Reclami in Chat con Triage Urgenza (Agentico)
+Agentico
+L2
+Hotel e B&B
+Creazione Voci di Spesa Contabile per Extra (POS Integration)
+No-IA
+L1
+Locali con Liste
+Raccolta Dati Nomi e Contatto via Telegram Bot
+Conversazionale
+L0
+Locali con Liste
+Generazione QR Code Ingresso Univoco/Nominativo
+No-IA
+L0
+Locali con Liste
+Sincronizzazione Lista Ospiti in Tempo Reale (Google Sheets)
+No-IA
+L0
+Locali con Liste
+Invio Promemoria Evento (Data/Ora) via Chat (Spoki)
+Conversazionale
+L0
+Locali con Liste
+Follow-up Post-Evento con Sondaggio Feedback
+Conversazionale
+L1
+Locali con Liste
+Analisi Sentiment (GPT) Risposte Sondaggio Post-Evento
+Agentico
+L1
+Locali con Liste
+Gestione Tavoli Intelligente con Approvazione Management
+No-IA
+L1
+Locali con Liste
+Notifica Staff di Sala su Tavoli Assegnati (Telegram)
+No-IA
+L0
+Locali con Liste
+Segmentazione Clienti (VIP/Standard/Frequenti)
+No-IA
+L1
+Locali con Liste
+Invio Offerte Personalizzate basate su Storico Presenze
+Generativo
+L1
+Locali con Liste
+Gestione Richieste Diritto all'Oblio (GDPR Cleanup)
+No-IA
+L1
+Locali con Liste
+Allerta Superamento Capacità Locale (Pre-Vendita Ticket)
+No-IA
+L0
+Locali con Liste
+Integrazione Vendita Biglietti Online - Lista Ingresso
+No-IA
+L1
+Locali con Liste
+Invio Notifica Ingresso Gratuito/Sconto Compleanno
+No-IA
+L1
+Locali con Liste
+Triage Richieste Speciali/Allergie al Bot
+Agentico
+L1
+Locali con Liste
+Generazione Report Affluenza per PR (Settimanale)
+No-IA
+L0
+Locali con Liste
+Backup Automatico Liste Giornaliere in Cloud
+No-IA
+L0
+Locali con Liste
+Promemoria Pagamento Tavolo/Caparra (Post-Prenotazione)
+Conversazionale
+L0
+Locali con Liste
+Creazione Automatica Lista Email Clienti con Consenso
+No-IA
+L0
+Locali con Liste
+Monitoraggio Menzioni Evento sui Social Media
+Altro
+L1
+Servizi Clienti
+Triage Intelligente Ticket in Base al Sentiment (AI)
+Agentico
+L2
+Servizi Clienti
+Routing Automatico Ticket (Intento) al Team Specializzato
+Agentico
+L2
+Servizi Clienti
+Self-Service Avanzato (Agente AI) per Stato Ordine/Rimborso
+Conversazionale
+L2
+Servizi Clienti
+Automazione Post-Interazione: Riassunto Chiamata (GPT)
+Generativo
+L2
+Servizi Clienti
+Aggiornamento Scheda Cliente CRM Post-Chiamata (Action Item)
+No-IA
+L2
+Servizi Clienti
+Sondaggio CSAT/NPS Automatico Post-Risoluzione Ticket
+No-IA
+L0
+Servizi Clienti
+Notifica Slack/Teams Ticket Non Assegnati (>24h)
+No-IA
+L0
+Servizi Clienti
+Creazione Bozza di Risposta per Agente (IA Assistita)
+Generativo
+L1
+Servizi Clienti
+Autenticazione Utente IVR/Voicebot (Sincronizzazione Dati)
+Conversazionale
+L2
+Servizi Clienti
+Generazione Ticket Automatico da Email non Strutturata
+Altro
+L1
+Servizi Clienti
+Escalation Automatica Ticket (Senza Risposta)
+No-IA
+L1
+Servizi Clienti
+Analisi Predittiva Volumi Ticket (Previsione Domanda)
+Predittiva
+L2
+Servizi Clienti
+Gestione Rimborsi/Resi Semi-Automatizzata (Approvazione 1-Click)
+No-IA
+L1
+Servizi Clienti
+Notifica SMS/WhatsApp Conferma Ricezione Ticket
+Conversazionale
+L0
+Servizi Clienti
+Training Continuo Chatbot (Identificazione Nuove FAQ)
+Agentico
+L2
+Servizi Clienti
+Creazione Report Causa Radice (Analisi Dati Ticket GPT)
+Generativo
+L2
+Servizi Clienti
+Monitoraggio Performance SLA in Tempo Reale
+No-IA
+L1
+Servizi Clienti
+Gestione Richieste di Diritto all'Esportazione Dati (GDPR)
+No-IA
+L1
+Servizi Clienti
+Integrazione Canali Social (DM) in Piattaforma Helpdesk
+No-IA
+L1
+Servizi Clienti
+Classificazione Prodotti/Servizi Menenti in Chat
+Agentico
+L2
+Palestre
+Automazione Controllo Accessi Tornello (Scadenza Abbonamento)
+No-IA
+L1
+Palestre
+Promemoria Scadenza Abbonamento (Email/WhatsApp Spoki)
+Conversazionale
+L0
+Palestre
+Gestione Pagamenti Ricorrenti Falliti (Retry Autom.)
+No-IA
+L1
+Palestre
+Chatbot Iscrizione e Orari (FAQ)
+Conversazionale
+L0
+Palestre
+Qualificazione Lead (Trial Pass) con Assegnazione Trainer (AI)
+Agentico
+L2
+Palestre
+Invio Contenuti Personalizzati (Programmi Allenamento GPT)
+Generativo
+L1
+Palestre
+Integrazione App Booking Lezioni - Registro Presenze
+No-IA
+L1
+Palestre
+Notifica Prossimo Posto Libero (Lista d'Attesa)
+Conversazionale
+L1
+Palestre
+Generazione Report Turn-over Membri e Fidelizzazione
+No-IA
+L1
+Palestre
+Analisi Sentiment Feedback Corsi/Istruttori (OpenAI)
+Agentico
+L2
+Palestre
+Sincronizzazione Dati Nutrizionali Personalizzati (App/DB)
+No-IA
+L1
+Palestre
+Promemoria Idratazione/Pausa (Notifica In-App)
+No-IA
+L0
+Palestre
+Gestione Scorte Prodotti Vendita (Bar/Integratori)
+No-IA
+L1
+Palestre
+Invio Buoni Sconto (Compleanno) Automatici
+No-IA
+L0
+Palestre
+Triage Richieste Manutenzione Attrezzature (Staff)
+No-IA
+L0
+Palestre
+Monitoraggio Utilizzo Attrezzature (Predittiva Manutenzione)
+Predittiva
+L2
+Palestre
+Gestione Risposta Automatica Richieste di Disdetta
+Generativo
+L1
+Palestre
+Registrazione Firma Digitale (Contratto Iscrizione)
+No-IA
+L0
+Palestre
+Invio Notifica Massiva (Chiusura Straordinaria/Eventi)
+No-IA
+L0
+Palestre
+Creazione Schede Anamnesi Sportiva (Parsing Questionari)
+Altro
+L1
+Farmacie (Cont.)
+Gestione richieste di Diritto all'Oblio (Dati Sanitari)
+No-IA
+L2
+Farmacie (Cont.)
+Notifica farmaci in Scorta Minima
+No-IA
+L1
+Notai (Cont.)
+Creazione Voci di Costo in Fattura da Preventivo (No-IA)
+No-IA
+L1
+Notai (Cont.)
+Assegnazione Pratica (Lead) al Collaboratore di Studio
+Agentico
+L1
+Notai (Cont.)
+Alert Variazione Normativa (Web Scraping Leggi)
+Altro
+L2
+Gioiellerie (Cont.)
+Generazione Certificati di Autenticità (Stampa Autom.)
+No-IA
+L0
+Food-Chain (Cont.)
+Generazione Codici Promozionali Personalizzati (IA)
+Generativo
+L1
+Food-Chain (Cont.)
+Allerta Recensione 1 Stella (Immediata)
+Agentico
+L1
+Agenzie Immobiliari (Cont.)
+Promemoria Scadenza Incarico Esclusiva Proprietario
+No-IA
+L0
+Hotel e B&B (Cont.)
+Invio Mappa e Istruzioni Parcheggio Automatico
+No-IA
+L0
+Hotel e B&B (Cont.)
+Analisi Profondità del Feedback (GPT)
+Generativo
+L2
+Servizi Clienti (Cont.)
+Triage in Tempo Reale Chat (Priorità Alta/Bassa)
+Agentico
+L2
+Palestre (Cont.)
+Invio automatico Vademecum Nuovi Iscritti
+No-IA
+L0
+No-Profit (Cont.)
+Monitoraggio Compliance GDPR/DPA di Terze Parti
+Altro
+L2
+Notai (Cont.)
+Gestione Flusso Lavoro Firma Digitale Remota
+No-IA
+L1
+Gioiellerie (Cont.)
+Tracciamento Fornitori Materie Prime (Logistica)
+No-IA
+L1
+Food-Chain (Cont.)
+Sincronizzazione Aggiornamenti Menu Multi-Sede
+No-IA
+L1
+Agenzie Immobiliari (Cont.)
+Rilevamento Falsi Lead/Spam da Portali (AI)
+Agentico
+L2
+Farmacie (Cont.)
+Gestione Ordine Prodotto Esaurito (Notifica Autom.)
+No-IA
+L0
+Hotel e B&B (Cont.)
+Raccolta Dati Preferenze Alimentari Ospiti (CRM)
+No-IA
+L0
+Servizi Clienti (Cont.)
+Voicebot per Reset Password/FAQ Telefoniche
+Conversazionale
+L2
+Palestre (Cont.)
+Gestione Iscrizioni Online e Firma Contratto (n8n)
+No-IA
+L0
+Notai (Cont.)
+Generazione Lista Documenti Richiesti (Tipo Atto Rule-Based)
+No-IA
+L1
+Farmacie (Cont.)
+Archiviazione Ottimizzata Report Magazzino (GCP)
+No-IA
+L1
+Food-Chain (Cont.)
+Previsione Sprechi Materie Prime (Scarti/Predittiva)
+Predittiva
+L2
+Servizi Clienti (Cont.)
+Triage Urgente (Parole Chiave Tossiche) - Escalation
+Agentico
+L2
+Gioiellerie (Cont.)
+Analisi Scorte in Base a Tendenze Moda (Predittiva IA)
+Predittiva
+L2
+Agenzie Immobiliari (Cont.)
+Generazione Report Valutazione Immobile (Dati Catastali)
+Generativo
+L1
+Locali con Liste (Cont.)
+Sincronizzazione Lista Bottiglie/Tavoli Consumati
+No-IA
+L0
+Palestre (Cont.)
+Automazione Invio Scontrini Fiscale Abbonamenti
+No-IA
+L0
+Hotel e B&B (Cont.)
+Chiusura Automatica Serratura Smart al Check-out
+No-IA
+L0
+No-Profit (Cont.)
+Invio Ringraziamenti per Evento (AI)
+Generativo
+L1
+Farmacie (Cont.)
+Promemoria Scadenza Ricetta Elettronica (Non Terapia Cronica)
+No-IA
+L1
+Notai (Cont.)
+Controllo Unicità Nominativo Pratica (Anti-Duplicazione)
+No-IA
+L0
+Food-Chain (Cont.)
+Notifica Scadenza Licenza/Certificazioni Igiene
+No-IA
+L0
+Servizi Clienti (Cont.)
+Triage Linguistico (Multi-Lingua) del Ticket
+Agentico
+L2
+Agenzie Immobiliari (Cont.)
+Invio Feedback Negativo Cliente a Gestore (Urgente)
+No-IA
+L0
+Gioiellerie (Cont.)
+Allerta Anti-Frode (Pattern Sospetti Acquisti Online)
+Agentico
+L2
+Locali con Liste (Cont.)
+Generazione Voci di Spesa (Bar) da Dati POS
+No-IA
+L1
+Palestre (Cont.)
+Allerta Utilizzo Eccessivo Impianto (Utenze)
+Predittiva
+L2
+Farmacie (Cont.)
+Creazione Dashboard Magazzino Ottimizzazione (BI)
+No-IA
+L1
+Hotel e B&B (Cont.)
+Predizione Tariffe Ottimali (Dynamic Pricing RevPAR)
+Predittiva
+L2
+Servizi Clienti (Cont.)
+Anonimizzazione Dati Cliente per Addestramento IA (GDPR)
+No-IA
+L2
+Notai (Cont.)
+Monitoraggio Pagamenti Imposte/Tasse Post-Atto
+No-IA
+L1
+No-Profit (Cont.)
+Generazione Lettera Annuale Bilancio Sociale (GPT)
+Generativo
+L1
+Food-Chain (Cont.)
+Analisi Prestazioni Menù (Bestseller/Flop Predittiva)
+Predittiva
+L2
+Agenzie Immobiliari (Cont.)
+Automazione Creazione Annunci su Portali Minori (Scraping/API)
+Altro
+L1
+Gioiellerie (Cont.)
+Gestione Lotti Produzione e Tracciamento (ERP Sync)
+No-IA
+L1
+Palestre (Cont.)
+Richiesta Certificato Medico (Scadenza Automatica)
+No-IA
+L0
+Locali con Liste (Cont.)
+Chatbot Riserva Tavolo (Caparra e Conferma Spoki)
+Conversazionale
+L1
+Farmacie (Cont.)
+Triage Ricette (Tipo di Farmaco/Disponibilità)
+Agentico
+L2
+Hotel e B&B (Cont.)
+Invio Fattura Automatica Post-Check-out
+No-IA
+L0
+Servizi Clienti (Cont.)
+Automazione Richiesta Dati Mancanti (Ticket Incompleto)
+Generativo
+L1
+Notai (Cont.)
+Notifica Esito Visure Catastali (Sister)
+No-IA
+L1
+No-Profit (Cont.)
+Onboarding Membri con Questionario Dati (Compliance)
+No-IA
+L0
+Food-Chain (Cont.)
+Report Settimanale Tendenze Consumo (IA)
+Generativo
+L2
+Agenzie Immobiliari (Cont.)
+Invio Documentazione Pre-Acquisto (Schede Tecniche)
+No-IA
+L0
+Gioiellerie (Cont.)
+Notifica al Cliente Avvenuta Consegna/Ritiro Prodotto
+No-IA
+L0
+Palestre (Cont.)
+Automazione Blocco Accesso (Mancato Pagamento)
+No-IA
+L1
+Locali con Liste (Cont.)
+Generazione Lista Contatti per Azioni Remarketing
+No-IA
+L1
+Farmacie (Cont.)
+Monitoraggio Prezzi Concorrenti E-commerce (Scraping)
+Altro
+L2
+Hotel e B&B (Cont.)
+Invio Messa a Disposizione Camera (Anticipo Check-in)
+Conversazionale
+L1
+Servizi Clienti (Cont.)
+Suggerimenti Articoli Knowledge Base (AI) per Agente
+Generativo
+L2
+Notai (Cont.)
+Allerta Ritardo Consegna Documentazione Cliente
+No-IA
+L0
+No-Profit (Cont.)
+Monitoraggio Scadenze PNRR/Fondi (Alert Interno)
+No-IA
+L1
+Food-Chain (Cont.)
+Gestione Ordini Interni Staff (Vestiario, Materiale)
+No-IA
+L0
+Agenzie Immobiliari (Cont.)
+Gestione Appuntamenti Multipli (Calendario Condiviso)
+No-IA
+L0
+Gioiellerie (Cont.)
+Allerta Variazioni Giurisprudenza di Settore (Scraping)
+Altro
+L2
+Palestre (Cont.)
+Gestione Pacchetti Lezioni Scaduti (Recupero)
+No-IA
+L1
+Locali con Liste (Cont.)
+Generazione Voci di Spesa Tavoli per Contabilità
+No-IA
+L1
+Farmacie (Cont.)
+Feedback Qualità Fornitori (Analisi Ordini/Ritardi)
+Agentico
+L2
+Hotel e B&B (Cont.)
+Invio Link Pagamento Tassa di Soggiorno (Automatizzato)
+No-IA
+L0
+Servizi Clienti (Cont.)
+Segmentazione Cliente da Sentiment (Loyalty/Churn)
+Agentico
+L2
+Notai (Cont.)
+Automazione Registrazione Documenti in Archivio Elettronico
+No-IA
+L0
+No-Profit (Cont.)
+Traduzione Automatica (GPT) Contenuti per Donatori Esteri
+Generativo
+L1
+Food-Chain (Cont.)
+Previsione Fabbisogno Scorte (Predittiva IA)
+Predittiva
+L2
+Agenzie Immobiliari (Cont.)
+Generazione Contratto Base di Proposta (IA)
+Generativo
+L1
+Gioiellerie (Cont.)
+Notifica Cliente (WhatsApp) Prodotto Pronto per Ritiro
+Conversazionale
+L0
+Palestre (Cont.)
+Assegnazione Cliente a Gruppi di Iscrizione (Segmentazione)
+No-IA
+L0
+Locali con Liste (Cont.)
+Analisi Geografica (GCP) Provenienza Ospiti
+Altro
+L1
+Farmacie (Cont.)
+Ottimizzazione Piano Promozionale (Predittiva Sconti)
+Predittiva
+L2
+Hotel e B&B (Cont.)
+Controllo Recensioni False/Bias (AI)
+Agentico
+L2
+Servizi Clienti (Cont.)
+Monitoraggio Dati di Contatto Obsoleti (CRM Clean-up)
+No-IA
+L1
+Notai (Cont.)
+Creazione Log Audit Trattamento Dati (GDPR)
+No-IA
+L2
+No-Profit (Cont.)
+Gestione Pagamenti Volontari (Rimborso Spese)
+No-IA
+L0
+Food-Chain (Cont.)
+Generazione Etichette Prodotti (Data Scadenza Autom.)
+Generativo
+L1
+Agenzie Immobiliari (Cont.)
+Invio Email (Autom.) Richiesta Dati Aggiuntivi Cliente
+Generativo
+L0
+Gioiellerie (Cont.)
+Previsione Domanda per Categoria (Predittiva)
+Predittiva
+L2
+Palestre (Cont.)
+Gestione Sospensione Abbonamento (Autom.)
+No-IA
+L0
+Locali con Liste (Cont.)
+Triage Eventi Privati (Valutazione Budget Minimo)
+Agentico
+L2
+Farmacie (Cont.)
+Notifica Urgente Errori Parsing DDT
+No-IA
+L2
+Hotel e B&B (Cont.)
+Report Giornaliero Pulizia Camere (Stato)
+No-IA
+L0
+Servizi Clienti (Cont.)
+Riassunto Trasferimento Chiamata (Agente a Team Leader)
+Generativo
+L2
+Notai (Cont.)
+Backup Automatico Dati Su GCP Vault Sicuro
+No-IA
+L1
+No-Profit (Cont.)
+Creazione Dashboard KPI Volontariato (Notion/Airtable)
+No-IA
+L0
+Food-Chain (Cont.)
+Notifica a Cliente (WhatsApp) Fine Preparazione Ordine
+Conversazionale
+L1
+Agenzie Immobiliari (Cont.)
+Allerta Mancata Risposta Lead Qualificato (>24h)
+Agentico
+L1
+Gioiellerie (Cont.)
+Gestione Dati Cliente VIP (Tracciamento Acquisti)
+No-IA
+L1
+Palestre (Cont.)
+Gestione Richiesta Interruzione Temporanea Servizio
+No-IA
+L0
+Locali con Liste (Cont.)
+Invio Offerte Last Minute (Posti Invenduti)
+Generativo
+L1
+Farmacie (Cont.)
+Triage Domande Chatbot (Mediche vs. Cosmetiche)
+Agentico
+L2
+Hotel e B&B (Cont.)
+Automazione Gestione Cauzione (Pre-Autorizzazione Carta)
+No-IA
+L1
+Servizi Clienti (Cont.)
+Classificazione Causa di Churn (Analisi GPT)
+Agentico
+L2
+Notai (Cont.)
+Rilevamento Anomalie Documentali (IA)
+Agentico
+L2
+No-Profit (Cont.)
+Segmentazione Potenziale Donatore (AI)
+Agentico
+L2
+Food-Chain (Cont.)
+Ottimizzazione Prezzi Menù Basata su Margine/Domanda
+Predittiva
+L2
+Agenzie Immobiliari (Cont.)
+Monitoraggio Modifiche Annunci (Controllo Qualità)
+No-IA
+L1
+Gioiellerie (Cont.)
+Notifica Esito Controllo Qualità Gioiello (Staff)
+No-IA
+L0
+Palestre (Cont.)
+Monitoraggio Frequenza Allenamenti (Intervento Istruttore)
+Agentico
+L2
+Locali con Liste (Cont.)
+Gestione Inviti Compleanno Personalizzati (AI)
+Generativo
+L1
+Farmacie (Cont.)
+Generazione di Riepiloghi Terapici (Uso Interno - IA)
+Generativo
+L2
+Hotel e B&B (Cont.)
+Promemoria Check-out (Ora/Istruzioni)
+Conversazionale
+L0
+Servizi Clienti (Cont.)
+Invio Link di Pagamento in Chat (Self-Service)
+Conversazionale
+L1
+Notai (Cont.)
+Controllo Coerenza Dati Cliente (Anagrafica)
+No-IA
+L1
+No-Profit (Cont.)
+Creazione Automatica Budget Progetto (Fogli di Calcolo)
+No-IA
+L0
+Food-Chain (Cont.)
+Gestione Lamentele (Sentiment Analysis)
+Agentico
+L1
+Agenzie Immobiliari (Cont.)
+Segmentazione Cliente in Base a Storico Ricerca
+No-IA
+L1
+Gioiellerie (Cont.)
+Controllo Conformità Etichettatura (Rule-Based)
+No-IA
+L1
+Palestre (Cont.)
+Richiesta Feedback Post-Lezione (Istruttore)
+No-IA
+L0
+Locali con Liste (Cont.)
+Generazione Lista Ospiti in Formato Excel per Ingresso
+No-IA
+L0
+Farmacie (Cont.)
+Gestione Ordine Prodotto Non Disponibile (Backorder)
+No-IA
+L1
+Hotel e B&B (Cont.)
+Integrazione Telecamera/Serratura Smart per Log Accessi
+No-IA
+L1
+Servizi Clienti (Cont.)
+Generazione Report Compliance GDPR (Audit Trail)
+No-IA
+L2
+Notai (Cont.)
+Analisi Rischio Operazione Immobiliare (Dati)
+Predittiva
+L2
+No-Profit (Cont.)
+Richiesta Rinnovo Tesseramento Annuale (Autom.)
+No-IA
+L0
+Food-Chain (Cont.)
+Gestione Ordini Interni Materie Prime (Magazzino Sede)
+No-IA
+L1
+Agenzie Immobiliari (Cont.)
+Analisi Prestazioni Annunci (ROAS/Click-through)
+Altro
+L2
+Gioiellerie (Cont.)
+Creazione Bozza Offerta Personalizzata per Cliente VIP
+Generativo
+L1
+Palestre (Cont.)
+Invio Notifiche Promozioni Servizi Aggiuntivi
+No-IA
+L0
+Locali con Liste (Cont.)
+Conversazionale Chatbot Prenotazione Tavoli (Spoki)
+Conversazionale
+L1
+Farmacie (Cont.)
+Automazione del Carico Merce da Parsing DDT
+No-IA
+L1
+Hotel e B&B (Cont.)
+Gestione Richiesta Culla/Letto Aggiuntivo (Staff Notifica)
+No-IA
+L0
+Servizi Clienti (Cont.)
+Agente AI per la Risoluzione di Problemi Semplici
+Agentico
+L2
+Notai (Cont.)
+Sincronizzazione Scadenze con Calendario Condiviso
+No-IA
+L0
+No-Profit (Cont.)
+Follow-up E-commerce (Merchandise/Gadget)
+No-IA
+L1
+Food-Chain (Cont.)
+Raccolta Dati Cliente Wi-Fi (Consenso Marketing)
+No-IA
+L0
+Agenzie Immobiliari (Cont.)
+Generazione Scheda Comparativa Valutazione Immobile (IA)
+Generativo
+L2
+Gioiellerie (Cont.)
+Invio Listino Prezzi Fornitori Aggiornato (Parsing)
+Altro
+L1
+Palestre (Cont.)
+Analisi Abbandono Iscritti (Predittiva Churn Rate)
+Predittiva
+L2
+Locali con Liste (Cont.)
+Invio Dettagli Evento/Dress Code Automatico
+No-IA
+L0
+Farmacie (Cont.)
+Generazione Riepilogo Acquisti (Fini Marketing GDPR)
+No-IA
+L1
+Hotel e B&B (Cont.)
+Monitoraggio Previsioni Meteo (Offerte Last Minute Predittive)
+Predittiva
+L2
+Servizi Clienti (Cont.)
+Integrazione Sistema Piattaforma Legacy (n8n Bridge)
+Altro
+L2
+Notai (Cont.)
+Automazione Controllo Legge Anti-Riciclaggio (Dati)
+Agentico
+L2
+No-Profit (Cont.)
+Gestione Richieste Rimborsi (Rule-Based)
+No-IA
+L0
+Food-Chain (Cont.)
+Notifica al Manager su Recensione Positiva (Incentivo Staff)
+No-IA
+L0
+Agenzie Immobiliari (Cont.)
+Raccolta Documenti Proprietario (Incarico)
+No-IA
+L0
+Gioiellerie (Cont.)
+Promemoria Manutenzione Periodica (Orologi Lusso)
+No-IA
+L1
+Palestre (Cont.)
+Notifica Posti Disponibili Classi (Conversazionale)
+Conversazionale
+L0
+Locali con Liste (Cont.)
+Triage Richieste Tavoli VIP (Agentico)
+Agentico
+L2
+Farmacie (Cont.)
+Generazione di Messaggi di Marketing (GPT)
+Generativo
+L1
+Hotel e B&B (Cont.)
+Gestione Richieste Diritti GDPR (Rimozione Dati Ospite)
+No-IA
+L1
+Servizi Clienti (Cont.)
+Generazione FAQ Dinamiche da Storico Ticket (GPT)
+Generativo
+L2
+Notai (Cont.)
+Creazione Report Fiscale su Transazioni
+No-IA
+L1
+No-Profit (Cont.)
+Analisi Efficacia Canale di Donazione (Analytics)
+Predittiva
+L2
+Food-Chain (Cont.)
+Gestione Liste di Attesa Tavoli (Notifica Via Chat)
+Conversazionale
+L1
+Agenzie Immobiliari (Cont.)
+Allerta Variazione Tassi Mutui (Predittiva)
+Predittiva
+L2
+Gioiellerie (Cont.)
+Gestione Pagamenti a Rate/Finanziamenti Cliente
+No-IA
+L1
+Palestre (Cont.)
+Generazione Testimonianze (Recensioni) Assistita da IA
+Generativo
+L1
+Locali con Liste (Cont.)
+Check-in Veloce (Scansione QR Code)
+No-IA
+L0
+Farmacie (Cont.)
+Integrazione Telemedicina (Pianificazione Consulti)
+No-IA
+L2
+Hotel e B&B (Cont.)
+Gestione Richiesta Servizio in Camera (Chatbot)
+Conversazionale
+L1
+Servizi Clienti (Cont.)
+Monitoraggio Velocità di Risoluzione (Agente/AI)
+Predittiva
+L2
+Notai (Cont.)
+Controllo Dati Partita IVA e Registro Imprese
+No-IA
+L0
+No-Profit (Cont.)
+Generazione Biglietti di Ringraziamento Scritti a Mano (Robotica)
+Altro
+L2
+Food-Chain (Cont.)
+Tracciamento Fornitori Bio/Certificati (Compliance Log)
+No-IA
+L1
+Agenzie Immobiliari (Cont.)
+Integrazione Dati Storici Prezzi Vendita (Valutazione)
+Predittiva
+L2
+Gioiellerie (Cont.)
+Notifica Scadenza Assicurazione Oggetti di Valore
+No-IA
+L0
+Palestre (Cont.)
+Generazione Contenuti Video Personalizzati (Deepfake Training)
+Generativo
+L2
+Locali con Liste (Cont.)
+Analisi Orari Picco/Flusso Ingresso (Report)
+No-IA
+L0
+Farmacie (Cont.)
+Riordino Basato su Promozioni Fornitori (Predittiva)
+Predittiva
+L2
+Hotel e B&B (Cont.)
+Sincronizzazione Calendario PMS con Pulizie (Real-Time)
+No-IA
+L1
+Servizi Clienti (Cont.)
+Traduzione Chat in Tempo Reale per Agente Umano
+Generativo
+L1
+Notai (Cont.)
+Richiesta Informazioni Mancanti (Cliente) via WhatsApp
+Conversazionale
+L0
+No-Profit (Cont.)
+Automazione Raccolta Quote Iscrizione (Tesseramento)
+No-IA
+L0
+Food-Chain (Cont.)
+Gestione Feedback Negativi in Tempo Reale (Intervento Staff)
+Agentico
+L2
+Agenzie Immobiliari (Cont.)
+Promozione Incrociata Servizi (Mutui/Assicurazioni)
+No-IA
+L1
+Gioiellerie (Cont.)
+Creazione Automatica Schede Caratteristiche Pietre
+Generativo
+L1
+Palestre (Cont.)
+Triage Richieste Sostituzione Istruttore (Agentico)
+Agentico
+L2
+Locali con Liste (Cont.)
+Allerta PR su Obiettivi Raggiunti (KPI)
+No-IA
+L0
+Farmacie (Cont.)
+Invio Notifica (WhatsApp) Ritardo Rifornimento Critico
+No-IA
+L1
+Hotel e B&B (Cont.)
+Automazione Triage Richieste (Staff Reception)
+Agentico
+L2
+Servizi Clienti (Cont.)
+Identificazione Cliente ad Alto Valore (Priorità Ticket)
+Agentico
+L2
+Notai (Cont.)
+Generazione Sommario Pratica (Uso Interno)
+Generativo
+L1
+No-Profit (Cont.)
+Automazione Consegna Materiale Digitale/Tessera (Post-Donazione)
+No-IA
+L0
+Food-Chain (Cont.)
+Gestione Prenotazioni Gruppi (Chatbot Complesso)
+Conversazionale
+L2
+Agenzie Immobiliari (Cont.)
+Matching Richieste Ipotecarie con Banche Dati
+Altro
+L2
+Gioiellerie (Cont.)
+Log Audit per Conformità Legale (Tracciamento)
+No-IA
+L2
+Palestre (Cont.)
+Gestione Logistica Materiale (Tappetini, Asciugamani)
+No-IA
+L0
+Locali con Liste (Cont.)
+Analisi Flusso di Cassa Evento (Tempo Reale)
+No-IA
+L1
+Farmacie (Cont.)
+Integrazione Telemedicina (Pianificazione Consulti)
+No-IA
+L2
+Hotel e B&B (Cont.)
+Promozione Eventi Locali agli Ospiti (Personalizzata IA)
+Generativo
+L1
+Servizi Clienti (Cont.)
+Automazione Feedback Loop (Risoluzione a Sviluppo Prodotto)
+No-IA
+L2
+Notai (Cont.)
+Aggiornamento Scheda Cliente su Modifica Dati Personali
+No-IA
+L0
+No-Profit (Cont.)
+Rilevamento Donazioni Sospette (Anti-Riciclaggio IA)
+Agentico
+L2
+Food-Chain (Cont.)
+Generazione di Immagini Promozionali (GPT Vision/DALLE)
+Generativo
+L1
+Agenzie Immobiliari (Cont.)
+Notifica Agente Su Proposta Acquisto Ricevuta
+No-IA
+L0
+Gioiellerie (Cont.)
+Gestione Schede Materiali (Compliance Etica/Origine)
+No-IA
+L1
+Palestre (Cont.)
+Generazione Contratto Elettronico di Iscrizione
+No-IA
+L0
+Locali con Liste (Cont.)
+Analisi Temi Ricorrenti (Feedback) per Miglioramento Locale
+Agentico
+L2
+Farmacie (Cont.)
+Integrazione Piattaforme Loyalty (Punti/Sconti)
+No-IA
+L1
+Hotel e B&B (Cont.)
+Generazione Bozza Risposta (Reclamo Igiene)
+Generativo
+L1
+Servizi Clienti (Cont.)
+Chatbot per FAQ Complesse Interne (Supporto IT/HR)
+Conversazionale
+L2
+Notai (Cont.)
+Creazione Dossier Telematico Post-Atto
+No-IA
+L1
+No-Profit (Cont.)
+Notifica Scadenza Consenso GDPR (Rinnovo Automatico)
+No-IA
+L1
+Food-Chain (Cont.)
+Report Settimanale Performance Delivery (Piattaforma X)
+No-IA
+L0
+Agenzie Immobiliari (Cont.)
+Aggiornamento Dati Valutazione (Prezzi Mercato)
+Predittiva
+L2
+Gioiellerie (Cont.)
+Segmentazione Clienti per Materiale Preferito (Oro/Argento)
+No-IA
+L1
+Palestre (Cont.)
+Integrazione Wearable Data con App Istruttore
+Altro
+L2
+Locali con Liste (Cont.)
+Generazione Messaggio di Scuse (Cancellazione Evento)
+Generativo
+L0
+Farmacie (Cont.)
+Monitoraggio Inventario Prodotti Dietetici/Cosmetici
+No-IA
+L0
+Hotel e B&B (Cont.)
+Automazione Apertura/Chiusura Impianti (Risparmio Energetico)
+Altro
+L2
+Servizi Clienti (Cont.)
+Assegnazione Ticket a Chatbot in Base a Volume Traffico
+Agentico
+L2
+
+
+
+
