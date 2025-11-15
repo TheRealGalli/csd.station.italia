@@ -1,7 +1,20 @@
 import React, { useEffect, useMemo, useState } from 'react';
 
 export default function WorkflowPage({ workflow, onClose }) {
-	const workerUrl = import.meta.env.VITE_WORKER_URL || 'https://csd-station-api-346681848489.europe-west8.run.app';
+	// Risolvi URL backend in modo robusto per evitare chiamate relative su GitHub Pages
+	const workerUrl = (() => {
+		const DEFAULT_API = 'https://csd-station-api-346681848489.europe-west8.run.app';
+		const env = import.meta.env.VITE_WORKER_URL;
+		const onGithubPages = (typeof window !== 'undefined') && /\.github\.io$/.test(window.location.hostname);
+		if (onGithubPages) return DEFAULT_API;
+		if (typeof env === 'string' && /^https?:\/\//i.test(env.trim())) {
+			return env.trim().replace(/\/+$/, '');
+		}
+		if (typeof env === 'string' && env.trim() && !/^https?:\/\//i.test(env.trim())) {
+			return DEFAULT_API;
+		}
+		return DEFAULT_API;
+	})();
 	const [prompt, setPrompt] = useState('');
 	const [content, setContent] = useState('');
 	const [loading, setLoading] = useState(true);

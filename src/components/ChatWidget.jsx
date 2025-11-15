@@ -9,7 +9,22 @@ export default function ChatWidget({ open = false, onClose, onOpen }) {
 	const listRef = useRef(null);
 	const [openReasoning, setOpenReasoning] = useState({});
 
-	const workerUrl = import.meta.env.VITE_WORKER_URL || 'https://csd-station-api-346681848489.europe-west8.run.app';
+	// Risolvi URL backend in modo robusto: se VITE_WORKER_URL non è un https valido
+	// o se siamo su GitHub Pages, usa Cloud Run di default.
+	const workerUrl = (() => {
+		const DEFAULT_API = 'https://csd-station-api-346681848489.europe-west8.run.app';
+		const env = import.meta.env.VITE_WORKER_URL;
+		const onGithubPages = (typeof window !== 'undefined') && /\.github\.io$/.test(window.location.hostname);
+		if (onGithubPages) return DEFAULT_API;
+		if (typeof env === 'string' && /^https?:\/\//i.test(env.trim())) {
+			return env.trim().replace(/\/+$/, '');
+		}
+		if (typeof env === 'string' && env.trim() && !/^https?:\/\//i.test(env.trim())) {
+			// evita usare path relative in produzione
+			return DEFAULT_API;
+		}
+		return DEFAULT_API;
+	})();
 
 	function resetConversation() {
 		setMessages([{ role: 'assistant', content: 'Ciao! Sono l’assistente CSD Station Italia. Come posso aiutarti?' }]);
