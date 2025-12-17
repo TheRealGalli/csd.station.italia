@@ -115,11 +115,38 @@ export default function Home({ onOpenChat }) {
 					<span className="text-xs font-bold tracking-[0.2em] text-gray-500 uppercase">
 						Powered by World-Class Infrastructure
 					</span>
-					<div className="flex flex-wrap justify-center gap-6 md:gap-8">
-						<img src="https://img.shields.io/badge/GoogleCloud-%234285F4.svg?style=for-the-badge&logo=google-cloud&logoColor=white" alt="Google Cloud" className="h-8 opacity-80 hover:opacity-100 transition-opacity" />
-						<img src="https://img.shields.io/badge/azure-%230072C6.svg?style=for-the-badge&logo=microsoftazure&logoColor=white" alt="Microsoft Azure" className="h-8 opacity-80 hover:opacity-100 transition-opacity" />
-						<img src="https://img.shields.io/badge/OpenAI-412991.svg?style=for-the-badge&logo=openai&logoColor=white" alt="OpenAI" className="h-8 opacity-80 hover:opacity-100 transition-opacity" />
-						<img src="https://img.shields.io/badge/Google-4285F4.svg?style=for-the-badge&logo=google&logoColor=white" alt="Google" className="h-8 opacity-80 hover:opacity-100 transition-opacity" />
+					<div className="flex flex-wrap justify-center gap-4 max-w-4xl mx-auto">
+						{/* Infrastructure & Cloud */}
+						<img src="https://img.shields.io/badge/GoogleCloud-%234285F4.svg?style=for-the-badge&logo=google-cloud&logoColor=white" alt="Google Cloud" className="h-7 opacity-80 hover:opacity-100 transition-opacity" />
+						<img src="https://img.shields.io/badge/azure-%230072C6.svg?style=for-the-badge&logo=microsoftazure&logoColor=white" alt="Azure" className="h-7 opacity-80 hover:opacity-100 transition-opacity" />
+						<img src="https://img.shields.io/badge/OpenAI-412991.svg?style=for-the-badge&logo=openai&logoColor=white" alt="OpenAI" className="h-7 opacity-80 hover:opacity-100 transition-opacity" />
+						<img src="https://img.shields.io/badge/Google-4285F4.svg?style=for-the-badge&logo=google&logoColor=white" alt="Google" className="h-7 opacity-80 hover:opacity-100 transition-opacity" />
+
+						{/* Backend & Database */}
+						<img src="https://img.shields.io/badge/firebase-a08021?style=for-the-badge&logo=firebase&logoColor=ffcd34" alt="Firebase" className="h-7 opacity-80 hover:opacity-100 transition-opacity" />
+						<img src="https://img.shields.io/badge/Supabase-3ECF8E?style=for-the-badge&logo=supabase&logoColor=white" alt="Supabase" className="h-7 opacity-80 hover:opacity-100 transition-opacity" />
+						<img src="https://img.shields.io/badge/postgres-%23316192.svg?style=for-the-badge&logo=postgresql&logoColor=white" alt="Postgres" className="h-7 opacity-80 hover:opacity-100 transition-opacity" />
+						<img src="https://img.shields.io/badge/Microsoft%20SQL%20Server-CC2927?style=for-the-badge&logo=microsoft%20sql%20server&logoColor=white" alt="SQL Server" className="h-7 opacity-80 hover:opacity-100 transition-opacity" />
+						<img src="https://img.shields.io/badge/docker-%230db7ed.svg?style=for-the-badge&logo=docker&logoColor=white" alt="Docker" className="h-7 opacity-80 hover:opacity-100 transition-opacity" />
+
+						{/* Frontend & Languages */}
+						<img src="https://img.shields.io/badge/react-%2320232a.svg?style=for-the-badge&logo=react&logoColor=%2361DAFB" alt="React" className="h-7 opacity-80 hover:opacity-100 transition-opacity" />
+						<img src="https://img.shields.io/badge/vite-%23646CFF.svg?style=for-the-badge&logo=vite&logoColor=white" alt="Vite" className="h-7 opacity-80 hover:opacity-100 transition-opacity" />
+						<img src="https://img.shields.io/badge/tailwindcss-%2338B2AC.svg?style=for-the-badge&logo=tailwind-css&logoColor=white" alt="Tailwind" className="h-7 opacity-80 hover:opacity-100 transition-opacity" />
+						<img src="https://img.shields.io/badge/javascript-%23323330.svg?style=for-the-badge&logo=javascript&logoColor=%23F7DF1E" alt="JS" className="h-7 opacity-80 hover:opacity-100 transition-opacity" />
+						<img src="https://img.shields.io/badge/typescript-%23007ACC.svg?style=for-the-badge&logo=typescript&logoColor=white" alt="TS" className="h-7 opacity-80 hover:opacity-100 transition-opacity" />
+						<img src="https://img.shields.io/badge/node.js-6DA55F?style=for-the-badge&logo=node.js&logoColor=white" alt="Node" className="h-7 opacity-80 hover:opacity-100 transition-opacity" />
+						<img src="https://img.shields.io/badge/python-3670A0?style=for-the-badge&logo=python&logoColor=ffdd54" alt="Python" className="h-7 opacity-80 hover:opacity-100 transition-opacity" />
+						<img src="https://img.shields.io/badge/c++-%2300599C.svg?style=for-the-badge&logo=c%2B%2B&logoColor=white" alt="C++" className="h-7 opacity-80 hover:opacity-100 transition-opacity" />
+
+						{/* AI & Tools */}
+						<img src="https://img.shields.io/badge/PyTorch-%23EE4C2C.svg?style=for-the-badge&logo=PyTorch&logoColor=white" alt="PyTorch" className="h-7 opacity-80 hover:opacity-100 transition-opacity" />
+						<img src="https://img.shields.io/badge/TensorFlow-%23FF6F00.svg?style=for-the-badge&logo=TensorFlow&logoColor=white" alt="TensorFlow" className="h-7 opacity-80 hover:opacity-100 transition-opacity" />
+						<img src="https://img.shields.io/badge/mlflow-%23d9ead3.svg?style=for-the-badge&logo=numpy&logoColor=blue" alt="MLFlow" className="h-7 opacity-80 hover:opacity-100 transition-opacity" />
+						<img src="https://img.shields.io/badge/numpy-%23013243.svg?style=for-the-badge&logo=numpy&logoColor=white" alt="NumPy" className="h-7 opacity-80 hover:opacity-100 transition-opacity" />
+						<img src="https://img.shields.io/badge/Canva-%2300C4CC.svg?style=for-the-badge&logo=Canva&logoColor=white" alt="Canva" className="h-7 opacity-80 hover:opacity-100 transition-opacity" />
+						<img src="https://img.shields.io/badge/figma-%23F24E1E.svg?style=for-the-badge&logo=figma&logoColor=white" alt="Figma" className="h-7 opacity-80 hover:opacity-100 transition-opacity" />
+						<img src="https://img.shields.io/badge/github-%23121011.svg?style=for-the-badge&logo=github&logoColor=white" alt="Github" className="h-7 opacity-80 hover:opacity-100 transition-opacity" />
 					</div>
 				</div>
 			</section>
