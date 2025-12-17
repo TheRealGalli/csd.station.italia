@@ -177,12 +177,14 @@ export default function Home({ onOpenChat }) {
 					{/* Card 3 */}
 					<div className="glass-panel p-8 rounded-xl border border-white/10 hover:border-blue-500/30 transition-colors group">
 						<div className="h-1 w-12 bg-purple-500 mb-6 group-hover:w-24 transition-all"></div>
-						<h3 className="text-xl font-bold text-white mb-2">Agenti, Generativa & Predittiva</h3>
-						<p className="text-sm font-mono text-purple-400 mb-4 uppercase tracking-wider">Full Spectrum</p>
-						<ul className="text-gray-400 leading-relaxed space-y-2 list-disc list-inside">
-							<li><strong className="text-gray-200">Agentiche:</strong> Per azioni autonome complesse.</li>
-							<li><strong className="text-gray-200">Predittive:</strong> Per forecast e analisi trend.</li>
-							<li><strong className="text-gray-200">Automazioni No-LLM:</strong> Algoritmi logici per efficienza.</li>
+						<h3 className="text-xl font-bold text-white mb-2">Agenti, Generativa, Conversazionale & Predittiva</h3>
+						<span className="text-xs font-bold text-purple-400 tracking-widest uppercase mb-4 block">FULL SPECTRUM</span>
+						<ul className="space-y-3 text-gray-400 text-sm">
+							<li><strong className="text-white">Agentiche:</strong> Per azioni autonome complesse.</li>
+							<li><strong className="text-white">Generative:</strong> Creazione contenuti e sintesi.</li>
+							<li><strong className="text-white">Conversazionali:</strong> Chatbot evoluti e assistenti.</li>
+							<li><strong className="text-white">Predittive:</strong> Per forecast e analisi trend.</li>
+							<li><strong className="text-white">Automazioni No-LLM:</strong> Algoritmi logici per efficienza.</li>
 						</ul>
 					</div>
 				</div>
