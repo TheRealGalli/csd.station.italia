@@ -30,6 +30,13 @@ export default function WorkflowPage({ workflow, onClose }) {
 		return (
 			`Genera una pagina informativa strutturata per il workflow "${WORKFLOW_NAME}" (${WORKFLOW_SECTOR} - ${WORKFLOW_CATEGORY} - ${WORKFLOW_LEVEL}).
 
+LIVELLI DI COMPLESSITÀ TECNOLOGICA:
+- L0 (Base): Soluzioni no-code/low-code, accesso manuale, strumenti entry-level. Richiede competenze minime.
+- L1 (Intermedio): Integrazioni API, automazioni semi-automatiche, strumenti di orchestrazione (n8n, Zapier). Richiede competenze tecniche moderate.
+- L2 (Avanzato): Workflow completamente automatizzati, AI/ML, backend custom, cloud-native. Richiede competenze tecniche avanzate.
+
+Il workflow attuale è livello ${WORKFLOW_LEVEL}. Adatta contenuti, prerequisiti e complessità di conseguenza.
+
 REGOLE DI FORMATTAZIONE OBBLIGATORIE:
 - Usa ### [TITOLO SEZIONE] per le sezioni principali
 - Usa **testo** per enfasi (verrà convertito in virgolette)
@@ -52,19 +59,21 @@ Presenta uno scenario realistico nel settore con "prima/dopo":
 - Risultati tangibili
 
 ### [COME FUNZIONA]
-Spiega il flusso del workflow in 3-5 step semplici:
-- Step 1: [azione]
-- Step 2: [azione]
-- Step 3: [azione]
-Adatta la complessità al livello ${WORKFLOW_LEVEL}.
+Spiega il flusso del workflow in 3-5 step semplici. Per livello ${WORKFLOW_LEVEL}, la complessità degli step deve riflettere il livello tecnologico:
+- L0: Step accessibili senza competenze tecniche
+- L1: Step con integrazioni API/automazioni
+- L2: Step con logiche avanzate o AI
 
 ### [PREREQUISITI E INTEGRAZIONI]
 **Strumenti richiesti:**
-- Elenca strumenti/sistemi necessari (CRM, ERP, database)
+Elenca strumenti/sistemi necessari adatti al livello ${WORKFLOW_LEVEL}:
+- L0: Spreadsheet, form online, strumenti SaaS base
+- L1: CRM/ERP, piattaforme di automazione (n8n, Make)
+- L2: Cloud platforms (GCP, AWS), database, API custom
 
 **Integrazioni consigliate:**
 - Priorità: n8n, OpenAI Platform, Google Cloud, Spoki
-- Tempo di implementazione: [Rapida/Media/Complessa]
+- Tempo di implementazione: [Rapida/Media/Complessa] basato su ${WORKFLOW_LEVEL}
 
 ### [VALORE OPERATIVO]
 **Tempo Operativo Salvato (TOS):**
@@ -74,13 +83,13 @@ Stima conservativa: es. "3-5 ore/settimana, riduzione 60% del task manuale"
 Equivalente economico: es. "€200-400/mese di risparmio operativo"
 
 **Effort/Cost Indicator:**
-[Basso/Medio/Alto] con breve spiegazione
+[Basso/Medio/Alto] con breve spiegazione. L'effort cresce con il livello (L0=Basso, L2=Alto).
 
 ### [GUARDRAIL E CONSIDERAZIONI]
 Vincoli legali, settoriali, etici applicabili:
 - GDPR (se tratta dati personali)
 - Conformità settoriale (${WORKFLOW_SECTOR})
-- Limiti operativi
+- Limiti tecnici per livello ${WORKFLOW_LEVEL}
 - Ruolo del professionista (se applicabile)
 
 ### [PROSSIMI PASSI]
@@ -92,6 +101,7 @@ USER_CUSTOM_PROMPT
 IMPORTANTE:
 - Output in italiano
 - Max 1800 parole
+- Completa TUTTE le sezioni richieste senza troncare
 - Tono professionale e orientato alla soluzione
 - Non proporre preventivi o listini
 - Mantieni riferimenti chiari a ${WORKFLOW_NAME} e ${WORKFLOW_SECTOR}`
@@ -189,6 +199,21 @@ IMPORTANTE:
 			}
 
 			console.log('[Workflow Stream Ended] Total chars received:', totalChars); // DEBUG
+
+			// Validation: Check if output seems complete (contains expected sections)
+			setContent((currentContent) => {
+				const hasSections = currentContent.includes('[HEADLINE]') ||
+					currentContent.includes('[CHE COSA RISOLVE]') ||
+					currentContent.includes('[PROSSIMI PASSI]');
+				const seemsComplete = totalChars > 500 && hasSections;
+
+				if (!seemsComplete && totalChars > 0) {
+					console.warn('[Workflow] Output may be incomplete. Total chars:', totalChars);
+				}
+
+				return currentContent;
+			});
+
 			if (!received) setError('Nessun contenuto dal modello.');
 		} catch (e) {
 			console.error('[Workflow Stream Error]', e); // DEBUG
