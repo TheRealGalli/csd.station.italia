@@ -22,6 +22,11 @@ export default function Footer({ onNavigate }) {
 						<div className="text-gray-400">© {year} CSD Station — Sezione Italia</div>
 						<div className="text-gray-600 text-[10px] md:text-xs">DIE (Document Intelligence Engine) è una proprietà intellettuale riservata di Carlo Galli.</div>
 					</div>
+					<div className="flex flex-wrap gap-2">
+						<span className="px-3 py-1 rounded-full bg-accent/10 text-accent font-semibold text-xs">AI Agentics</span>
+						<span className="px-3 py-1 rounded-full bg-accent/10 text-accent font-semibold text-xs">Automazione</span>
+						<span className="px-3 py-1 rounded-full bg-accent/10 text-accent font-semibold text-xs">OpenAI SDK</span>
+					</div>
 
 				</div>
 				{/* Nuova riga: quick links + social compatti vicino ai badge */}
@@ -29,14 +34,7 @@ export default function Footer({ onNavigate }) {
 					<nav className="flex items-center gap-4">
 						<button onClick={() => onNavigate?.('documentation')} className="text-cream opacity-90 hover:opacity-100 font-medium transition-colors text-left">Documentation</button>
 						<button className="text-white/60 hover:text-white/80 transition-colors text-left" disabled title="In arrivo">QR Code</button>
-						<div className="flex flex-col items-end gap-1">
-							<button onClick={() => onNavigate?.('contatti')} className="text-cream opacity-90 hover:opacity-100 font-medium transition-colors text-left">Servizio Clienti</button>
-							<div className="flex gap-1.5">
-								<span className="px-2 py-0.5 rounded-full bg-accent/10 text-accent font-semibold text-[10px]">AI Agentics</span>
-								<span className="px-2 py-0.5 rounded-full bg-accent/10 text-accent font-semibold text-[10px]">Automazione</span>
-								<span className="px-2 py-0.5 rounded-full bg-accent/10 text-accent font-semibold text-[10px]">OpenAI SDK</span>
-							</div>
-						</div>
+						<button onClick={() => onNavigate?.('contatti')} className="text-cream opacity-90 hover:opacity-100 font-medium transition-colors text-left">Servizio Clienti</button>
 						<button className="text-white/60 hover:text-white/80 transition-colors text-left" disabled title="In arrivo">Careers</button>
 					</nav>
 					<div className="flex items-center gap-4">
