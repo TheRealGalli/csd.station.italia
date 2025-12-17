@@ -178,7 +178,7 @@ export default function Home({ onOpenChat }) {
 					<div className="glass-panel p-8 rounded-xl border border-white/10 hover:border-blue-500/30 transition-colors group">
 						<div className="h-1 w-12 bg-purple-500 mb-6 group-hover:w-24 transition-all"></div>
 						<h3 className="text-xl font-bold text-white mb-2">Agenti, Generativa, Conversazionale & Predittiva</h3>
-						<span className="text-xs font-bold text-purple-400 tracking-widest uppercase mb-4 block">FULL SPECTRUM</span>
+						<p className="text-sm font-mono text-purple-400 mb-4 uppercase tracking-wider">Full Spectrum</p>
 						<ul className="space-y-4 text-gray-400 text-sm"> {/* Increased main spacing */}
 							<li className="space-y-1"> {/* Grouped AI items tightly */}
 								<div className="block"><strong className="text-white">Agentiche:</strong> Per azioni autonome complesse.</div>
