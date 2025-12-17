@@ -98,6 +98,13 @@ app.post('/chat-stream', async (req, res) => {
 		res.setHeader('Connection', 'keep-alive');
 
 		// Init Chat Session
+		// DEBUG: Verify runtime config
+		console.log('--- VERTEX AI REQUEST DEBUG ---');
+		console.log(`Project ID: ${PROJECT_ID}`);
+		console.log(`Location: ${LOCATION}`);
+		console.log(`Model: ${MODEL_NAME}`);
+		console.log('-------------------------------');
+
 		const history = buildChatHistory(req.body?.history);
 		const chat = generativeModel.startChat({
 			history: history,
