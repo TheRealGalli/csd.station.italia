@@ -28,7 +28,7 @@ const vertexAI = new VertexAI({ project: PROJECT_ID, location: LOCATION });
 const generativeModel = vertexAI.getGenerativeModel({
 	model: MODEL_NAME,
 	generationConfig: {
-		maxOutputTokens: 2048,
+		maxOutputTokens: 8192, // Increased for full workflow generation (~6000 words)
 		temperature: 0.7,
 		topP: 0.95,
 	},
