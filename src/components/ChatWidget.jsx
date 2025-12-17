@@ -30,14 +30,28 @@ export default function ChatWidget({ open = false, onClose, onOpen }) {
 		setMessages([{ role: 'assistant', content: 'Ciao! Sono l’assistente CSD Station Italia. Come posso aiutarti?' }]);
 	}
 
-	// Format assistant text: uniforma in sole liste puntate blu (niente griglie)
+	// Format assistant text: clean markdown and format nicely
 	function renderAssistantContent(text) {
-		const lines = String(text || '').split('\n');
+		if (!text) return null;
+
+		// Pre-processing: clean markdown symbols
+		let cleanText = text;
+
+		// Remove **bold** markdown (convert to regular text)
+		cleanText = cleanText.replace(/\*\*(.*?)\*\*/g, '$1');
+
+		// Remove *italic* markdown
+		cleanText = cleanText.replace(/\*([^*]+)\*/g, '$1');
+
+		// Remove ### headings symbols
+		cleanText = cleanText.replace(/^#{1,6}\s+/gm, '');
+
+		const lines = String(cleanText || '').split('\n');
 		const blocks = [];
 		let i = 0;
 		while (i < lines.length) {
 			const line = lines[i].trimEnd();
-			// Gruppo di bullets: marcatori (-, *, •) oppure righe chiave: valore trattate come bullet
+			// Group of bullets: markers (-, *, •) or key:value treated as bullets
 			const isBullet = /^\s*[-*•]\s+/.test(line);
 			const isKV = /^([^:]{1,64}):\s+.+$/.test(line);
 			if (isBullet || isKV) {

@@ -232,14 +232,35 @@ Call-to-action leggera: "Contatta il team CSD per una consulenza tecnica gratuit
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [workflow?.name]);
 
-	// Parser e renderer “notion-like”
+	// Parser e renderer "notion-like"
 	function renderFormatted(raw) {
 		if (!raw) return null;
-		// sostituisce **grassetto** con "testo"
-		let txt = raw.replace(/\*\*(.*?)\*\*/g, '"$1"');
+
+		// Pre-processing: remove system prompt artifacts
+		let txt = raw;
+
+		// Remove metadata lines like "*Ruolo*: ...", "*Data*: ...", "*Versione*: ..."
+		txt = txt.replace(/^\*[^*]+\*:\s*.+$/gm, '');
+
+		// Remove separator lines (---)
+		txt = txt.replace(/^---+\s*$/gm, '');
+
+		// Remove [TAG] lines if they are alone on a line (but keep [SECTION] in headings)
+		txt = txt.replace(/^\[([A-Z_\s]+)\]\s*$/gm, '');
+
+		// Remove >>> CRITICAL OVERRIDE blocks
+		txt = txt.replace(/>>>\s*CRITICAL\s+OVERRIDE[\s\S]*?>>>\s*FINE\s+OVERRIDE/gi, '');
+
+		// Replace **bold** with "quoted"
+		txt = txt.replace(/\*\*(.*?)\*\*/g, '"$1"');
+
+		// Remove any remaining single * for emphasis
+		txt = txt.replace(/\*([^*]+)\*/g, '$1');
+
 		const lines = txt.split(/\r?\n/);
 		const nodes = [];
 		let listBuffer = [];
+
 		function flushList() {
 			if (listBuffer.length === 0) return;
 			nodes.push(
@@ -251,17 +272,21 @@ Call-to-action leggera: "Contatta il team CSD per una consulenza tecnica gratuit
 			);
 			listBuffer = [];
 		}
+
 		for (let i = 0; i < lines.length; i++) {
 			const line = lines[i].trimEnd();
+
+			// Skip empty lines
 			if (!line.trim()) {
 				flushList();
 				continue;
 			}
-			// Heading stile "### [SEZIONE]"
-			const m = line.match(/^#{1,6}\s*\[(.+?)\]\s*$/);
-			if (m) {
+
+			// Heading: ### [SECTION] -> render as h2
+			const headingMatch = line.match(/^#{1,6}\s*\[(.+?)\]\s*$/);
+			if (headingMatch) {
 				flushList();
-				const title = m[1];
+				const title = headingMatch[1];
 				nodes.push(
 					<h2 key={`h-${nodes.length}`} className="mt-6 mb-2 text-[22px] md:text-[24px] font-semibold text-cream font-heading">
 						{title}
@@ -269,12 +294,22 @@ Call-to-action leggera: "Contatta il team CSD per una consulenza tecnica gratuit
 				);
 				continue;
 			}
-			// Rimuovi eventuali tag funzione isolati tipo "[NOTA_PERSONALIZZATA]" o simili
-			if (/^\[[A-Z_ ]+\]\s*$/i.test(line)) {
+
+			// Remove standalone ### headings without [BRACKETS]
+			if (/^#{1,6}\s+/.test(line)) {
 				flushList();
+				const headingText = line.replace(/^#{1,6}\s+/, '').trim();
+				if (headingText) {
+					nodes.push(
+						<h2 key={`h-${nodes.length}`} className="mt-6 mb-2 text-[22px] md:text-[24px] font-semibold text-cream font-heading">
+							{headingText}
+						</h2>
+					);
+				}
 				continue;
 			}
-			// Liste (- o 1.)
+
+			// Lists: - or 1.
 			if (/^-\s+/.test(line)) {
 				listBuffer.push(line.replace(/^-+\s+/, ''));
 				continue;
@@ -283,7 +318,8 @@ Call-to-action leggera: "Contatta il team CSD per una consulenza tecnica gratuit
 				listBuffer.push(line.replace(/^\d+\.\s+/, ''));
 				continue;
 			}
-			// Paragrafo
+
+			// Paragraph
 			flushList();
 			nodes.push(
 				<p key={`p-${nodes.length}`} className="text-[15px] leading-7 text-gray-200">{line}</p>
