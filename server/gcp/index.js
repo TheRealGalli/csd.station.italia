@@ -1,204 +1,188 @@
 import express from 'express';
 import cors from 'cors';
+import { VertexAI } from '@google-cloud/vertexai';
 
-// Express app for Cloud Run (or any Node server on GCP)
+// Initialize Express
 const app = express();
 app.use(express.json());
 app.use(cors({ origin: '*', methods: ['GET', 'POST', 'OPTIONS'], allowedHeaders: ['Content-Type', 'Authorization'] }));
-// Handle CORS preflight explicitly (Cloud Run + fetch JSON triggers OPTIONS)
+
+// CORS preflight
 app.options('*', cors());
-// Ensure CORS headers are always present (and short-circuit OPTIONS)
 app.use((req, res, next) => {
 	res.header('Access-Control-Allow-Origin', '*');
 	res.header('Access-Control-Allow-Methods', 'GET,POST,OPTIONS');
 	res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization');
-	if (req.method === 'OPTIONS') {
-		return res.sendStatus(204);
-	}
+	if (req.method === 'OPTIONS') return res.sendStatus(204);
 	next();
 });
 
-function extractResponseText(data) {
-	// 1) Preferred summary provided by Responses API
-	if (typeof data?.output_text === 'string' && data.output_text.trim()) {
-		return data.output_text.trim();
-	}
-	// 2) Aggregate any textual pieces from output[].content[]
-	const parts = [];
-	const output = Array.isArray(data?.output) ? data.output : [];
-	for (const item of output) {
-		const content = Array.isArray(item?.content) ? item.content : [];
-		for (const c of content) {
-			// Common fields observed: c.text or c.output_text
-			if (typeof c?.text === 'string' && c.text.trim()) {
-				parts.push(c.text.trim());
-			} else if (typeof c?.output_text === 'string' && c.output_text.trim()) {
-				parts.push(c.output_text.trim());
-			}
-		}
-	}
-	if (parts.length > 0) {
-		return parts.join('\n').trim();
-	}
-	return null;
-}
+// --- VERTEX AI CONFIGURATION ---
+const PROJECT_ID = process.env.PROJECT_ID || process.env.GCP_PROJECT_ID;
+const LOCATION = process.env.LOCATION || 'europe-west8'; // Milan default
+const MODEL_NAME = 'gemini-1.5-flash-001'; // Fast & Cost-effective
 
-app.get('/', (_req, res) => {
-	res.json({ ok: true, message: 'CSD Station API (GCP) attiva' });
+// Initialize Vertex AI Client
+// Note: When running in Cloud Run, auth is automatic via Service Account.
+const vertexAI = new VertexAI({ project: PROJECT_ID, location: LOCATION });
+const generativeModel = vertexAI.getGenerativeModel({
+	model: MODEL_NAME,
+	generationConfig: {
+		maxOutputTokens: 2048,
+		temperature: 0.7,
+		topP: 0.95,
+	},
 });
 
-async function callResponsesAPI(payload, openaiBase, apiKey) {
-	const r = await fetch(`${openaiBase}/responses`, {
-		method: 'POST',
-		headers: {
-			Authorization: `Bearer ${apiKey}`,
-			'Content-Type': 'application/json',
-		},
-		body: JSON.stringify(payload),
-	});
-	return r;
-}
+// --- HELPER FUNCTIONS ---
 
 const COMPANY_PROFILE = [
 	'Profilo azienda: CSD Station Italia progetta e integra agenti AI e workflow agentici per automatizzare processi aziendali.',
-	'Focus: assistenti su misura, orchestrazione di workflow no-backend su OpenAI, time-to-value rapido.',
+	'Focus: assistenti su misura, orchestrazione di workflow no-backend su tecnologie Google Cloud e Vertex AI.',
 	'Istruzioni: rispondi SEMPRE come esperto CSD Station Italia; non parlare di taxi/noleggio/stampi;',
 	'se la domanda è fuori ambito, reindirizza ai servizi AI/automazione pertinenti.',
 ].join(' ');
 
-function buildTranscript(history, latestUserMessage) {
-	const turns = Array.isArray(history) ? history.slice(-12) : [];
-	const lines = [COMPANY_PROFILE, 'Contesto conversazione (più recente in fondo):'];
+// Build prompt for simple generation (Contact Triage / Simple Chat)
+function buildPromptParts(history, latestMessage) {
+	// For Vertex AI Text format
+	const parts = [{ text: `System: ${COMPANY_PROFILE}` }];
+
+	const turns = Array.isArray(history) ? history.slice(-10) : [];
 	for (const m of turns) {
-		const role = m?.role === 'assistant' ? 'Assistente' : 'Utente';
-		const content = typeof m?.content === 'string' ? m.content : '';
-		if (content) lines.push(`${role}: ${content}`);
+		const role = m.role === 'assistant' ? 'Model' : 'User';
+		parts.push({ text: `${role}: ${m.content}` });
 	}
-	lines.push(`Utente: ${latestUserMessage}`);
-	lines.push('Assistente:');
-	return lines.join('\n');
+
+	parts.push({ text: `User: ${latestMessage}` });
+	parts.push({ text: `Model:` });
+	return parts;
 }
 
-// Streaming: passa in tempo reale gli eventi SSE della Responses API
+// Build Chat History for Vertex AI ChatSession (Clean Structure)
+function buildChatHistory(history) {
+	// Convert OpenAI-style history [{role: 'user', content: '...'}, ...] to Vertex style
+	// Vertex expects: [{ role: 'user', parts: [{ text: '...' }] }, { role: 'model', parts: [...] }]
+	const validHistory = [];
+
+	// Add System Instruction as first User message part or handle via systemInstruction param if supported by SDK version
+	// For compatibility, we'll prefix specific context in the first user message or separate system instruction
+
+	const turns = Array.isArray(history) ? history.slice(-10) : [];
+	for (const m of turns) {
+		if (!m.content) continue;
+		validHistory.push({
+			role: m.role === 'assistant' ? 'model' : 'user',
+			parts: [{ text: m.content }]
+		});
+	}
+	return validHistory;
+}
+
+
+// --- ROUTES ---
+
+app.get('/', (_req, res) => {
+	res.json({ ok: true, message: 'CSD Station API (Vertex AI) Active' });
+});
+
+// STREAMING CHAT
 app.post('/chat-stream', async (req, res) => {
 	try {
 		const userMessage = String(req.body?.message ?? '').slice(0, 2000);
-		if (!userMessage) {
-			res.status(400).json({ error: 'Messaggio vuoto' });
-			return;
-		}
-		const openaiBase = (process.env.OPENAI_BASE_URL || 'https://api.openai.com/v1').replace(/\/+$/, '');
-		const apiKey = process.env.OPENAI_API_KEY;
-		const prompt = { id: process.env.PROMPT_ID, version: process.env.PROMPT_VERSION || '1' };
-		const transcript = buildTranscript(req.body?.history, userMessage);
+		if (!userMessage) return res.status(400).json({ error: 'Messaggio vuoto' });
 
-		// Intestazioni SSE verso il client
+		// Setup Headers for SSE
 		res.setHeader('Content-Type', 'text/event-stream; charset=utf-8');
 		res.setHeader('Cache-Control', 'no-cache, no-transform');
 		res.setHeader('Connection', 'keep-alive');
-		res.setHeader('Access-Control-Allow-Origin', '*');
 
-		// Richiesta streaming alla Responses API
-		const upstream = await fetch(`${openaiBase}/responses`, {
-			method: 'POST',
-			headers: {
-				Authorization: `Bearer ${apiKey}`,
-				'Content-Type': 'application/json',
-				Accept: 'text/event-stream',
-			},
-			body: JSON.stringify({ prompt, input: transcript, stream: true }),
+		// Init Chat Session
+		const history = buildChatHistory(req.body?.history);
+		const chat = generativeModel.startChat({
+			history: history,
+			systemInstruction: { parts: [{ text: COMPANY_PROFILE }] }
 		});
 
-		if (!upstream.ok || !upstream.body) {
-			const errTxt = await upstream.text().catch(() => '');
-			res.write(`event: error\ndata: ${JSON.stringify(errTxt || 'Upstream error')}\n\n`);
-			res.end();
-			return;
-		}
+		const result = await chat.sendMessageStream(userMessage);
 
-		// Pass-through degli eventi SSE (senza parsing pesante)
-		const reader = upstream.body.getReader();
-		const decoder = new TextDecoder();
-		while (true) {
-			const { value, done } = await reader.read();
-			if (done) break;
-			const chunk = decoder.decode(value, { stream: true });
-			// inoltra così com'è: il client parserà output_text.delta
-			res.write(chunk);
+		for await (const chunk of result.stream) {
+			const chunkText = chunk.candidates[0].content.parts[0].text;
+			if (chunkText) {
+				// OpenAI-compatible format for frontend (choices[0].delta.content)
+				// We construct a similar JSON structure to keep frontend compatible or modify frontend.
+				// Assuming frontend expects standard SSE text or specific JSON.
+				// Let's mimic the OpenAI format specifically:
+				/* 
+				   data: {"id":"...","object":"chat.completion.chunk","choices":[{"index":0,"delta":{"content":"Hello"},"finish_reason":null}]}
+				*/
+				const openAILikeChunk = {
+					choices: [{
+						delta: { content: chunkText }
+					}]
+				};
+				res.write(`data: ${JSON.stringify(openAILikeChunk)}\n\n`);
+			}
 		}
+		res.write('data: [DONE]\n\n');
 		res.end();
+
 	} catch (e) {
-		try {
-			res.write(`event: error\ndata: ${JSON.stringify('Server error')}\n\n`);
-		} finally {
-			res.end();
-		}
+		console.error("Vertex Stream Error:", e);
+		res.write(`event: error\ndata: ${JSON.stringify('Server error')}\n\n`);
+		res.end();
 	}
 });
 
+// SIMPLE CHAT (Fallback)
 app.post('/chat', async (req, res) => {
 	try {
 		const userMessage = String(req.body?.message ?? '').slice(0, 2000);
 		if (!userMessage) return res.status(400).json({ error: 'Messaggio vuoto' });
 
-		const openaiBase = (process.env.OPENAI_BASE_URL || 'https://api.openai.com/v1').replace(/\/+$/, '');
-		const promptId = process.env.PROMPT_ID;
-		const promptVersion = process.env.PROMPT_VERSION || '1';
-		const transcript = buildTranscript(req.body?.history, userMessage);
+		const history = buildChatHistory(req.body?.history);
+		const chat = generativeModel.startChat({
+			history: history,
+			systemInstruction: { parts: [{ text: COMPANY_PROFILE }] }
+		});
 
-		const r = await callResponsesAPI(
-			{ prompt: { id: promptId, version: promptVersion }, input: transcript },
-			openaiBase,
-			process.env.OPENAI_API_KEY
-		);
-		if (!r.ok) {
-			const err = await r.text();
-			return res.status(502).json({ error: 'OpenAI error', detail: err });
-		}
-		const data = await r.json();
-		const reply = extractResponseText(data);
-		return res.json({ reply: reply ?? 'Non ho una risposta al momento.' });
+		const result = await chat.sendMessage(userMessage);
+		const responseText = result.response.candidates[0].content.parts[0].text;
+
+		return res.json({ reply: responseText });
+
 	} catch (e) {
-		return res.status(500).json({ error: 'Server error' });
+		console.error("Vertex Chat Error:", e);
+		return res.status(500).json({ error: 'Vertex AI Error', details: e.message });
 	}
 });
 
+// CONTACT TRIAGE
 app.post('/contact', async (req, res) => {
 	try {
 		const name = req.body?.name ?? '';
 		const email = req.body?.email ?? '';
 		const message = req.body?.message ?? '';
 
-		const openaiBase = (process.env.OPENAI_BASE_URL || 'https://api.openai.com/v1').replace(/\/+$/, '');
 		const sys = 'Sei un assistente che classifica le richieste di contatto e produce un breve riassunto con priorità.';
 		const prompt = `Richiesta contatto:\nNome: ${name}\nEmail: ${email}\nMessaggio: ${message}\n\nGenera: {priorita: alta/media/bassa, sintesi: stringa breve, prossimi_step: 1-2 punti}.`;
 
-		const r = await fetch(`${openaiBase}/responses`, {
-			method: 'POST',
-			headers: {
-				Authorization: `Bearer ${process.env.OPENAI_API_KEY}`,
-				'Content-Type': 'application/json',
-			},
-			body: JSON.stringify({
-				model: 'gpt-4.1-mini',
-				input: [{ role: 'system', content: sys }, { role: 'user', content: prompt }],
-			}),
+		const result = await generativeModel.generateContent({
+			contents: [
+				{ role: 'user', parts: [{ text: `${sys}\n\n${prompt}` }] }
+			]
 		});
-		if (!r.ok) {
-			const err = await r.text();
-			return res.status(502).json({ error: 'OpenAI error', detail: err });
-		}
-		const data = await r.json();
-		const triage = extractResponseText(data);
+
+		const triage = result.response.candidates[0].content.parts[0].text;
 		return res.json({ ok: true, triage });
-	} catch (_e) {
-		return res.status(500).json({ error: 'Server error' });
+
+	} catch (e) {
+		console.error("Contact Triage Error:", e);
+		return res.status(500).json({ error: 'Vertex AI Error' });
 	}
 });
 
 const PORT = process.env.PORT || 8080;
-app.listen(PORT, '0.0.0.0', () => console.log(`CSD Station API listening on port ${PORT}`));
+app.listen(PORT, '0.0.0.0', () => console.log(`CSD Station API (Vertex) listening on port ${PORT}`));
 
 export default app;
-
-
