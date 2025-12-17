@@ -135,6 +135,7 @@ export default function ChatWidget({ open = false, onClose, onOpen }) {
 					if (payload === '[DONE]') continue;
 					try {
 						const evt = JSON.parse(payload);
+						console.log('[SSE Debug]', evt); // DEBUG LOG
 						// Cerchiamo output_text.delta oppure content[].delta/text
 						let delta = '';
 						let rdelta = '';
@@ -144,7 +145,8 @@ export default function ChatWidget({ open = false, onClose, onOpen }) {
 							rdelta = evt.delta;
 						} else if (typeof evt?.output_text_delta === 'string') {
 							delta = evt.output_text_delta;
-						} else if (evt?.object === 'chat.completion.chunk' && Array.isArray(evt?.choices)) {
+						} else if (Array.isArray(evt?.choices)) {
+							// Handle both with and without 'object' field
 							for (const choice of evt.choices) {
 								const piece = choice?.delta?.content;
 								if (typeof piece === 'string') delta += piece;
