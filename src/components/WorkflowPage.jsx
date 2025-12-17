@@ -28,7 +28,7 @@ export default function WorkflowPage({ workflow, onClose }) {
 		const WORKFLOW_LEVEL = workflow.level;
 		// System-style brief con variabili sostituite
 		return (
-`>>> CRITICAL OVERRIDE
+			`>>> CRITICAL OVERRIDE
 - Rispondi in italiano.
 - NON citare né utilizzare "file caricati", RAG, ricerca documentale, triage di documenti.
 - NON proporre opzioni o checklist generiche (riassunti, estrazioni, compliance generica).
@@ -195,7 +195,8 @@ Call-to-action leggera: "Contatta il team CSD per una consulenza tecnica gratuit
 							delta = evt.delta;
 						} else if (typeof evt?.output_text_delta === 'string') {
 							delta = evt.output_text_delta;
-						} else if (evt?.object === 'chat.completion.chunk' && Array.isArray(evt?.choices)) {
+						} else if (Array.isArray(evt?.choices)) {
+							// Handle both with and without 'object' field
 							for (const choice of evt.choices) {
 								const piece = choice?.delta?.content;
 								if (typeof piece === 'string') delta += piece;
@@ -353,7 +354,7 @@ Call-to-action leggera: "Contatta il team CSD per una consulenza tecnica gratuit
 									placeholder="Scrivi indicazioni specifiche (tone, esempi, vincoli)."
 								/>
 								<div className="mt-3 flex items-center justify-end gap-2">
-								    <button
+									<button
 										onClick={() => setNoteOpen(false)}
 										className="h-9 px-3 rounded-full bg-white/10 hover:bg-white/15 text-white text-sm"
 									>
