@@ -55,3 +55,4 @@ echo "VITE_WORKER_URL=https://<tuo-servizio>.a.run.app" > .env
 - Per logiche avanzate (strumenti/funzioni), estendi il servizio su Cloud Run per chiamare API esterne dietro autorizzazione del modello (function/tool calling).
 
 
+
