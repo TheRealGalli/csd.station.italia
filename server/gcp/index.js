@@ -88,6 +88,7 @@ app.get('/', (_req, res) => {
 
 // STREAMING CHAT
 app.post('/chat-stream', async (req, res) => {
+	let keepAliveInterval; // Declare outside try block to be accessible in finally
 	try {
 		const userMessage = String(req.body?.message ?? '').slice(0, 2000);
 		if (!userMessage) return res.status(400).json({ error: 'Messaggio vuoto' });
@@ -96,48 +97,72 @@ app.post('/chat-stream', async (req, res) => {
 		res.setHeader('Content-Type', 'text/event-stream; charset=utf-8');
 		res.setHeader('Cache-Control', 'no-cache, no-transform');
 		res.setHeader('Connection', 'keep-alive');
+		res.setHeader('X-Accel-Buffering', 'no'); // Disable nginx buffering if behind proxy
 
-		// Init Chat Session
-		// DEBUG: Verify runtime config
-		console.log('--- VERTEX AI REQUEST DEBUG ---');
-		console.log(`Project ID: ${PROJECT_ID}`);
-		console.log(`Location: ${LOCATION}`);
-		console.log(`Model: ${MODEL_NAME}`);
-		console.log('-------------------------------');
+		// Keepalive to prevent timeout
+		keepAliveInterval = setInterval(() => {
+			res.write(': keepalive\n\n');
+			if (res.flush) res.flush();
+		}, 15000); // Every 15 seconds
 
-		const history = buildChatHistory(req.body?.history);
-		const chat = generativeModel.startChat({
-			history: history,
-			systemInstruction: { parts: [{ text: COMPANY_PROFILE }] }
-		});
+		try {
+			// Init Chat Session
+			// DEBUG: Verify runtime config
+			console.log('--- VERTEX AI REQUEST DEBUG ---');
+			console.log(`Project ID: ${PROJECT_ID}`);
+			console.log(`Location: ${LOCATION}`);
+			console.log(`Model: ${MODEL_NAME}`);
+			console.log('-------------------------------');
 
-		const result = await chat.sendMessageStream(userMessage);
+			const history = buildChatHistory(req.body?.history);
+			const chat = generativeModel.startChat({
+				history: history,
+				systemInstruction: { parts: [{ text: COMPANY_PROFILE }] }
+			});
 
-		for await (const chunk of result.stream) {
-			const chunkText = chunk.candidates[0].content.parts[0].text;
-			if (chunkText) {
-				// OpenAI-compatible format for frontend (choices[0].delta.content)
-				// We construct a similar JSON structure to keep frontend compatible or modify frontend.
-				// Assuming frontend expects standard SSE text or specific JSON.
-				// Let's mimic the OpenAI format specifically:
-				/* 
-				   data: {"id":"...","object":"chat.completion.chunk","choices":[{"index":0,"delta":{"content":"Hello"},"finish_reason":null}]}
-				*/
-				const openAILikeChunk = {
-					choices: [{
-						delta: { content: chunkText }
-					}]
-				};
-				res.write(`data: ${JSON.stringify(openAILikeChunk)}\n\n`);
+			const result = await chat.sendMessageStream(userMessage);
+
+			for await (const chunk of result.stream) {
+				const chunkText = chunk.candidates[0].content.parts[0].text;
+				if (chunkText) {
+					// OpenAI-compatible format for frontend (choices[0].delta.content)
+					// We construct a similar JSON structure to keep frontend compatible or modify frontend.
+					// Assuming frontend expects standard SSE text or specific JSON.
+					// Let's mimic the OpenAI format specifically:
+					/* 
+					   data: {"id":"...","object":"chat.completion.chunk","choices":[{"index":0,"delta":{"content":"Hello"},"finish_reason":null}]}
+					*/
+					const openAILikeChunk = {
+						choices: [{
+							delta: { content: chunkText }
+						}]
+					};
+					res.write(`data: ${JSON.stringify(openAILikeChunk)}\n\n`);
+					// CRITICAL: Force flush to prevent buffering
+					if (res.flush) res.flush();
+				}
 			}
-		}
-		res.write('data: [DONE]\n\n');
-		res.end();
+			res.write('data: [DONE]\n\n');
+			if (res.flush) res.flush();
+			res.end();
 
+		} catch (e) {
+			console.error("Vertex Stream Error:", e);
+			res.write(`event: error\ndata: ${JSON.stringify('Server error')}\n\n`);
+			res.end();
+		} finally {
+			clearInterval(keepAliveInterval);
+		}
 	} catch (e) {
-		console.error("Vertex Stream Error:", e);
-		res.write(`event: error\ndata: ${JSON.stringify('Server error')}\n\n`);
-		res.end();
+		console.error("Stream Setup Error:", e);
+		if (!res.headersSent) {
+			res.status(500).json({ error: 'Server error during stream setup' });
+		} else {
+			res.end(); // If headers sent, just end the response
+		}
+		if (keepAliveInterval) {
+			clearInterval(keepAliveInterval);
+		}
 	}
 });
 
