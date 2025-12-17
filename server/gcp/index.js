@@ -20,7 +20,7 @@ app.use((req, res, next) => {
 // --- VERTEX AI CONFIGURATION ---
 const PROJECT_ID = process.env.PROJECT_ID || process.env.GCP_PROJECT_ID;
 const LOCATION = process.env.LOCATION || 'europe-west8'; // Milan default
-const MODEL_NAME = 'gemini-2.5-flash-001'; // Newest generation
+const MODEL_NAME = 'gemini-2.5-flash'; // Newest generation
 
 // Initialize Vertex AI Client
 // Note: When running in Cloud Run, auth is automatic via Service Account.
