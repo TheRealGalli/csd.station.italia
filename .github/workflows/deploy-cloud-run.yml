@@ -7,8 +7,8 @@ on:
 
 env:
   PROJECT_ID: ${{ secrets.GCP_PROJECT_ID }}
-  SERVICE_NAME: csd-station-server
-  REGION: europe-west1 # Belgium (Standard European region). Change to europe-west8 for Milan if desired.
+  SERVICE_NAME: csd-station-api
+  REGION: europe-west8 # Milan
 
 jobs:
   deploy:
