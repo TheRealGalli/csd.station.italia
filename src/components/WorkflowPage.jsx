@@ -201,6 +201,14 @@ IMPORTANTE:
 				}
 			}
 			ended = true;
+
+			// CRITICAL FIX: Force-flushing any remaining content in the buffer
+			if (pending.length > 0) {
+				console.log('[Workflow] Force-flushing remaining buffer:', pending.length, 'chars'); // DEBUG
+				setContent((cur) => cur + pending);
+				pending = '';
+			}
+
 			console.log('[Workflow Stream Ended] Received:', received, 'Content length:', content.length); // DEBUG
 			if (!received && !content) setError('Nessun contenuto dal modello.');
 		} catch (e) {
