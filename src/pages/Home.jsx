@@ -339,15 +339,15 @@ export default function Home({ onOpenChat }) {
 							Riduciamo la complessità infrastrutturale delegando il backend a workflow agentici avanzati.
 						</p>
 						<ul className="space-y-4">
-							<li className="flex gap-4">
-								<div className="bg-green-500/10 p-2 rounded text-green-400">🚀</div>
+							<li className="flex items-center gap-4">
+								<div className="flex bg-green-500/10 h-10 w-10 shrink-0 items-center justify-center rounded-lg text-green-400 text-xl">🚀</div>
 								<div>
 									<strong className="text-white block">Time-to-Value Rapido</strong>
 									<span className="text-gray-500 text-sm">Dal prototipo alla produzione in settimane.</span>
 								</div>
 							</li>
-							<li className="flex gap-4">
-								<div className="bg-blue-500/10 p-2 rounded text-blue-400">🔧</div>
+							<li className="flex items-center gap-4">
+								<div className="flex bg-blue-500/10 h-10 w-10 shrink-0 items-center justify-center rounded-lg text-blue-400 text-xl">🔧</div>
 								<div>
 									<strong className="text-white block">Manutenzione Zero</strong>
 									<span className="text-gray-400 text-sm">Nessun server fisico, solo logica pura.</span>
