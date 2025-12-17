@@ -84,10 +84,7 @@ export default function Home({ onOpenChat }) {
 						</span>
 					</h1>
 					<h2 className="text-xl md:text-2xl text-gray-300 font-light max-w-3xl mx-auto leading-relaxed">
-						Integrazione enterprise di modelli "Tripla A" (Google, Microsoft, OpenAI).
-						<span className="block mt-2 text-gray-400 text-lg">
-							Dagli assistenti conversazionali ai flussi agentici complessi: trasformiamo i migliori algoritmi globali in soluzioni operative per la tua azienda.
-						</span>
+						Dagli assistenti conversazionali ai flussi agentici complessi: trasformiamo i migliori algoritmi globali in soluzioni operative per la tua azienda.
 					</h2>
 				</div>
 
