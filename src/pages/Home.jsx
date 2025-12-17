@@ -330,29 +330,7 @@ export default function Home({ onOpenChat }) {
 				</div>
 			</section>
 
-			{/* 6. FOOTER */}
-			<footer className="border-t border-white/10 pt-16 pb-8 text-center md:text-left">
-				<div className="container mx-auto px-6">
-					<div className="flex flex-col md:flex-row justify-between items-center gap-8 mb-12">
-						<div>
-							<h4 className="text-2xl font-bold text-white mb-2">Hai un processo da automatizzare?</h4>
-							<p className="text-gray-400">Parla con noi per una consulenza rapida.</p>
-						</div>
-						<div className="flex gap-6">
-							{/* Placeholder links since no real URLs were provided */}
-							{['Documentazione Tecnica', 'GitHub Repository', 'LinkedIn', 'Contattaci'].map(link => (
-								<button key={link} className="text-sm font-medium text-gray-400 hover:text-white transition-colors">
-									{link}
-								</button>
-							))}
-						</div>
-					</div>
-					<div className="text-center border-t border-white/5 pt-8">
-						<p className="text-gray-600 text-sm">© 2025 CSD Station Italia.</p>
-						<p className="text-gray-700 text-xs mt-2">DIE (Document Intelligence Engine) è una proprietà intellettuale riservata di Carlo Galli.</p>
-					</div>
-				</div>
-			</footer>
+
 		</div>
 	);
 }
