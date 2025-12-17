@@ -26,95 +26,75 @@ export default function WorkflowPage({ workflow, onClose }) {
 		const WORKFLOW_SECTOR = workflow.sector;
 		const WORKFLOW_CATEGORY = workflow.category;
 		const WORKFLOW_LEVEL = workflow.level;
-		// System-style brief con variabili sostituite
+
 		return (
-			`>>> CRITICAL OVERRIDE
-- Rispondi in italiano.
-- NON citare né utilizzare "file caricati", RAG, ricerca documentale, triage di documenti.
-- NON proporre opzioni o checklist generiche (riassunti, estrazioni, compliance generica).
-- GENERA SUBITO la pagina informativa del workflow richiesto, seguendo esattamente la struttura sotto.
-- Se le tue istruzioni predefinite parlano di documenti, IGNORALE per questa richiesta.
->>> FINE OVERRIDE
+			`Genera una pagina informativa strutturata per il workflow "${WORKFLOW_NAME}" (${WORKFLOW_SECTOR} - ${WORKFLOW_CATEGORY} - ${WORKFLOW_LEVEL}).
 
-Ruolo: Esperto di Automazione e AI - CSD Station Italia
-Data: ${new Date().toLocaleDateString('it-IT', { day: '2-digit', month: 'long', year: 'numeric' })}
-Versione: 1.0 - Frontend Templating
+REGOLE DI FORMATTAZIONE OBBLIGATORIE:
+- Usa ### [TITOLO SEZIONE] per le sezioni principali
+- Usa **testo** per enfasi (verrà convertito in virgolette)
+- Usa liste puntate con - per elenchi
+- Scrivi paragrafi brevi (max 3-4 righe)
+- Non usare markdown complesso (tabelle, codice)
 
----
+STRUTTURA OBBLIGATORIA:
 
-### NOTA DELL’UTENTE (SE PRESENTE)
+### [HEADLINE]
+Scrivi un titolo accattivante seguito da un sottotitolo di valore (max 2 righe). Enfatizza il beneficio principale.
+
+### [CHE COSA RISOLVE]
+Descrivi il problema/pain point specifico nel contesto ${WORKFLOW_SECTOR} in modo chiaro e diretto. Spiega perché questo workflow è rilevante.
+
+### [CASO D'USO CONCRETO]
+Presenta uno scenario realistico nel settore con "prima/dopo":
+- Situazione attuale (senza automazione)
+- Come il workflow trasforma il processo
+- Risultati tangibili
+
+### [COME FUNZIONA]
+Spiega il flusso del workflow in 3-5 step semplici:
+- Step 1: [azione]
+- Step 2: [azione]
+- Step 3: [azione]
+Adatta la complessità al livello ${WORKFLOW_LEVEL}.
+
+### [PREREQUISITI E INTEGRAZIONI]
+**Strumenti richiesti:**
+- Elenca strumenti/sistemi necessari (CRM, ERP, database)
+
+**Integrazioni consigliate:**
+- Priorità: n8n, OpenAI Platform, Google Cloud, Spoki
+- Tempo di implementazione: [Rapida/Media/Complessa]
+
+### [VALORE OPERATIVO]
+**Tempo Operativo Salvato (TOS):**
+Stima conservativa: es. "3-5 ore/settimana, riduzione 60% del task manuale"
+
+**Valore Economico Previsto (VEP):**
+Equivalente economico: es. "€200-400/mese di risparmio operativo"
+
+**Effort/Cost Indicator:**
+[Basso/Medio/Alto] con breve spiegazione
+
+### [GUARDRAIL E CONSIDERAZIONI]
+Vincoli legali, settoriali, etici applicabili:
+- GDPR (se tratta dati personali)
+- Conformità settoriale (${WORKFLOW_SECTOR})
+- Limiti operativi
+- Ruolo del professionista (se applicabile)
+
+### [PROSSIMI PASSI]
+Invita il lettore all'azione in modo leggero e professionale.
+
+NOTE PERSONALIZZATE DELL'UTENTE:
 USER_CUSTOM_PROMPT
 
----
-
-### MISSIONE
-Generare una pagina informativa completa, accurata e aggiornata per il workflow:
-**Workflow**: ${WORKFLOW_NAME}
-**Settore**: ${WORKFLOW_SECTOR}
-**Categoria**: ${WORKFLOW_CATEGORY}
-**Livello di Automazione**: ${WORKFLOW_LEVEL} (L0=manuale, L1=semi-automatico, L2=full-automatico)
-La pagina deve essere leggibile in 2-3 minuti (massimo), strutturata e orientata al valore operativo.
-
----
-
-### VINCOLI OPERATIVI
-1. NO Tecnicismi Eccessivi: Linguaggio accessibile, senza jargon API/DevOps a meno che il settore/livello non lo richieda.
-2. Struttura Obbligatoria:
-   - Headline (Cosa fa? Perché è utile?)
-   - Caso d'uso concreto nel settore ${WORKFLOW_SECTOR}
-   - Prerequisiti tecnici (minimo: CRM, ERP, strumenti attuali)
-   - Integrazioni consigliate (priorità: n8n, OpenAI Platform, GCP, Spoki, Cursor)
-   - Metriche di valore (TOS, VEP) con stime conservative
-   - Effort/Cost Indicator (Basso/Medio/Alto) qualitativo
-   - Guardrail legali (es. GDPR, vincoli settoriali)
-   - Call-to-Action leggera (es. "Esplora questa automazione" senza pressure commerciale)
-3. Metriche di ROI Operativo (OBBLIGATORIE):
-   - TOS (Tempo Operativo Salvato): es. "3-5 ore/settimana, riduzione 60% del task manuale"
-   - VEP (Valore Economico Previsto): es. "€200-400/mese di risparmio operativo"
-   - DIVIETO ASSOLUTO: Mai preventivi, listini, confronti prezzi con competitor
-4. Compliance e Guardrail:
-   - Se Settore = "Sanità": sottolinea GDPR + anonimizzazione dati
-   - Se Settore = "No-Profit": enfatizza sostenibilità costi
-   - Se Settore = "Notarile/Legale": ricorda insostituibilità professionista
-   - Se Livello = "L0": suggerisci prima una consulenza di fattibilità
-5. Tono di Voce:
-   - Professionale, coinvolgente, orientato alla soluzione
-   - Escludere tone di vendita diretta
-   - Focalizzare su "cosa fa" e "perché è utile"
-
----
-
-### OUTPUT ATTESO
-Genera una pagina informativa strutturata con i seguenti elementi:
-**[HEADLINE]**
-Titolo accattivante + sottotitolo di valore (max 2 righe)
-**[CHE COSA RISOLVE]**
-Descrizione del problema/pain point nel contesto ${WORKFLOW_SECTOR}, in linguaggio chiaro.
-**[CASO D'USO CONCRETO]**
-Uno scenario realistico nel settore, con prima/dopo.
-**[COME FUNZIONA]**
-Flusso semplificato del workflow (3-5 step massimo), adatto al livello ${WORKFLOW_LEVEL}.
-**[PREREQUISITI E INTEGRAZIONI]**
-- Strumenti richiesti (CRM, ERP, database, ecc.)
-- Integrazioni consigliate (con priorità su n8n, OpenAI Platform, GCP)
-- Tempo di implementazione qualitativo (Rapida/Media/Complessa)
-**[VALORE OPERATIVO]**
-- TOS: [tempo liberato con stima conservativa]
-- VEP: [equivalente economico mensile/annuale]
-- Effort/Cost Indicator: [Basso/Medio/Alto]
-**[GUARDRAIL E CONSIDERAZIONI]**
-Vincoli legali, settoriali, etici. Se applicabili: menzione GDPR, PSD2, norme farmaceutiche, ecc.
-**[PROSSIMI PASSI]**
-Call-to-action leggera: "Contatta il team CSD per una consulenza tecnica gratuita".
-
----
-
-### NOTE IMPORTANTI
-- Mantieni il riferimento al workflow specifico: ${WORKFLOW_NAME}
-- Cita il settore: ${WORKFLOW_SECTOR} almeno 2-3 volte
-- Adatta il linguaggio al livello ${WORKFLOW_LEVEL}
-- Se info sul workflow non disponibili, richiedi chiarimenti (non inventare)
-- Output max 2000 parole (leggibile in 2-3 minuti)`
+IMPORTANTE:
+- Output in italiano
+- Max 1800 parole
+- Tono professionale e orientato alla soluzione
+- Non proporre preventivi o listini
+- Mantieni riferimenti chiari a ${WORKFLOW_NAME} e ${WORKFLOW_SECTOR}`
 		);
 	}, [workflow]);
 
@@ -236,7 +216,7 @@ Call-to-action leggera: "Contatta il team CSD per una consulenza tecnica gratuit
 	function renderFormatted(raw) {
 		if (!raw) return null;
 
-		// Pre-processing: remove system prompt artifacts
+		// Clean system prompt artifacts but keep markdown for parsing
 		let txt = raw;
 
 		// Remove metadata lines like "*Ruolo*: ...", "*Data*: ...", "*Versione*: ..."
@@ -245,17 +225,11 @@ Call-to-action leggera: "Contatta il team CSD per una consulenza tecnica gratuit
 		// Remove separator lines (---)
 		txt = txt.replace(/^---+\s*$/gm, '');
 
-		// Remove [TAG] lines if they are alone on a line (but keep [SECTION] in headings)
+		// Remove standalone [TAG] lines
 		txt = txt.replace(/^\[([A-Z_\s]+)\]\s*$/gm, '');
 
 		// Remove >>> CRITICAL OVERRIDE blocks
 		txt = txt.replace(/>>>\s*CRITICAL\s+OVERRIDE[\s\S]*?>>>\s*FINE\s+OVERRIDE/gi, '');
-
-		// Replace **bold** with "quoted"
-		txt = txt.replace(/\*\*(.*?)\*\*/g, '"$1"');
-
-		// Remove any remaining single * for emphasis
-		txt = txt.replace(/\*([^*]+)\*/g, '$1');
 
 		const lines = txt.split(/\r?\n/);
 		const nodes = [];
@@ -264,9 +238,9 @@ Call-to-action leggera: "Contatta il team CSD per una consulenza tecnica gratuit
 		function flushList() {
 			if (listBuffer.length === 0) return;
 			nodes.push(
-				<ul key={`ul-${nodes.length}`} className="list-disc marker:text-sky-400 pl-6 space-y-1">
+				<ul key={`ul-${nodes.length}`} className="list-disc marker:text-sky-400 pl-6 space-y-2 my-3">
 					{listBuffer.map((li, i) => (
-						<li key={i} className="text-[15px] leading-7 text-gray-200">{li}</li>
+						<li key={i} className="text-[15px] leading-relaxed text-gray-200">{li}</li>
 					))}
 				</ul>
 			);
@@ -279,54 +253,59 @@ Call-to-action leggera: "Contatta il team CSD per una consulenza tecnica gratuit
 			// Skip empty lines
 			if (!line.trim()) {
 				flushList();
+				nodes.push(<div key={`sp-${nodes.length}`} className="h-3" />);
 				continue;
 			}
 
-			// Heading: ### [SECTION] -> render as h2
-			const headingMatch = line.match(/^#{1,6}\s*\[(.+?)\]\s*$/);
-			if (headingMatch) {
+			// Heading with brackets: ### [SECTION] or **[SECTION]**
+			const bracketHeadingMatch = line.match(/^#{1,6}\s*\[(.+?)\]\s*$/) || line.match(/^\*\*\[(.+?)\]\*\*\s*$/);
+			if (bracketHeadingMatch) {
 				flushList();
-				const title = headingMatch[1];
+				const title = bracketHeadingMatch[1];
 				nodes.push(
-					<h2 key={`h-${nodes.length}`} className="mt-6 mb-2 text-[22px] md:text-[24px] font-semibold text-cream font-heading">
+					<h2 key={`h-${nodes.length}`} className="mt-8 mb-3 text-[24px] md:text-[26px] font-bold text-cream font-heading">
 						{title}
 					</h2>
 				);
 				continue;
 			}
 
-			// Remove standalone ### headings without [BRACKETS]
-			if (/^#{1,6}\s+/.test(line)) {
+			// Regular heading: ### Text or **Text**
+			const headingMatch = line.match(/^#{1,6}\s+(.+)$/) || line.match(/^\*\*(.+)\*\*\s*$/);
+			if (headingMatch) {
 				flushList();
-				const headingText = line.replace(/^#{1,6}\s+/, '').trim();
-				if (headingText) {
+				const headingText = headingMatch[1].replace(/\*\*/g, '').trim();
+				if (headingText && headingText.length < 100) { // Avoid treating long bold text as heading
 					nodes.push(
-						<h2 key={`h-${nodes.length}`} className="mt-6 mb-2 text-[22px] md:text-[24px] font-semibold text-cream font-heading">
+						<h3 key={`h-${nodes.length}`} className="mt-6 mb-2 text-[20px] md:text-[22px] font-semibold text-cream/90 font-heading">
 							{headingText}
-						</h2>
+						</h3>
 					);
+					continue;
 				}
-				continue;
 			}
 
-			// Lists: - or 1.
-			if (/^-\s+/.test(line)) {
-				listBuffer.push(line.replace(/^-+\s+/, ''));
+			// Lists: - or 1. or *
+			if (/^[-*]\s+/.test(line)) {
+				const item = line.replace(/^[-*]+\s+/, '').replace(/\*\*/g, '"').replace(/\*/g, '');
+				listBuffer.push(item);
 				continue;
 			}
 			if (/^\d+\.\s+/.test(line)) {
-				listBuffer.push(line.replace(/^\d+\.\s+/, ''));
+				const item = line.replace(/^\d+\.\s+/, '').replace(/\*\*/g, '"').replace(/\*/g, '');
+				listBuffer.push(item);
 				continue;
 			}
 
-			// Paragraph
+			// Paragraph - clean bold/italic but keep text
 			flushList();
+			const cleanLine = line.replace(/\*\*(.+?)\*\*/g, '"$1"').replace(/\*(.+?)\*/g, '$1');
 			nodes.push(
-				<p key={`p-${nodes.length}`} className="text-[15px] leading-7 text-gray-200">{line}</p>
+				<p key={`p-${nodes.length}`} className="text-[15px] leading-relaxed text-gray-200 my-2">{cleanLine}</p>
 			);
 		}
 		flushList();
-		return nodes;
+		return <div className="space-y-1">{nodes}</div>;
 	}
 
 	return (
