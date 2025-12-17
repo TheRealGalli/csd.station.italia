@@ -103,31 +103,15 @@ IMPORTANTE:
 		setError(null);
 		setContent('');
 		try {
-			// Buffer per rallentare e rendere più “precisa” la generazione dei token
-			let pending = '';
-			let ended = false;
-			let intervalId = null;
-			const startFlusher = () => {
-				if (intervalId) return;
-				intervalId = setInterval(() => {
-					if (pending.length > 0) {
-						const slice = pending.slice(0, 6); // 6 char per tick
-						pending = pending.slice(6);
-						setContent((cur) => cur + slice);
-					} else if (ended) {
-						clearInterval(intervalId);
-						intervalId = null;
-					}
-				}, 40); // ~150 cps: più lento e regolare
-			};
-
 			const finalMsg = basePrompt.replace('USER_CUSTOM_PROMPT', (promptOverride || '').slice(0, 2000));
-			// Prova streaming prima
+
+			// Try streaming first
 			const res = await fetch((workerUrl || '') + '/chat-stream', {
 				method: 'POST',
 				headers: { 'Content-Type': 'application/json' },
 				body: JSON.stringify({ message: finalMsg }),
 			});
+
 			if (!res.ok || !res.body) {
 				// Fallback non-streaming
 				const r = await fetch((workerUrl || '') + '/chat', {
@@ -153,17 +137,20 @@ IMPORTANTE:
 				return;
 			}
 
-			// Streaming SSE
+			// Streaming SSE - IMMEDIATE UPDATE (no buffering)
 			const reader = res.body.getReader();
 			const decoder = new TextDecoder();
 			let buffer = '';
 			let received = false;
+			let totalChars = 0;
+
 			while (true) {
 				const { value, done } = await reader.read();
 				if (done) break;
 				buffer += decoder.decode(value, { stream: true });
 				const lines = buffer.split('\n');
 				buffer = lines.pop() || '';
+
 				for (const line of lines) {
 					if (!line.startsWith('data:')) continue;
 					const payload = line.slice(5).trim();
@@ -177,7 +164,6 @@ IMPORTANTE:
 						} else if (typeof evt?.output_text_delta === 'string') {
 							delta = evt.output_text_delta;
 						} else if (Array.isArray(evt?.choices)) {
-							// Handle both with and without 'object' field
 							for (const choice of evt.choices) {
 								const piece = choice?.delta?.content;
 								if (typeof piece === 'string') delta += piece;
@@ -192,25 +178,18 @@ IMPORTANTE:
 						if (delta) {
 							console.log('[Workflow Delta]', delta.length, 'chars'); // DEBUG
 							received = true;
-							pending += delta;
-							startFlusher();
+							totalChars += delta.length;
+							// IMMEDIATE UPDATE - no buffer delay
+							setContent((cur) => cur + delta);
 						}
 					} catch (parseErr) {
 						console.error('[Workflow SSE Parse Error]', parseErr, 'Line:', line); // DEBUG
 					}
 				}
 			}
-			ended = true;
 
-			// CRITICAL FIX: Force-flushing any remaining content in the buffer
-			if (pending.length > 0) {
-				console.log('[Workflow] Force-flushing remaining buffer:', pending.length, 'chars'); // DEBUG
-				setContent((cur) => cur + pending);
-				pending = '';
-			}
-
-			console.log('[Workflow Stream Ended] Received:', received, 'Content length:', content.length); // DEBUG
-			if (!received && !content) setError('Nessun contenuto dal modello.');
+			console.log('[Workflow Stream Ended] Total chars received:', totalChars); // DEBUG
+			if (!received) setError('Nessun contenuto dal modello.');
 		} catch (e) {
 			console.error('[Workflow Stream Error]', e); // DEBUG
 			setError(e?.message || 'Errore');
