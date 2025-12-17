@@ -100,7 +100,7 @@ USER_CUSTOM_PROMPT
 
 IMPORTANTE:
 - Output in italiano
-- Max 1800 parole
+- Max 6000 parole (sfrutta tutto lo spazio disponibile per dettagli e valore)
 - Completa TUTTE le sezioni richieste senza troncare
 - Tono professionale e orientato alla soluzione
 - Non proporre preventivi o listini
@@ -113,7 +113,7 @@ IMPORTANTE:
 		setError(null);
 		setContent('');
 		try {
-			const finalMsg = basePrompt.replace('USER_CUSTOM_PROMPT', (promptOverride || '').slice(0, 2000));
+			const finalMsg = basePrompt.replace('USER_CUSTOM_PROMPT', (promptOverride || ''));
 
 			// Try streaming first
 			const res = await fetch((workerUrl || '') + '/chat-stream', {
@@ -377,12 +377,12 @@ IMPORTANTE:
 					<div className="absolute inset-0 bg-black/40 flex items-center justify-center p-4">
 						<div className="w-full max-w-lg rounded-xl bg-[#0f1621] border border-white/10 shadow-xl">
 							<div className="px-4 py-3 border-b border-white/10 text-cream font-medium">
-								Nota per la generazione (max 2000 caratteri)
+								Nota per la generazione
 							</div>
 							<div className="p-4">
 								<textarea
 									value={prompt}
-									onChange={(e) => setPrompt(e.target.value.slice(0, 2000))}
+									onChange={(e) => setPrompt(e.target.value)}
 									className="w-full h-40 rounded-lg bg-white/5 border border-white/10 px-3 py-2 text-sm text-white outline-none"
 									placeholder="Scrivi indicazioni specifiche (tone, esempi, vincoli)."
 								/>

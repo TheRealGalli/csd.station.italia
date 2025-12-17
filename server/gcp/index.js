@@ -90,7 +90,7 @@ app.get('/', (_req, res) => {
 app.post('/chat-stream', async (req, res) => {
 	let keepAliveInterval; // Declare outside try block to be accessible in finally
 	try {
-		const userMessage = String(req.body?.message ?? '').slice(0, 2000);
+		const userMessage = String(req.body?.message ?? '');
 		if (!userMessage) return res.status(400).json({ error: 'Messaggio vuoto' });
 
 		// Setup Headers for SSE
@@ -169,7 +169,7 @@ app.post('/chat-stream', async (req, res) => {
 // SIMPLE CHAT (Fallback)
 app.post('/chat', async (req, res) => {
 	try {
-		const userMessage = String(req.body?.message ?? '').slice(0, 2000);
+		const userMessage = String(req.body?.message ?? '');
 		if (!userMessage) return res.status(400).json({ error: 'Messaggio vuoto' });
 
 		const history = buildChatHistory(req.body?.history);
