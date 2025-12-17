@@ -47,5 +47,5 @@ jobs:
           region: ${{ env.REGION }}
           env_vars: |
             PROJECT_ID=${{ env.PROJECT_ID }}
-            LOCATION=europe-west1
+            LOCATION=us-central1
           flags: '--allow-unauthenticated'
