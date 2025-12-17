@@ -129,8 +129,8 @@ export default function Home({ onOpenChat }) {
 							<span className="text-gray-300 font-bold text-lg">OpenAI</span>
 						</div>
 						<div className="flex items-center gap-3 opacity-60 hover:opacity-100 transition-opacity cursor-default">
-							<img src="https://upload.wikimedia.org/wikipedia/commons/7/78/Anthropic_logo.svg" alt="Anthropic" className="h-8" />
-							<span className="text-gray-300 font-bold text-lg">Anthropic</span>
+							<img src="https://www.google.com/images/branding/googlelogo/2x/googlelogo_color_92x30dp.png" alt="Google" className="h-7" />
+							<span className="text-gray-300 font-bold text-lg">Google</span>
 						</div>
 					</div>
 				</div>
