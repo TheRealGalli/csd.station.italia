@@ -53,33 +53,31 @@ export default function App() {
 	}, []);
 	return (
 		<div className="relative min-h-screen overflow-x-hidden">
-			{/* Background gradient shapes */}
-			<div className="absolute inset-0 -z-10 overflow-hidden">
+			{/* Background gradient shapes and Ballpit */}
+			<div className="fixed inset-0 -z-10 overflow-hidden pointer-events-none">
 				<div className="bg-blob top-[-20%] left-[-15%] w-[500px] h-[500px] bg-primary/20"></div>
 				<div className="bg-blob bottom-[-10%] right-[-15%] w-[600px] h-[600px] bg-accent/10"></div>
+				{page === 'home' && (
+					<div style={{ position: 'absolute', inset: 0 }}>
+						<Ballpit
+							count={100} // Reduced count slightly for cleaner look with fixed bg
+							gravity={0}
+							friction={0.98}
+							wallBounce={0.99}
+							followCursor={false}
+							colors={[0x3A7DFF, 0x10B981, 0xFDF5E6]}
+							minSize={0.5} // Restore slightly larger/original feel
+							maxSize={1.2}
+							size0={0.8}
+							ambientIntensity={1.2}
+							lightIntensity={450}
+						/>
+					</div>
+				)}
 			</div>
 
 			<Header current={page} onNavigate={setPage} onOpenChat={() => setChatOpen(true)} />
 			<main className="relative z-10 px-4 sm:px-8 md:px-16 lg:px-24 xl:px-40 py-8 md:py-12">
-				{page === 'home' && (
-					<div className="absolute inset-0 pointer-events-none z-0">
-						<div style={{ position: 'relative', width: '100%', height: '100%', overflow: 'hidden' }}>
-							<Ballpit
-								count={130}
-								gravity={0}
-								friction={0.98}
-								wallBounce={0.99}
-								followCursor={false}
-								colors={[0x3A7DFF, 0x10B981, 0xFDF5E6]}
-								minSize={0.35}
-								maxSize={0.9}
-								size0={0.8}
-								ambientIntensity={1.2}
-								lightIntensity={450}
-							/>
-						</div>
-					</div>
-				)}
 				<CurrentPage onOpenChat={() => setChatOpen(true)} onOpenWorkflow={(wf) => setWorkflowDetail(wf)} onNavigate={setPage} />
 			</main>
 			<Footer onNavigate={setPage} />
