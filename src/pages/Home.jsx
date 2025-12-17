@@ -179,12 +179,16 @@ export default function Home({ onOpenChat }) {
 						<div className="h-1 w-12 bg-purple-500 mb-6 group-hover:w-24 transition-all"></div>
 						<h3 className="text-xl font-bold text-white mb-2">Agenti, Generativa, Conversazionale & Predittiva</h3>
 						<span className="text-xs font-bold text-purple-400 tracking-widest uppercase mb-4 block">FULL SPECTRUM</span>
-						<ul className="space-y-3 text-gray-400 text-sm">
-							<li><strong className="text-white">Agentiche:</strong> Per azioni autonome complesse.</li>
-							<li><strong className="text-white">Generative:</strong> Creazione contenuti e sintesi.</li>
-							<li><strong className="text-white">Conversazionali:</strong> Chatbot evoluti e assistenti.</li>
-							<li><strong className="text-white">Predittive:</strong> Per forecast e analisi trend.</li>
-							<li><strong className="text-white">Automazioni No-LLM:</strong> Algoritmi logici per efficienza.</li>
+						<ul className="space-y-4 text-gray-400 text-sm"> {/* Increased main spacing */}
+							<li className="space-y-1"> {/* Grouped AI items tightly */}
+								<div className="block"><strong className="text-white">Agentiche:</strong> Per azioni autonome complesse.</div>
+								<div className="block"><strong className="text-white">Generative:</strong> Creazione contenuti e sintesi.</div>
+								<div className="block"><strong className="text-white">Conversazionali:</strong> Chatbot evoluti e assistenti.</div>
+								<div className="block"><strong className="text-white">Predittive:</strong> Per forecast e analisi trend.</div>
+							</li>
+							<li className="pt-2 border-t border-white/10"> {/* Separator for No-LLM */}
+								<strong className="text-white">Automazioni No-LLM:</strong> Algoritmi logici per efficienza.
+							</li>
 						</ul>
 					</div>
 				</div>
