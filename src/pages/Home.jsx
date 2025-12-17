@@ -294,7 +294,7 @@ export default function Home({ onOpenChat }) {
 								<div className="text-xs font-bold text-gray-500 uppercase tracking-wider mb-3">AI Core</div>
 								<div className="flex flex-wrap gap-2">
 									<span className="px-2 py-1 bg-white/5 border border-white/10 rounded text-xs text-gray-300 font-mono">Vertex AI</span>
-									<span className="px-2 py-1 bg-white/5 border border-white/10 rounded text-xs text-gray-300 font-mono">Gemini 2.0 Flash</span>
+									<span className="px-2 py-1 bg-white/5 border border-white/10 rounded text-xs text-gray-300 font-mono">Gemini</span>
 									<span className="px-2 py-1 bg-white/5 border border-white/10 rounded text-xs text-gray-300 font-mono">OpenAI</span>
 									<span className="px-2 py-1 bg-white/5 border border-white/10 rounded text-xs text-gray-300 font-mono">Anthropic</span>
 								</div>
