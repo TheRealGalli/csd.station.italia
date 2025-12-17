@@ -53,6 +53,3 @@ echo "VITE_WORKER_URL=https://<tuo-servizio>.a.run.app" > .env
 ### Personalizzazione
 - Modifica contenuti in `src/pages/*` e componenti in `src/components/*`.
 - Per logiche avanzate (strumenti/funzioni), estendi il servizio su Cloud Run per chiamare API esterne dietro autorizzazione del modello (function/tool calling).
-
-
-

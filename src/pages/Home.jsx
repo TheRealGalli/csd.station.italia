@@ -115,23 +115,11 @@ export default function Home({ onOpenChat }) {
 					<span className="text-xs font-bold tracking-[0.2em] text-gray-500 uppercase">
 						Powered by World-Class Infrastructure
 					</span>
-					<div className="flex flex-wrap justify-center gap-12 md:gap-20">
-						<div className="flex items-center gap-3 opacity-60 hover:opacity-100 transition-opacity cursor-default">
-							<img src="https://www.gstatic.com/images/branding/product/2x/gcp_48dp.png" alt="Google Cloud" className="h-8" />
-							<span className="text-gray-300 font-bold text-lg">Google Cloud</span>
-						</div>
-						<div className="flex items-center gap-3 opacity-60 hover:opacity-100 transition-opacity cursor-default">
-							<img src="https://upload.wikimedia.org/wikipedia/commons/4/44/Microsoft_logo.svg" alt="Microsoft" className="h-7" />
-							<span className="text-gray-300 font-bold text-lg">Microsoft</span>
-						</div>
-						<div className="flex items-center gap-3 opacity-60 hover:opacity-100 transition-opacity cursor-default">
-							<img src="https://upload.wikimedia.org/wikipedia/commons/0/04/ChatGPT_logo.svg" alt="OpenAI" className="h-8" />
-							<span className="text-gray-300 font-bold text-lg">OpenAI</span>
-						</div>
-						<div className="flex items-center gap-3 opacity-60 hover:opacity-100 transition-opacity cursor-default">
-							<img src="https://www.google.com/images/branding/googlelogo/2x/googlelogo_color_92x30dp.png" alt="Google" className="h-7" />
-							<span className="text-gray-300 font-bold text-lg">Google</span>
-						</div>
+					<div className="flex flex-wrap justify-center gap-6 md:gap-8">
+						<img src="https://img.shields.io/badge/GoogleCloud-%234285F4.svg?style=for-the-badge&logo=google-cloud&logoColor=white" alt="Google Cloud" className="h-8 opacity-80 hover:opacity-100 transition-opacity" />
+						<img src="https://img.shields.io/badge/azure-%230072C6.svg?style=for-the-badge&logo=microsoftazure&logoColor=white" alt="Microsoft Azure" className="h-8 opacity-80 hover:opacity-100 transition-opacity" />
+						<img src="https://img.shields.io/badge/OpenAI-412991.svg?style=for-the-badge&logo=openai&logoColor=white" alt="OpenAI" className="h-8 opacity-80 hover:opacity-100 transition-opacity" />
+						<img src="https://img.shields.io/badge/Google-4285F4.svg?style=for-the-badge&logo=google&logoColor=white" alt="Google" className="h-8 opacity-80 hover:opacity-100 transition-opacity" />
 					</div>
 				</div>
 			</section>
