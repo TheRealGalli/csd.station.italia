@@ -167,7 +167,7 @@ IMPORTANTE:
 					if (payload === '[DONE]') continue;
 					try {
 						const evt = JSON.parse(payload);
-						console.log('[Workflow SSE]', evt); // DEBUG
+
 						let delta = '';
 						if (evt?.type === 'response.output_text.delta' && typeof evt?.delta === 'string') {
 							delta = evt.delta;
@@ -186,19 +186,19 @@ IMPORTANTE:
 							}
 						}
 						if (delta) {
-							console.log('[Workflow Delta]', delta.length, 'chars'); // DEBUG
+
 							received = true;
 							totalChars += delta.length;
 							// IMMEDIATE UPDATE - no buffer delay
 							setContent((cur) => cur + delta);
 						}
 					} catch (parseErr) {
-						console.error('[Workflow SSE Parse Error]', parseErr, 'Line:', line); // DEBUG
+
 					}
 				}
 			}
 
-			console.log('[Workflow Stream Ended] Total chars received:', totalChars); // DEBUG
+
 
 			// Validation: Check if output seems complete (contains expected sections)
 			setContent((currentContent) => {
@@ -208,7 +208,7 @@ IMPORTANTE:
 				const seemsComplete = totalChars > 500 && hasSections;
 
 				if (!seemsComplete && totalChars > 0) {
-					console.warn('[Workflow] Output may be incomplete. Total chars:', totalChars);
+
 				}
 
 				return currentContent;
@@ -216,7 +216,7 @@ IMPORTANTE:
 
 			if (!received) setError('Nessun contenuto dal modello.');
 		} catch (e) {
-			console.error('[Workflow Stream Error]', e); // DEBUG
+
 			setError(e?.message || 'Errore');
 		} finally {
 			setLoading(false);
