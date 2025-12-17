@@ -288,18 +288,49 @@ export default function Home({ onOpenChat }) {
 				<div className="flex flex-col md:flex-row gap-16">
 					<div className="md:w-1/2">
 						<h3 className="text-3xl font-bold text-white mb-8">Built for Scale & Security</h3>
-						<div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-							{[
-								{ label: 'AI Core', val: 'Vertex AI (Gemini 2.5) & OpenAI' },
-								{ label: 'Backend', val: 'Serverless Cloud Run & Node.js' },
-								{ label: 'Frontend', val: 'React 18, TypeScript, Tailwind' },
-								{ label: 'Storage', val: 'GCP Storage (Encrypted)' }
-							].map(item => (
-								<div key={item.label} className="border-l-2 border-gray-700 pl-4">
-									<div className="text-xs font-bold text-gray-500 uppercase tracking-wider mb-1">{item.label}</div>
-									<div className="text-gray-200 font-medium">{item.val}</div>
+						<div className="grid grid-cols-1 sm:grid-cols-2 gap-8">
+							{/* AI CORE */}
+							<div className="border-l-2 border-accent/30 pl-4">
+								<div className="text-xs font-bold text-gray-500 uppercase tracking-wider mb-3">AI Core</div>
+								<div className="flex flex-wrap gap-2">
+									<span className="px-2 py-1 bg-white/5 border border-white/10 rounded text-xs text-gray-300 font-mono">Vertex AI</span>
+									<span className="px-2 py-1 bg-white/5 border border-white/10 rounded text-xs text-gray-300 font-mono">Gemini 2.0 Flash</span>
+									<span className="px-2 py-1 bg-white/5 border border-white/10 rounded text-xs text-gray-300 font-mono">OpenAI</span>
+									<span className="px-2 py-1 bg-white/5 border border-white/10 rounded text-xs text-gray-300 font-mono">Anthropic</span>
 								</div>
-							))}
+							</div>
+
+							{/* BACKEND */}
+							<div className="border-l-2 border-blue-500/30 pl-4">
+								<div className="text-xs font-bold text-gray-500 uppercase tracking-wider mb-3">Backend</div>
+								<div className="flex flex-wrap gap-2">
+									<span className="px-2 py-1 bg-white/5 border border-white/10 rounded text-xs text-gray-300 font-mono">Cloud Run</span>
+									<span className="px-2 py-1 bg-white/5 border border-white/10 rounded text-xs text-gray-300 font-mono">Node.js</span>
+									<span className="px-2 py-1 bg-white/5 border border-white/10 rounded text-xs text-gray-300 font-mono">Python</span>
+									<span className="px-2 py-1 bg-white/5 border border-white/10 rounded text-xs text-gray-300 font-mono">Fast API</span>
+								</div>
+							</div>
+
+							{/* FRONTEND */}
+							<div className="border-l-2 border-purple-500/30 pl-4">
+								<div className="text-xs font-bold text-gray-500 uppercase tracking-wider mb-3">Frontend</div>
+								<div className="flex flex-wrap gap-2">
+									<span className="px-2 py-1 bg-white/5 border border-white/10 rounded text-xs text-gray-300 font-mono">React 18</span>
+									<span className="px-2 py-1 bg-white/5 border border-white/10 rounded text-xs text-gray-300 font-mono">TypeScript</span>
+									<span className="px-2 py-1 bg-white/5 border border-white/10 rounded text-xs text-gray-300 font-mono">Tailwind</span>
+									<span className="px-2 py-1 bg-white/5 border border-white/10 rounded text-xs text-gray-300 font-mono">Vite</span>
+								</div>
+							</div>
+
+							{/* STORAGE */}
+							<div className="border-l-2 border-green-500/30 pl-4">
+								<div className="text-xs font-bold text-gray-500 uppercase tracking-wider mb-3">Storage</div>
+								<div className="flex flex-wrap gap-2">
+									<span className="px-2 py-1 bg-white/5 border border-white/10 rounded text-xs text-gray-300 font-mono">GCP Storage</span>
+									<span className="px-2 py-1 bg-white/5 border border-white/10 rounded text-xs text-gray-300 font-mono">Pinecone</span>
+									<span className="px-2 py-1 bg-white/5 border border-white/10 rounded text-xs text-gray-300 font-mono">Firebase</span>
+								</div>
+							</div>
 						</div>
 					</div>
 					<div className="md:w-1/2 bg-gray-900/50 p-8 rounded-xl border border-white/5">
