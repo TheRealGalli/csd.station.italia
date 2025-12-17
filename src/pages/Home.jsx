@@ -1,27 +1,5 @@
 import React, { useEffect, useRef } from 'react';
 
-// Official-like SVG Paths
-const GoogleCloudLogo = () => (
-	<svg className="h-8 w-auto opacity-70 hover:opacity-100 transition-opacity grayscale hover:grayscale-0" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-		<path d="M11.92 11.23V7.27H23.97C24.08 8 24.12 8.65 24.12 9.47C24.12 18.08 18.36 24 12.03 24C5.39 24 0 18.63 0 12C0 5.37 5.39 0 12.03 0C15.22 0 18.25 1.18 20.6 3.37L17.7 6.27C16.49 5.14 14.51 4.27 12.03 4.27C7.86 4.27 4.39 7.73 4.39 12C4.39 16.27 7.86 19.73 12.03 19.73C16.25 19.73 18.9 16.78 19.51 12.98L11.92 12.98V11.23Z" fill="currentColor" />
-	</svg>
-);
-
-const MicrosoftAzureLogo = () => (
-	<svg className="h-8 w-auto opacity-70 hover:opacity-100 transition-opacity grayscale hover:grayscale-0" viewBox="0 0 23 23" fill="none" xmlns="http://www.w3.org/2000/svg">
-		<path d="M0 0H10.8993V10.8993H0V0Z" fill="currentColor" />
-		<path d="M12.1007 0H23V10.8993H12.1007V0Z" fill="currentColor" />
-		<path d="M0 12.1007H10.8993V23H0V12.1007Z" fill="currentColor" />
-		<path d="M12.1007 12.1007H23V23H12.1007V12.1007Z" fill="currentColor" />
-	</svg>
-);
-
-const OpenAILogo = () => (
-	<svg className="h-8 w-auto opacity-70 hover:opacity-100 transition-opacity grayscale hover:grayscale-0" viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
-		<path d="M22.2819 9.8211a5.9847 5.9847 0 0 0-.5157-4.9108 6.0462 6.0462 0 0 0-6.5098-2.9A6.0651 6.0651 0 0 0 4.9807 4.1818a5.9847 5.9847 0 0 0-3.9977 2.9 6.0462 6.0462 0 0 0 .7427 7.0966 5.98 5.98 0 0 0 .511 4.9107 6.0462 6.0462 0 0 0 6.5146 2.9001A5.9847 5.9847 0 0 0 13.2599 24a6.0557 6.0557 0 0 0 5.7718-4.2058 5.9894 5.9894 0 0 0 3.9977-2.9001 6.0557 6.0557 0 0 0-.7475-7.0729zm-9.022 12.6081a4.4755 4.4755 0 0 1-2.8764-1.0408l.1419-.0804 4.7783-2.7582a.7948.7948 0 0 0 .3927-.6813v-6.7369l2.02 1.1686a1.54 1.54 0 0 1 .8312 1.32v5.6373a4.4811 4.4811 0 0 1-5.2877 3.1717zm-6.697-5.4901a4.4755 4.4755 0 0 1-.5808-3.0186l.142.0852 4.7831 2.7582a.7712.7712 0 0 0 .7802 0l5.8428-3.3685v2.3324a1.54 1.54 0 0 1-.5314 1.2001l-4.8828 3.7913a4.4811 4.4811 0 0 1-5.5531-3.7801zm2.2273-9.1766a4.4717 4.4717 0 0 1 3.2519.1843l-.142.0804-4.7783 2.7582a.7948.7948 0 0 0-.3927.6813v6.7369l-2.02-1.1686a1.5248 1.5248 0 0 1-.8264-1.32V6.9363a4.4774 4.4774 0 0 1 4.9075-3.1746zm9.6443 2.0169l-.142-.0804-4.7831-2.7582a.7712.7712 0 0 0-.7802 0L6.5872 7.8001V5.4677a1.54 1.54 0 0 1 .5314-1.2001l4.8828-3.7913a4.4811 4.4811 0 0 1 5.5483 3.7801zM7.1983 12.9723l3.6655-2.1157 3.6656 2.1157-3.6656 2.1157-3.6655-2.1157z" />
-	</svg>
-);
-
 export default function Home({ onOpenChat }) {
 	const calRef = useRef(null);
 
@@ -138,14 +116,21 @@ export default function Home({ onOpenChat }) {
 						Powered by World-Class Infrastructure
 					</span>
 					<div className="flex flex-wrap justify-center gap-12 md:gap-20">
-						<div className="flex items-center gap-3 text-gray-300 font-bold text-lg opacity-60 hover:opacity-100 transition-opacity cursor-default">
-							<GoogleCloudLogo /> Google Cloud
+						<div className="flex items-center gap-3 opacity-60 hover:opacity-100 transition-opacity cursor-default">
+							<img src="https://www.gstatic.com/images/branding/product/2x/gcp_48dp.png" alt="Google Cloud" className="h-8" />
+							<span className="text-gray-300 font-bold text-lg">Google Cloud</span>
 						</div>
-						<div className="flex items-center gap-3 text-gray-300 font-bold text-lg opacity-60 hover:opacity-100 transition-opacity cursor-default">
-							<MicrosoftAzureLogo /> Microsoft
+						<div className="flex items-center gap-3 opacity-60 hover:opacity-100 transition-opacity cursor-default">
+							<img src="https://upload.wikimedia.org/wikipedia/commons/4/44/Microsoft_logo.svg" alt="Microsoft" className="h-7" />
+							<span className="text-gray-300 font-bold text-lg">Microsoft</span>
 						</div>
-						<div className="flex items-center gap-3 text-gray-300 font-bold text-lg opacity-60 hover:opacity-100 transition-opacity cursor-default">
-							<OpenAILogo /> OpenAI
+						<div className="flex items-center gap-3 opacity-60 hover:opacity-100 transition-opacity cursor-default">
+							<img src="https://upload.wikimedia.org/wikipedia/commons/0/04/ChatGPT_logo.svg" alt="OpenAI" className="h-8" />
+							<span className="text-gray-300 font-bold text-lg">OpenAI</span>
+						</div>
+						<div className="flex items-center gap-3 opacity-60 hover:opacity-100 transition-opacity cursor-default">
+							<img src="https://upload.wikimedia.org/wikipedia/commons/7/78/Anthropic_logo.svg" alt="Anthropic" className="h-8" />
+							<span className="text-gray-300 font-bold text-lg">Anthropic</span>
 						</div>
 					</div>
 				</div>
