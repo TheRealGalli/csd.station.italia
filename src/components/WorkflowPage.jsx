@@ -170,6 +170,7 @@ IMPORTANTE:
 					if (payload === '[DONE]') continue;
 					try {
 						const evt = JSON.parse(payload);
+						console.log('[Workflow SSE]', evt); // DEBUG
 						let delta = '';
 						if (evt?.type === 'response.output_text.delta' && typeof evt?.delta === 'string') {
 							delta = evt.delta;
@@ -189,18 +190,21 @@ IMPORTANTE:
 							}
 						}
 						if (delta) {
+							console.log('[Workflow Delta]', delta.length, 'chars'); // DEBUG
 							received = true;
 							pending += delta;
 							startFlusher();
 						}
-					} catch {
-						// ignora chunk non JSON
+					} catch (parseErr) {
+						console.error('[Workflow SSE Parse Error]', parseErr, 'Line:', line); // DEBUG
 					}
 				}
 			}
 			ended = true;
+			console.log('[Workflow Stream Ended] Received:', received, 'Content length:', content.length); // DEBUG
 			if (!received && !content) setError('Nessun contenuto dal modello.');
 		} catch (e) {
+			console.error('[Workflow Stream Error]', e); // DEBUG
 			setError(e?.message || 'Errore');
 		} finally {
 			setLoading(false);
@@ -267,6 +271,8 @@ IMPORTANTE:
 						{title}
 					</h2>
 				);
+				// Add separator after major section headings
+				nodes.push(<hr key={`hr-${nodes.length}`} className="border-t border-white/10 my-4" />);
 				continue;
 			}
 
