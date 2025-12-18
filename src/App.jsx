@@ -52,9 +52,9 @@ export default function App() {
 		};
 	}, []);
 	return (
-		<div className="relative min-h-screen overflow-x-hidden">
+		<div className="relative min-h-screen overflow-x-hidden bg-[#060b13]">
 			{/* Background gradient shapes and Ballpit */}
-			<div className="fixed inset-0 -z-10 overflow-hidden pointer-events-none" style={{ willChange: 'transform' }}>
+			<div className="fixed inset-0 -z-10 overflow-hidden pointer-events-none bg-[#060b13]" style={{ willChange: 'transform' }}>
 				{window.innerWidth >= 768 ? (
 					<>
 						<div className="bg-blob top-[-20%] left-[-15%] w-[500px] h-[500px] bg-blue-600/20"></div>
