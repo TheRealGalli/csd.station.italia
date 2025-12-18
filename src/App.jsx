@@ -60,7 +60,7 @@ export default function App() {
 				{page === 'home' && (
 					<div style={{ position: 'absolute', inset: 0 }}>
 						<Ballpit
-							count={window.innerWidth < 768 ? 40 : 100} // Significant reduction for mobile
+							count={window.innerWidth < 768 ? 25 : 100} // Significant reduction for mobile
 							gravity={0}
 							friction={0.98}
 							wallBounce={0.99}

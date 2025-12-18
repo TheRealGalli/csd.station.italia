@@ -37,7 +37,7 @@ export default function Home({ onOpenChat }) {
 	return (
 		<div className="flex flex-col gap-20 md:gap-32 pb-20">
 			{/* 1. HERO SECTION */}
-			<section className="relative flex flex-col items-center text-center pt-24 md:pt-32 gap-8 px-4">
+			<section className="relative flex flex-col items-center text-center pt-44 md:pt-32 gap-8 px-4">
 
 				{/* Visual Arcs (Restored) */}
 				<div className="absolute inset-x-0 -top-20 md:top-0 flex justify-center pointer-events-none select-none z-0 opacity-80">
