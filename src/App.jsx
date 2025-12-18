@@ -54,7 +54,7 @@ export default function App() {
 	return (
 		<div className="relative min-h-screen overflow-x-hidden">
 			{/* Background gradient shapes and Ballpit */}
-			<div className="fixed top-0 left-0 w-full h-full -z-10 overflow-hidden pointer-events-none" style={{ willChange: 'transform', height: '100lvh' }}>
+			<div className="fixed inset-0 -z-10 overflow-hidden pointer-events-none" style={{ willChange: 'transform' }}>
 				{window.innerWidth >= 768 ? (
 					<>
 						<div className="bg-blob top-[-20%] left-[-15%] w-[500px] h-[500px] bg-blue-600/20"></div>
@@ -80,10 +80,11 @@ export default function App() {
 					</>
 				) : (
 					/* Mobile Static Background: Purple, Blue, Green */
-					<div className="absolute inset-0 bg-[#060b13]">
-						<div className="absolute top-[-10%] left-[-20%] w-[300px] h-[300px] bg-purple-600/20 blur-[80px] rounded-full"></div>
-						<div className="absolute top-[30%] right-[-10%] w-[250px] h-[250px] bg-blue-600/20 blur-[70px] rounded-full"></div>
-						<div className="absolute bottom-[10%] left-[10%] w-[280px] h-[280px] bg-emerald-600/15 blur-[90px] rounded-full"></div>
+					<div className="absolute inset-0 bg-[#060b13] w-full min-h-full">
+						<div className="absolute top-[-5%] left-[-20%] w-[300px] h-[300px] bg-purple-600/20 blur-[80px] rounded-full"></div>
+						<div className="absolute top-[25%] right-[-15%] w-[280px] h-[280px] bg-blue-600/20 blur-[75px] rounded-full"></div>
+						<div className="absolute top-[60%] left-[-10%] w-[320px] h-[320px] bg-emerald-600/15 blur-[95px] rounded-full"></div>
+						<div className="absolute bottom-[-10%] right-[-10%] w-[250px] h-[250px] bg-purple-600/10 blur-[70px] rounded-full"></div>
 					</div>
 				)}
 			</div>
