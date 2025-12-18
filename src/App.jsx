@@ -54,23 +54,28 @@ export default function App() {
 	return (
 		<div className="relative min-h-screen overflow-x-hidden">
 			{/* Background gradient shapes and Ballpit */}
-			<div className="fixed inset-0 -z-10 overflow-hidden pointer-events-none">
-				<div className="bg-blob top-[-20%] left-[-15%] w-[500px] h-[500px] bg-primary/20"></div>
-				<div className="bg-blob bottom-[-10%] right-[-15%] w-[600px] h-[600px] bg-accent/10"></div>
+			<div className="fixed inset-0 -z-10 overflow-hidden pointer-events-none" style={{ willChange: 'transform' }}>
+				{window.innerWidth >= 768 && (
+					<>
+						<div className="bg-blob top-[-20%] left-[-15%] w-[500px] h-[500px] bg-primary/20"></div>
+						<div className="bg-blob bottom-[-10%] right-[-15%] w-[600px] h-[600px] bg-accent/10"></div>
+					</>
+				)}
 				{page === 'home' && (
 					<div style={{ position: 'absolute', inset: 0 }}>
 						<Ballpit
-							count={window.innerWidth < 768 ? 15 : 100} // Drastic reduction for mobile performance
+							count={window.innerWidth < 768 ? 12 : 100} // Further reduction
 							gravity={0}
 							friction={0.98}
 							wallBounce={0.99}
 							followCursor={false}
 							colors={[0x3A7DFF, 0x10B981, 0xFDF5E6]}
 							minSize={0.5}
-							maxSize={window.innerWidth < 768 ? 0.9 : 1.2} // Smaller spheres on mobile for cleaner look
+							maxSize={window.innerWidth < 768 ? 0.9 : 1.2}
 							size0={0.8}
 							ambientIntensity={1.2}
-							lightIntensity={window.innerWidth < 768 ? 200 : 450} // Lower intensity on mobile to avoid text bleed
+							lightIntensity={window.innerWidth < 768 ? 150 : 450} // Even lower for mobile
+							maxPixelRatio={window.innerWidth < 768 ? 1.5 : 2}
 						/>
 					</div>
 				)}

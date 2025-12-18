@@ -25,6 +25,11 @@
 	filter: blur(150px);
 	pointer-events: none;
 }
+@media (max-width: 767px) {
+	.bg-blob {
+		filter: blur(60px);
+	}
+}
 
 /* Animated gradient for header bar (green <-> blue sweep) */
 .header-anim {

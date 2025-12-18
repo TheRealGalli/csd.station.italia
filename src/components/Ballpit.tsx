@@ -51,6 +51,8 @@ class x {
   #l: any;
   constructor(e: any) {
     this.#e = { ...e };
+    this.maxPixelRatio = this.#e.maxPixelRatio || 2;
+    this.minPixelRatio = this.#e.minPixelRatio || 1;
     this.#m();
     this.#d();
     this.#p();
@@ -452,7 +454,10 @@ function createBallpit(e: HTMLCanvasElement, t: any = {}) {
   }
   i.onBeforeRender = (e3: any) => { if (!c) s.update(e3); };
   // Raddoppia area utile: tutta la larghezza e 2x l'altezza
-  i.onAfterResize = (e4: any) => { s.config.maxX = e4.wWidth; s.config.maxY = e4.wHeight * 2; };
+  i.onAfterResize = (e4: any) => {
+    s.config.maxX = e4.wWidth;
+    s.config.maxY = e4.wHeight * 1.5; // Reduced from 2x for mobile performance
+  };
   return {
     three: i,
     get spheres() { return s; },
