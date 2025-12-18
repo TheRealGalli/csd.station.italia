@@ -164,13 +164,13 @@ function S(e: any) {
     if (!b.has(e)) {
       b.set(e, t);
       if (!R) {
-        document.body.addEventListener('pointermove', M);
-        document.body.addEventListener('pointerleave', L);
-        document.body.addEventListener('click', C);
-        document.body.addEventListener('touchstart', TouchStart, { passive: false } as any);
-        document.body.addEventListener('touchmove', TouchMove, { passive: false } as any);
-        document.body.addEventListener('touchend', TouchEnd, { passive: false } as any);
-        document.body.addEventListener('touchcancel', TouchEnd, { passive: false } as any);
+        document.body.addEventListener('pointermove', M, { passive: true });
+        document.body.addEventListener('pointerleave', L, { passive: true });
+        document.body.addEventListener('click', C, { passive: true });
+        document.body.addEventListener('touchstart', TouchStart, { passive: true } as any);
+        document.body.addEventListener('touchmove', TouchMove, { passive: true } as any);
+        document.body.addEventListener('touchend', TouchEnd, { passive: true } as any);
+        document.body.addEventListener('touchcancel', TouchEnd, { passive: true } as any);
         R = true;
       }
     }
@@ -209,7 +209,7 @@ function C(e: MouseEvent) {
 function L() { for (const t of b.values()) { if (t.hover) { t.hover = false; t.onLeave(t); } } }
 function TouchStart(e: TouchEvent) {
   if (e.touches.length > 0) {
-    e.preventDefault();
+    // e.preventDefault(); // Removed: blocks scrolling on mobile
     A.x = e.touches[0].clientX; A.y = e.touches[0].clientY;
     for (const [elem, t] of b) {
       const rect = (elem as HTMLElement).getBoundingClientRect();
@@ -219,7 +219,7 @@ function TouchStart(e: TouchEvent) {
 }
 function TouchMove(e: TouchEvent) {
   if (e.touches.length > 0) {
-    e.preventDefault();
+    // e.preventDefault(); // Removed: blocks scrolling on mobile
     A.x = e.touches[0].clientX; A.y = e.touches[0].clientY;
     for (const [elem, t] of b) {
       const rect = (elem as HTMLElement).getBoundingClientRect();
@@ -512,12 +512,14 @@ const Ballpit = ({ className = '', followCursor = true, obstacleSelectors = [] a
     const canvas = canvasRef.current;
     if (!canvas) return;
     spheresInstanceRef.current = createBallpit(canvas, { followCursor, ...props });
-    computeObstacles();
     const ro = new ResizeObserver(() => computeObstacles());
-    ro.observe(document.body);
+    ro.observe(canvas); // Observe the canvas instead of the whole body
+    const handleResize = () => computeObstacles();
+    window.addEventListener('resize', handleResize);
     return () => {
       if (spheresInstanceRef.current) { spheresInstanceRef.current.dispose(); }
       ro.disconnect();
+      window.removeEventListener('resize', handleResize);
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);

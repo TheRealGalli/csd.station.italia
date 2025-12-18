@@ -60,13 +60,13 @@ export default function App() {
 				{page === 'home' && (
 					<div style={{ position: 'absolute', inset: 0 }}>
 						<Ballpit
-							count={100} // Reduced count slightly for cleaner look with fixed bg
+							count={window.innerWidth < 768 ? 40 : 100} // Significant reduction for mobile
 							gravity={0}
 							friction={0.98}
 							wallBounce={0.99}
 							followCursor={false}
 							colors={[0x3A7DFF, 0x10B981, 0xFDF5E6]}
-							minSize={0.5} // Restore slightly larger/original feel
+							minSize={0.5}
 							maxSize={1.2}
 							size0={0.8}
 							ambientIntensity={1.2}
