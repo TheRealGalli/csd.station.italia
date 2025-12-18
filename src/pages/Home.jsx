@@ -103,7 +103,68 @@ export default function Home({ onOpenChat }) {
 					</button>
 				</div>
 
-				<div ref={calRef} className="mt-4 min-h-[50px] relative z-10"></div>
+			</section>
+
+			{/* 1.5 PROCESSO DI CONSULENZA */}
+			<section className="container mx-auto px-6 -mt-10 mb-20 relative z-20">
+				<div className="bg-gradient-to-br from-gray-900 via-gray-900 to-blue-900/40 rounded-3xl border border-white/10 p-8 md:p-16 backdrop-blur-xl shadow-2xl overflow-hidden relative group">
+					{/* Background Decoration */}
+					<div className="absolute top-0 right-0 w-64 h-64 bg-blue-500/10 rounded-full blur-3xl pointer-events-none group-hover:bg-blue-500/20 transition-all duration-700"></div>
+					<div className="absolute bottom-0 left-0 w-64 h-64 bg-purple-500/5 rounded-full blur-3xl pointer-events-none"></div>
+
+					<div className="max-w-4xl mx-auto text-center mb-16 relative z-10">
+						<span className="inline-block px-4 py-1.5 rounded-full bg-blue-500/10 border border-blue-500/20 text-blue-400 text-xs font-bold tracking-widest uppercase mb-6">
+							Consulenza Strategica Gratuita
+						</span>
+						<h2 className="text-3xl md:text-5xl font-extrabold text-white mb-6 leading-tight">
+							Trasformiamo la visione <br className="hidden md:block" /> in <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-cyan-300">Action Plan.</span>
+						</h2>
+						<p className="text-xl text-gray-300 font-light leading-relaxed">
+							30 minuti per analizzare il potenziale della tua attività, fissare obiettivi chiari e delineare la rotta tecnologica. Senza impegno, solo valore.
+						</p>
+					</div>
+
+					<div className="grid md:grid-cols-3 gap-8 mb-16 relative z-10">
+						{[
+							{
+								step: "01",
+								title: "Analisi",
+								desc: "Serve per capire i potenziali dell'attività del cliente e individuare le aree di automazione ad alto impatto.",
+								icon: "🔍"
+							},
+							{
+								step: "02",
+								title: "Obiettivi",
+								desc: "Fissiamo una visione condivisa del successo e stabiliamo aspettative chiare e misurabili.",
+								icon: "🎯"
+							},
+							{
+								step: "03",
+								title: "Action Plan",
+								desc: "Delineamento di una direzione chiara da seguire per content, strategy e development tecnico.",
+								icon: "📋"
+							}
+						].map((item) => (
+							<div key={item.step} className="bg-white/5 border border-white/5 p-8 rounded-2xl hover:bg-white/10 transition-all duration-300 transform hover:-translate-y-1">
+								<div className="flex items-center justify-between mb-6">
+									<span className="text-4xl">{item.icon}</span>
+									<span className="text-blue-500/30 font-black text-2xl font-mono">{item.step}</span>
+								</div>
+								<h4 className="text-2xl font-bold text-white mb-4">{item.title}</h4>
+								<p className="text-gray-400 leading-relaxed text-sm">{item.desc}</p>
+							</div>
+						))}
+					</div>
+
+					<div className="flex flex-col items-center relative z-10">
+						<div className="w-full max-w-2xl bg-black/20 rounded-xl p-4 border border-white/5">
+							<div ref={calRef} className="min-h-[50px]"></div>
+						</div>
+						<p className="mt-4 text-gray-500 text-xs text-center">
+							Seleziona una data e un orario per fissare la call su Google Meet.
+						</p>
+					</div>
+				</div>
 			</section>
 
 			{/* 2. TRUST BAR */}
