@@ -5,7 +5,10 @@ export default function Header({ current, onNavigate, onOpenChat }) {
 	return (
 		<header id="site-header" className="sticky top-0 z-20 header-anim backdrop-blur">
 			<div className="px-4 sm:px-8 md:px-16 lg:px-24 xl:px-40 py-4 flex items-center justify-between">
-				<div className="flex items-center gap-3">
+				<div
+					className="flex items-center gap-3 cursor-pointer"
+					onClick={() => onNavigate('home')}
+				>
 					<img src={logo} alt="CSD Station logo" className="h-10 w-10 md:h-12 md:w-12 rounded-md object-contain" />
 					<h2 className="text-cream text-lg font-bold font-heading tracking-tight">CSD Station</h2>
 				</div>
