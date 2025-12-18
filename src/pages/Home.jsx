@@ -40,7 +40,7 @@ export default function Home({ onOpenChat }) {
 			<section className="relative flex flex-col items-center text-center pt-44 md:pt-32 gap-8 px-4">
 
 				{/* Visual Arcs (Restored) */}
-				<div className="absolute inset-x-0 -top-20 md:top-0 flex justify-center pointer-events-none select-none z-0 opacity-80">
+				<div className="absolute inset-x-0 top-14 md:top-0 flex justify-center pointer-events-none select-none z-0 opacity-80">
 					<svg className="w-[90%] max-w-6xl h-32 md:h-48" viewBox="0 0 1120 260" fill="none" xmlns="http://www.w3.org/2000/svg" shapeRendering="geometricPrecision">
 						<defs>
 							<linearGradient id="arcGrad" x1="0" y1="0" x2="1120" y2="0" gradientUnits="userSpaceOnUse">

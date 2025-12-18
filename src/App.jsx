@@ -60,17 +60,17 @@ export default function App() {
 				{page === 'home' && (
 					<div style={{ position: 'absolute', inset: 0 }}>
 						<Ballpit
-							count={window.innerWidth < 768 ? 25 : 100} // Significant reduction for mobile
+							count={window.innerWidth < 768 ? 15 : 100} // Drastic reduction for mobile performance
 							gravity={0}
 							friction={0.98}
 							wallBounce={0.99}
 							followCursor={false}
 							colors={[0x3A7DFF, 0x10B981, 0xFDF5E6]}
 							minSize={0.5}
-							maxSize={1.2}
+							maxSize={window.innerWidth < 768 ? 0.9 : 1.2} // Smaller spheres on mobile for cleaner look
 							size0={0.8}
 							ambientIntensity={1.2}
-							lightIntensity={450}
+							lightIntensity={window.innerWidth < 768 ? 200 : 450} // Lower intensity on mobile to avoid text bleed
 						/>
 					</div>
 				)}
