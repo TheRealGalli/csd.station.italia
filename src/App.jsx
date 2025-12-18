@@ -52,14 +52,14 @@ export default function App() {
 		};
 	}, []);
 	return (
-		<div className="relative min-h-screen overflow-x-hidden bg-[#060b14]">
+		<div className="relative min-h-screen overflow-x-hidden">
 			{/* Background gradient shapes and Ballpit */}
 			<div
 				className="fixed inset-0 -z-10 overflow-hidden pointer-events-none"
 				style={{
 					willChange: 'transform',
 					background: window.innerWidth < 768
-						? 'radial-gradient(circle at 0% 0%, rgba(168, 85, 247, 0.15) 0%, transparent 50%), radial-gradient(circle at 100% 30%, rgba(37, 99, 235, 0.15) 0%, transparent 50%), radial-gradient(circle at 20% 80%, rgba(16, 185, 129, 0.12) 0%, transparent 50%), #060b14'
+						? 'radial-gradient(circle at 10% 10%, rgba(168, 85, 247, 0.2) 0%, transparent 40%), radial-gradient(circle at 90% 30%, rgba(37, 99, 235, 0.2) 0%, transparent 45%), radial-gradient(circle at 20% 80%, rgba(16, 185, 129, 0.15) 0%, transparent 40%), #060b14'
 						: 'transparent'
 				}}
 			>
