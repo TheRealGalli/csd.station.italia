@@ -157,8 +157,8 @@ export default function Home({ onOpenChat }) {
 					</div>
 
 					<div className="flex flex-col items-center relative z-10 w-full">
-						<div className="w-full max-w-2xl bg-black/20 rounded-xl p-6 border border-white/5 flex flex-col items-center justify-center text-center">
-							<div ref={calRef} className="min-h-[50px] w-full flex justify-center items-center overflow-visible"></div>
+						<div className="w-full max-w-2xl bg-black/20 rounded-xl min-h-[140px] border border-white/5 flex flex-col items-center justify-center text-center p-8">
+							<div ref={calRef} className="w-full flex justify-center items-center overflow-visible"></div>
 						</div>
 						<p className="mt-4 text-gray-500 text-xs text-center">
 							Seleziona una data e un orario per fissare la call su Google Meet.
