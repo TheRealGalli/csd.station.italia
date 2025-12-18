@@ -55,28 +55,35 @@ export default function App() {
 		<div className="relative min-h-screen overflow-x-hidden">
 			{/* Background gradient shapes and Ballpit */}
 			<div className="fixed top-0 left-0 w-full h-full -z-10 overflow-hidden pointer-events-none" style={{ willChange: 'transform', height: '100lvh' }}>
-				{window.innerWidth >= 768 && (
+				{window.innerWidth >= 768 ? (
 					<>
-						<div className="bg-blob top-[-20%] left-[-15%] w-[500px] h-[500px] bg-primary/20"></div>
-						<div className="bg-blob bottom-[-10%] right-[-15%] w-[600px] h-[600px] bg-accent/10"></div>
+						<div className="bg-blob top-[-20%] left-[-15%] w-[500px] h-[500px] bg-blue-600/20"></div>
+						<div className="bg-blob bottom-[-10%] right-[-15%] w-[600px] h-[600px] bg-emerald-600/10"></div>
+						{page === 'home' && (
+							<div style={{ position: 'absolute', inset: 0 }}>
+								<Ballpit
+									count={100}
+									gravity={0}
+									friction={0.98}
+									wallBounce={0.99}
+									followCursor={false}
+									colors={[0x3A7DFF, 0x10B981, 0xFDF5E6]}
+									minSize={0.5}
+									maxSize={1.2}
+									size0={0.8}
+									ambientIntensity={1.2}
+									lightIntensity={450}
+									maxPixelRatio={2}
+								/>
+							</div>
+						)}
 					</>
-				)}
-				{page === 'home' && (
-					<div style={{ position: 'absolute', inset: 0 }}>
-						<Ballpit
-							count={window.innerWidth < 768 ? 12 : 100} // Further reduction
-							gravity={0}
-							friction={0.98}
-							wallBounce={0.99}
-							followCursor={false}
-							colors={[0x3A7DFF, 0x10B981, 0xFDF5E6]}
-							minSize={0.5}
-							maxSize={window.innerWidth < 768 ? 0.9 : 1.2}
-							size0={0.8}
-							ambientIntensity={1.2}
-							lightIntensity={window.innerWidth < 768 ? 150 : 450} // Even lower for mobile
-							maxPixelRatio={window.innerWidth < 768 ? 1.5 : 2}
-						/>
+				) : (
+					/* Mobile Static Background: Purple, Blue, Green */
+					<div className="absolute inset-0 bg-[#060b13]">
+						<div className="absolute top-[-10%] left-[-20%] w-[300px] h-[300px] bg-purple-600/20 blur-[80px] rounded-full"></div>
+						<div className="absolute top-[30%] right-[-10%] w-[250px] h-[250px] bg-blue-600/20 blur-[70px] rounded-full"></div>
+						<div className="absolute bottom-[10%] left-[10%] w-[280px] h-[280px] bg-emerald-600/15 blur-[90px] rounded-full"></div>
 					</div>
 				)}
 			</div>
