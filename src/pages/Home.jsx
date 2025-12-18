@@ -108,8 +108,8 @@ export default function Home({ onOpenChat }) {
 			{/* 1.5 PROCESSO DI CONSULENZA */}
 			<section className="container mx-auto px-6 -mt-10 mb-20 relative z-20">
 				<div className="bg-gradient-to-br from-gray-900 via-gray-900 to-blue-900/40 rounded-3xl border border-white/10 p-8 md:p-16 backdrop-blur-xl shadow-2xl overflow-hidden relative group">
-					{/* Background Decoration */}
-					<div className="absolute top-0 right-0 w-64 h-64 bg-blue-500/10 rounded-full blur-3xl pointer-events-none group-hover:bg-blue-500/20 transition-all duration-700"></div>
+					{/* Background Decoration - md: only hover to avoid mobile sticking */}
+					<div className="absolute top-0 right-0 w-64 h-64 bg-blue-500/10 rounded-full blur-3xl pointer-events-none md:group-hover:bg-blue-500/20 transition-all duration-700"></div>
 					<div className="absolute bottom-0 left-0 w-64 h-64 bg-purple-500/5 rounded-full blur-3xl pointer-events-none"></div>
 
 					<div className="max-w-4xl mx-auto text-center mb-16 relative z-10">
@@ -157,7 +157,7 @@ export default function Home({ onOpenChat }) {
 					</div>
 
 					<div className="flex flex-col items-center relative z-10 w-full">
-						<div className="w-full max-w-2xl bg-black/20 rounded-xl min-h-[140px] border border-white/5 flex flex-col items-center justify-center text-center p-8">
+						<div className="w-full max-w-2xl bg-black/20 rounded-xl h-[160px] border border-white/5 flex items-center justify-center text-center">
 							<div ref={calRef} className="w-full flex justify-center items-center overflow-visible"></div>
 						</div>
 						<p className="mt-4 text-gray-500 text-xs text-center">

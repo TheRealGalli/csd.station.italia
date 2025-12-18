@@ -37,9 +37,9 @@ class x {
   #t: any;
   size = { width: 0, height: 0, wWidth: 0, wHeight: 0, ratio: 0, pixelRatio: 0 };
   render = this.#i;
-  onBeforeRender = (_: any) => {};
-  onAfterRender = (_: any) => {};
-  onAfterResize = (_: any) => {};
+  onBeforeRender = (_: any) => { };
+  onAfterRender = (_: any) => { };
+  onAfterResize = (_: any) => { };
   #s = false;
   #n = false;
   isDisposed = false;
@@ -159,7 +159,7 @@ class x {
 
 const b = new Map<any, any>(), A = new r(); let R = false;
 function S(e: any) {
-  const t = { position: new r(), nPosition: new r(), hover: false, touching: false, onEnter() {}, onMove() {}, onClick() {}, onLeave() {}, ...e };
+  const t = { position: new r(), nPosition: new r(), hover: false, touching: false, onEnter() { }, onMove() { }, onClick() { }, onLeave() { }, ...e };
   (function (e: any, t: any) {
     if (!b.has(e)) {
       b.set(e, t);
@@ -339,7 +339,7 @@ class Y extends c {
       Object.assign(e.uniforms, this.uniforms);
       e.fragmentShader = '\n        uniform float thicknessPower;\n        uniform float thicknessScale;\n        uniform float thicknessDistortion;\n        uniform float thicknessAmbient;\n        uniform float thicknessAttenuation;\n      ' + e.fragmentShader;
       e.fragmentShader = e.fragmentShader.replace('void main() {', '\n        void RE_Direct_Scattering(const in IncidentLight directLight, const in vec2 uv, const in vec3 geometryPosition, const in vec3 geometryNormal, const in vec3 geometryViewDir, const in vec3 geometryClearcoatNormal, inout ReflectedLight reflectedLight) {\n          vec3 scatteringHalf = normalize(directLight.direction + (geometryNormal * thicknessDistortion));\n          float scatteringDot = pow(saturate(dot(geometryViewDir, -scatteringHalf)), thicknessPower) * thicknessScale;\n          #ifdef USE_COLOR\n            vec3 scatteringIllu = (scatteringDot + thicknessAmbient) * vColor;\n          #else\n            vec3 scatteringIllu = (scatteringDot + thicknessAmbient) * diffuse;\n          #endif\n          reflectedLight.directDiffuse += scatteringIllu * thicknessAttenuation * directLight.color;\n        }\n\n        void main() {\n      ');
-      const t = h.lights_fragment_begin.replaceAll('RE_Direct( directLight, geometryPosition, geometryNormal, geometryViewDir, geometryClearcoatNormal, material, reflectedLight );','\n          RE_Direct( directLight, geometryPosition, geometryNormal, geometryViewDir, geometryClearcoatNormal, material, reflectedLight );\n          RE_Direct_Scattering(directLight, vUv, geometryPosition, geometryNormal, geometryViewDir, geometryClearcoatNormal, reflectedLight);\n        ');
+      const t = h.lights_fragment_begin.replaceAll('RE_Direct( directLight, geometryPosition, geometryNormal, geometryViewDir, geometryClearcoatNormal, material, reflectedLight );', '\n          RE_Direct( directLight, geometryPosition, geometryNormal, geometryViewDir, geometryClearcoatNormal, material, reflectedLight );\n          RE_Direct_Scattering(directLight, vUv, geometryPosition, geometryNormal, geometryViewDir, geometryClearcoatNormal, reflectedLight);\n        ');
       e.fragmentShader = e.fragmentShader.replace('#include <lights_fragment_begin>', t);
       if (this.onBeforeCompile2) this.onBeforeCompile2(e);
     };
@@ -424,9 +424,9 @@ function createBallpit(e: HTMLCanvasElement, t: any = {}) {
   const o = new w(new a(0, 0, 1), 0);
   const r = new a();
   let c = false;
-  (e.style as any).touchAction = 'none';
-  e.style.userSelect = 'none';
-  (e.style as any).webkitUserSelect = 'none';
+  // (e.style as any).touchAction = 'none'; // Removed: prevents scrolling on mobile even with pointer-events: none
+  // e.style.userSelect = 'none';
+  // (e.style as any).webkitUserSelect = 'none';
   // Registra gli handler solo se il follow del cursore è abilitato
   let h: any = null;
   if (t.followCursor) {
