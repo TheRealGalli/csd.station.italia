@@ -54,7 +54,7 @@ export default function App() {
 	return (
 		<div className="relative min-h-screen overflow-x-hidden">
 			{/* Background gradient shapes and Ballpit */}
-			<div className="fixed inset-0 -z-10 overflow-hidden pointer-events-none" style={{ willChange: 'transform' }}>
+			<div className="fixed top-0 left-0 w-full h-full -z-10 overflow-hidden pointer-events-none" style={{ willChange: 'transform', height: '100lvh' }}>
 				{window.innerWidth >= 768 && (
 					<>
 						<div className="bg-blob top-[-20%] left-[-15%] w-[500px] h-[500px] bg-primary/20"></div>

@@ -98,7 +98,21 @@ class x {
     if (this.#e.size instanceof Object) { e = this.#e.size.width; t = this.#e.size.height; }
     else if (this.#e.size === 'parent' && this.canvas.parentNode) { e = (this.canvas.parentNode as HTMLElement).offsetWidth; t = (this.canvas.parentNode as HTMLElement).offsetHeight; }
     else { e = window.innerWidth; t = window.innerHeight; }
-    this.size.width = e; this.size.height = t; this.size.ratio = e / t; this.#x(); this.#b(); this.onAfterResize(this.size);
+    this.size.width = e;
+
+    // Mobile optimization: ignore small height changes (address bar)
+    const heightDiff = Math.abs(t - this.size.height);
+    const isMobile = window.innerWidth < 768;
+    if (isMobile && this.size.height > 0 && heightDiff < (this.size.height * 0.15)) {
+      // Small height change on mobile usually means address bar, skip resize for stability
+      return;
+    }
+
+    this.size.height = t;
+    this.size.ratio = e / t;
+    this.#x();
+    this.#b();
+    this.onAfterResize(this.size);
   }
   #x() {
     this.camera.aspect = this.size.width / this.size.height;
