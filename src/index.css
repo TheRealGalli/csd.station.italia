@@ -2,17 +2,6 @@
 @tailwind components;
 @tailwind utilities;
 
-html {
-	scroll-behavior: smooth;
-	background-color: #060b13 !important;
-}
-
-body {
-	background-color: #060b13 !important;
-	margin: 0;
-	padding: 0;
-}
-
 /* Glass panel utility to emulate the mockup style */
 .glass-panel {
 	background-color: rgba(16, 25, 34, 0.5);

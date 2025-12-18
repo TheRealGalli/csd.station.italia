@@ -52,13 +52,21 @@ export default function App() {
 		};
 	}, []);
 	return (
-		<div className="relative min-h-screen overflow-x-hidden bg-[#060b13]">
+		<div className="relative min-h-screen overflow-x-hidden bg-[#060b14]">
 			{/* Background gradient shapes and Ballpit */}
-			<div className="fixed inset-0 -z-10 overflow-hidden pointer-events-none bg-[#060b13]" style={{ willChange: 'transform' }}>
-				{window.innerWidth >= 768 ? (
+			<div
+				className="fixed inset-0 -z-10 overflow-hidden pointer-events-none"
+				style={{
+					willChange: 'transform',
+					background: window.innerWidth < 768
+						? 'radial-gradient(circle at 0% 0%, rgba(168, 85, 247, 0.15) 0%, transparent 50%), radial-gradient(circle at 100% 30%, rgba(37, 99, 235, 0.15) 0%, transparent 50%), radial-gradient(circle at 20% 80%, rgba(16, 185, 129, 0.12) 0%, transparent 50%), #060b14'
+						: 'transparent'
+				}}
+			>
+				{window.innerWidth >= 768 && (
 					<>
-						<div className="bg-blob top-[-20%] left-[-15%] w-[500px] h-[500px] bg-blue-600/20"></div>
-						<div className="bg-blob bottom-[-10%] right-[-15%] w-[600px] h-[600px] bg-emerald-600/10"></div>
+						<div className="bg-blob top-[-20%] left-[-15%] w-[500px] h-[500px] bg-primary/20"></div>
+						<div className="bg-blob bottom-[-10%] right-[-15%] w-[600px] h-[600px] bg-accent/10"></div>
 						{page === 'home' && (
 							<div style={{ position: 'absolute', inset: 0 }}>
 								<Ballpit
@@ -78,14 +86,6 @@ export default function App() {
 							</div>
 						)}
 					</>
-				) : (
-					/* Mobile Static Background: Purple, Blue, Green */
-					<div className="absolute inset-0 bg-[#060b13] w-full min-h-full">
-						<div className="absolute top-[-5%] left-[-20%] w-[300px] h-[300px] bg-purple-600/20 blur-[80px] rounded-full"></div>
-						<div className="absolute top-[25%] right-[-15%] w-[280px] h-[280px] bg-blue-600/20 blur-[75px] rounded-full"></div>
-						<div className="absolute top-[60%] left-[-10%] w-[320px] h-[320px] bg-emerald-600/15 blur-[95px] rounded-full"></div>
-						<div className="absolute bottom-[-10%] right-[-10%] w-[250px] h-[250px] bg-purple-600/10 blur-[70px] rounded-full"></div>
-					</div>
 				)}
 			</div>
 

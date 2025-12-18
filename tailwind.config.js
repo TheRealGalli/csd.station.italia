@@ -11,7 +11,7 @@ export default {
 				primary: '#3A7DFF',
 				accent: '#64FFDA',
 				'background-light': '#f6f7f8',
-				'background-dark': '#0A192F',
+				'background-dark': '#060b14',
 			},
 			fontFamily: {
 				display: ['Inter', 'sans-serif'],
