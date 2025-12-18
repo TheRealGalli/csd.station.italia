@@ -97,9 +97,9 @@ export default function Home({ onOpenChat }) {
 					</button>
 					<button
 						onClick={onOpenChat}
-						className="px-8 py-4 bg-transparent border border-gray-600 hover:border-gray-400 text-gray-200 rounded-lg font-medium text-lg transition-all hover:bg-white/5"
+						className="px-8 py-4 bg-white/10 backdrop-blur-md border border-white/20 hover:border-white/40 text-white rounded-lg font-medium text-lg transition-all hover:bg-white/20"
 					>
-						Parla con un Architetto AI
+						Parla con un modello IA
 					</button>
 				</div>
 
