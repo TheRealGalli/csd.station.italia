@@ -69,13 +69,17 @@ const skillBadges = [
         img: "https://cdn.qwiklabs.com/XPJTvBC16tGtqvnsnQzjpBs6WwPMTEo%2FptFlQ%2BMBiHg%3D",
     },
     {
+        name: "Mitigate Threats & Vulnerabilities with SCC",
+        img: "https://cdn.qwiklabs.com/aM1mN0gSEvrDIrNI62BU5QPavPuCk%2Fi3jLHBRc31ZTc%3D",
+    },
+    {
         name: "Kickstarting App Dev with Gemini Code Assist",
         img: "https://cdn.qwiklabs.com/1Sb5hVLDMPyRbwJTLMwbJQnDemCVgzS7LSld6YgBhUk%3D",
     },
     // — Introductory —
     {
-        name: "Mitigate Threats & Vulnerabilities with SCC",
-        img: "https://cdn.qwiklabs.com/aM1mN0gSEvrDIrNI62BU5QPavPuCk%2Fi3jLHBRc31ZTc%3D",
+        name: "Deploy Kubernetes Applications on Google Cloud",
+        img: "https://cdn.qwiklabs.com/XEaSHIu5cNECoi%2FM%2Fw30h9DDBXPP9Sdke8OQQPv3gNQ%3D",
     },
     {
         name: "Build Smart Cloud Apps with Vibe Coding & MCP",
@@ -96,10 +100,6 @@ const skillBadges = [
     {
         name: "Derive Insights from BigQuery Data",
         img: "https://cdn.qwiklabs.com/fRSh6wZemDI5n3Z0y8GNWh4fNLlHZTq4G5p2CCLly3c%3D",
-    },
-    {
-        name: "Deploy Kubernetes Applications on Google Cloud",
-        img: "https://cdn.qwiklabs.com/XEaSHIu5cNECoi%2FM%2Fw30h9DDBXPP9Sdke8OQQPv3gNQ%3D",
     },
 ];
 
