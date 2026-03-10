@@ -78,12 +78,12 @@ const skillBadges = [
     },
     // — Introductory —
     {
-        name: "Deploy Kubernetes Applications on Google Cloud",
-        img: "https://cdn.qwiklabs.com/XEaSHIu5cNECoi%2FM%2Fw30h9DDBXPP9Sdke8OQQPv3gNQ%3D",
-    },
-    {
         name: "Build Smart Cloud Apps with Vibe Coding & MCP",
         img: "https://cdn.qwiklabs.com/z9bzy3p7KL1CvhBCR9dBz4tdGDy7%2BdQOM%2BGxXQRGePY%3D",
+    },
+    {
+        name: "Deploy Kubernetes Applications on Google Cloud",
+        img: "https://cdn.qwiklabs.com/XEaSHIu5cNECoi%2FM%2Fw30h9DDBXPP9Sdke8OQQPv3gNQ%3D",
     },
     {
         name: "Get Started with Google Workspace Tools",
