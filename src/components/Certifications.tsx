@@ -69,13 +69,13 @@ const skillBadges = [
         img: "https://cdn.qwiklabs.com/XPJTvBC16tGtqvnsnQzjpBs6WwPMTEo%2FptFlQ%2BMBiHg%3D",
     },
     {
-        name: "Mitigate Threats & Vulnerabilities with SCC",
-        img: "https://cdn.qwiklabs.com/aM1mN0gSEvrDIrNI62BU5QPavPuCk%2Fi3jLHBRc31ZTc%3D",
+        name: "Kickstarting App Dev with Gemini Code Assist",
+        img: "https://cdn.qwiklabs.com/1Sb5hVLDMPyRbwJTLMwbJQnDemCVgzS7LSld6YgBhUk%3D",
     },
     // — Introductory —
     {
-        name: "Kickstarting App Dev with Gemini Code Assist",
-        img: "https://cdn.qwiklabs.com/1Sb5hVLDMPyRbwJTLMwbJQnDemCVgzS7LSld6YgBhUk%3D",
+        name: "Mitigate Threats & Vulnerabilities with SCC",
+        img: "https://cdn.qwiklabs.com/aM1mN0gSEvrDIrNI62BU5QPavPuCk%2Fi3jLHBRc31ZTc%3D",
     },
     {
         name: "Build Smart Cloud Apps with Vibe Coding & MCP",
