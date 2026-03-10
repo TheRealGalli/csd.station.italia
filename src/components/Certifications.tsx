@@ -17,6 +17,14 @@ const skillBadges = [
     },
     // — Intermediate —
     {
+        name: "Deploy Kubernetes Applications on Google Cloud",
+        img: "https://cdn.qwiklabs.com/XEaSHIu5cNECoi%2FM%2Fw30h9DDBXPP9Sdke8OQQPv3gNQ%3D",
+    },
+    {
+        name: "Connecting Cloud Networks with NCC",
+        img: "https://cdn.qwiklabs.com/Y0Bg%2FY1trEfF5%2FwE6ByOpoQbSFoZzhKA4AzWbVuBFmY%3D",
+    },
+    {
         name: "Develop Your Google Cloud Network",
         img: "https://cdn.qwiklabs.com/1W491MLsCade2Tehi6mQSwcQz3XfbGpJNTGHAhlvHdU%3D",
     },
