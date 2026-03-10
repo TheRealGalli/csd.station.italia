@@ -19,7 +19,7 @@ export const Footer = () => {
             <div className="flex flex-col gap-1.5 text-sm text-gray-500">
               <span className="flex items-center gap-2">
                 <MapPin className="w-4 h-4" />
-                Florida, USA
+                Su tutto il territorio nazionale, ITA
               </span>
               <span className="flex items-center gap-2">
                 <Mail className="w-4 h-4" />

@@ -57,7 +57,7 @@ export const Hero = () => {
               </span>
               <span className="flex items-center gap-1.5">
                 <span className="w-2 h-2 rounded-full bg-google-blue"></span>
-                Florida, USA
+                Su tutto il territorio nazionale, ITA
               </span>
               <span className="flex items-center gap-1.5">
                 <span className="w-2 h-2 rounded-full bg-google-yellow"></span>
