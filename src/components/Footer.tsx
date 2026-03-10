@@ -1,4 +1,4 @@
-import { Github, Linkedin, Mail, MapPin } from "lucide-react";
+import { Building, Github, Linkedin, Mail, MapPin } from "lucide-react";
 
 export const Footer = () => {
   const currentYear = new Date().getFullYear();
@@ -24,6 +24,10 @@ export const Footer = () => {
               <span className="flex items-center gap-2">
                 <Mail className="w-4 h-4" />
                 info@csd-station.com
+              </span>
+              <span className="flex items-center gap-2">
+                <Building className="w-4 h-4" />
+                P.IVA: 01630510525
               </span>
             </div>
           </div>
