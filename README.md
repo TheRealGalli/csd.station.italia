@@ -14,28 +14,6 @@ Tali personaggi e le loro rappresentazioni visive sono di **proprietà esclusiva
 
 ---
 
-## Dettagli Tecnici del Progetto
-
-Questo progetto rappresenta il frontend in lingua italiana costruitio come web app statica moderna. È stato ideato per un deploy rapido e pulito:
-- React 18
-- TypeScript
-- Vite
-- Tailwind CSS
-
-L'architettura backend di base (presente nella cartella `server/gcp`) è un server Express minimale (Node.js) predisposto esclusivamente per future implementazioni, completamente indipendente da logiche LLM esterne.
-
-### Sviluppo locale
-
-```bash
-# Installa le dipendenze per il frontend
-npm install
-
-# Avvia il server di sviluppo locale
-npm run dev
-```
-
-Apri `http://localhost:5173` per visualizzare il sito in locale.
-
 ---
 
 *CyberSpaceDokingStation*
