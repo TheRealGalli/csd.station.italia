@@ -1,55 +1,41 @@
-## CSD Station — Sezione Italia (Frontend + Workflow Agentici)
+# CSD Station Italia
 
-Sito statico ospitato su GitHub Pages con backend “serverless” basato su workflow/agentica di OpenAI instradato tramite un proxy minimal su **GCP Cloud Run**.
+Benvenuti nel repository di **CSD Station Italia**, la versione italiana del sito web ufficiale di organizzazione di automazione e AI.
 
-### Struttura
-- Frontend: Vite + React (SPA), contenuti in italiano
-- Deploy: GitHub Actions → GitHub Pages
-- Backend: nessun server tradizionale; le richieste passano da un servizio **Cloud Run** che chiama OpenAI (Responses API/Workflows) via chiave server-side
+## ⚠️ Diritti d'Autore e Proprietà Intellettuale sui Personaggi
 
-### Requisiti
-- Node.js 20+
-- Account GitHub (Pages abilitato sul repo)
-- Account GCP (per Cloud Run)
-- Chiave OpenAI (`OPENAI_API_KEY`)
+**Tutti i diritti riservati sui personaggi originali.**
+
+I diritti d'autore e la proprietà intellettuale per questo progetto si applicano **esclusivamente** ai seguenti personaggi originali presenti all'interno del sito web:
+- **Ginger** (la ragazza con l'ombrello)
+- **I 7 nani-tech** (le illustrazioni delle mascotte tecnologiche)
+
+Tali personaggi e le loro rappresentazioni visive sono di **proprietà esclusiva di CSD Station**. È severamente vietata la copia, la riproduzione, la distribuzione, la modifica o qualsiasi altro utilizzo non autorizzato (anche parziale) di questi specifici personaggi senza il preventivo ed esplicito consenso scritto. Ogni violazione dei diritti d'autore su questi elementi sarà perseguita nelle sedi competenti a norma di legge.
+
+---
+
+## Dettagli Tecnici del Progetto
+
+Questo progetto rappresenta il frontend in lingua italiana costruitio come web app statica moderna. È stato ideato per un deploy rapido e pulito:
+- React 18
+- TypeScript
+- Vite
+- Tailwind CSS
+
+L'architettura backend di base (presente nella cartella `server/gcp`) è un server Express minimale (Node.js) predisposto esclusivamente per future implementazioni, completamente indipendente da logiche LLM esterne.
 
 ### Sviluppo locale
+
 ```bash
-npm ci
+# Installa le dipendenze per il frontend
+npm install
+
+# Avvia il server di sviluppo locale
 npm run dev
 ```
-Apri `http://localhost:5173`.
 
-Per testare end-to-end, deploya il servizio su GCP (vedi `server/README.md`) e crea un file `.env.local` con:
-```
-VITE_WORKER_URL=https://<tuo-servizio>.a.run.app
-```
+Apri `http://localhost:5173` per visualizzare il sito in locale.
 
-### Build
-```bash
-npm run build
-```
-L’attributo `base` per GitHub Pages viene impostato in CI via `VITE_BASE_PATH=/NOME_REPO/`.
+---
 
-### Deploy su GitHub Pages
-1. Imposta il branch `main` come default.
-2. Abilita GitHub Pages con sorgente “GitHub Actions”.
-3. Fai push su `main`. La workflow `.github/workflows/deploy.yml` costruirà e pubblicherà `dist/`.
-
-### Deploy del servizio su GCP (proxy verso OpenAI)
-Segui `server/README.md`. Dopo il deploy, imposta in GitHub Actions un env (opzionale) per la build:
-- `VITE_WORKER_URL=https://<tuo-servizio>.a.run.app`
-
-In alternativa, per build locale:
-```
-echo "VITE_WORKER_URL=https://<tuo-servizio>.a.run.app" > .env
-```
-
-### Come funziona l’“unico backend con workflow agentici”
-- Il frontend statico invia richieste al servizio Cloud Run.
-- Il servizio inoltra verso OpenAI (Responses API o Workflows), dove avviene la logica “agentica”.
-- Nessun server personalizzato da mantenere: tutto il “backend” è il workflow eseguito sull’infrastruttura OpenAI, con un proxy ultra-sottile solo per proteggere la chiave e gestire CORS.
-
-### Personalizzazione
-- Modifica contenuti in `src/pages/*` e componenti in `src/components/*`.
-- Per logiche avanzate (strumenti/funzioni), estendi il servizio su Cloud Run per chiamare API esterne dietro autorizzazione del modello (function/tool calling).
+*CyberSpaceDokingStation*
