@@ -53,7 +53,7 @@ export const Hero = () => {
             <div className="flex flex-wrap items-center gap-4 justify-center lg:justify-start mt-2 text-sm text-gray-500">
               <span className="flex items-center gap-1.5">
                 <span className="w-2 h-2 rounded-full bg-google-green"></span>
-                Partner Avanzato
+                Partner Membro
               </span>
               <span className="flex items-center gap-1.5">
                 <span className="w-2 h-2 rounded-full bg-google-blue"></span>
@@ -61,7 +61,7 @@ export const Hero = () => {
               </span>
               <span className="flex items-center gap-1.5">
                 <span className="w-2 h-2 rounded-full bg-google-yellow"></span>
-                Professionista Certificato
+                Professionista Google
               </span>
             </div>
           </div>

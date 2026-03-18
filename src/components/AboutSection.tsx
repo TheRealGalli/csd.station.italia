@@ -51,20 +51,20 @@ export const AboutSection = () => {
                                         </span>
                                         <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-gray-100">
                                             <MapPin className="w-3.5 h-3.5" />
-                                            Florida, USA
+                                            Italia, Toscana
                                         </span>
                                     </div>
                                 </div>
 
                                 <div className="space-y-3 text-gray-600 leading-relaxed">
                                     <p>
-                                        <strong className="text-gray-900">CyberSpaceDokingStation</strong> è
-                                        un'azienda individuale con sede in Florida, che offre{" "}
+                                        <strong className="text-gray-900">CSD Station Italia</strong> è
+                                        un'attività con sede in Toscana, Italia, che offre{" "}
                                         <strong className="text-google-blue">consulenze tecniche gratuite di 30 minuti</strong> per
-                                        aiutare le aziende a scoprire la potenza dell'automazione AI.
+                                        aiutare professionisti e aziende a scoprire la potenza dell'automazione AI.
                                     </p>
                                     <p>
-                                        Come <strong className="text-gray-900">Partner Avanzato</strong>, siamo specializzati
+                                        Come <strong className="text-gray-900">Partner Membro Google</strong>, sono specializzato
                                         nella creazione di soluzioni basate sull'AI che automatizzano task ripetitivi,
                                         sfruttando l'ambiente di lavoro del cliente e l'intelligenza artificiale
                                         all'avanguardia per fornire risultati reali.
