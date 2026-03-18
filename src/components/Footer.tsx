@@ -29,15 +29,11 @@ export const Footer = () => {
             <div className="flex flex-col gap-1.5 text-sm text-gray-500">
               <span className="flex items-center gap-2">
                 <MapPin className="w-4 h-4" />
-                Via Francesco Campana 45, Colle Val d'Elsa, SI, ITA
+                Su tutto territorio nazionale : ITA
               </span>
               <span className="flex items-center gap-2">
                 <Mail className="w-4 h-4" />
                 carlo@csd-station.it
-              </span>
-              <span className="flex items-center gap-2">
-                <Building className="w-4 h-4" />
-                P.IVA: 01630510525
               </span>
             </div>
           </div>
