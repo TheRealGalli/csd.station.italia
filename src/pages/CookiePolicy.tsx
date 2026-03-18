@@ -1,7 +1,17 @@
-import { Header } from "@/components/Header";
-import { Footer } from "@/components/Footer";
+import { Header } from "../components/Header";
+import { Footer } from "../components/Footer";
+import { RotateCcw } from "lucide-react";
 
-const CookiePolicy = () => {
+export const CookiePolicy = () => {
+  const handleReset = () => {
+    // Clear the consent cookie
+    document.cookie = "csd-cookie-consent=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
+    // Notify components
+    window.dispatchEvent(new CustomEvent("cookie-consent-updated", { detail: null }));
+    // Trigger banner
+    window.dispatchEvent(new CustomEvent("show-cookie-banner"));
+  };
+
   return (
     <div className="min-h-screen bg-white flex flex-col">
       <Header />
@@ -72,11 +82,24 @@ const CookiePolicy = () => {
             In caso di domande sul nostro uso dei cookie o di altre tecnologie, scrivici a 
             <a href="mailto:carlo@csd-station.it" className="text-blue-600"> carlo@csd-station.it</a> o <a href="mailto:carlo@csd-station.com" className="text-blue-600"> carlo@csd-station.com</a>.
           </p>
+
+          <div className="mt-12 p-8 bg-gray-50 rounded-2xl border border-gray-100 flex flex-col items-center text-center gap-4 not-prose">
+            <h3 className="text-lg font-bold text-gray-900">Gestisci le tue preferenze</h3>
+            <p className="text-gray-600 text-sm max-w-sm">
+              Se desideri modificare la tua scelta precedente, puoi resettare le tue preferenze sui cookie qui. 
+              Il banner di consenso riapparirà in fondo allo schermo.
+            </p>
+            <button
+              onClick={handleReset}
+              className="btn btn-outline flex items-center gap-2 hover:bg-white hover:text-blue-600 hover:border-blue-600 transition-all"
+            >
+              <RotateCcw className="w-4 h-4" />
+              Resetta Cookie
+            </button>
+          </div>
         </div>
       </main>
       <Footer />
     </div>
   );
 };
-
-export default CookiePolicy;

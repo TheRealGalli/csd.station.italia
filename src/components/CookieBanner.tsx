@@ -13,12 +13,20 @@ export const CookieBanner = () => {
     };
 
     useEffect(() => {
+        const handleShow = () => setIsVisible(true);
+        window.addEventListener("show-cookie-banner", handleShow);
+
         const consent = getCookie("csd-cookie-consent");
         if (!consent) {
             // Delay showing the banner for a smoother entrance
             const timer = setTimeout(() => setIsVisible(true), 1500);
-            return () => clearTimeout(timer);
+            return () => {
+                clearTimeout(timer);
+                window.removeEventListener("show-cookie-banner", handleShow);
+            };
         }
+
+        return () => window.removeEventListener("show-cookie-banner", handleShow);
     }, []);
 
     const handleConsent = (status: "accepted" | "rejected") => {
