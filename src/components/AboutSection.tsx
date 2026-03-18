@@ -58,7 +58,7 @@ export const AboutSection = () => {
 
                                 <div className="space-y-3 text-gray-600 leading-relaxed">
                                     <p>
-                                        <strong className="text-gray-900">CSD Station Italia</strong> è
+                                        <strong className="text-gray-900">CyberSpaceDokingStation LLC</strong> è
                                         un'attività con sede in Toscana, Italia, che offre{" "}
                                         <strong className="text-google-blue">consulenze tecniche gratuite di 30 minuti</strong> per
                                         aiutare professionisti e aziende a scoprire la potenza dell'automazione AI.

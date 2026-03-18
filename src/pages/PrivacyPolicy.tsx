@@ -29,18 +29,18 @@ const PrivacyPolicy = () => {
             Per la gestione tecnica dell'infrastruttura di raccolta e archiviazione dei dati, CSD Station Italia si avvale della collaborazione di:
           </p>
           <div className="bg-gray-50 p-4 rounded-xl border border-gray-100 not-prose text-sm mb-6">
-            <p><strong>Cyber Space Docking Station LLC</strong></p>
+            <p><strong>CyberSpaceDokingStation LLC</strong></p>
             <p>Indirizzo: 7901 4th St N, Ste 300, St. Petersburg, FL 33702, USA</p>
             <p>Email: <a href="mailto:carlo@csd-station.com" className="text-blue-600">carlo@csd-station.com</a></p>
           </div>
           <p>
-            Cyber Space Docking Station LLC agisce in qualità di Responsabile del Trattamento per conto di Carlo Galli (P.IVA), fornendo l'infrastruttura tecnica di Google Workspace (Google Calendar, Gmail, Google Forms, Google Sheets, Google Cloud) attraverso il dominio <code>csd-station.com</code>. Questo garantisce che, sebbene i dati siano processati e stoccati principalmente tramite l'account Google Workspace associato alla LLC americana, ciò avvenga sotto le direttive e per conto di Carlo Galli (P.IVA) e in piena conformità con il GDPR, come dettagliato nella sezione 5.
+            CyberSpaceDokingStation LLC agisce in qualità di Responsabile del Trattamento per conto di Carlo Galli (P.IVA), fornendo l'infrastruttura tecnica di Google Workspace (Google Calendar, Gmail, Google Forms, Google Sheets, Google Cloud) attraverso il dominio <code>csd-station.com</code>. Questo garantisce che, sebbene i dati siano processati e stoccati principalmente tramite l'account Google Workspace associato alla LLC americana, ciò avvenga sotto le direttive e per conto di Carlo Galli (P.IVA) e in piena conformità con il GDPR, come dettagliato nella sezione 5.
           </p>
 
           <h2 className="text-xl font-bold text-gray-900 mt-8 mb-4">3. Dati Personali Raccolti</h2>
           <p>Raccogliamo i seguenti tipi di dati personali:</p>
           <ul>
-            <li><strong>Dati forniti volontariamente dall'utente per la prenotazione:</strong> Quando prenoti una consulenza gratuita tramite il modulo di prenotazione basato su Google Calendar, che è integrato o linkato dal nostro sito (<code>csd-station.it</code>), ma gestito tramite l'infrastruttura Google Workspace di <code>csd-station.com</code> (Cyber Space Docking Station LLC), raccogliamo il tuo nome, cognome, indirizzo email e qualsiasi altra informazione che scegli di fornire nel campo note o richiesta.</li>
+            <li><strong>Dati forniti volontariamente dall'utente per la prenotazione:</strong> Quando prenoti una consulenza gratuita tramite il modulo di prenotazione basato su Google Calendar, che è integrato o linkato dal nostro sito (<code>csd-station.it</code>), ma gestito tramite l'infrastruttura Google Workspace di <code>csd-station.com</code> (CyberSpaceDokingStation LLC), raccogliamo il tuo nome, cognome, indirizzo email e qualsiasi altra informazione che scegli di fornire nel campo note o richiesta.</li>
             <li><strong>Dati raccolti tramite comunicazioni successive:</strong> Dopo la prenotazione, potremmo raccogliere ulteriori dati personali tramite comunicazioni via email (utilizzando sia <code>carlo@csd-station.it</code> che <code>carlo@csd-station.com</code> su Gmail), moduli Google (Google Forms) o fogli di calcolo (Google Sheets) per la gestione delle consulenze, la profilazione delle esigenze e l'erogazione dei nostri servizi. Questi dati possono includere informazioni relative alle tue esigenze professionali, dettagli del progetto e altri dati pertinenti alla nostra collaborazione.</li>
             <li><strong>Dati di navigazione e cookie:</strong> Anche se il nostro sito è statico, l'integrazione di servizi di terze parti come Google Calendar e l'eventuale utilizzo di strumenti di analisi (se attivati) possono comportare la raccolta di dati di navigazione e l'installazione di cookie sul tuo dispositivo. Per maggiori dettagli, consulta la nostra <strong>Cookie Policy</strong>.</li>
           </ul>
@@ -65,24 +65,24 @@ const PrivacyPolicy = () => {
 
           <h2 className="text-xl font-bold text-gray-900 mt-8 mb-4">6. Modalità del Trattamento e Sicurezza dei Dati</h2>
           <p>
-            Il trattamento dei dati personali avviene principalmente tramite strumenti informatici e telematici. Per tutte le operazioni di raccolta, archiviazione ed elaborazione dei dati, ci affidiamo interamente ai servizi di Google Workspace, gestiti attraverso l'account di Cyber Space Docking Station LLC (<code>csd-station.com</code>).
+            Il trattamento dei dati personali avviene principalmente tramite strumenti informatici e telematici. Per tutte le operazioni di raccolta, archiviazione ed elaborazione dei dati, ci affidiamo interamente ai servizi di Google Workspace, gestiti attraverso l'account di CyberSpaceDokingStation LLC (<code>csd-station.com</code>).
           </p>
           <p>
-            Google, in qualità di nostro Responsabile del Trattamento (e sub-Responsabile per Cyber Space Docking Station LLC), si impegna a garantire la conformità al GDPR e ha adottato misure tecniche e organizzative adeguate per proteggere i tuoi dati. Carlo Galli (P.IVA) ha stipulato un accordo di trattamento dati con Cyber Space Docking Station LLC, e quest'ultima ha accettato il Cloud Data Processing Addendum (CDPA) di Google, che include le Clausole Contrattuali Standard (SCCs) approvate dall'UE, garantendo un adeguato livello di protezione anche in caso di trasferimenti di dati al di fuori dell'Unione Europea. Google aderisce inoltre all'EU-U.S. Data Privacy Framework (DPF).
+            Google, in qualità di nostro Responsabile del Trattamento (e sub-Responsabile per CyberSpaceDokingStation LLC), si impegna a garantire la conformità al GDPR e ha adottato misure tecniche e organizzative adeguate per proteggere i tuoi dati. Carlo Galli (P.IVA) ha stipulato un accordo di trattamento dati con CyberSpaceDokingStation LLC, e quest'ultima ha accettato il Cloud Data Processing Addendum (CDPA) di Google, che include le Clausole Contrattuali Standard (SCCs) approvate dall'UE, garantendo un adeguato livello di protezione anche in caso di trasferimenti di dati al di fuori dell'Unione Europea. Google aderisce inoltre all'EU-U.S. Data Privacy Framework (DPF).
           </p>
 
           <h2 className="text-xl font-bold text-gray-900 mt-8 mb-4">7. Destinatari dei Dati</h2>
           <p>I tuoi dati personali potranno essere comunicati a:</p>
           <ul>
-            <li><strong>Cyber Space Docking Station LLC:</strong> In qualità di Responsabile del Trattamento che fornisce l'infrastruttura Google Workspace.</li>
+            <li><strong>CyberSpaceDokingStation LLC:</strong> In qualità di Responsabile del Trattamento che fornisce l'infrastruttura Google Workspace.</li>
             <li><strong>Google LLC:</strong> In qualità di fornitore dei servizi Google Workspace (Google Calendar, Gmail, Google Forms, Google Sheets, Google Cloud) e nostro sub-Responsabile del Trattamento.</li>
-            <li><strong>Collaboratori di Carlo Galli (P.IVA) e Cyber Space Docking Station LLC:</strong> Autorizzati al trattamento dei dati per le finalità sopra indicate.</li>
+            <li><strong>Collaboratori di Carlo Galli (P.IVA) e CyberSpaceDokingStation LLC:</strong> Autorizzati al trattamento dei dati per le finalità sopra indicate.</li>
             <li><strong>Autorità competenti:</strong> Ove richiesto da obblighi legali o per far valere un diritto in sede giudiziaria.</li>
           </ul>
 
           <h2 className="text-xl font-bold text-gray-900 mt-8 mb-4">8. Trasferimento Dati Extra-UE</h2>
           <p>
-            I tuoi dati personali raccolti tramite <code>csd-station.it</code> saranno trasferiti al di fuori dell'Unione Europea, in particolare verso gli Stati Uniti, dove ha sede la Cyber Space Docking Station LLC e dove sono localizzati alcuni dei server di Google. Tale trasferimento è legittimato dall'adozione del Cloud Data Processing Addendum (CDPA) di Google da parte di Cyber Space Docking Station LLC, che incorpora le Clausole Contrattuali Standard (SCCs) approvate dalla Commissione Europea, e dall'adesione di Google all'EU-U.S. Data Privacy Framework (DPF), garantendo un livello di protezione adeguato per i dati trasferiti.
+            I tuoi dati personali raccolti tramite <code>csd-station.it</code> saranno trasferiti al di fuori dell'Unione Europea, in particolare verso gli Stati Uniti, dove ha sede la CyberSpaceDokingStation LLC e dove sono localizzati alcuni dei server di Google. Tale trasferimento è legittimato dall'adozione del Cloud Data Processing Addendum (CDPA) di Google da parte di CyberSpaceDokingStation LLC, che incorpora le Clausole Contrattuali Standard (SCCs) approvate dalla Commissione Europea, e dall'adesione di Google all'EU-U.S. Data Privacy Framework (DPF), garantendo un livello di protezione adeguato per i dati trasferiti.
           </p>
 
           <h2 className="text-xl font-bold text-gray-900 mt-8 mb-4">9. Periodo di Conservazione dei Dati</h2>

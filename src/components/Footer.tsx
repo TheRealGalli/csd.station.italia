@@ -19,7 +19,7 @@ export const Footer = () => {
                 CSD <span className="text-google-blue">Station</span>
               </span>
               <p className="text-xs font-semibold text-gray-500 uppercase tracking-wider">
-                CyberSpaceDokingStation Italia
+                CyberSpaceDokingStation LLC Italia
               </p>
             </div>
             <p className="text-gray-600 text-sm leading-relaxed max-w-md">

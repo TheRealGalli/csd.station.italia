@@ -33,7 +33,7 @@ export const Hero = () => {
             </h1>
 
             <p className="text-lg lg:text-xl text-gray-600 leading-relaxed max-w-xl mx-auto lg:mx-0">
-              CyberSpaceDokingStation — il tuo partner di fiducia per l'automazione basata sull'AI
+              CyberSpaceDokingStation LLC — il tuo partner di fiducia per l'automazione basata sull'AI
               e l'ottimizzazione degli spazi di lavoro. Aiutiamo le aziende ad automatizzare
               le attività, snellire i flussi di lavoro e scalare in modo più intelligente.
             </p>
