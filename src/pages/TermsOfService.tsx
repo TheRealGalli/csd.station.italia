@@ -11,12 +11,12 @@ const TermsOfService = () => {
           <p className="text-sm text-gray-500 mb-8 italic">Ultimo aggiornamento: 18 marzo 2026</p>
 
           <p>
-            Benvenuto su <code>csd-station.it</code>. Questi Termini di Servizio ("Termini") regolano l'accesso e l'utilizzo del nostro sito web da parte tua e la fruizione dei servizi di consulenza e sviluppo di automazioni offerti da Carlo Galli (P.IVA 01630510525), operante come CyberSpaceDokingStation LLC (di seguito "noi", "nostro" o "CyberSpaceDokingStation LLC"). Accedendo o utilizzando il nostro sito web, prenotando una consulenza o ingaggiando i nostri servizi, accetti di essere vincolato da questi Termini. Se non accetti una qualsiasi parte di questi Termini, non ti è consentito accedere al sito web o usufruire dei nostri servizi.
+            Benvenuto su <code>csd-station.it</code>. Questi Termini di Servizio ("Termini") regolano l'accesso e l'utilizzo del nostro sito web da parte tua e la fruizione dei servizi di consulenza e sviluppo di automazioni offerti da Carlo Galli (P.IVA 01630510525), operante come CSD Station (di seguito "noi", "nostro" o "CSD Station Italia"). Accedendo o utilizzando il nostro sito web, prenotando una consulenza o ingaggiando i nostri servizi, accetti di essere vincolato da questi Termini. Se non accetti una qualsiasi parte di questi Termini, non ti è consentito accedere al sito web o usufruire dei nostri servizi.
           </p>
 
           <h2 className="text-xl font-bold text-gray-900 mt-8 mb-4">1. Servizi Offerti</h2>
           <p>
-            CyberSpaceDokingStation LLC, operata da Carlo Galli (P.IVA 01630510525), è specializzata nella fornitura di servizi professionali di consulenza e sviluppo di soluzioni automatizzate basate principalmente sull'ecosistema Google Workspace. Il nostro obiettivo è ottimizzare i processi e introdurre automazioni intelligenti per i nostri clienti.
+            CSD Station Italia, operata da Carlo Galli (P.IVA 01630510525), è specializzata nella fornitura di servizi professionali di consulenza e sviluppo di soluzioni automatizzate basate principalmente sull'ecosistema Google Workspace. Il nostro obiettivo è ottimizzare i processi e introdurre automazioni intelligenti per i nostri clienti.
           </p>
           <p>
             Il sito web <code>csd-station.it</code> funge principalmente da piattaforma informativa e di contatto per presentare le nostre capacità e facilitare la prenotazione di consulenze iniziali, focalizzate sulla creazione di automazioni e l'ottimizzazione tramite Google Workspace.
@@ -49,7 +49,7 @@ const TermsOfService = () => {
           <h2 className="text-xl font-bold text-gray-900 mt-8 mb-4">4. Proprietà Intellettuale</h2>
           <ul>
             <li><strong>Contenuti del Sito:</strong> Tutti i contenuti presenti sul sito web, inclusi, a titolo esemplificativo ma non esaustivo, testi, grafica, loghi, icone, immagini, clip audio, download digitali, compilazioni di dati e software, sono di proprietà di Carlo Galli (P.IVA) o dei suoi fornitori di contenuti e sono protetti dalle leggi italiane e internazionali sul copyright, sui marchi e altre leggi sulla proprietà intellettuale.</li>
-            <li><strong>Sviluppi di Servizio:</strong> Salvo diverso accordo scritto nella proposta di servizio, la proprietà intellettuale di qualsiasi automazione, script, integrazione o soluzione personalizzata sviluppata da CyberSpaceDokingStation LLC per il Cliente sarà trasferita al Cliente al momento del completo pagamento dei servizi correlati. CyberSpaceDokingStation LLC si riserva il diritto di utilizzare le conoscenze generali, le tecniche e le esperienze acquisite durante lo sviluppo per altri clienti, purché non violi la riservatezza delle informazioni specifiche del Cliente.</li>
+            <li><strong>Sviluppi di Servizio:</strong> Salvo diverso accordo scritto nella proposta di servizio, la proprietà intellettuale di qualsiasi automazione, script, integrazione o soluzione personalizzata sviluppata da CSD Station Italia per il Cliente sarà trasferita al Cliente al momento del completo pagamento dei servizi correlati. CSD Station Italia si riserva il diritto di utilizzare le conoscenze generali, le tecniche e le esperienze acquisite durante lo sviluppo per altri clienti, purché non violi la riservatezza delle informazioni specifiche del Cliente.</li>
           </ul>
 
           <h2 className="text-xl font-bold text-gray-900 mt-8 mb-4">5. Condotta dell'Utente</h2>
@@ -67,26 +67,26 @@ const TermsOfService = () => {
 
           <h2 className="text-xl font-bold text-gray-900 mt-8 mb-4">6. Riservatezza</h2>
           <p>
-            Durante la fornitura dei servizi, potremmo avere accesso a informazioni riservate e proprietarie del Cliente. Ci impegniamo a trattare tali informazioni con la massima riservatezza e a non divulgarle a terzi, se non strettamente necessario per l'erogazione dei servizi o se richiesto dalla legge. Il Cliente si impegna a trattare allo stesso modo qualsiasi informazione riservata di CyberSpaceDokingStation LLC.
+            Durante la fornitura dei servizi, potremmo avere accesso a informazioni riservate e proprietarie del Cliente. Ci impegniamo a trattare tali informazioni con la massima riservatezza e a non divulgarle a terzi, se non strettamente necessario per l'erogazione dei servizi o se richiesto dalla legge. Il Cliente si impegna a trattare allo stesso modo qualsiasi informazione riservata di CSD Station Italia.
           </p>
 
           <h2 className="text-xl font-bold text-gray-900 mt-8 mb-4">7. Esclusione di Garanzie</h2>
           <p>
-            Il sito web, i servizi e tutti i contenuti, informazioni e soluzioni fornite attraverso di essi sono forniti "così come sono" e "come disponibili", senza garanzie di alcun tipo, espresse o implicite, ad eccezione di quanto espressamente previsto nella sezione "Garanzia e Supporto per le Automazioni". CyberSpaceDokingStation LLC non garantisce che il sito web o i servizi saranno ininterrotti, privi di errori, sicuri o che le soluzioni implementate saranno prive di difetti o funzioneranno senza interruzioni in tutti gli ambienti. Non garantiamo l'accuratezza, la completezza o l'utilità di qualsiasi informazione sul sito web o fornita durante le consulenze.
+            Il sito web, i servizi e tutti i contenuti, informazioni e soluzioni fornite attraverso di essi sono forniti "così come sono" e "come disponibili", senza garanzie di alcun tipo, espresse o implicite, ad eccezione di quanto espressamente previsto nella sezione "Garanzia e Supporto per le Automazioni". CSD Station Italia non garantisce che il sito web o i servizi saranno ininterrotti, privi di errori, sicuri o che le soluzioni implementate saranno prive di difetti o funzioneranno senza interruzioni in tutti gli ambienti. Non garantiamo l'accuratezza, la completezza o l'utilità di qualsiasi informazione sul sito web o fornita durante le consulenze.
           </p>
 
           <h2 className="text-xl font-bold text-gray-900 mt-8 mb-4">8. Garanzia e Supporto per le Automazioni</h2>
           <p>
-            CyberSpaceDokingStation LLC garantisce che le automazioni sviluppate e consegnate funzioneranno conformemente alle specifiche concordate per un periodo di 360 (trecentosessanta) giorni a partire dalla data di attivazione o consegna del servizio/automazione ("Periodo di Garanzia").
+            CSD Station Italia garantisce che le automazioni sviluppate e consegnate funzioneranno conformemente alle specifiche concordate per un periodo di 360 (trecentosessanta) giorni a partire dalla data di attivazione o consegna del servizio/automazione ("Periodo di Garanzia").
           </p>
           <p>
-            Durante il Periodo di Garanzia, in caso di malfunzionamenti o errori attribuibili al nostro sviluppo, o qualora l'automazione cessi di funzionare correttamente a causa di modifiche non previste alle sorgenti dati o all'ambiente Google Workspace del Cliente (es. modifiche a tabelle di Google Sheets, configurazioni di Google Drive, ecc.), CyberSpaceDokingStation LLC si impegna a riparare gratuitamente l'automazione per ripristinarne il corretto funzionamento.
+            Durante il Periodo di Garanzia, in caso di malfunzionamenti o errori attribuibili al nostro sviluppo, o qualora l'automazione cessi di funzionare correttamente a causa di modifiche non previste alle sorgenti dati o all'ambiente Google Workspace del Cliente (es. modifiche a tabelle di Google Sheets, configurazioni di Google Drive, ecc.), CSD Station Italia si impegna a riparare gratuitamente l'automazione per ripristinarne il corretto funzionamento.
           </p>
           <p>
             Questa garanzia è valida a condizione che il Cliente non abbia apportato modifiche non autorizzate all'automazione o alle sue dipendenze essenziali. Il Cliente può segnalare problemi o richiedere assistenza entro il Periodo di Garanzia scrivendo a <a href="mailto:carlo@csd-station.it" className="text-blue-600">carlo@csd-station.it</a>.
           </p>
           <p>
-            Al di fuori del Periodo di Garanzia, CyberSpaceDokingStation LLC non offre alcuna garanzia implicita o esplicita sul continuo funzionamento delle automazioni. Si consiglia vivamente al Cliente di contattare il servizio clienti all'indirizzo <a href="mailto:carlo@csd-station.it" className="text-blue-600">carlo@csd-station.it</a> per discutere opzioni di rinnovo del supporto, aggiornamenti o lo sviluppo di nuove versioni delle automazioni, che potrebbero essere necessarie a seguito di evoluzioni tecnologiche o modifiche dell'ambiente Google Workspace.
+            Al di fuori del Periodo di Garanzia, CSD Station Italia non offre alcuna garanzia implicita o esplicita sul continuo funzionamento delle automazioni. Si consiglia vivamente al Cliente di contattare il servizio clienti all'indirizzo <a href="mailto:carlo@csd-station.it" className="text-blue-600">carlo@csd-station.it</a> per discutere opzioni di rinnovo del supporto, aggiornamenti o lo sviluppo di nuove versioni delle automazioni, che potrebbero essere necessarie a seguito di evoluzioni tecnologiche o modifiche dell'ambiente Google Workspace.
           </p>
 
           <h2 className="text-xl font-bold text-gray-900 mt-8 mb-4">9. Limitazione di Responsabilità</h2>
