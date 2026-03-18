@@ -4,12 +4,29 @@ import { RotateCcw } from "lucide-react";
 
 export const CookiePolicy = () => {
   const handleReset = () => {
-    // Clear the consent cookie
-    document.cookie = "csd-cookie-consent=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
-    // Notify components
+    // 1. Cancella tutti i cookie sul dominio corrente
+    const cookies = document.cookie.split(";");
+    for (let i = 0; i < cookies.length; i++) {
+      const cookie = cookies[i];
+      const eqPos = cookie.indexOf("=");
+      const name = eqPos > -1 ? cookie.substr(0, eqPos).trim() : cookie.trim();
+      document.cookie = name + "=;expires=Thu, 01 Jan 1970 00:00:00 GMT;path=/";
+    }
+
+    // 2. Cancella lo storage
+    localStorage.clear();
+    sessionStorage.clear();
+
+    // 3. Notifica ai componenti che il consenso è stato rimosso
     window.dispatchEvent(new CustomEvent("cookie-consent-updated", { detail: null }));
-    // Trigger banner
+    
+    // 4. Attiva il banner
     window.dispatchEvent(new CustomEvent("show-cookie-banner"));
+    
+    // 5. Scroll verso il basso per rendere visibile il banner
+    setTimeout(() => {
+      window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
+    }, 100);
   };
 
   return (

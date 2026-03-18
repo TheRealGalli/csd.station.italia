@@ -3,11 +3,14 @@ import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
 import PrivacyPolicy from "./pages/PrivacyPolicy";
 import TermsOfService from "./pages/TermsOfService";
-import CookiePolicy from "./pages/CookiePolicy";
+import { CookiePolicy } from "./pages/CookiePolicy";
 import { CookieBanner } from "./components/CookieBanner";
+
+import { ScrollToTop } from "./components/ScrollToTop";
 
 const App = () => (
   <BrowserRouter>
+    <ScrollToTop />
     <Routes>
       <Route path="/" element={<Index />} />
       <Route path="/privacy-policy" element={<PrivacyPolicy />} />
