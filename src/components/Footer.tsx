@@ -1,7 +1,12 @@
 import { Building, Github, Linkedin, Mail, MapPin } from "lucide-react";
+import { Link, useLocation } from "react-router-dom";
 
 export const Footer = () => {
   const currentYear = new Date().getFullYear();
+  const location = useLocation();
+  const isHomePage = location.pathname === "/";
+
+  const getHref = (href: string) => (isHomePage ? href : `/${href}`);
 
   return (
     <footer className="border-t border-gray-200 bg-gray-50" id="footer">
@@ -9,21 +14,26 @@ export const Footer = () => {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-10 lg:gap-8">
           {/* Brand */}
           <div className="lg:col-span-2 flex flex-col gap-4">
-            <span className="text-xl font-bold text-gray-900 tracking-tight">
-              CSD <span className="text-google-blue">Station</span>
-            </span>
+            <div className="flex flex-col gap-2">
+              <span className="text-xl font-bold text-gray-900 tracking-tight">
+                CSD <span className="text-google-blue">Station</span>
+              </span>
+              <p className="text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                CyberSpaceDokingStation Italia
+              </p>
+            </div>
             <p className="text-gray-600 text-sm leading-relaxed max-w-md">
-              CyberSpaceDokingStation — soluzioni di automazione AI e ottimizzazione dello spazio di lavoro.
+              Soluzioni di automazione AI e ottimizzazione dello spazio di lavoro.
               Consulenze gratuite di 30 minuti per le aziende pronte a scalare in modo più intelligente.
             </p>
             <div className="flex flex-col gap-1.5 text-sm text-gray-500">
               <span className="flex items-center gap-2">
                 <MapPin className="w-4 h-4" />
-                Su tutto il territorio nazionale, ITA
+                Via Francesco Campana 45, Colle Val d'Elsa, SI, ITA
               </span>
               <span className="flex items-center gap-2">
                 <Mail className="w-4 h-4" />
-                info@csd-station.com
+                carlo@csd-station.it
               </span>
               <span className="flex items-center gap-2">
                 <Building className="w-4 h-4" />
@@ -47,7 +57,7 @@ export const Footer = () => {
               ].map((link) => (
                 <a
                   key={link.label}
-                  href={link.href}
+                  href={getHref(link.href)}
                   className="text-gray-600 hover:text-google-blue transition-colors text-sm"
                 >
                   {link.label}
@@ -89,15 +99,18 @@ export const Footer = () => {
         {/* Bottom */}
         <div className="mt-12 pt-8 border-t border-gray-200 flex flex-col sm:flex-row justify-between items-center gap-4">
           <p className="text-xs text-gray-500">
-            © {currentYear} CyberSpaceDokingStation. Tutti i diritti riservati.
+            © {currentYear} Carlo Galli (P.IVA). Tutti i diritti riservati.
           </p>
           <div className="flex items-center gap-4 text-xs text-gray-500">
-            <a href="#" className="hover:text-gray-700 transition-colors">
-              Informativa sulla Privacy
-            </a>
-            <a href="#" className="hover:text-gray-700 transition-colors">
+            <Link to="/privacy-policy" className="hover:text-gray-700 transition-colors">
+              Privacy Policy
+            </Link>
+            <Link to="/cookie-policy" className="hover:text-gray-700 transition-colors">
+              Cookie Policy
+            </Link>
+            <Link to="/terms-of-service" className="hover:text-gray-700 transition-colors">
               Termini di Servizio
-            </a>
+            </Link>
           </div>
         </div>
       </div>

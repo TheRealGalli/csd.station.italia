@@ -1,4 +1,4 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useScrollReveal } from "@/hooks/useScrollReveal";
 import { Calendar, Clock, Video } from "lucide-react";
 
@@ -6,34 +6,56 @@ export const BookingSection = () => {
   const { ref: sectionRef, isVisible } = useScrollReveal({ threshold: 0.15 });
   const scriptContainerRef = useRef<HTMLDivElement>(null);
 
+  const getCookie = (name: string) => {
+    const value = `; ${document.cookie}`;
+    const parts = value.split(`; ${name}=`);
+    if (parts.length === 2) return parts.pop()?.split(";").shift();
+    return null;
+  };
+
+  const [consent, setConsent] = useState<string | null>(getCookie("csd-cookie-consent"));
+
   useEffect(() => {
-    const link = document.createElement("link");
-    link.href =
-      "https://calendar.google.com/calendar/scheduling-button-script.css";
-    link.rel = "stylesheet";
-    document.head.appendChild(link);
-
-    const script = document.createElement("script");
-    script.src =
-      "https://calendar.google.com/calendar/scheduling-button-script.js";
-    script.async = true;
-    script.onload = () => {
-      if (window.calendar && scriptContainerRef.current) {
-        window.calendar.schedulingButton.load({
-          url: "https://calendar.google.com/calendar/appointments/schedules/AcZssZ0FZIvLBEleNQJEULW-FQtN_ZpmepA6D58hOJXQ4vtF7i0g3dLC8QhbwwDiSIkJ8PQeFnxuoBfJ?gv=true",
-          color: "#1a73e8", // Darker Google blue forces white text natively
-          label: "Book Appointment",
-          target: scriptContainerRef.current,
-        });
-      }
+    const handleConsentUpdate = (event: any) => {
+      setConsent(event.detail);
     };
-    document.head.appendChild(script);
 
+    window.addEventListener("cookie-consent-updated", handleConsentUpdate);
+    
+    if (consent === "accepted") {
+      const link = document.createElement("link");
+      link.href =
+        "https://calendar.google.com/calendar/scheduling-button-script.css";
+      link.rel = "stylesheet";
+      document.head.appendChild(link);
+
+      const script = document.createElement("script");
+      script.src =
+        "https://calendar.google.com/calendar/scheduling-button-script.js";
+      script.async = true;
+      script.onload = () => {
+        if (window.calendar && scriptContainerRef.current) {
+          window.calendar.schedulingButton.load({
+            url: "https://calendar.google.com/calendar/appointments/schedules/AcZssZ0FZIvLBEleNQJEULW-FQtN_ZpmepA6D58hOJXQ4vtF7i0g3dLC8QhbwwDiSIkJ8PQeFnxuoBfJ?gv=true",
+            color: "#1a73e8", // Darker Google blue forces white text natively
+            label: "Prenota Appuntamento",
+            target: scriptContainerRef.current,
+          });
+        }
+      };
+      document.head.appendChild(script);
+
+      return () => {
+        if (document.head.contains(link)) document.head.removeChild(link);
+        if (document.head.contains(script)) document.head.removeChild(script);
+        window.removeEventListener("cookie-consent-updated", handleConsentUpdate);
+      };
+    }
+    
     return () => {
-      document.head.removeChild(link);
-      document.head.removeChild(script);
+      window.removeEventListener("cookie-consent-updated", handleConsentUpdate);
     };
-  }, []);
+  }, [consent]);
 
   return (
     <section id="booking" className="section" ref={sectionRef as any}>
@@ -73,10 +95,31 @@ export const BookingSection = () => {
 
           {/* Google Calendar Button */}
           <div
-            className={`flex justify-center ${isVisible ? "animate-scale-in delay-200" : "reveal-hidden"
+            className={`flex flex-col items-center justify-center ${isVisible ? "animate-scale-in delay-200" : "reveal-hidden"
               }`}
           >
-            <div ref={scriptContainerRef} id="booking-calendar-btn"></div>
+            {consent === "accepted" ? (
+              <div ref={scriptContainerRef} id="booking-calendar-btn"></div>
+            ) : (
+              <div className="text-center p-8 border-2 border-dashed border-gray-200 rounded-2xl bg-gray-50 max-w-sm mx-auto">
+                <p className="text-sm text-gray-600 mb-4">
+                  Per visualizzare il calendario di prenotazione direttamente qui, accetta i cookie di terze parti.
+                </p>
+                <div className="flex flex-col gap-3">
+                  <a 
+                    href="https://calendar.app.google/AcZssZ0FZIvLBEleNQJEULW-FQtN_ZpmepA6D58hOJXQ4vtF7i0g3dLC8QhbwwDiSIkJ8PQeFnxuoBfJ"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="btn btn-primary text-sm"
+                  >
+                    Apri Calendario in Nuova Scheda
+                  </a>
+                  <p className="text-xs text-gray-400">
+                    Oppure usa il banner dei cookie per abilitarlo.
+                  </p>
+                </div>
+              </div>
+            )}
           </div>
         </div>
       </div>
