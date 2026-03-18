@@ -107,7 +107,7 @@ export const BookingSection = () => {
                 </p>
                 <div className="flex flex-col gap-3">
                   <a 
-                    href="https://calendar.app.google/AcZssZ0FZIvLBEleNQJEULW-FQtN_ZpmepA6D58hOJXQ4vtF7i0g3dLC8QhbwwDiSIkJ8PQeFnxuoBfJ"
+                    href="https://calendar.app.google/iJLfBdRqcU5sARNA8"
                     target="_blank"
                     rel="noopener noreferrer"
                     className="btn btn-primary text-sm"
