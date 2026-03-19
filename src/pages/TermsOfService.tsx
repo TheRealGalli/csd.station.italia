@@ -8,7 +8,7 @@ const TermsOfService = () => {
       <main className="flex-grow pt-32 pb-16 px-6 lg:px-8">
         <div className="max-w-4xl mx-auto prose prose-blue prose-sm sm:prose-base lg:prose-lg text-gray-700">
           <h1 className="text-3xl font-extrabold text-gray-900 mb-8 border-b pb-4">Termini di Servizio</h1>
-          <p className="text-sm text-gray-500 mb-8 italic">Ultimo aggiornamento: 18 marzo 2026</p>
+          <p className="text-sm text-gray-500 mb-8 italic">Ultimo aggiornamento: 19 marzo 2026</p>
 
           <p>
             Benvenuto su <code>csd-station.it</code>. Questi Termini di Servizio ("Termini") regolano l'accesso e l'utilizzo del nostro sito web da parte tua e la fruizione dei servizi di consulenza e sviluppo di automazioni offerti da Carlo Galli (P.IVA 01630510525), operante come CSD Station (di seguito "noi", "nostro" o "CSD Station Italia"). Accedendo o utilizzando il nostro sito web, prenotando una consulenza o ingaggiando i nostri servizi, accetti di essere vincolato da questi Termini. Se non accetti una qualsiasi parte di questi Termini, non ti è consentito accedere al sito web o usufruire dei nostri servizi.
@@ -41,8 +41,8 @@ const TermsOfService = () => {
           <p>Per la corretta erogazione dei servizi, il Cliente si impegna a:</p>
           <ul>
             <li>Fornire tutte le informazioni e accessi necessari ai sistemi Google Workspace (o altri sistemi rilevanti) in modo tempestivo e sicuro.</li>
-            <li>Collaborate attivamente fornendo feedback e approvazioni quando richiesto.</li>
-            <li>Assicurarsi di avere i diritti e le licenze Google necessarie per qualsiasi dato, software o servizio che ci venga fornito per l'integrazione o l'automazione.</li>
+            <li>Collaborare attivamente fornendo feedback e approvazioni quando richiesto.</li>
+            <li>Assicurarsi di avere i diritti e le licenze necessarie per qualsiasi dato, software o servizio che ci venga fornito per l'integrazione o l'automazione.</li>
             <li>Mantenere la riservatezza delle credenziali di accesso e delle informazioni sensibili fornite.</li>
           </ul>
 
@@ -72,21 +72,30 @@ const TermsOfService = () => {
 
           <h2 className="text-xl font-bold text-gray-900 mt-8 mb-4">7. Esclusione di Garanzie</h2>
           <p>
-            Il sito web, i servizi e tutti i contenuti, informazioni e soluzioni fornite attraverso di essi sono forniti "così come sono" e "come disponibili", senza garanzie di alcun tipo, espresse o implicite, ad eccezione di quanto espressamente previsto nella sezione "Garanzia e Supporto per le Automazioni". CSD Station Italia non garantisce che il sito web o i servizi saranno ininterrotti, privi di errori, sicuri o che le soluzioni implementate saranno prive di difetti o funzioneranno senza interruzioni in tutti gli ambienti. Non garantiamo l'accuratezza, la completezza o l'utilità di qualsiasi informazione sul sito web o fornita durante le consulenze.
+            Il sito web, i servizi e tutti i contenuti, informazioni e soluzioni fornite attraverso di essi sono forniti "così come sono" e "come disponibili", senza garanzie di alcun tipo, espresse o implicite, ad eccezione di quanto espressamente previsto nella sezione "Garanzia sui Servizi e Manutenzione". CSD Station Italia non garantisce che il sito web o i servizi saranno ininterrotti, privi di errori, sicuri o che le soluzioni implementate saranno prive di difetti o funzioneranno senza interruzioni in tutti gli ambienti. Non garantiamo l'accuratezza, la completezza o l'utilità di qualsiasi informazione sul sito web o fornita durante le consulenze.
           </p>
 
-          <h2 className="text-xl font-bold text-gray-900 mt-8 mb-4">8. Garanzia e Supporto per le Automazioni</h2>
+          <h2 className="text-xl font-bold text-gray-900 mt-8 mb-4">8. Garanzia sui Servizi e Manutenzione</h2>
+          <h3 className="text-lg font-bold text-gray-900 mt-6 mb-3">8.1 Garanzia sui Difetti di Sviluppo:</h3>
           <p>
-            CSD Station Italia garantisce che le automazioni sviluppate e consegnate funzioneranno conformemente alle specifiche concordate per un periodo di 360 (trecentosessanta) giorni a partire dalla data di attivazione o consegna del servizio/automazione ("Periodo di Garanzia").
+            CSD Station Italia garantisce che le automazioni sviluppate e consegnate funzioneranno conformemente alle specifiche concordate per un periodo di <strong>90 (novanta) giorni</strong> a partire dalla data di attivazione o consegna del servizio/automazione ("Periodo di Garanzia").
           </p>
           <p>
-            Durante il Periodo di Garanzia, in caso di malfunzionamenti o errori attribuibili al nostro sviluppo, o qualora l'automazione cessi di funzionare correttamente a causa di modifiche non previste alle sorgenti dati o all'ambiente Google Workspace del Cliente (es. modifiche a tabelle di Google Sheets, configurazioni di Google Drive, ecc.), CSD Station Italia si impegna a riparare gratuitamente l'automazione per ripristinarne il corretto funzionamento.
+            Durante il Periodo di Garanzia, in caso di malfunzionamenti o errori attribuibili a difetti intrinseci del codice o del design sviluppato da CSD Station Italia, ci impegniamo a riparare gratuitamente l'automazione per ripristinarne il corretto funzionamento.
           </p>
           <p>
-            Questa garanzia è valida a condizione che il Cliente non abbia apportato modifiche non autorizzate all'automazione o alle sue dipendenze essenziali. Il Cliente può segnalare problemi o richiedere assistenza entro il Periodo di Garanzia scrivendo a <a href="mailto:carlo@csd-station.it" className="text-blue-600">carlo@csd-station.it</a>.
+            Questa garanzia è valida a condizione che il Cliente non abbia apportato modifiche non autorizzate all'automazione o alle sue dipendenze essenziali e che l'ambiente operativo (es. configurazione di Google Workspace, struttura dei dati) sia rimasto invariato rispetto al momento della consegna. Il Cliente può segnalare problemi o richiedere assistenza entro il Periodo di Garanzia scrivendo a <a href="mailto:carlo@csd-station.it" className="text-blue-600">carlo@csd-station.it</a>.
+          </p>
+
+          <h3 className="text-lg font-bold text-gray-900 mt-6 mb-3">8.2 Servizi di Manutenzione e Aggiornamento:</h3>
+          <p>
+            Al di fuori del Periodo di Garanzia, o per interventi non coperti dalla garanzia (come malfunzionamenti dovuti a modifiche apportate dal Cliente all'ambiente operativo o alle sorgenti dati, aggiornamenti delle piattaforme esterne che influenzano l'automazione, o nuove funzionalità richieste), CSD Station Italia non offre alcuna garanzia implicita o esplicita sul continuo funzionamento delle automazioni <strong>in assenza di un accordo di servizio di manutenzione specifico</strong>.
           </p>
           <p>
-            Al di fuori del Periodo di Garanzia, CSD Station Italia non offre alcuna garanzia implicita o esplicita sul continuo funzionamento delle automazioni. Si consiglia vivamente al Cliente di contattare il servizio clienti all'indirizzo <a href="mailto:carlo@csd-station.it" className="text-blue-600">carlo@csd-station.it</a> per discutere opzioni di rinnovo del supporto, aggiornamenti o lo sviluppo di nuove versioni delle automazioni, che potrebbero essere necessarie a seguito di evoluzioni tecnologiche o modifiche dell'ambiente Google Workspace.
+            Qualora il Cliente sottoscriva un accordo di servizio di manutenzione con CSD Station Italia, il funzionamento e il supporto delle automazioni saranno regolati dalle condizioni stabilite in tale accordo.
+          </p>
+          <p>
+            Si consiglia vivamente al Cliente di contattare il servizio clienti all'indirizzo <a href="mailto:carlo@csd-station.it" className="text-blue-600">carlo@csd-station.it</a> per discutere opzioni di rinnovo del supporto, piani di manutenzione, aggiornamenti o lo sviluppo di nuove versioni delle automazioni, che potrebbero essere necessarie a seguito di evoluzioni tecnologiche o modifiche dell'ambiente operativo. Tali servizi saranno quotati separatamente e forniti sulla base di un accordo di servizio specifico.
           </p>
 
           <h2 className="text-xl font-bold text-gray-900 mt-8 mb-4">9. Limitazione di Responsabilità</h2>
@@ -96,7 +105,7 @@ const TermsOfService = () => {
 
           <h2 className="text-xl font-bold text-gray-900 mt-8 mb-4">10. Indennizzo</h2>
           <p>
-            Accetti di indennizzare, difendere e tenere indenne Carlo Galli (P.IVA), i suoi collaboratori, agenti, fornitori e licenziatari da e contro qualsiasi reclamo, responsabilità, danni, sentenze, premi, perdite, costi, spese o commissioni (incluse ragionevoli spese legali) derivanti dalla tua violazione di questi Termini di Servizio o dal tuo utilizzo improprio del sito web o dei servizi, incluso, ma non limitato a, l'utilizzo dei contenuti e dei servizi del sito web o delle soluzioni fornite diverso da quanto espressamente autorizzato in questi Termini.
+            Accetti di indennizzare, difendere e tenere indenne Carlo Galli (P.IVA), i suoi collaboratori, agenti, fornitori e licenziatari da e contro qualsiasi reclamo, liability, danni, sentenze, premi, perdite, costi, spese o commissioni (incluse ragionevoli spese legali) derivanti dalla tua violazione di questi Termini di Servizio o dal tuo utilizzo improprio del sito web o dei servizi, incluso, ma non limitato a, l'utilizzo dei contenuti e dei servizi del sito web o delle soluzioni fornite diverso da quanto espressamente autorizzato in questi Termini.
           </p>
 
           <h2 className="text-xl font-bold text-gray-900 mt-8 mb-4">11. Durata e Recesso</h2>
@@ -122,7 +131,7 @@ const TermsOfService = () => {
 
           <h2 className="text-xl font-bold text-gray-900 mt-8 mb-4">15. Intero Accordo</h2>
           <p>
-            Questi Termini di Servizio, unitamente alla proposta di servizio accettata e alla Privacy Policy, costituiscono l'intero accordo tra te e Carlo Galli (P.IVA) per quanto riguarda il sito web e i servizi, e sostituiscono tutti gli accordi e le intese precedenti e contemporanee, scritte o orali, riguardanti tale oggetto.
+            Questi Termini di Servizio, unitamente alla proposta di servizio accettata e alla Privacy Policy, costituiscono l'intero accordo tra te e Carlo Galli (P.IVA) per quanto riguarda il sito web e i servizi, e sostituiscono tutti gli accordi e l'intese precedenti e contemporanee, scritte o orali, riguardanti tale oggetto.
           </p>
 
           <h2 className="text-xl font-bold text-gray-900 mt-8 mb-4">16. Contattaci</h2>
