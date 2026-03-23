@@ -8,7 +8,7 @@ const PrivacyPolicy = () => {
       <main className="flex-grow pt-32 pb-16 px-6 lg:px-8">
         <div className="max-w-4xl mx-auto prose prose-blue prose-sm sm:prose-base lg:prose-lg text-gray-700">
           <h1 className="text-3xl font-extrabold text-gray-900 mb-8 border-b pb-4">Privacy Policy</h1>
-          <p className="text-sm text-gray-500 mb-8 italic">Ultimo aggiornamento: 18 marzo 2026</p>
+          <p className="text-sm text-gray-500 mb-8 italic">Ultimo aggiornamento: 23 marzo 2026</p>
 
           <p>
             Benvenuto su <code>csd-station.it</code>. La tua privacy è di fondamentale importanza per noi. Questa Privacy Policy descrive come Carlo Galli (P.IVA), operante come CSD Station (di seguito "noi", "nostro" o "CSD Station Italia"), raccoglie, utilizza e protegge i tuoi dati personali in conformità con il Regolamento Generale sulla Protezione dei Dati (GDPR) dell'Unione Europea.
@@ -42,6 +42,7 @@ const PrivacyPolicy = () => {
           <ul>
             <li><strong>Dati forniti volontariamente dall'utente per la prenotazione:</strong> Quando prenoti una consulenza gratuita tramite il modulo di prenotazione basato su Google Calendar, che è integrato o linkato dal nostro sito (<code>csd-station.it</code>), ma gestito tramite l'infrastruttura Google Workspace di <code>csd-station.com</code> (CyberSpaceDokingStation LLC), raccogliamo il tuo nome, cognome, indirizzo email e qualsiasi altra informazione che scegli di fornire nel campo note o richiesta.</li>
             <li><strong>Dati raccolti tramite comunicazioni successive:</strong> Dopo la prenotazione, potremmo raccogliere ulteriori dati personali tramite comunicazioni via email (utilizzando sia <code>carlo@csd-station.it</code> che <code>carlo@csd-station.com</code> su Gmail), moduli Google (Google Forms) o fogli di calcolo (Google Sheets) per la gestione delle consulenze, la profilazione delle esigenze e l'erogazione dei nostri servizi. Questi dati possono includere informazioni relative alle tue esigenze professionali, dettagli del progetto e altri dati pertinenti alla nostra collaborazione.</li>
+            <li><strong>Dati raccolti da fonti pubbliche per finalità di contatto (B2B):</strong> Raccogliamo dati professionali pubblicamente accessibili (come nomi, email aziendali, numeri di telefono e URL di siti web) tramite piattaforme come Google Maps o siti web aziendali. Questi dati vengono utilizzati esclusivamente per l'invio di proposte di consulenza personalizzate.</li>
             <li><strong>Dati di navigazione e cookie:</strong> Anche se il nostro sito è statico, l'integrazione di servizi di terze parti come Google Calendar e l'eventuale utilizzo di strumenti di analisi (se attivati) possono comportare la raccolta di dati di navigazione e l'installazione di cookie sul tuo dispositivo. Per maggiori dettagli, consulta la nostra <strong>Cookie Policy</strong>.</li>
           </ul>
 
@@ -51,6 +52,7 @@ const PrivacyPolicy = () => {
             <li><strong>Gestione delle prenotazioni:</strong> Per gestire e confermare le tue prenotazioni di consulenza gratuita, anche se la prenotazione avviene tramite l'infrastruttura di <code>csd-station.com</code>.</li>
             <li><strong>Comunicazioni e assistenza:</strong> Per contattarti in merito alle tue prenotazioni, rispondere alle tue richieste e fornirti assistenza, utilizzando le email <code>carlo@csd-station.it</code> e <code>carlo@csd-station.com</code>.</li>
             <li><strong>Erogazione dei servizi:</strong> Per comprendere le tue esigenze e fornirti i servizi richiesti, anche attraverso l'utilizzo di strumenti e funzionalità di Google Workspace (gestiti tramite <code>csd-station.com</code>), inclusi form, analisi di dati e, se del caso, funzionalità di intelligenza artificiale per ottimizzare l'offerta.</li>
+            <li><strong>Analisi e Proposta Commerciale Personalizzata:</strong> Utilizziamo i dati pubblici raccolti per analizzare la presenza digitale dei potenziali clienti tramite strumenti di intelligenza artificiale integrati in Google Workspace, al fine di generare comunicazioni di primo contatto pertinenti e di valore professionale.</li>
             <li><strong>Adempimento di obblighi legali:</strong> Per adempiere a qualsiasi obbligo legale o regolamentare applicabile alla nostra attività italiana.</li>
           </ul>
 
@@ -66,6 +68,9 @@ const PrivacyPolicy = () => {
           <h2 className="text-xl font-bold text-gray-900 mt-8 mb-4">6. Modalità del Trattamento e Sicurezza dei Dati</h2>
           <p>
             Il trattamento dei dati personali avviene principalmente tramite strumenti informatici e telematici. Per tutte le operazioni di raccolta, archiviazione ed elaborazione dei dati, ci affidiamo interamente ai servizi di Google Workspace, gestiti attraverso l'account di CyberSpaceDokingStation LLC (<code>csd-station.com</code>).
+          </p>
+          <p>
+            Il trattamento include l'utilizzo di funzionalità di intelligenza artificiale integrate esclusivamente nell'ambiente Google Workspace Studio. Tale processo avviene senza l'ausilio di API esterne o piattaforme terze al di fuori del perimetro di sicurezza di Google, garantendo che i dati non vengano utilizzati per l'addestramento di modelli pubblici e che rimangano protetti all'interno dell'infrastruttura certificata.
           </p>
           <p>
             Google, in qualità di nostro Responsabile del Trattamento (e sub-Responsabile per CyberSpaceDokingStation LLC), si impegna a garantire la conformità al GDPR e ha adottato misure tecniche e organizzative adeguate per proteggere i tuoi dati. Carlo Galli (P.IVA) ha stipulato un accordo di trattamento dati con CyberSpaceDokingStation LLC, e quest'ultima ha accettato il Cloud Data Processing Addendum (CDPA) di Google, che include le Clausole Contrattuali Standard (SCCs) approvate dall'UE, garantendo un adeguato livello di protezione anche in caso di trasferimenti di dati al di fuori dell'Unione Europea. Google aderisce inoltre all'EU-U.S. Data Privacy Framework (DPF).

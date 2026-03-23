@@ -8,7 +8,7 @@ const TermsOfService = () => {
       <main className="flex-grow pt-32 pb-16 px-6 lg:px-8">
         <div className="max-w-4xl mx-auto prose prose-blue prose-sm sm:prose-base lg:prose-lg text-gray-700">
           <h1 className="text-3xl font-extrabold text-gray-900 mb-8 border-b pb-4">Termini di Servizio</h1>
-          <p className="text-sm text-gray-500 mb-8 italic">Ultimo aggiornamento: 19 marzo 2026</p>
+          <p className="text-sm text-gray-500 mb-8 italic">Ultimo aggiornamento: 23 marzo 2026</p>
 
           <p>
             Benvenuto su <code>csd-station.it</code>. Questi Termini di Servizio ("Termini") regolano l'accesso e l'utilizzo del nostro sito web da parte tua e la fruizione dei servizi di consulenza e sviluppo di automazioni offerti da Carlo Galli (P.IVA 01630510525), operante come CSD Station (di seguito "noi", "nostro" o "CSD Station Italia"). Accedendo o utilizzando il nostro sito web, prenotando una consulenza o ingaggiando i nostri servizi, accetti di essere vincolato da questi Termini. Se non accetti una qualsiasi parte di questi Termini, non ti è consentito accedere al sito web o usufruire dei nostri servizi.
@@ -19,7 +19,7 @@ const TermsOfService = () => {
             CSD Station Italia, operata da Carlo Galli (P.IVA 01630510525), è specializzata nella fornitura di servizi professionali di consulenza e sviluppo di soluzioni automatizzate basate principalmente sull'ecosistema Google Workspace. Il nostro obiettivo è ottimizzare i processi e introdurre automazioni intelligenti per i nostri clienti.
           </p>
           <p>
-            Il sito web <code>csd-station.it</code> funge principalmente da piattaforma informativa e di contatto per presentare le nostre capacità e facilitare la prenotazione di consulenze iniziali, focalizzate sulla creazione di automazioni e l'ottimizzazione tramite Google Workspace.
+            Il sito web <code>csd-station.it</code> funge principalmente da piattaforma informativa e di contatto per presentare le nostre capacità e facilitare la prenotazione di consulenze iniziali, focalizzate sulla creazione di automazioni e l'ottimizzazione tramite Google Workspace. Il nostro approccio combina l'esperienza umana con l'analisi avanzata tramite intelligenza artificiale (Human-in-the-loop). CSD Station Italia utilizza tali strumenti per elaborare diagnosi preliminari e proposte tecniche basate su dati pubblici (es. Google Maps), garantendo sempre una revisione umana finale su ogni comunicazione inviata.
           </p>
           <p>
             I nostri servizi a pagamento includono, ma non sono limitati a:
@@ -134,7 +134,12 @@ const TermsOfService = () => {
             Questi Termini di Servizio, unitamente alla proposta di servizio accettata e alla Privacy Policy, costituiscono l'intero accordo tra te e Carlo Galli (P.IVA) per quanto riguarda il sito web e i servizi, e sostituiscono tutti gli accordi e l'intese precedenti e contemporanee, scritte o orali, riguardanti tale oggetto.
           </p>
 
-          <h2 className="text-xl font-bold text-gray-900 mt-8 mb-4">16. Contattaci</h2>
+          <h2 className="text-xl font-bold text-gray-900 mt-8 mb-4">16. Comunicazioni Professionali e Opt-out</h2>
+          <p>
+            Le nostre comunicazioni di primo contatto sono effettuate nel rispetto delle normative vigenti sulle comunicazioni B2B. In ogni email è garantito il diritto di opposizione immediata tramite la dicitura "CANCELLAMI" o similari. L'utente può richiedere in qualsiasi momento la rimozione dei propri dati pubblici dai nostri database di analisi.
+          </p>
+
+          <h2 className="text-xl font-bold text-gray-900 mt-8 mb-4">17. Contattaci</h2>
           <p>
             Per qualsiasi domanda relativa a questi Termini di Servizio, ti preghiamo di contattarci all'indirizzo <a href="mailto:carlo@csd-station.it" className="text-blue-600">carlo@csd-station.it</a>.
           </p>
