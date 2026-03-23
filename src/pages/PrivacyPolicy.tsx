@@ -67,7 +67,7 @@ const PrivacyPolicy = () => {
 
           <h2 className="text-xl font-bold text-gray-900 mt-8 mb-4">6. Modalità del Trattamento e Sicurezza dei Dati</h2>
           <p>
-            Il trattamento dei dati personali avviene principalmente tramite strumenti informatici e telematici. Per tutte le operazioni di raccolta, archiviazione ed elaborazione dei dati, ci affidiamo interamente ai servizi di Google Workspace, gestiti attraverso l'account di CyberSpaceDokingStation LLC (<code>csd-station.com</code>).
+            Il trattamento dei dati personali avviene principalmente tramite strumenti informatici e telematici. Per tutte le operazioni di raccolta, archiviazione ed elaborazione dei dati, ci affidiamo interamente ai servizi di Google Workspace, gestiti attraverso l'account di <strong>CyberSpaceDokingStation LLC (<code>csd-station.com</code>)</strong> e l'account <strong>CyberSpaceDokingStation Italia (<code>csd-station.it</code>)</strong>.
           </p>
           <p>
             Il trattamento include l'utilizzo di funzionalità di intelligenza artificiale integrate esclusivamente nell'ambiente Google Workspace Studio. Tale processo avviene senza l'ausilio di API esterne o piattaforme terze al di fuori del perimetro di sicurezza di Google, garantendo che i dati non vengano utilizzati per l'addestramento di modelli pubblici e che rimangano protetti all'interno dell'infrastruttura certificata.
