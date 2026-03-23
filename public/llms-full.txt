@@ -1,0 +1,235 @@
+CONTENUTO INTEGRALE DEL SITO CSD STATION ITALIA (csd-station.it)
+================================================================
+Documento per analisi LLM - Versione Completa
+Data di generazione: 23 marzo 2026
+----------------------------------------------------------------
+
+1. PAGINA PRINCIPALE (HOME)
+---------------------------
+
+[Header / Navigazione]
+Logo: CSD Station - CyberSpaceDokingStation Italia
+Menu: Chi Siamo, Servizi, Come Funziona, Perché Noi, Certificazioni.
+CTA: Prenota Chiamata Gratuita.
+
+[Sezione Hero]
+Titolo: Mettiamo l'AI al Servizio del Tuo Business.
+Sottotitolo: CyberSpaceDokingStation — il tuo partner di fiducia per l'automazione basata sull'AI e l'ottimizzazione degli spazi di lavoro. Aiutiamo le aziende ad automatizzare le attività, snellire i flussi di lavoro e scalare in modo più intelligente.
+CTA Primaria: Prenota Consulenza Gratuita (30 Minuti).
+CTA Secondaria: I Nostri Servizi.
+Indicatori di Fiducia: Partner Membro, Operativo su tutto il territorio nazionale (ITA), Professionista Google.
+
+[Sezione Chi Siamo]
+Titolo: Scopri CSD Station.
+Fondatore: Carlo Galli — Fondatore & CEO, Toscana, Italia.
+Descrizione: CSD Station Italia è un'attività con sede in Toscana, Italia, che offre consulenze tecniche gratuite di 30 minuti per aiutare professionisti e aziende a scoprire la potenza dell'automazione AI. Come Partner Membro Google, sono specializzato nella creazione di soluzioni basate sull'AI che automatizzano task ripetitivi, sfruttando l'ambiente di lavoro del cliente e l'intelligenza artificiale all'avanguardia per fornire risultati reali.
+
+[Sezione Servizi]
+Titolo: Cosa Facciamo. Dalla strategia all'esecuzione, forniamo soluzioni complete di AI e automazione per aziende di tutte le dimensioni.
+Servizi Dettagliati:
+1. Consulenza AI: Consulenza strategica sull'AI per identificare opportunità di automazione nel tuo business. Analizziamo i tuoi flussi di lavoro, troviamo i colli di bottiglia e progettiamo soluzioni intelligenti che fanno risparmiare tempo e denaro.
+2. Ottimizzazione Workspace: Massimizza la tua produttività con soluzioni per lo spazio di lavoro su misura. Automazione email, gestione del calendario, flussi documentali e collaborazione del team — tutto ottimizzato con l'AI.
+3. Automazione Personalizzata: Soluzioni di automazione end-to-end costruite per le tue esigenze specifiche. Dall'elaborazione dei dati alla comunicazione con i clienti, creiamo agenti intelligenti che lavorano 24/7 al posto tuo.
+
+[Sezione Come Funziona]
+Titolo: Semplice come 1-2-3. Ecco come lavoriamo insieme per trasformare il tuo business.
+Fasi del Processo:
+01. Prenota una Chiamata Gratuita: Prenota una consulenza gratuita di 30 minuti senza impegno. Parleremo del tuo business, capiremo i tuoi punti critici ed esploreremo come l'AI può aiutarti.
+02. Analizziamo e Progettiamo: Il nostro team analizza i tuoi flussi di lavoro, identifica le opportunità di automazione e progetta una soluzione su misura che si adatti al tuo budget e ai tuoi obiettivi.
+03. Costruiamo e Consegniamo: Implementiamo la soluzione, la integriamo con i tuoi strumenti esistenti e forniamo supporto continuo per assicurarci che tutto funzioni perfettamente.
+
+[Sezione Perché Sceglierci]
+Titolo: Il Vantaggio CSD. Uniamo una profonda esperienza tecnica con un autentico impegno per il tuo successo.
+Vantaggi Competitivi:
+- Consulenza Esperta Gratuita: Ogni collaborazione inizia con una sessione strategica gratuita di 30 minuti. Nessuna vendita forzata — solo consigli onesti ed esperti su come l'AI può aiutare il tuo business. (Senza impegno, 30 minuti, Consigli esperti)
+- Partner Avanzato Certificato: Supportati da certificazioni professionali in cloud computing, AI, sicurezza e gestione dello spazio di lavoro. Portiamo comprovata esperienza in ogni progetto. (Professionista certificato, Cloud & AI, Pronto per l'impresa)
+- Soluzioni AI su Misura: Non facciamo soluzioni standardizzate. Ogni soluzione è costruita su misura intorno ai tuoi flussi di lavoro, strumenti e obiettivi aziendali specifici. (Costruito su misura, I tuoi strumenti, Il tuo flusso di lavoro)
+- Supporto End-to-End: Dalla consulenza iniziale all'implementazione e oltre. Siamo con te in ogni fase, fornendo supporto continuo e ottimizzazione. (Ciclo di vita completo, Supporto continuo, Miglioramento continuo)
+
+[Sezione Prenotazione]
+Titolo: Prenota la Tua Consulenza Gratuita. 30 minuti per discutere dei tuoi obiettivi di automazione. Nessuna pressione, nessuna vendita forzata — solo consulenza esperta su come l'AI può aiutare il tuo business.
+Dettagli: 30 Minuti, Videochiamata, Scegli l'Orario.
+
+[Sezione Certificazioni]
+Titolo: Esperienza Verificata. Distintivi di competenza professionale in tecnologie Cloud, AI, Sicurezza e Workspace — in continua crescita.
+Elenco delle Competenze Certificate (Skill Badges):
+- Deploy Multi-Agent Architectures
+- Google DeepMind: Train A Small Language Model
+- Use Machine Learning APIs on Google Cloud
+- Connecting Cloud Networks with NCC
+- Develop Your Google Cloud Network
+- Engineer AI Agents with ADK
+- Manage Kubernetes in Google Cloud
+- Analyze & Reason on Multimodal Data with Gemini
+- Multimodal Vector Search with BigQuery
+- Discover & Protect Sensitive Data
+- Secure Software Delivery
+- Inspect Rich Documents with Gemini Multimodality
+- Develop Gen AI Apps with Gemini & Streamlit
+- Explore Generative AI with Gemini API
+- Functions, Formulas & Charts in Google Sheets
+- Chrome Enterprise Premium Security
+- Mitigate Threats & Vulnerabilities with SCC
+- Kickstarting App Dev with Gemini Code Assist
+- Build Smart Cloud Apps with Vibe Coding & MCP
+- Deploy Kubernetes Applications on Google Cloud
+- Get Started with Google Workspace Tools
+- Integrate BigQuery & Google Workspace with Apps Script
+- Develop with Apps Script & AppSheet
+- Derive Insights from BigQuery Data
+
+[Footer]
+CyberSpaceDokingStation Italia. Soluzioni di automazione AI e ottimizzazione dello spazio di lavoro.
+Contatti: carlo@csd-station.it. Sede: Su tutto territorio nazionale (ITA).
+Social: LinkedIn, GitHub.
+© 2026 Carlo Galli (P.IVA). Tutti i diritti riservati.
+
+----------------------------------------------------------------
+
+2. PRIVACY POLICY
+-----------------
+Ultimo aggiornamento: 23 marzo 2026
+
+Benvenuto su csd-station.it. La tua privacy è di fondamentale importanza per noi. Questa Privacy Policy descrive come Carlo Galli (P.IVA), operante come CSD Station (di seguito "noi", "nostro" o "CSD Station Italia"), raccoglie, utilizza e protegge i tuoi dati personali in conformità con il Regolamento Generale sulla Protezione dei Dati (GDPR) dell'Unione Europea.
+
+1. Titolare del Trattamento dei Dati
+Il Titolare del Trattamento dei tuoi dati personali per i servizi offerti tramite csd-station.it è:
+Carlo Galli (P.IVA 01630510525)
+Indirizzo: Via Francesco Campana 45, Colle Val d'Elsa, 53034, Italia
+Email: carlo@csd-station.it (per comunicazioni dirette relative al sito .it)
+Email: carlo@csd-station.com (per comunicazioni e gestione operativa generale)
+Telefono: +393518628203
+
+2. Responsabile del Trattamento e Infrastruttura Tecnica
+Per la gestione tecnica dell'infrastruttura di raccolta e archiviazione dei dati, CSD Station Italia si avvale della collaborazione di:
+CyberSpaceDokingStation LLC
+Indirizzo: 7901 4th St N, Ste 300, St. Petersburg, FL 33702, USA
+Email: carlo@csd-station.com
+CyberSpaceDokingStation LLC agisce in qualità di Responsabile del Trattamento per conto di Carlo Galli (P.IVA), fornendo l'infrastruttura tecnica di Google Workspace (Google Calendar, Gmail, Google Forms, Google Sheets, Google Cloud) attraverso il dominio csd-station.com. Questo garantisce che, sebbene i dati siano processati e stoccati principalmente tramite l'account Google Workspace associato alla LLC americana, ciò avvenga sotto le direttive e per conto di Carlo Galli (P.IVA) e in piena conformità con il GDPR.
+
+3. Dati Personali Raccolti
+Raccogliamo i seguenti tipi di dati personali:
+- Dati forniti volontariamente dall'utente per la prenotazione: nome, cognome, indirizzo email e altre informazioni fornite nel modulo Google Calendar gestito tramite l'infrastruttura di csd-station.com.
+- Dati raccolti tramite comunicazioni successive: informazioni relative a esigenze professionali e dettagli del progetto raccolti tramite email, Google Forms o Google Sheets.
+- Dati raccolti da fonti pubbliche per finalità di contatto (B2B): dati professionali pubblicamente accessibili (nomi, email aziendali, numeri di telefono, siti web) raccolti da Google Maps o siti aziendali per invio di proposte personalizzate.
+- Dati di navigazione e cookie: dati raccolti tramite l'integrazione di servizi di terze parti come Google Calendar. Consulta la Cookie Policy per i dettagli.
+
+4. Finalità del Trattamento dei Dati
+- Gestione delle prenotazioni di consulenza.
+- Comunicazioni e assistenza clienti.
+- Erogazione dei servizi di automazione e consulenza.
+- Analisi e Proposta Commerciale Personalizzata tramite strumenti di intelligenza artificiale integrati in Google Workspace.
+- Adempimento di obblighi legali e regolamentari.
+
+5. Base Giuridica del Trattamento
+- Esecuzione di misure precontrattuali o contrattuali (Art. 6.1.b GDPR).
+- Consenso per cookie non essenziali e marketing (Art. 6.1.a GDPR).
+- Interesse legittimo per gestione, sicurezza e miglioramento dei servizi (Art. 6.1.f GDPR).
+- Obbligo legale (Art. 6.1.c GDPR).
+
+6. Modalità del Trattamento e Sicurezza dei Dati
+Il trattamento avviene tramite strumenti informatici affidandosi a Google Workspace (account CyberSpaceDokingStation LLC e Italia). Include l'uso di AI integrata in Google Workspace Studio per ottimizzazione senza API esterne o addestramento di modelli pubblici. Google garantisce la conformità GDPR tramite il Cloud Data Processing Addendum (CDPA) e le Clausole Contrattuali Standard (SCCs), oltre all'adesione all'EU-U.S. Data Privacy Framework (DPF).
+
+7. Destinatari dei Dati
+I dati possono essere comunicati a CyberSpaceDokingStation LLC, Google LLC, collaboratori autorizzati di Carlo Galli e autorità competenti ove richiesto dalla legge.
+
+8. Trasferimento Dati Extra-UE
+I dati sono trasferiti negli USA (Google e CyberSpaceDokingStation LLC) sulla base delle SCCs e del Data Privacy Framework (DPF).
+
+9. Periodo di Conservazione dei Dati
+I dati sono conservati per il tempo necessario alle finalità (durata rapporto contrattuale + obblighi legali/fiscali). I dati cookie seguono i tempi della Cookie Policy.
+
+10. Diritti dell'Interessato
+Hai diritto ad: accesso, rettifica, cancellazione (oblio), limitazione, portabilità, opposizione, revoca del consenso e reclamo all'Autorità Garante.
+Contatti per i diritti: carlo@csd-station.it o carlo@csd-station.com.
+
+11. Modifiche alla Privacy Policy
+Ci riserviamo il diritto di modificare la policy. L'ultimo aggiornamento è indicato in cima.
+
+12. Cookie Policy
+Consulta la specifica Cookie Policy per i dettagli sui cookie.
+
+----------------------------------------------------------------
+
+3. COOKIE POLICY
+----------------
+Ultimo aggiornamento: 18 marzo 2026
+
+Questa Cookie Policy spiega come csd-station.it utilizza i cookie e tecnologie simili per riconoscerti quando visiti il nostro sito web. Spiega cosa sono queste tecnologie e perché le usiamo.
+
+1. Cosa sono i cookie?
+I cookie sono piccoli file di dati che vengono memorizzati sul tuo computer o dispositivo mobile quando visiti un sito web. Sono utilizzati per far funzionare i siti o migliorarne l'efficienza, oltre che per fornire informazioni di reporting.
+
+2. Perché usiamo i cookie?
+Usiamo cookie di prima parte (essenziali) per il funzionamento tecnico e cookie di terza parte per tracciare interessi o fornire funzionalità esterne.
+
+3. Tipi di cookie che usiamo
+- Strettamente Necessari: Richiesti per funzionalità core e sicurezza (es. csd-cookie-consent, __cf_bm).
+- Funzionalità (Terza Parte): Per il widget di prenotazione Google Calendar (es. NID, OGPC).
+- Distribuzione Contenuti: Per visualizzare badge e asset (Google Cloud/Qwiklabs).
+
+4. Come posso controllare i cookie?
+Puoi impostare le preferenze tramite il banner apparso alla prima visita o tramite le impostazioni del browser. Il rifiuto dei cookie potrebbe limitare alcune funzionalità (come il calendario integrato).
+
+5. Aggiornamenti della Cookie Policy
+Potremmo aggiornare questa policy per motivi operativi, legali o normativi. Ti invitiamo a consultarla regolarmente.
+
+6. Informazioni di contatto
+Email: carlo@csd-station.it o carlo@csd-station.com.
+
+----------------------------------------------------------------
+
+4. TERMINI DI SERVIZIO
+----------------------
+Ultimo aggiornamento: 23 marzo 2026
+
+Benvenuto su csd-station.it. Questi Termini regolano l'accesso e l'utilizzo dei servizi di consulenza e sviluppo di automazioni offerti da Carlo Galli (P.IVA 01630510525), operante come CSD Station (CSD Station Italia).
+
+1. Servizi Offerti
+CSD Station Italia fornisce consulenza professionale e sviluppo di soluzioni automatizzate basate su Google Workspace. L'approccio combina esperienza umana con analisi AI (Human-in-the-loop) per ottimizzare processi basandosi anche su dati pubblici. I servizi includono consulenza, sviluppo (App Script, Sheets, Forms, Calendar, etc.) e formazione/supporto.
+
+2. Accettazione e Pagamento
+L'ingaggio parte dopo una consulenza gratuita e l'accettazione di un preventivo. Pagamenti e scadenze sono dettagliati nelle singole proposte. In caso di ritardo, ci riserviamo di sospendere i servizi.
+
+3. Responsabilità del Cliente
+Il Cliente deve fornire accessi e informazioni in modo tempestivo, collaborare attivamente e disporre delle licenze necessarie per i dati/software integrati.
+
+4. Proprietà Intellettuale
+I contenuti del sito sono di Carlo Galli. La proprietà delle soluzioni personalizzate viene trasferita al Cliente al saldo dei pagamenti. CSD Station si riserva il diritto di riutilizzare conoscenze e tecniche generali acquisite.
+
+5. Condotta e Comunicazioni B2B
+L'uso del sito deve essere lecito. Per l'attività di cold outreach B2B, ogni comunicazione include informativa sull'origine dati e link di Opt-out semplificato ("CANCELLAMI"). Il Titolare rimuove immediatamente chi si oppone.
+
+6. Riservatezza
+Ci impegniamo alla massima riservatezza sui dati del Cliente. Il Cliente si impegna a fare altrettanto per le informazioni di CSD Station.
+
+7. Esclusione di Garanzie
+I servizi sono forniti "così come sono", salvo quanto previsto nella sezione garanzia sui difetti.
+
+8. Garanzia sui Servizi e Manutenzione
+- 8.1 Garanzia Difetti Sviluppo: 90 giorni di garanzia per malfunzionamenti intrinseci al codice consegnato. Riparazione gratuita se non vi sono state modifiche non autorizzate o dell'ambiente operativo.
+- 8.2 Manutenzione: Oltre i 90 giorni o per modifiche esterne (aggiornamenti piattaforme), è necessario un accordo di manutenzione specifico. Contattare carlo@csd-station.it per piani di supporto.
+
+9. Limitazione di Responsabilità
+Carlo Galli non è responsabile per danni indiretti, perdita di profitti o dati derivanti dall'incapacità di usare i servizi, nei limiti di legge.
+
+10. Indennizzo
+L'utente indennizza Carlo Galli per violazioni dei Termini o uso improprio dei servizi.
+
+11. Durata e Recesso
+I Termini valgono per l'uso del sito e dei servizi. Recesso possibile per giusta causa con preavviso scritto.
+
+12. Legge Applicabile e Foro
+Regolato dalle leggi della Repubblica Italiana. Foro competente esclusivo: Tribunale di Siena.
+
+13. Modifiche ai Termini
+Possiamo modificare i Termini con preavviso di 30 giorni per revisioni materiali.
+
+14. Separabilità
+Disposizioni non valide non inficiano le restanti.
+
+15. Intero Accordo
+Questi Termini, la proposta e la Privacy Policy costituiscono l'intero accordo.
+
+16. Contatti
+Email: carlo@csd-station.it.
