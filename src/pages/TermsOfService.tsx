@@ -52,7 +52,7 @@ const TermsOfService = () => {
             <li><strong>Sviluppi di Servizio:</strong> Salvo diverso accordo scritto nella proposta di servizio, la proprietà intellettuale di qualsiasi automazione, script, integrazione o soluzione personalizzata sviluppata da CSD Station Italia per il Cliente sarà trasferita al Cliente al momento del completo pagamento dei servizi correlati. CSD Station Italia si riserva il diritto di utilizzare le conoscenze generali, le tecniche e le esperienze acquisite durante lo sviluppo per altri clienti, purché non violi la riservatezza delle informazioni specifiche del Cliente.</li>
           </ul>
 
-          <h2 className="text-xl font-bold text-gray-900 mt-8 mb-4">5. Condotta dell'Utente</h2>
+          <h2 className="text-xl font-bold text-gray-900 mt-8 mb-4">5. Condotta dell'Utente e Comunicazioni B2B</h2>
           <p>
             Accetti di utilizzare il sito web e i servizi solo per scopi leciti e in modo da non violare i diritti di, o limitare o inibire l'uso e il godimento del sito web o dei servizi da parte di terzi. Accetti di non:
           </p>
@@ -63,6 +63,7 @@ const TermsOfService = () => {
             <li>Utilizzare robot, spider o altri dispositivi automatici, processi o mezzi per accedere al sito web per qualsiasi scopo, inclusa la copia o il monitoraggio di qualsiasi materiale sul sito web.</li>
             <li>Introdurre virus, trojan, worm, bombe logiche o altro materiale dannoso o tecnologicamente pericoloso.</li>
             <li>Tentare di decodificare, decompilare, disassemblare o decifrare qualsiasi software che compone o in qualsiasi modo fa parte del sito web o delle soluzioni fornite.</li>
+            <li><strong>Gestione delle Comunicazioni di Contatto:</strong> CSD Station Italia effettua attività di contatto professionale (cold outreach) basata sull'analisi di dati pubblici per finalità B2B. In conformità con le normative vigenti, ogni comunicazione di questo tipo include una chiara informativa sull'origine dei dati e un meccanismo semplificato di opposizione (Opt-out) tramite risposta diretta (es. "CANCELLAMI"). Il Titolare si impegna a rimuovere immediatamente dai propri sistemi di analisi chiunque eserciti il diritto di opposizione.</li>
           </ul>
 
           <h2 className="text-xl font-bold text-gray-900 mt-8 mb-4">6. Riservatezza</h2>
@@ -134,12 +135,7 @@ const TermsOfService = () => {
             Questi Termini di Servizio, unitamente alla proposta di servizio accettata e alla Privacy Policy, costituiscono l'intero accordo tra te e Carlo Galli (P.IVA) per quanto riguarda il sito web e i servizi, e sostituiscono tutti gli accordi e l'intese precedenti e contemporanee, scritte o orali, riguardanti tale oggetto.
           </p>
 
-          <h2 className="text-xl font-bold text-gray-900 mt-8 mb-4">16. Comunicazioni Professionali e Opt-out</h2>
-          <p>
-            Le nostre comunicazioni di primo contatto sono effettuate nel rispetto delle normative vigenti sulle comunicazioni B2B. In ogni email è garantito il diritto di opposizione immediata tramite la dicitura "CANCELLAMI" o similari. L'utente può richiedere in qualsiasi momento la rimozione dei propri dati pubblici dai nostri database di analisi.
-          </p>
-
-          <h2 className="text-xl font-bold text-gray-900 mt-8 mb-4">17. Contattaci</h2>
+          <h2 className="text-xl font-bold text-gray-900 mt-8 mb-4">16. Contattaci</h2>
           <p>
             Per qualsiasi domanda relativa a questi Termini di Servizio, ti preghiamo di contattarci all'indirizzo <a href="mailto:carlo@csd-station.it" className="text-blue-600">carlo@csd-station.it</a>.
           </p>
