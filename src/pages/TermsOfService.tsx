@@ -15,13 +15,13 @@ const TermsOfService = () => {
           </p>
 
           <h2 className="text-xl font-bold text-gray-900 mt-8 mb-4">Indice dei Nomi e delle Entità</h2>
-          <p>
-            Ai fini della rigorosa interpretazione contrattuale dei presenti Termini e di tutti i documenti allegati:
-          </p>
+          <p>Ai fini della rigorosa interpretazione contrattuale dei presenti Termini e di tutti i documenti allegati:</p>
           <ul>
             <li><strong>Carlo Galli (P.IVA 01630510525)</strong>: Sono i riferimenti legali e fiscali del professionista.</li>
             <li><strong>CSD Station Italia</strong>: È l'entità operativa e il modo in cui il testo (o i contratti) può fare riferimento al professionista stesso (anche inteso come "noi" o "nostro").</li>
             <li><strong>CSD Station</strong>: È unicamente il nome del portale web e del brand associato.</li>
+            <li><strong>Automazione</strong>: Si riferisce a una singola routine, script o flusso di lavoro automatizzato sviluppato all'interno dell'ecosistema Google Workspace.</li>
+            <li><strong>Asset</strong>: Si riferisce all'insieme completo di automazioni, fogli di calcolo collegati, configurazioni, dati e ambiente Google Workspace (es. account automazioni@dominio.com) fornito e implementato dal Fornitore per il Cliente, come soluzione integrata.</li>
           </ul>
 
           <h2 className="text-xl font-bold text-gray-900 mt-8 mb-4">1. Servizi Offerti</h2>
@@ -32,7 +32,7 @@ const TermsOfService = () => {
             Il sito web <code>csd-station.it</code> funge principalmente da piattaforma informativa e di contatto per presentare le nostre capacità e facilitare la prenotazione di consulenze iniziali, focalizzate sulla creazione di automazioni e l'ottimizzazione tramite Google Workspace.
           </p>
           <p>
-            <strong>Nota bene:</strong> L'erogazione di servizi di sviluppo e implementazione professionale è regolata da uno specifico <strong>Accordo di Servizio e Proposta Tecnica per Automazione</strong> (di seguito "Accordo di Servizio"), sottoscritto tra le Parti, che prevale sui presenti termini generali per quanto riguarda le specifiche del progetto.
+            <strong>Nota bene:</strong> L'erogazione di servizi di sviluppo e implementazione professionale è regolata da uno specifico <strong>Accordo di Servizio e Proposta Tecnica per Asset</strong> (di seguito "Accordo di Servizio"), sottoscritto tra le Parti, che prevale sui presenti termini generali per quanto riguarda le specifiche del progetto.
           </p>
 
           <h2 className="text-xl font-bold text-gray-900 mt-8 mb-4">2. Accettazione dei Servizi e Pagamento</h2>
@@ -44,7 +44,7 @@ const TermsOfService = () => {
           <h2 className="text-xl font-bold text-gray-900 mt-8 mb-4">3. Responsabilità del Cliente</h2>
           <p>Per la corretta erogazione dei servizi, il Cliente si impegna a:</p>
           <ul>
-            <li>Fornire tutte le informazioni e gli accessi necessari (inclusa la creazione di un account dedicato all'automazione, se richiesto) in modo tempestivo e sicuro.</li>
+            <li>Fornire tutte le informazioni e gli accessi necessari (inclusa la creazione di un account dedicato all'Asset, se richiesto) in modo tempestivo e sicuro.</li>
             <li>Collaborare attivamente fornendo feedback e approvazioni durante la fase di collaudo (UAT - User Acceptance Test).</li>
             <li>Assicurarsi di avere i diritti e le licenze necessarie per qualsiasi dato o servizio che ci venga fornito per l'integrazione.</li>
           </ul>
@@ -52,7 +52,7 @@ const TermsOfService = () => {
           <h2 className="text-xl font-bold text-gray-900 mt-8 mb-4">4. Proprietà Intellettuale</h2>
           <ul>
             <li><strong>Contenuti del Sito:</strong> Tutti i contenuti presenti sul sito web sono di proprietà di Carlo Galli (P.IVA) o dei suoi fornitori e sono protetti dalle leggi sulla proprietà intellettuale.</li>
-            <li><strong>Sviluppi di Servizio:</strong> Per quanto concerne lo sviluppo di automazioni personalizzate, la proprietà intellettuale sarà trasferita al Cliente al momento dell'**accettazione dell'Automazione** (collaudo/UAT) e del contestuale saldo integrale dei corrispettivi, come dettagliato nello specifico **Accordo di Servizio**. In caso di mancata accettazione o mancato pagamento, la proprietà intellettuale rimarrà in capo a CSD Station Italia.</li>
+            <li><strong>Sviluppi di Servizio:</strong> Per quanto concerne lo sviluppo di Asset personalizzati, la proprietà intellettuale sarà trasferita al Cliente al momento dell'accettazione dell'Asset (collaudo/UAT) e del contestuale saldo integrale dei corrispettivi, come dettagliato nello specifico Accordo di Servizio. In caso di mancata accettazione o mancato pagamento, la proprietà intellettuale rimarrà in capo a CSD Station Italia.</li>
           </ul>
 
           <h2 className="text-xl font-bold text-gray-900 mt-8 mb-4">5. Condotta dell'Utente</h2>
@@ -78,12 +78,12 @@ const TermsOfService = () => {
           <h2 className="text-xl font-bold text-gray-900 mt-8 mb-4">8. Garanzia sui Servizi e Manutenzione</h2>
           <h3 className="text-lg font-bold text-gray-900 mt-6 mb-3">8.1 Garanzia sui Difetti di Sviluppo:</h3>
           <p>
-            CSD Station Italia garantisce che le automazioni sviluppate funzioneranno conformemente alle specifiche concordate per un periodo di <strong>90 (novanta) giorni</strong> a partire dalla data di accettazione o consegna (come dettagliato nell'Accordo di Servizio). Durante tale periodo, ci impegniamo a riparare gratuitamente eventuali difetti intrinseci del codice.
+            CSD Station Italia garantisce che l'Asset sviluppato funzionerà conformemente alle specifiche concordate per un periodo di <strong>90 (novanta) giorni</strong> a partire dalla data di accettazione o consegna (come dettagliato nell'Accordo di Servizio). Durante tale periodo, ci impegniamo a riparare gratuitamente eventuali difetti intrinseci del codice.
           </p>
 
           <h3 className="text-lg font-bold text-gray-900 mt-6 mb-3">8.2 Servizi di Manutenzione e Supporto Post-Garanzia:</h3>
           <p>
-            Al di fuori del Periodo di Garanzia, o per malfunzionamenti derivanti da modifiche esterne (aggiornamenti di piattaforme terze, modifiche del Cliente all'ambiente operativo), il supporto è condizionato alla sottoscrizione di un <strong>accordo di servizio di manutenzione specifico</strong> (MSA di manutenzione). In assenza di tale accordo, non è offerta alcuna garanzia sul continuo funzionamento dell'automazione.
+            Al di fuori del Periodo di Garanzia, o per malfunzionamenti derivanti da modifiche esterne (aggiornamenti di piattaforme terze, modifiche del Cliente all'ambiente operativo), il supporto è condizionato alla sottoscrizione di un <strong>accordo di servizio di manutenzione specifico</strong> (MSA di manutenzione). In assenza di tale accordo, non è offerta alcuna garanzia sul continuo funzionamento dell'Asset.
           </p>
 
           <h2 className="text-xl font-bold text-gray-900 mt-8 mb-4">9. Limitazione di Responsabilità</h2>
@@ -113,7 +113,7 @@ const TermsOfService = () => {
 
           <h2 className="text-xl font-bold text-gray-900 mt-8 mb-4">14. Privacy e Trattamento Dati</h2>
           <p>
-            Il trattamento dei dati personali è regolato dalla nostra <a href="/privacy-policy" className="text-blue-600 underline">Privacy Policy</a>. Nello sviluppo dei servizi, il Fornitore agirà in qualità di Responsabile del Trattamento (Data Processor) ai sensi del GDPR per i dati del Cliente a cui avrà accesso tramite l'account automazioni.
+            Il trattamento dei dati personali è regolato dalla nostra <a href="/privacy-policy" className="text-blue-600 underline">Privacy Policy</a>. Nello sviluppo dei servizi, il Fornitore agirà in qualità di Responsabile del Trattamento (Data Processor) ai sensi del GDPR per i dati del Cliente a cui avrà accesso tramite l'account dedicato all'Asset.
           </p>
 
           <h2 className="text-xl font-bold text-gray-900 mt-8 mb-4">15. Intero Accordo</h2>

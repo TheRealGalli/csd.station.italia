@@ -187,34 +187,41 @@ Benvenuto su csd-station.it. Questi Termini di Servizio ("Termini") regolano l'a
 
 Indice dei Nomi e delle Entità
 Ai fini della rigorosa interpretazione contrattuale dei presenti Termini e di tutti i documenti allegati:
-- Carlo Galli (P.IVA 01630510525): Sono i riferimenti legali e fiscali del professionista.
-- CSD Station Italia: È l'entità operativa e il modo in cui il testo (o i contratti) può fare riferimento al professionista stesso (anche inteso come "noi" o "nostro").
-- CSD Station: È unicamente il nome del portale web e del brand associato.
+
+Carlo Galli (P.IVA 01630510525): Sono i riferimenti legali e fiscali del professionista.
+CSD Station Italia: È l'entità operativa e il modo in cui il testo (o i contratti) può fare riferimento al professionista stesso (anche inteso come "noi" o "nostro").
+CSD Station: È unicamente il nome del portale web e del brand associato.
+Automazione: Si riferisce a una singola routine, script o flusso di lavoro automatizzato sviluppato all'interno dell'ecosistema Google Workspace.
+Asset: Si riferisce all'insieme completo di automazioni, fogli di calcolo collegati, configurazioni, dati e ambiente Google Workspace (es. account automazioni@dominio.com) fornito e implementato dal Fornitore per il Cliente, come soluzione integrata.
 
 1. Servizi Offerti
 CSD Station Italia è specializzata nella fornitura di servizi professionali di consulenza e sviluppo di soluzioni automatizzate basate principalmente sull'ecosistema Google Workspace. Il nostro obiettivo è ottimizzare i processi e introdurre automazioni intelligenti per i nostri clienti.
+
 Il sito web csd-station.it funge principalmente da piattaforma informativa e di contatto per presentare le nostre capacità e facilitare la prenotazione di consulenze iniziali, focalizzate sulla creazione di automazioni e l'ottimizzazione tramite Google Workspace.
-Nota bene: L'erogazione di servizi di sviluppo e implementazione professionale è regolata da uno specifico Accordo di Servizio e Proposta Tecnica per Automazione (di seguito "Accordo di Servizio"), sottoscritto tra le Parti, che prevale sui presenti termini generali per quanto riguarda le specifiche del progetto.
+
+Nota bene: L'erogazione di servizi di sviluppo e implementazione professionale è regolata da uno specifico Accordo di Servizio e Proposta Tecnica per Asset (di seguito "Accordo di Servizio"), sottoscritto tra le Parti, che prevale sui presenti termini generali per quanto riguarda le specifiche del progetto.
 
 2. Accettazione dei Servizi e Pagamento
-- Processo di ingaggio: Dopo una consulenza iniziale, ti forniremo un preventivo o una proposta dettagliata (Accordo di Servizio) per i servizi richiesti. L'accettazione della proposta, il pagamento di un acconto o l'avvio della fase di lavoro costituirà la tua accettazione di questi Termini e delle condizioni specifiche incluse nell'Accordo di Servizio.
-- Pagamento: I termini di pagamento specifici (costi, scadenze, modalità) saranno dettagliati nell'Accordo di Servizio accettato. Salvo diversamente specificato, i pagamenti sono dovuti entro i termini indicati. In caso di ritardo nei pagamenti, ci riserviamo il diritto di sospendere i servizi.
+Processo di ingaggio: Dopo una consulenza iniziale, ti forniremo un preventivo o una proposta dettagliata (Accordo di Servizio) per i servizi richiesti. L'accettazione della proposta, il pagamento di un acconto o l'avvio della fase di lavoro costituirà la tua accettazione di questi Termini e delle condizioni specifiche incluse nell'Accordo di Servizio.
+Pagamento: I termini di pagamento specifici (costi, scadenze, modalità) saranno dettagliati nell'Accordo di Servizio accettato. Salvo diversamente specificato, i pagamenti sono dovuti entro i termini indicati. In caso di ritardo nei pagamenti, ci riserviamo il diritto di sospendere i servizi.
 
 3. Responsabilità del Cliente
 Per la corretta erogazione dei servizi, il Cliente si impegna a:
-- Fornire tutte le informazioni e gli accessi necessari (inclusa la creazione di un account dedicato all'automazione, se richiesto) in modo tempestivo e sicuro.
-- Collaborare attivamente fornendo feedback e approvazioni durante la fase di collaudo (UAT - User Acceptance Test).
-- Assicurarsi di avere i diritti e le licenze necessarie per qualsiasi dato o servizio che ci venga fornito per l'integrazione.
+
+Fornire tutte le informazioni e gli accessi necessari (inclusa la creazione di un account dedicato all'Asset, se richiesto) in modo tempestivo e sicuro.
+Collaborare attivamente fornendo feedback e approvazioni durante la fase di collaudo (UAT - User Acceptance Test).
+Assicurarsi di avere i diritti e le licenze necessarie per qualsiasi dato o servizio che ci venga fornito per l'integrazione.
 
 4. Proprietà Intellettuale
-- Contenuti del Sito: Tutti i contenuti presenti sul sito web sono di proprietà di Carlo Galli (P.IVA) o dei suoi fornitori e sono protetti dalle leggi sulla proprietà intellettuale.
-- Sviluppi di Servizio: Per quanto concerne lo sviluppo di automazioni personalizzate, la proprietà intellettuale sarà trasferita al Cliente al momento dell'accettazione dell'Automazione (collaudo/UAT) e del contestuale saldo integrale dei corrispettivi, come dettagliato nello specifico Accordo di Servizio. In caso di mancata accettazione o mancato pagamento, la proprietà intellettuale rimarrà in capo a CSD Station Italia.
+Contenuti del Sito: Tutti i contenuti presenti sul sito web sono di proprietà di Carlo Galli (P.IVA) o dei suoi fornitori e sono protetti dalle leggi sulla proprietà intellettuale.
+Sviluppi di Servizio: Per quanto concerne lo sviluppo di Asset personalizzati, la proprietà intellettuale sarà trasferita al Cliente al momento dell'accettazione dell'Asset (collaudo/UAT) e del contestuale saldo integrale dei corrispettivi, come dettagliato nello specifico Accordo di Servizio. In caso di mancata accettazione o mancato pagamento, la proprietà intellettuale rimarrà in capo a CSD Station Italia.
 
 5. Condotta dell'Utente
 Accetti di utilizzare il sito web e i servizi solo per scopi leciti. Accetti di non:
-- Utilizzare il sito web o i servizi per scopi illegali o non autorizzati.
-- Tentare di decodificare, decompilare o disassemblare qualsiasi software che compone o fa parte delle soluzioni fornite, se non espressamente autorizzato nell'Accordo di Servizio.
-- Contatti B2B: Nelle comunicazioni professionali svolte dal Titolare, ogni comunicazione include una chiara informativa sull'origine dei dati e un meccanismo di opposizione (Opt-out) tramite risposta diretta (es. "CANCELLAMI").
+
+Utilizzare il sito web o i servizi per scopi illegali o non autorizzati.
+Tentare di decodificare, decompilare o disassemblare qualsiasi software che compone o fa parte delle soluzioni fornite, se non espressamente autorizzato nell'Accordo di Servizio.
+Contatti B2B: Nelle comunicazioni professionali svolte dal Titolare, ogni comunicazione include una chiara informativa sull'origine dei dati e un meccanismo di opposizione (Opt-out) tramite risposta diretta (es. "CANCELLAMI").
 
 6. Riservatezza
 Entrambe le Parti si impegnano a trattare le informazioni e i dati a cui avranno accesso con la massima riservatezza e diligenza, nel rispetto del segreto professionale e delle normative vigenti in materia di protezione dei dati personali.
@@ -224,10 +231,10 @@ Il sito web e i servizi sono forniti "così come sono", senza garanzie di alcun 
 
 8. Garanzia sui Servizi e Manutenzione
 8.1 Garanzia sui Difetti di Sviluppo:
-CSD Station Italia garantisce che le automazioni sviluppate funzioneranno conformemente alle specifiche concordate per un periodo di 90 (novanta) giorni a partire dalla data di accettazione o consegna (come dettagliato nell'Accordo di Servizio). Durante tale periodo, ci impegniamo a riparare gratuitamente eventuali difetti intrinseci del codice.
+CSD Station Italia garantisce che l'Asset sviluppato funzionerà conformemente alle specifiche concordate per un periodo di 90 (novanta) giorni a partire dalla data di accettazione o consegna (come dettagliato nell'Accordo di Servizio). Durante tale periodo, ci impegniamo a riparare gratuitamente eventuali difetti intrinseci del codice.
 
 8.2 Servizi di Manutenzione e Supporto Post-Garanzia:
-Al di fuori del Periodo di Garanzia, o per malfunzionamenti derivanti da modifiche esterne (aggiornamenti di piattaforme terze, modifiche del Cliente all'ambiente operativo), il supporto è condizionato alla sottoscrizione di un accordo di servizio di manutenzione specifico (MSA di manutenzione). In assenza di tale accordo, non è offerta alcuna garanzia sul continuo funzionamento dell'automazione.
+Al di fuori del Periodo di Garanzia, o per malfunzionamenti derivanti da modifiche esterne (aggiornamenti di piattaforme terze, modifiche del Cliente all'ambiente operativo), il supporto è condizionato alla sottoscrizione di un accordo di servizio di manutenzione specifico (MSA di manutenzione). In assenza di tale accordo, non è offerta alcuna garanzia sul continuo funzionamento dell'Asset.
 
 9. Limitazione di Responsabilità
 Nella misura massima consentita dalla legge, Carlo Galli (P.IVA) non sarà responsabile per danni indiretti, incidentali o consequenziali (inclusa la perdita di profitti o dati) derivanti dall'utilizzo o dall'incapacità di utilizzare le soluzioni fornite.
@@ -245,7 +252,7 @@ Questi Termini sono regolati dalle leggi della Repubblica Italiana. Per qualsias
 Per i contratti sottoscritti offline, il Cliente approva specificamente, ai sensi degli Artt. 1341 e 1342 c.c., le clausole relative all'esclusione di garanzie, limitazione di responsabilità e foro competente richiamate nell'Accordo di Servizio.
 
 14. Privacy e Trattamento Dati
-Il trattamento dei dati personali è regolato dalla nostra Privacy Policy. Nello sviluppo dei servizi, il Fornitore agirà in qualità di Responsabile del Trattamento (Data Processor) ai sensi del GDPR per i dati del Cliente a cui avrà accesso tramite l'account automazioni.
+Il trattamento dei dati personali è regolato dalla nostra Privacy Policy. Nello sviluppo dei servizi, il Fornitore agirà in qualità di Responsabile del Trattamento (Data Processor) ai sensi del GDPR per i dati del Cliente a cui avrà accesso tramite l'account dedicato all'Asset.
 
 15. Intero Accordo
 Questi Termini, unitamente all'Accordo di Servizio e alla Privacy Policy, costituiscono l'intero accordo tra le Parti e sostituiscono ogni precedente intesa scritta o orale.
