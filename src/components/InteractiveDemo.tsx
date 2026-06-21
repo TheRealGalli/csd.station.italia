@@ -213,7 +213,7 @@ export const InteractiveDemo = () => {
               Tutto Integrato, <span className="text-google-green">Senza Plugin Esterni</span>
             </h2>
             <p className="text-lg text-gray-600 max-w-2xl mx-auto">
-              Perché pagare costosi strumenti esterni come Spoki o N8N? Con l'infrastruttura Google Workspace puoi automatizzare i tuoi flussi di lavoro alla radice, in modo nativo, rapido e sicuro.
+              Perché pagare costosi strumenti esterni? Con l'infrastruttura Google Workspace puoi automatizzare i tuoi flussi di lavoro alla radice, in modo nativo, rapido e sicuro.
             </p>
           </div>
 
