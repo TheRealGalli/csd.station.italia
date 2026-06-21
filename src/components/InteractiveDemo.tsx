@@ -388,19 +388,12 @@ export const InteractiveDemo = () => {
                     <div className="flex-1 bg-gray-50 border border-gray-200 rounded-full py-1.5 px-3.5 text-[10px] text-gray-400 select-none">
                       Automazione in corso...
                     </div>
-                    <button 
-                      onClick={() => {
-                        setStepIndex(0);
-                        setIsTyping(true);
-                        const t1 = setTimeout(() => { setStepIndex(1); setIsTyping(true); }, 1000);
-                        const t2 = setTimeout(() => { setStepIndex(2); setIsTyping(false); }, 2200);
-                        const t3 = setTimeout(() => { setStepIndex(3); }, 3400);
-                      }} 
-                      className="w-7 h-7 rounded-full bg-google-blue flex items-center justify-center text-white hover:bg-blue-600 transition-colors shadow-sm"
-                      aria-label="Ricomincia demo"
+                    <div 
+                      className="w-7 h-7 rounded-full bg-google-blue flex items-center justify-center text-white shadow-sm pointer-events-none select-none"
+                      aria-hidden="true"
                     >
                       <Play className="w-3.5 h-3.5" />
-                    </button>
+                    </div>
                   </div>
                 </div>
               </div>
