@@ -44,7 +44,7 @@ const demoTabs: DemoTab[] = [
       },
       { 
         type: "system", 
-        text: "Analisi AI & Scrittura bozza con Apps Script..." 
+        text: "Analisi AI & Scrittura bozza in corso..." 
       },
       { 
         type: "outbound", 
