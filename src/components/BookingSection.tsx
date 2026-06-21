@@ -36,7 +36,7 @@ export const BookingSection = () => {
       script.onload = () => {
         if (window.calendar && scriptContainerRef.current) {
           window.calendar.schedulingButton.load({
-            url: "https://calendar.google.com/calendar/appointments/schedules/AcZssZ0FZIvLBEleNQJEULW-FQtN_ZpmepA6D58hOJXQ4vtF7i0g3dLC8QhbwwDiSIkJ8PQeFnxuoBfJ?gv=true",
+            url: "https://calendar.google.com/calendar/appointments/schedules/AcZssZ2ffhu47V0tYRic7062j4P20BJgM8icKsNgKRAYkWQEp3h5QzugMmd8umFn90pUaUGR-K9vswSc?gv=true",
             color: "#1a73e8", // Darker Google blue forces white text natively
             label: "Prenota Appuntamento",
             target: scriptContainerRef.current,
@@ -107,7 +107,7 @@ export const BookingSection = () => {
                 </p>
                 <div className="flex flex-col gap-3">
                   <a 
-                    href="https://calendar.app.google/iJLfBdRqcU5sARNA8"
+                    href="https://calendar.app.google/LdEAPe7tpoQefN43A"
                     target="_blank"
                     rel="noopener noreferrer"
                     className="btn btn-primary text-sm"
