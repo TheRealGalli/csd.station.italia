@@ -16,6 +16,7 @@ export const Header = () => {
 
   const menuItems = [
     { label: "Chi Siamo", href: "#about" },
+    { label: "Automazione", href: "#demo" },
     { label: "Servizi", href: "#services" },
     { label: "Come Funziona", href: "#how-it-works" },
     { label: "Perché Noi", href: "#why-us" },
