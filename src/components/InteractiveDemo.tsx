@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useScrollReveal } from "@/hooks/useScrollReveal";
-import { Mail, Calendar, FileSpreadsheet, MessageSquare, Code, Play, RefreshCw, Send, Sparkles, CheckCircle2 } from "lucide-react";
+import { Mail, Calendar, FileSpreadsheet, MessageSquare, BrainCircuit, Play, RefreshCw, Sparkles, CheckCircle2, Database } from "lucide-react";
 
 interface Step {
   type: string;
@@ -138,29 +138,30 @@ const demoTabs: DemoTab[] = [
     ]
   },
   {
-    id: "script",
-    app: "Apps Script",
-    tag: "Flussi Documentali",
-    title: "Generazione PDF & Contratti",
-    description: "Genera preventivi e contratti PDF a partire dai dati inseriti, salvali su Drive e inviali via email con allegati dedicati.",
-    colorClass: "border-google-yellow text-amber-700 bg-google-yellow-light/30",
-    hoverClass: "hover:border-google-yellow/40 hover:bg-google-yellow-light/10",
-    activeClass: "border-google-yellow bg-google-yellow-light/20 text-google-yellow shadow-sm",
-    iconColor: "text-amber-600 bg-google-yellow-light",
-    icon: Code,
+    id: "gemini",
+    app: "Gemini Enterprise",
+    tag: "Agenti AI Specializzati",
+    title: "Gems & Agenti su Database",
+    description: "Agenti Gemini personalizzati con accesso ai tuoi database interni o fonti pubbliche, pronti a rispondere a domande complesse e produrre analisi istantanee.",
+    colorClass: "border-indigo-500 text-indigo-600 bg-indigo-50",
+    hoverClass: "hover:border-indigo-300 hover:bg-indigo-50/50",
+    activeClass: "border-indigo-600 bg-indigo-50 text-indigo-700 shadow-sm",
+    iconColor: "text-indigo-600 bg-indigo-100",
+    icon: BrainCircuit,
     steps: [
       { 
         type: "inbound", 
-        sender: "Workflow Preventivi",
-        text: "Trigger: Generazione preventivo richiesta per Rossi Consulting" 
+        sender: "Collaboratore Interno",
+        text: "Gem Vendite, qual è il fatturato medio dei nostri clienti enterprise negli ultimi 3 mesi?" 
       },
       { 
         type: "system", 
-        text: "Creazione Documento da template ed esportazione PDF..." 
+        text: "Gemini interroga BigQuery + Sheets aziendali in tempo reale..." 
       },
       { 
-        type: "pdf-doc", 
-        text: "Preventivo_Rossi_Consulting.pdf" 
+        type: "gemini-answer", 
+        sender: "✨ Gem Vendite Enterprise",
+        text: "Il fatturato medio dei clienti enterprise negli ultimi 3 mesi è €12.400/mese (+18% rispetto al trimestre precedente). I top performer sono nel settore tech e manifatturiero." 
       }
     ]
   }
@@ -278,13 +279,13 @@ export const InteractiveDemo = () => {
                       activeTab === "gmail" ? "bg-google-red" : 
                       activeTab === "calendar" ? "bg-google-blue" :
                       activeTab === "sheets" ? "bg-emerald-600" :
-                      activeTab === "chat" ? "bg-google-green" : "bg-amber-500"
+                      activeTab === "chat" ? "bg-google-green" : "bg-indigo-500"
                     }`}>
                       {activeTab === "gmail" && <Mail className="w-4 h-4" />}
                       {activeTab === "calendar" && <Calendar className="w-4 h-4" />}
                       {activeTab === "sheets" && <FileSpreadsheet className="w-4 h-4" />}
                       {activeTab === "chat" && <MessageSquare className="w-4 h-4" />}
-                      {activeTab === "script" && <Code className="w-4 h-4" />}
+                      {activeTab === "gemini" && <BrainCircuit className="w-4 h-4" />}
                     </div>
                     <div>
                       <h4 className="text-xs font-bold text-gray-900 leading-tight">
@@ -345,15 +346,19 @@ export const InteractiveDemo = () => {
                           <div className="bg-white border-l-4 border-google-green text-gray-800 p-3 rounded-r-2xl rounded-bl-2xl text-xs shadow-md whitespace-pre-line leading-relaxed">
                             {activeDemo.steps[2].text}
                           </div>
-                        ) : activeDemo.steps[2].type === "pdf-doc" ? (
-                          <div className="border border-google-yellow/20 bg-google-yellow-light/20 p-3 rounded-2xl flex items-center gap-3 text-xs text-amber-900 shadow-md">
-                            <div className="w-8 h-8 rounded-lg bg-google-red/10 flex items-center justify-center text-google-red flex-shrink-0">
-                              <FileSpreadsheet className="w-4 h-4" />
+                        ) : activeDemo.steps[2].type === "gemini-answer" ? (
+                          <div className="bg-gradient-to-br from-indigo-50 to-purple-50 border border-indigo-100 p-3 rounded-2xl rounded-tr-sm shadow-md text-xs text-gray-800 w-full max-w-[240px]">
+                            <div className="flex items-center gap-1.5 mb-2">
+                              <div className="w-5 h-5 rounded-full bg-indigo-500 flex items-center justify-center flex-shrink-0">
+                                <BrainCircuit className="w-3 h-3 text-white" />
+                              </div>
+                              <span className="text-[9px] font-bold text-indigo-600 truncate">{activeDemo.steps[2].sender}</span>
                             </div>
-                            <div className="overflow-hidden">
-                              <p className="font-bold truncate text-[11px]">{activeDemo.steps[2].text}</p>
-                              <span className="text-[9px] opacity-75 font-semibold">Drive PDF Document</span>
+                            <div className="flex items-center gap-1 mb-1.5">
+                              <Database className="w-2.5 h-2.5 text-indigo-400" />
+                              <span className="text-[8px] text-indigo-400 font-semibold uppercase tracking-wider">BigQuery + Sheets</span>
                             </div>
+                            <p className="leading-relaxed whitespace-pre-line text-gray-700">{activeDemo.steps[2].text}</p>
                           </div>
                         ) : (
                           <div className="bg-google-blue text-white p-3 rounded-2xl rounded-tr-sm text-xs shadow-md whitespace-pre-line leading-relaxed">
