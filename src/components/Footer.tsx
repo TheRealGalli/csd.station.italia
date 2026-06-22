@@ -45,8 +45,8 @@ export const Footer = () => {
             </h4>
             <div className="flex flex-col gap-2">
               {[
-                { label: "Chi Siamo", href: "#about" },
                 { label: "Automazione", href: "#demo" },
+                { label: "Chi Siamo", href: "#about" },
                 { label: "Servizi", href: "#services" },
                 { label: "Come Funziona", href: "#how-it-works" },
                 { label: "Prenota Chiamata", href: "#booking" },
