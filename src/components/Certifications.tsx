@@ -137,7 +137,7 @@ export const Certifications = () => {
 
                 {/* Badge Grid — Official Images, uniform cards */}
                 <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 lg:gap-6">
-                    {skillBadges.map((badge, index) => (
+                    {skillBadges.slice(0, 10).map((badge, index) => (
                         <div
                             key={badge.name}
                             className={`group flex items-center justify-center aspect-square bg-white rounded-2xl border border-gray-100 p-3 hover:shadow-lg hover:border-gray-200 transition-all duration-300 ${isVisible
