@@ -1,74 +1,100 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useScrollReveal } from "@/hooks/useScrollReveal";
-import { Sparkles, Coins, ShieldCheck, ExternalLink, Bot, MessageSquare, Scale, Home, ArrowRight } from "lucide-react";
+import { Sparkles, Coins, ShieldCheck, ExternalLink, Bot, MessageSquare, ArrowRight, RefreshCw, Send } from "lucide-react";
 
-interface GemDemo {
-  id: string;
-  name: string;
-  role: string;
-  description: string;
-  prompt: string;
-  response: string;
-  icon: any;
+// Import local assets
+import roomOriginal from "@/assets/room-original.jpg";
+import roomModern from "@/assets/room-modern.png";
+import roomDali from "@/assets/room-dali.png";
+
+interface Message {
+  sender: "user" | "ai";
+  text: string;
+  image?: string;
+  imageLabel?: string;
 }
-
-const gemDemos: GemDemo[] = [
-  {
-    id: "marketing",
-    name: "Gems Copy & Home Staging",
-    role: "Creazione Annunci & Valorizzazione",
-    description: "Ottimizza annunci di vendita, descrizioni social e suggerimenti di allestimento visivo.",
-    prompt: "Scrivi un annuncio immobiliare persuasivo per un trilocale ristrutturato in centro a Firenze con terrazzo, evidenziando il valore storico e la luminosità.",
-    response: "✨ NUOVA OPPORTUNITÀ NEL CUORE DI FIRENZE\n\nNel cuore pulsante della città, a pochi passi dai monumenti storici, proponiamo un luminoso trilocale finemente ristrutturato.\n\n🏡 I Punti di Forza:\n• Luminosità straordinaria: grazie alla doppia esposizione.\n• Terrazzo privato: perfetto per colazioni all'aperto con vista sui tetti storici.\n• Finiture di pregio: pavimenti in parquet e dettagli in pietra serena.\n\n[Clicca per scaricare il template completo configurato]",
-    icon: Home,
-  },
-  {
-    id: "compliance",
-    name: "Gems Legal & Compliance",
-    role: "Verifica Normative & Contratti",
-    description: "Supporto sulle leggi italiane ed europee, conformità catastale e modulistica.",
-    prompt: "Quali sono gli obblighi di allegazione dell'attestato di prestazione energetica (APE) nei contratti di locazione in Italia?",
-    response: "Conformemente alla normativa italiana (D.Lgs. 192/2005 e successive modifiche):\n1. L'APE deve essere obbligatoriamente allegato al contratto di locazione a pena di sanzione amministrativa (da 1.000€ a 4.000€).\n2. Nel testo contrattuale va inserita una clausola in cui il conduttore dichiara di aver ricevuto le informazioni e la documentazione comprensiva dell'APE.\n3. La classe energetica e l'indice di prestazione devono essere indicati in tutti gli annunci commerciali.",
-    icon: Scale,
-  },
-  {
-    id: "sales",
-    name: "Gems Acquisizione & Clienti",
-    role: "Supporto Trattative e Strategia",
-    description: "Superamento obiezioni, script di telefonata ed e-mail per acquisire nuovi mandati.",
-    prompt: "Fornisci uno script di risposta a un proprietario privato che rifiuta di affidare il mandato in esclusiva all'agenzia.",
-    response: "Ecco la strategia consigliata per superare l'obiezione sull'esclusiva:\n\n💬 Script di risposta:\n'Capisco perfettamente il suo punto di vista, signor Rossi. Spesso si pensa che dare la casa a più agenzie aumenti le chance di vendita. In realtà, l'esclusiva ci permette di investire il 100% del nostro budget marketing su canali premium e di coordinare un'unica strategia di prezzo, evitando che l'immobile si svaluti apparendo a prezzi diversi su vari portali. Le propongo un accordo di prova di 60 giorni per dimostrarle il nostro metodo...'",
-    icon: MessageSquare,
-  },
-];
 
 export const GromitSection = () => {
   const { ref: sectionRef, isVisible } = useScrollReveal({ threshold: 0.15 });
-  const [activeGem, setActiveGem] = useState<string>("marketing");
-  const [typedResponse, setTypedResponse] = useState<string>("");
+  const [chatStep, setChatStep] = useState<number>(0);
+  const [messages, setMessages] = useState<Message[]>([]);
   const [isTyping, setIsTyping] = useState<boolean>(false);
+  const chatEndRef = useRef<HTMLDivElement>(null);
 
-  const currentGem = gemDemos.find((g) => g.id === activeGem) || gemDemos[0];
-
+  // Auto scroll to bottom of chat
   useEffect(() => {
-    setTypedResponse("");
-    setIsTyping(true);
-    let index = 0;
-    const text = currentGem.response;
-    
-    // Simulate streaming typing effect
-    const interval = setInterval(() => {
-      if (index < text.length) {
-        setTypedResponse((prev) => prev + text.charAt(index));
-        index++;
-      } else {
-        setIsTyping(false);
-        clearInterval(interval);
-      }
-    }, 12);
+    chatEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  }, [messages, isTyping]);
 
-    return () => clearInterval(interval);
-  }, [activeGem, currentGem.response]);
+  // Initial chat setup
+  useEffect(() => {
+    resetChat();
+  }, []);
+
+  const resetChat = () => {
+    setChatStep(0);
+    setIsTyping(true);
+    setMessages([]);
+    
+    // Simulate first user message and AI response
+    setTimeout(() => {
+      setMessages([
+        {
+          sender: "user",
+          text: "Sono ora in visita con una cliente. Voglio farle vedere come questa stanza può diventare una camera da letto moderna.",
+          image: roomOriginal,
+          imageLabel: "Foto Originale dello Stato Attuale"
+        }
+      ]);
+      
+      setIsTyping(true);
+      setTimeout(() => {
+        setMessages(prev => [
+          ...prev,
+          {
+            sender: "ai",
+            text: "Ecco un'anteprima dell'allestimento virtuale per questa camera. Ho mantenuto i caratteristici soffitti con travi in legno a vista e il pavimento in cotto, integrando un letto moderno dai toni caldi, una poltrona di design e una parete attrezzata in legno coordinata per valorizzare al massimo la luminosità dell'ambiente.",
+            image: roomModern,
+            imageLabel: "Allestimento Virtuale 1: Camera Moderna"
+          }
+        ]);
+        setIsTyping(false);
+        setChatStep(1);
+      }, 1500);
+    }, 500);
+  };
+
+  const handleNextStep = () => {
+    if (chatStep !== 1) return;
+    
+    setIsTyping(false);
+    // User response
+    setMessages(prev => [
+      ...prev,
+      {
+        sender: "user",
+        text: "La signora mi sta dicendo che le piace molto la camera, ma cercava qualcosa di un po' più eccentrico. Mi dice anche che le piace molto Dalí."
+      }
+    ]);
+    
+    setChatStep(2);
+    setIsTyping(true);
+    
+    // AI response in Dali style
+    setTimeout(() => {
+      setMessages(prev => [
+        ...prev,
+        {
+          sender: "ai",
+          text: "Ricevuto! Con il Gems Home Staging possiamo spingerci oltre. Ecco una proposta eclettica ispirata al surrealismo di Salvador Dalí: gli orologi molli si fondono sui mobili, la poltrona assume forme organiche e la stanza si trasforma in un'opera d'arte onirica. Perfetto per conquistare una cliente dai gusti artistici e non convenzionali!",
+          image: roomDali,
+          imageLabel: "Allestimento Virtuale 2: Stile Salvador Dalí"
+        }
+      ]);
+      setIsTyping(false);
+      setChatStep(3);
+    }, 2000);
+  };
 
   return (
     <section id="gromit" className="section bg-gray-50 border-y border-gray-100" ref={sectionRef as any}>
@@ -80,10 +106,10 @@ export const GromitSection = () => {
             Gromit.me by CSD Station
           </span>
           <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold mb-3">
-            Assistenti AI <span className="text-google-blue">Plug-and-Play</span>
+            Gems <span className="text-google-blue">Home Staging</span> in Azione
           </h2>
           <p className="text-lg text-gray-600 max-w-2xl mx-auto">
-            Configurazioni di Google Gems pronte all'uso per la tua attività. Zero codice, zero abbonamenti, configurate appositamente per ogni settore aziendale.
+            Configurazioni di Google Gems pronte all'uso per la tua attività. Guarda come un agente immobiliare usa il nostro Gem per allestire istantaneamente un immobile durante una visita reale.
           </p>
         </div>
 
@@ -95,10 +121,10 @@ export const GromitSection = () => {
             
             {/* Sector Highlight Info */}
             <div className="p-5 rounded-2xl bg-gradient-to-r from-google-blue-light/30 to-google-green-light/20 border border-google-blue/10">
-              <span className="text-xs font-bold text-google-blue uppercase tracking-wider block mb-1">Disponibile Ora</span>
-              <h4 className="text-lg font-bold text-gray-900 mb-2">Settore Immobiliare (26 Gems)</h4>
+              <span className="text-xs font-bold text-google-blue uppercase tracking-wider block mb-1">Esempio d'Uso Real Estate</span>
+              <h4 className="text-lg font-bold text-gray-900 mb-2">Da foto reale ad allestimento 3D</h4>
               <p className="text-sm text-gray-600 leading-relaxed">
-                Il primo catalogo completo studiato per le agenzie immobiliari italiane. Dalla creazione di contenuti e allestimento home staging fino alla compliance legale e fiscale basata sulle normative nazionali ed europee.
+                I nostri 26 assistenti virtuali del pacchetto <strong>Settore Immobiliare</strong> fungono da Cicerone e assistente operativo, aiutandoti sia nel superamento delle obiezioni che nella valorizzazione visiva degli ambienti.
               </p>
             </div>
 
@@ -108,7 +134,7 @@ export const GromitSection = () => {
                 <Sparkles className="w-6 h-6" />
               </div>
               <div>
-                <h3 className="text-base font-bold text-gray-900 mb-1">Integrazione Nativa</h3>
+                <h3 className="text-base font-bold text-gray-900 mb-1">AI Plug-and-Play Nativa</h3>
                 <p className="text-xs text-gray-600 leading-relaxed">
                   Importa le configurazioni dei Gems direttamente all'interno del tuo account Gemini. Nessuna API esterna da configurare e nessuna piattaforma terza richiesta.
                 </p>
@@ -134,9 +160,9 @@ export const GromitSection = () => {
                 <ShieldCheck className="w-6 h-6" />
               </div>
               <div>
-                <h3 className="text-base font-bold text-gray-900 mb-1">Privacy di Livello Aziendale</h3>
+                <h3 className="text-base font-bold text-gray-900 mb-1">Privacy e Sicurezza Google</h3>
                 <p className="text-xs text-gray-600 leading-relaxed">
-                  Le conversazioni avvengono integralmente all'interno della tua console protetta di Google. Nessun dato riservato dell'agenzia o dei clienti viene condiviso o archiviato esternamente.
+                  Le conversazioni avvengono integralmente all'interno della tua console protetta di Google. I dati e le immagini non vengono condivisi o archiviati esternamente.
                 </p>
               </div>
             </div>
@@ -166,65 +192,114 @@ export const GromitSection = () => {
                   <span className="w-3 h-3 rounded-full bg-red-400"></span>
                   <span className="w-3 h-3 rounded-full bg-yellow-400"></span>
                   <span className="w-3 h-3 rounded-full bg-green-400"></span>
-                  <span className="ml-2 text-[10px] font-semibold text-gray-500 uppercase tracking-wider">Catalogo Gems - Hub Immobiliare</span>
+                  <span className="ml-2 text-[10px] font-semibold text-gray-500 uppercase tracking-wider">Simulatore Chat - Gems Home Staging</span>
                 </div>
-                <span className="text-[10px] text-google-blue font-semibold bg-google-blue-light px-2 py-0.5 rounded-full">
-                  26 Assistenti
-                </span>
-              </div>
-
-              {/* Tabs for Gems selection */}
-              <div className="flex flex-wrap border-b border-gray-100 bg-gray-50/50 p-2 gap-1">
-                {gemDemos.map((gem) => {
-                  const Icon = gem.icon;
-                  return (
-                    <button
-                      key={gem.id}
-                      onClick={() => setActiveGem(gem.id)}
-                      className={`flex items-center gap-2 px-3 py-2 rounded-lg text-xs font-semibold transition-all duration-200 ${
-                        activeGem === gem.id
-                          ? "bg-white text-google-blue shadow-sm border border-gray-100"
-                          : "text-gray-500 hover:text-gray-800 hover:bg-gray-100/50"
-                      }`}
-                    >
-                      <Icon className={`w-3.5 h-3.5 ${activeGem === gem.id ? "text-google-blue" : "text-gray-400"}`} />
-                      {gem.name}
-                    </button>
-                  );
-                })}
+                <div className="flex items-center gap-2">
+                  <button 
+                    onClick={resetChat} 
+                    className="flex items-center gap-1 text-[10px] text-gray-500 hover:text-google-blue transition-colors duration-200"
+                    title="Riavvia Chat"
+                  >
+                    <RefreshCw className="w-3 h-3" />
+                    Reset
+                  </button>
+                  <span className="text-[10px] text-google-blue font-semibold bg-google-blue-light px-2 py-0.5 rounded-full">
+                    Live Demo
+                  </span>
+                </div>
               </div>
 
               {/* Chat View */}
-              <div className="p-6 flex flex-col gap-4 min-h-[340px] bg-gray-50/30">
+              <div className="p-6 flex flex-col gap-4 max-h-[480px] min-h-[400px] overflow-y-auto bg-gray-50/30">
                 
-                {/* Role/Subtitle */}
-                <div className="text-xs text-gray-500 border-b border-gray-100 pb-2 flex flex-col sm:flex-row sm:justify-between sm:items-center gap-1">
-                  <span>Ruolo: <strong className="text-gray-700">{currentGem.role}</strong></span>
-                  <span className="text-[10px] text-gray-400 italic">{currentGem.description}</span>
+                {/* Intro Notification */}
+                <div className="text-[10px] text-gray-400 text-center py-1 border-b border-gray-100">
+                  Avvio della sessione con il Google Gem configurato per il Settore Immobiliare
                 </div>
 
-                {/* User Input Prompt Bubble */}
-                <div className="flex flex-col gap-1 max-w-[85%] self-end">
-                  <span className="text-[10px] text-gray-400 self-end mr-1">Agente Immobiliare</span>
-                  <div className="bg-google-blue text-white rounded-2xl rounded-tr-none px-4 py-3 text-xs sm:text-sm shadow-sm">
-                    {currentGem.prompt}
+                {/* Render Messages */}
+                {messages.map((msg, index) => (
+                  <div 
+                    key={index}
+                    className={`flex flex-col gap-1 max-w-[85%] ${
+                      msg.sender === "user" ? "self-end items-end" : "self-start items-start"
+                    }`}
+                  >
+                    <span className="text-[9px] text-gray-400 px-1">
+                      {msg.sender === "user" ? "Agente Immobiliare" : "Gems Home Staging"}
+                    </span>
+                    
+                    <div 
+                      className={`rounded-2xl px-4 py-3 text-xs sm:text-sm shadow-sm ${
+                        msg.sender === "user" 
+                          ? "bg-google-blue text-white rounded-tr-none" 
+                          : "bg-white border border-gray-150 text-gray-800 rounded-tl-none"
+                      }`}
+                    >
+                      <p className="leading-relaxed whitespace-pre-line">{msg.text}</p>
+                      
+                      {msg.image && (
+                        <div className="mt-3 overflow-hidden rounded-lg border border-gray-250/20 bg-gray-900/5">
+                          <img 
+                            src={msg.image} 
+                            alt={msg.imageLabel} 
+                            className="w-full max-h-[220px] object-cover hover:scale-[1.02] transition-transform duration-300"
+                          />
+                          {msg.imageLabel && (
+                            <div className={`text-[10px] p-2 text-center border-t ${
+                              msg.sender === "user" 
+                                ? "bg-blue-700/30 text-blue-100 border-blue-600/30" 
+                                : "bg-gray-50 text-gray-500 border-gray-100"
+                            }`}>
+                              {msg.imageLabel}
+                            </div>
+                          )}
+                        </div>
+                      )}
+                    </div>
                   </div>
-                </div>
+                ))}
 
-                {/* AI Response Bubble */}
-                <div className="flex flex-col gap-1 max-w-[85%] self-start mt-2">
-                  <div className="flex items-center gap-1.5 ml-1">
-                    <span className="w-2 h-2 rounded-full bg-google-green animate-pulse"></span>
-                    <span className="text-[10px] text-google-blue font-bold uppercase tracking-wider">{currentGem.name}</span>
+                {/* AI Typing Indicator */}
+                {isTyping && (
+                  <div className="flex flex-col gap-1 max-w-[85%] self-start items-start">
+                    <span className="text-[9px] text-gray-400 px-1">Gems Home Staging</span>
+                    <div className="bg-white border border-gray-150 text-gray-800 rounded-2xl rounded-tl-none px-4 py-3 text-xs shadow-sm flex items-center gap-1.5">
+                      <span className="w-1.5 h-1.5 rounded-full bg-google-blue animate-bounce" style={{ animationDelay: "0ms" }}></span>
+                      <span className="w-1.5 h-1.5 rounded-full bg-google-blue animate-bounce" style={{ animationDelay: "150ms" }}></span>
+                      <span className="w-1.5 h-1.5 rounded-full bg-google-blue animate-bounce" style={{ animationDelay: "300ms" }}></span>
+                    </div>
                   </div>
-                  <div className="bg-white border border-gray-150 text-gray-800 rounded-2xl rounded-tl-none px-4 py-3 text-xs sm:text-sm shadow-sm min-h-[100px]">
-                    <p className="leading-relaxed whitespace-pre-line">
-                      {typedResponse}
-                      {isTyping && <span className="inline-block w-1.5 h-4 bg-google-blue ml-0.5 animate-pulse">|</span>}
-                    </p>
-                  </div>
-                </div>
+                )}
 
+                <div ref={chatEndRef} />
+              </div>
+
+              {/* Chat Input / Action Bar */}
+              <div className="p-4 bg-gray-50 border-t border-gray-150 flex items-center justify-between gap-4">
+                {chatStep === 1 ? (
+                  <button
+                    onClick={handleNextStep}
+                    className="w-full flex items-center justify-between px-4 py-3 bg-google-blue hover:bg-blue-600 text-white font-semibold rounded-xl text-xs shadow-md transition-all duration-300 animate-pulse"
+                  >
+                    <span>Fai richiesta aggiuntiva (Stile Salvador Dalí)</span>
+                    <Send className="w-3.5 h-3.5" />
+                  </button>
+                ) : chatStep === 2 || isTyping ? (
+                  <div className="w-full text-center text-xs text-gray-400 italic py-2">
+                    Il Gem sta elaborando la risposta...
+                  </div>
+                ) : chatStep === 3 ? (
+                  <div className="w-full flex flex-col sm:flex-row items-center justify-between gap-2 py-1">
+                    <span className="text-xs text-google-green font-semibold">✓ Allestimenti completati con successo!</span>
+                    <button 
+                      onClick={resetChat} 
+                      className="text-xs text-google-blue font-semibold hover:underline flex items-center gap-1"
+                    >
+                      <RefreshCw className="w-3 h-3" /> Riprova la demo
+                    </button>
+                  </div>
+                ) : null}
               </div>
 
             </div>
