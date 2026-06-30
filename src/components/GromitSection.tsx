@@ -1,11 +1,12 @@
 import { useState, useEffect } from "react";
 import { useScrollReveal } from "@/hooks/useScrollReveal";
-import { Sparkles, Coins, ShieldCheck, ArrowRight, ExternalLink, Bot, MessageSquare, Code, Settings } from "lucide-react";
+import { Sparkles, Coins, ShieldCheck, ExternalLink, Bot, MessageSquare, Scale, Home, ArrowRight } from "lucide-react";
 
 interface GemDemo {
   id: string;
   name: string;
   role: string;
+  description: string;
   prompt: string;
   response: string;
   icon: any;
@@ -13,34 +14,37 @@ interface GemDemo {
 
 const gemDemos: GemDemo[] = [
   {
-    id: "support",
-    name: "Gems Customer Care",
-    role: "Supporto Clienti Automatico",
-    prompt: "Come posso gestire un reso per un cliente che ha superato i 14 giorni ma ha un prodotto difettoso?",
-    response: "In base alle tue policy per i prodotti difettosi, puoi procedere alla sostituzione in garanzia anche oltre i 14 giorni. Chiedi al cliente una foto del difetto e genera l'etichetta di spedizione prepagata. Ecco il template di risposta da inviare...",
-    icon: MessageSquare,
-  },
-  {
     id: "marketing",
-    name: "Gems Copywriter",
-    role: "Creazione Contenuti & SEO",
-    prompt: "Scrivi un post LinkedIn per lanciare la nostra nuova automazione AI per la fatturazione.",
-    response: "🚀 Stanco di perdere 5 ore a settimana sulla fatturazione? Ecco come abbiamo automatizzato l'intero processo per un nostro cliente usando l'AI, riducendo gli errori al 0%... [Continua con la struttura AIDA]",
-    icon: Sparkles,
+    name: "Gems Copy & Home Staging",
+    role: "Creazione Annunci & Valorizzazione",
+    description: "Ottimizza annunci di vendita, descrizioni social e suggerimenti di allestimento visivo.",
+    prompt: "Scrivi un annuncio immobiliare persuasivo per un trilocale ristrutturato in centro a Firenze con terrazzo, evidenziando il valore storico e la luminosità.",
+    response: "✨ NUOVA OPPORTUNITÀ NEL CUORE DI FIRENZE\n\nNel cuore pulsante della città, a pochi passi dai monumenti storici, proponiamo un luminoso trilocale finemente ristrutturato.\n\n🏡 I Punti di Forza:\n• Luminosità straordinaria: grazie alla doppia esposizione.\n• Terrazzo privato: perfetto per colazioni all'aperto con vista sui tetti storici.\n• Finiture di pregio: pavimenti in parquet e dettagli in pietra serena.\n\n[Clicca per scaricare il template completo configurato]",
+    icon: Home,
   },
   {
-    id: "operations",
-    name: "Gems Analyst",
-    role: "Analisi Dati & Report",
-    prompt: "Estrai i punti chiave da questo report trimestrale di 40 pagine evidenziando i colli di bottiglia.",
-    response: "Analisi completata. I 3 colli di bottiglia principali sono: 1) Tempi di approvazione dei preventivi (media 4.2 giorni), 2) Onboarding manuale dei partner, 3) Mancata sincronizzazione del CRM con la logistica.",
-    icon: Settings,
+    id: "compliance",
+    name: "Gems Legal & Compliance",
+    role: "Verifica Normative & Contratti",
+    description: "Supporto sulle leggi italiane ed europee, conformità catastale e modulistica.",
+    prompt: "Quali sono gli obblighi di allegazione dell'attestato di prestazione energetica (APE) nei contratti di locazione in Italia?",
+    response: "Conformemente alla normativa italiana (D.Lgs. 192/2005 e successive modifiche):\n1. L'APE deve essere obbligatoriamente allegato al contratto di locazione a pena di sanzione amministrativa (da 1.000€ a 4.000€).\n2. Nel testo contrattuale va inserita una clausola in cui il conduttore dichiara di aver ricevuto le informazioni e la documentazione comprensiva dell'APE.\n3. La classe energetica e l'indice di prestazione devono essere indicati in tutti gli annunci commerciali.",
+    icon: Scale,
+  },
+  {
+    id: "sales",
+    name: "Gems Acquisizione & Clienti",
+    role: "Supporto Trattative e Strategia",
+    description: "Superamento obiezioni, script di telefonata ed e-mail per acquisire nuovi mandati.",
+    prompt: "Fornisci uno script di risposta a un proprietario privato che rifiuta di affidare il mandato in esclusiva all'agenzia.",
+    response: "Ecco la strategia consigliata per superare l'obiezione sull'esclusiva:\n\n💬 Script di risposta:\n'Capisco perfettamente il suo punto di vista, signor Rossi. Spesso si pensa che dare la casa a più agenzie aumenti le chance di vendita. In realtà, l'esclusiva ci permette di investire il 100% del nostro budget marketing su canali premium e di coordinare un'unica strategia di prezzo, evitando che l'immobile si svaluti apparendo a prezzi diversi su vari portali. Le propongo un accordo di prova di 60 giorni per dimostrarle il nostro metodo...'",
+    icon: MessageSquare,
   },
 ];
 
 export const GromitSection = () => {
   const { ref: sectionRef, isVisible } = useScrollReveal({ threshold: 0.15 });
-  const [activeGem, setActiveGem] = useState<string>("support");
+  const [activeGem, setActiveGem] = useState<string>("marketing");
   const [typedResponse, setTypedResponse] = useState<string>("");
   const [isTyping, setIsTyping] = useState<boolean>(false);
 
@@ -61,7 +65,7 @@ export const GromitSection = () => {
         setIsTyping(false);
         clearInterval(interval);
       }
-    }, 15);
+    }, 12);
 
     return () => clearInterval(interval);
   }, [activeGem, currentGem.response]);
@@ -71,15 +75,15 @@ export const GromitSection = () => {
       <div className="max-w-6xl mx-auto px-6 lg:px-8">
         {/* Header */}
         <div className={`section-header ${isVisible ? "animate-fade-in-up" : "reveal-hidden"}`}>
-          <span className="section-tag bg-google-blue-light text-google-blue flex items-center gap-1">
+          <span className="section-tag bg-google-blue-light text-google-blue flex items-center gap-1.5">
             <Bot className="w-3.5 h-3.5" />
-            Il Nostro Progetto
+            Gromit.me by CSD Station
           </span>
           <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold mb-3">
-            Incontra <span className="text-google-blue">Gromit.me</span>
+            Assistenti AI <span className="text-google-blue">Plug-and-Play</span>
           </h2>
           <p className="text-lg text-gray-600 max-w-2xl mx-auto">
-            Assistenti AI Plug-and-Play su misura per il tuo business. Gemini Gems specializzati, pronti all'uso e garantiti a vita.
+            Configurazioni di Google Gems pronte all'uso per la tua attività. Zero codice, zero abbonamenti, configurate appositamente per ogni settore aziendale.
           </p>
         </div>
 
@@ -89,41 +93,50 @@ export const GromitSection = () => {
           {/* Features Column (Left) */}
           <div className={`lg:col-span-5 flex flex-col gap-6 ${isVisible ? "animate-fade-in-up" : "reveal-hidden"}`}>
             
-            {/* Feature 1 */}
+            {/* Sector Highlight Info */}
+            <div className="p-5 rounded-2xl bg-gradient-to-r from-google-blue-light/30 to-google-green-light/20 border border-google-blue/10">
+              <span className="text-xs font-bold text-google-blue uppercase tracking-wider block mb-1">Disponibile Ora</span>
+              <h4 className="text-lg font-bold text-gray-900 mb-2">Settore Immobiliare (26 Gems)</h4>
+              <p className="text-sm text-gray-600 leading-relaxed">
+                Il primo catalogo completo studiato per le agenzie immobiliari italiane. Dalla creazione di contenuti e allestimento home staging fino alla compliance legale e fiscale basata sulle normative nazionali ed europee.
+              </p>
+            </div>
+
+            {/* Feature 1: Plug-and-Play */}
             <div className="flex gap-4 p-4 rounded-2xl bg-white border border-gray-100 hover:shadow-md transition-all duration-300">
               <div className="w-12 h-12 shrink-0 rounded-xl bg-google-blue-light flex items-center justify-center text-google-blue">
                 <Sparkles className="w-6 h-6" />
               </div>
               <div>
-                <h3 className="text-lg font-bold text-gray-900 mb-1">AI Plug-and-Play</h3>
-                <p className="text-sm text-gray-600 leading-relaxed">
-                  Attiva il tuo assistente specializzato in 2 minuti direttamente all'interno della tua console Gemini. Nessuna API complessa da configurare, nessun codice.
+                <h3 className="text-base font-bold text-gray-900 mb-1">Integrazione Nativa</h3>
+                <p className="text-xs text-gray-600 leading-relaxed">
+                  Importa le configurazioni dei Gems direttamente all'interno del tuo account Gemini. Nessuna API esterna da configurare e nessuna piattaforma terza richiesta.
                 </p>
               </div>
             </div>
 
-            {/* Feature 2 */}
+            {/* Feature 2: Costo una tantum */}
             <div className="flex gap-4 p-4 rounded-2xl bg-white border border-gray-100 hover:shadow-md transition-all duration-300">
               <div className="w-12 h-12 shrink-0 rounded-xl bg-google-yellow-light flex items-center justify-center text-google-yellow">
                 <Coins className="w-6 h-6" />
               </div>
               <div>
-                <h3 className="text-lg font-bold text-gray-900 mb-1">Costo Una Tantum</h3>
-                <p className="text-sm text-gray-600 leading-relaxed">
-                  Elimina gli abbonamenti mensili ricorrenti. Paghi solo una volta per il setup personalizzato e l'assistente rimane tuo per sempre, senza costi nascosti.
+                <h3 className="text-base font-bold text-gray-900 mb-1">Costo Una Tantum, Licenza a Vita</h3>
+                <p className="text-xs text-gray-600 leading-relaxed">
+                  Paga una sola volta per il pacchetto di configurazioni del tuo settore. Gli assistenti rimangono memorizzati nel tuo account Google per sempre, senza canoni mensili.
                 </p>
               </div>
             </div>
 
-            {/* Feature 3 */}
+            {/* Feature 3: No data training */}
             <div className="flex gap-4 p-4 rounded-2xl bg-white border border-gray-100 hover:shadow-md transition-all duration-300">
               <div className="w-12 h-12 shrink-0 rounded-xl bg-google-green-light flex items-center justify-center text-google-green">
                 <ShieldCheck className="w-6 h-6" />
               </div>
               <div>
-                <h3 className="text-lg font-bold text-gray-900 mb-1">Zero Trattamento Dati</h3>
-                <p className="text-sm text-gray-600 leading-relaxed">
-                  La tua sicurezza è al primo posto. Le conversazioni avvengono nel tuo ambiente sicuro: i tuoi dati non vengono letti, salvati o utilizzati per addestrare modelli AI esterni.
+                <h3 className="text-base font-bold text-gray-900 mb-1">Privacy di Livello Aziendale</h3>
+                <p className="text-xs text-gray-600 leading-relaxed">
+                  Le conversazioni avvengono integralmente all'interno della tua console protetta di Google. Nessun dato riservato dell'agenzia o dei clienti viene condiviso o archiviato esternamente.
                 </p>
               </div>
             </div>
@@ -134,9 +147,9 @@ export const GromitSection = () => {
                 href="https://gromit.me/"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex items-center gap-2 px-6 py-3 bg-google-blue hover:bg-blue-600 text-white font-semibold rounded-xl shadow-md hover:shadow-lg transition-all duration-300"
+                className="inline-flex items-center gap-2 px-6 py-3 bg-google-blue hover:bg-blue-600 text-white font-semibold rounded-xl shadow-md hover:shadow-lg transition-all duration-300 text-sm"
               >
-                Scopri Gromit.me
+                Scopri il Catalogo Gems su Gromit.me
                 <ExternalLink className="w-4 h-4" />
               </a>
             </div>
@@ -153,15 +166,15 @@ export const GromitSection = () => {
                   <span className="w-3 h-3 rounded-full bg-red-400"></span>
                   <span className="w-3 h-3 rounded-full bg-yellow-400"></span>
                   <span className="w-3 h-3 rounded-full bg-green-400"></span>
-                  <span className="ml-2 text-xs font-semibold text-gray-500 uppercase tracking-wider">Gemini Gems Simulator</span>
+                  <span className="ml-2 text-[10px] font-semibold text-gray-500 uppercase tracking-wider">Catalogo Gems - Hub Immobiliare</span>
                 </div>
-                <span className="text-xs text-google-blue font-medium bg-google-blue-light px-2 py-0.5 rounded-full">
-                  Live Preview
+                <span className="text-[10px] text-google-blue font-semibold bg-google-blue-light px-2 py-0.5 rounded-full">
+                  26 Assistenti
                 </span>
               </div>
 
               {/* Tabs for Gems selection */}
-              <div className="flex border-b border-gray-100 bg-gray-50/50 p-2 gap-2">
+              <div className="flex flex-wrap border-b border-gray-100 bg-gray-50/50 p-2 gap-1">
                 {gemDemos.map((gem) => {
                   const Icon = gem.icon;
                   return (
@@ -182,18 +195,18 @@ export const GromitSection = () => {
               </div>
 
               {/* Chat View */}
-              <div className="p-6 flex flex-col gap-4 min-h-[300px] bg-gray-50/30">
+              <div className="p-6 flex flex-col gap-4 min-h-[340px] bg-gray-50/30">
                 
                 {/* Role/Subtitle */}
-                <div className="text-xs text-gray-500 border-b border-gray-100 pb-2 flex justify-between items-center">
-                  <span>Ruolo configurato: <strong className="text-gray-700">{currentGem.role}</strong></span>
-                  <span className="text-[10px] text-gray-400">Attivo a vita</span>
+                <div className="text-xs text-gray-500 border-b border-gray-100 pb-2 flex flex-col sm:flex-row sm:justify-between sm:items-center gap-1">
+                  <span>Ruolo: <strong className="text-gray-700">{currentGem.role}</strong></span>
+                  <span className="text-[10px] text-gray-400 italic">{currentGem.description}</span>
                 </div>
 
                 {/* User Input Prompt Bubble */}
                 <div className="flex flex-col gap-1 max-w-[85%] self-end">
-                  <span className="text-[10px] text-gray-400 self-end mr-1">Tu</span>
-                  <div className="bg-google-blue text-white rounded-2xl rounded-tr-none px-4 py-3 text-sm shadow-sm">
+                  <span className="text-[10px] text-gray-400 self-end mr-1">Agente Immobiliare</span>
+                  <div className="bg-google-blue text-white rounded-2xl rounded-tr-none px-4 py-3 text-xs sm:text-sm shadow-sm">
                     {currentGem.prompt}
                   </div>
                 </div>
@@ -204,7 +217,7 @@ export const GromitSection = () => {
                     <span className="w-2 h-2 rounded-full bg-google-green animate-pulse"></span>
                     <span className="text-[10px] text-google-blue font-bold uppercase tracking-wider">{currentGem.name}</span>
                   </div>
-                  <div className="bg-white border border-gray-150 text-gray-800 rounded-2xl rounded-tl-none px-4 py-3 text-sm shadow-sm min-h-[80px]">
+                  <div className="bg-white border border-gray-150 text-gray-800 rounded-2xl rounded-tl-none px-4 py-3 text-xs sm:text-sm shadow-sm min-h-[100px]">
                     <p className="leading-relaxed whitespace-pre-line">
                       {typedResponse}
                       {isTyping && <span className="inline-block w-1.5 h-4 bg-google-blue ml-0.5 animate-pulse">|</span>}
