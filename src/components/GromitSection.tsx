@@ -82,6 +82,16 @@ const best6Gems: CatalogGem[] = [
   },
 ];
 
+const renderFormattedText = (text: string) => {
+  const parts = text.split(/(\*\*.*?\*\*)/g);
+  return parts.map((part, index) => {
+    if (part.startsWith("**") && part.endsWith("**")) {
+      return <strong key={index} className="font-bold text-gray-900">{part.slice(2, -2)}</strong>;
+    }
+    return part;
+  });
+};
+
 export const GromitSection = () => {
   const { ref: sectionRef, isVisible } = useScrollReveal({ threshold: 0.1 });
   const [activeTab, setActiveTab] = useState<string>("staging");
@@ -340,7 +350,7 @@ export const GromitSection = () => {
                           : "bg-white border border-gray-150 text-gray-800 rounded-tl-none"
                       }`}
                     >
-                      <p className="leading-relaxed whitespace-pre-line">{msg.text}</p>
+                      <p className="leading-relaxed whitespace-pre-line">{renderFormattedText(msg.text)}</p>
                       
                       {msg.image && (
                         <div className="mt-3 overflow-hidden rounded-lg border border-gray-250/20 bg-gray-900/5">
