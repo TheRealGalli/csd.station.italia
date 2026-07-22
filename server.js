@@ -36,21 +36,14 @@ try {
   db = getFirestore();
 }
 
-// Helper to determine base URL using exact Cloud Run service URL
-function getBaseUrl(req) {
-  if (process.env.BASE_URL) {
-    return process.env.BASE_URL.replace(/\/$/, '');
-  }
-  if (req) {
-    const protocol = req.headers['x-forwarded-proto'] || req.protocol;
-    const host = req.headers['x-forwarded-host'] || req.get('host');
-    return `${protocol}://${host}`;
-  }
-  // Exact Cloud Run public service URL from GCP Console
-  return 'https://nfc-271110757335.europe-west1.run.app';
+// Fixed canonical public base URL for Cloud Run (can be overridden via BASE_URL environment variable)
+const CANONICAL_BASE_URL = (process.env.BASE_URL || 'https://nfc-271110757335.europe-west1.run.app').replace(/\/$/, '');
+
+function getBaseUrl() {
+  return CANONICAL_BASE_URL;
 }
 
-// Real-time Firestore Listener: Automatically generates and saves `shortUrl` IMMEDIATELY when a document is created or updated
+// Real-time Firestore Listener: Automatically generates and updates `shortUrl` to canonical URL for all documents
 function startAutoShortUrlSync() {
   console.log('[Firestore Sync] Starting real-time shortUrl sync listener...');
   try {
@@ -62,14 +55,14 @@ function startAutoShortUrlSync() {
             const data = doc.data();
             const slug = doc.id;
 
-            const baseUrl = getBaseUrl(null);
+            const baseUrl = getBaseUrl();
             const expectedShortUrl = `${baseUrl}/${slug}`;
 
-            // If destinationUrl exists and shortUrl is missing, empty, or outdated, generate and write it immediately to Firestore!
+            // Auto-update shortUrl if missing, empty, or set to an old/incorrect URL
             if (data.destinationUrl && (!data.shortUrl || data.shortUrl !== expectedShortUrl)) {
               try {
                 await doc.ref.update({ shortUrl: expectedShortUrl });
-                console.log(`[Firestore Sync] Auto-generated shortUrl for "${slug}": ${expectedShortUrl}`);
+                console.log(`[Firestore Sync] Updated shortUrl for "${slug}": ${expectedShortUrl}`);
               } catch (err) {
                 console.error(`[Firestore Sync Error] Failed to update shortUrl for "${slug}":`, err.message);
               }
@@ -126,11 +119,11 @@ app.get('/:slug', async (req, res, next) => {
 
     const data = docSnap.data();
 
-    // Determine current public base URL
-    const baseUrl = getBaseUrl(req);
+    // Canonical base URL
+    const baseUrl = getBaseUrl();
     const generatedShortUrl = `${baseUrl}/${slug}`;
 
-    // Prepare fields to update: increment clicks + auto-populate/update shortUrl
+    // Prepare fields to update: increment clicks + ensure canonical shortUrl
     const updates = {
       clicks: FieldValue.increment(1)
     };
