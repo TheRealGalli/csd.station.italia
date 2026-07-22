@@ -13,22 +13,80 @@ const __dirname = path.dirname(__filename);
 const app = express();
 const PORT = process.env.PORT || 8080;
 
-// Initialize Firebase Admin SDK
+const projectId = process.env.GOOGLE_CLOUD_PROJECT || process.env.GCP_PROJECT || 'nfc-tag-503214';
+
+// Initialize Firebase Admin SDK with project ID fallback
 if (getApps().length === 0) {
   try {
-    initializeApp();
-    console.log('[Firebase] Initialized successfully.');
+    initializeApp({ projectId });
+    console.log(`[Firebase] Initialized with projectId "${projectId}".`);
   } catch (error) {
     console.error('[Firebase] Initialization error:', error.message);
   }
 }
 
+// Support named database 'nfctag' (as configured in Google Cloud Firestore) or fallback to default
+const dbName = process.env.FIRESTORE_DATABASE_ID || 'nfctag';
 let db;
 try {
-  db = getFirestore();
+  db = getFirestore(dbName);
+  console.log(`[Firestore] Connected to database "${dbName}"`);
 } catch (err) {
-  console.warn('[Firebase] Warning on Firestore init:', err.message);
+  console.warn(`[Firestore] Could not connect to "${dbName}", falling back to default database:`, err.message);
+  db = getFirestore();
 }
+
+// Helper to determine base URL
+function getBaseUrl(req) {
+  if (process.env.BASE_URL) {
+    return process.env.BASE_URL.replace(/\/$/, '');
+  }
+  if (req) {
+    const protocol = req.headers['x-forwarded-proto'] || req.protocol;
+    const host = req.headers['x-forwarded-host'] || req.get('host');
+    return `${protocol}://${host}`;
+  }
+  return 'https://nfc-503214.europe-west1.run.app';
+}
+
+// Real-time Firestore Listener: Automatically generates and saves `shortUrl` IMMEDIATELY when a document is created or updated
+function startAutoShortUrlSync() {
+  console.log('[Firestore Sync] Starting real-time shortUrl sync listener...');
+  try {
+    db.collection('links').onSnapshot(
+      (snapshot) => {
+        snapshot.docChanges().forEach(async (change) => {
+          if (change.type === 'added' || change.type === 'modified') {
+            const doc = change.doc;
+            const data = doc.data();
+            const slug = doc.id;
+
+            const baseUrl = getBaseUrl(null);
+            const expectedShortUrl = `${baseUrl}/${slug}`;
+
+            // If destinationUrl exists and shortUrl is missing, empty, or outdated, generate it immediately!
+            if (data.destinationUrl && (!data.shortUrl || data.shortUrl !== expectedShortUrl)) {
+              try {
+                await doc.ref.update({ shortUrl: expectedShortUrl });
+                console.log(`[Firestore Sync] Auto-generated shortUrl for "${slug}": ${expectedShortUrl}`);
+              } catch (err) {
+                console.error(`[Firestore Sync Error] Failed to update shortUrl for "${slug}":`, err.message);
+              }
+            }
+          }
+        });
+      },
+      (error) => {
+        console.error('[Firestore Sync Error] Snapshot listener error:', error.message);
+      }
+    );
+  } catch (err) {
+    console.error('[Firestore Sync Error] Failed to attach listener:', err.message);
+  }
+}
+
+// Start automatic real-time sync on server boot
+startAutoShortUrlSync();
 
 // Middleware
 app.use(express.json());
@@ -37,7 +95,7 @@ app.use(express.json());
 const distPath = path.join(__dirname, 'dist');
 app.use(express.static(distPath));
 
-// Health check endpoint for Cloud Run / Load Balancers
+// Health check endpoint for Cloud Run
 app.get('/health', (req, res) => {
   res.status(200).send('OK');
 });
@@ -57,9 +115,6 @@ app.get('/:slug', async (req, res, next) => {
   }
 
   try {
-    if (!db) {
-      db = getFirestore();
-    }
     const docRef = db.collection('links').doc(slug);
     const docSnap = await docRef.get();
 
@@ -70,10 +125,8 @@ app.get('/:slug', async (req, res, next) => {
 
     const data = docSnap.data();
 
-    // Determine current public base URL (Cloud Run URL or custom domain)
-    const protocol = req.headers['x-forwarded-proto'] || req.protocol;
-    const host = req.headers['x-forwarded-host'] || req.get('host');
-    const baseUrl = process.env.BASE_URL || `${protocol}://${host}`;
+    // Determine current public base URL
+    const baseUrl = getBaseUrl(req);
     const generatedShortUrl = `${baseUrl}/${slug}`;
 
     // Prepare fields to update: increment clicks + auto-populate/update shortUrl
@@ -106,7 +159,7 @@ app.use((req, res) => {
   res.sendFile(path.join(distPath, 'index.html'));
 });
 
-// Start Express Server - bind to 0.0.0.0 for container environments
+// Start Express Server
 app.listen(PORT, '0.0.0.0', () => {
   console.log(`🚀 CSD Station Server running on port ${PORT}`);
 });
