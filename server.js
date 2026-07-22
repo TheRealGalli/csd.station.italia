@@ -1,5 +1,6 @@
 import express from 'express';
-import admin from 'firebase-admin';
+import { initializeApp, getApps } from 'firebase-admin/app';
+import { getFirestore, FieldValue } from 'firebase-admin/firestore';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import dotenv from 'dotenv';
@@ -13,18 +14,21 @@ const app = express();
 const PORT = process.env.PORT || 8080;
 
 // Initialize Firebase Admin SDK
-// On Google Cloud Run, default credentials (ADC) are automatically picked up.
-// For local testing, GOOGLE_APPLICATION_CREDENTIALS or custom configuration can be provided.
-if (!admin.apps.length) {
+if (getApps().length === 0) {
   try {
-    admin.initializeApp();
-    console.log('[Firebase] Initialized with Application Default Credentials.');
+    initializeApp();
+    console.log('[Firebase] Initialized successfully.');
   } catch (error) {
     console.error('[Firebase] Initialization error:', error.message);
   }
 }
 
-const db = admin.firestore();
+let db;
+try {
+  db = getFirestore();
+} catch (err) {
+  console.warn('[Firebase] Warning on Firestore init:', err.message);
+}
 
 // Middleware
 app.use(express.json());
@@ -44,21 +48,23 @@ const SPA_ROUTES = new Set(['privacy-policy', 'terms-of-service', 'cookie-policy
 /**
  * GET /:slug - URL Shortener Redirect & Analytics Tracker
  */
-app.get('/:slug', async (req, res) => {
+app.get('/:slug', async (req, res, next) => {
   const { slug } = req.params;
 
   // Skip static assets or recognized SPA sub-routes
   if (slug.includes('.') || SPA_ROUTES.has(slug)) {
-    return res.sendFile(path.join(distPath, 'index.html'));
+    return next();
   }
 
   try {
+    if (!db) {
+      db = getFirestore();
+    }
     const docRef = db.collection('links').doc(slug);
     const docSnap = await docRef.get();
 
     if (!docSnap.exists) {
       console.warn(`[Shortener] Slug not found in Firestore: "${slug}"`);
-      // Return SPA 404 page
       return res.status(404).sendFile(path.join(distPath, 'index.html'));
     }
 
@@ -72,7 +78,7 @@ app.get('/:slug', async (req, res) => {
 
     // Prepare fields to update: increment clicks + auto-populate/update shortUrl
     const updates = {
-      clicks: admin.firestore.FieldValue.increment(1)
+      clicks: FieldValue.increment(1)
     };
 
     if (!data.shortUrl || data.shortUrl !== generatedShortUrl) {
@@ -95,12 +101,12 @@ app.get('/:slug', async (req, res) => {
   }
 });
 
-// Catch-all route to serve SPA frontend for any other GET requests
-app.get('*', (req, res) => {
+// Catch-all fallback middleware to serve SPA frontend for any unhandled routes
+app.use((req, res) => {
   res.sendFile(path.join(distPath, 'index.html'));
 });
 
-// Start Express Server
-app.listen(PORT, () => {
+// Start Express Server - bind to 0.0.0.0 for container environments
+app.listen(PORT, '0.0.0.0', () => {
   console.log(`🚀 CSD Station Server running on port ${PORT}`);
 });
