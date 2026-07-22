@@ -15,7 +15,7 @@ const PORT = process.env.PORT || 8080;
 
 const projectId = process.env.GOOGLE_CLOUD_PROJECT || process.env.GCP_PROJECT || 'nfc-tag-503214';
 
-// Initialize Firebase Admin SDK with project ID fallback
+// Initialize Firebase Admin SDK
 if (getApps().length === 0) {
   try {
     initializeApp({ projectId });
@@ -36,7 +36,7 @@ try {
   db = getFirestore();
 }
 
-// Helper to determine base URL
+// Helper to determine base URL using exact Cloud Run service URL
 function getBaseUrl(req) {
   if (process.env.BASE_URL) {
     return process.env.BASE_URL.replace(/\/$/, '');
@@ -46,7 +46,8 @@ function getBaseUrl(req) {
     const host = req.headers['x-forwarded-host'] || req.get('host');
     return `${protocol}://${host}`;
   }
-  return 'https://nfc-503214.europe-west1.run.app';
+  // Exact Cloud Run public service URL from GCP Console
+  return 'https://nfc-271110757335.europe-west1.run.app';
 }
 
 // Real-time Firestore Listener: Automatically generates and saves `shortUrl` IMMEDIATELY when a document is created or updated
@@ -64,7 +65,7 @@ function startAutoShortUrlSync() {
             const baseUrl = getBaseUrl(null);
             const expectedShortUrl = `${baseUrl}/${slug}`;
 
-            // If destinationUrl exists and shortUrl is missing, empty, or outdated, generate it immediately!
+            // If destinationUrl exists and shortUrl is missing, empty, or outdated, generate and write it immediately to Firestore!
             if (data.destinationUrl && (!data.shortUrl || data.shortUrl !== expectedShortUrl)) {
               try {
                 await doc.ref.update({ shortUrl: expectedShortUrl });
