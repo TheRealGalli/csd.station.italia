@@ -36,22 +36,40 @@ try {
   db = getFirestore();
 }
 
-// Fixed canonical public base URL for Cloud Run (defaults to custom domain https://nfc.csd-station.it)
+// Fixed canonical public base URL for Cloud Run
 const CANONICAL_BASE_URL = (process.env.BASE_URL || 'https://nfc.csd-station.it').replace(/\/$/, '');
 
 function getBaseUrl() {
   return CANONICAL_BASE_URL;
 }
 
-// Generate properly encoded shortUrl (handles spaces, accents like "Autofficina Calò")
-function buildShortUrl(slug) {
+/**
+ * Slugify helper: Converts text with accents, spaces, and special characters
+ * into a clean, elegant ASCII URL slug.
+ * Example: "Autofficina-Calò" -> "autofficina-calo"
+ */
+function slugify(text) {
+  return text
+    .toString()
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '') // Remove accents (ò -> o, à -> a, ecc.)
+    .toLowerCase()
+    .trim()
+    .replace(/[^a-z0-9 -]/g, '')    // Remove special characters
+    .replace(/\s+/g, '-')           // Replace spaces with hyphens
+    .replace(/-+/g, '-');          // Collapse multiple hyphens
+}
+
+// Generate clean shortUrl using slugify
+function buildShortUrl(docId) {
   const baseUrl = getBaseUrl();
-  return `${baseUrl}/${encodeURIComponent(slug)}`;
+  const cleanSlug = slugify(docId);
+  return `${baseUrl}/${cleanSlug}`;
 }
 
 /**
  * Synchronize all links in Firestore database:
- * Ensures every document with a `destinationUrl` has a valid, properly formatted `shortUrl`.
+ * Ensures every document with a `destinationUrl` has a clean `shortUrl`.
  */
 async function syncAllLinks() {
   try {
@@ -61,14 +79,14 @@ async function syncAllLinks() {
 
     snapshot.forEach((doc) => {
       const data = doc.data();
-      const slug = doc.id;
-      const expectedShortUrl = buildShortUrl(slug);
+      const docId = doc.id;
+      const expectedShortUrl = buildShortUrl(docId);
 
       if (data.destinationUrl && (!data.shortUrl || data.shortUrl !== expectedShortUrl)) {
-        console.log(`[Firestore Sync] Updating shortUrl for "${slug}" -> ${expectedShortUrl}`);
+        console.log(`[Firestore Sync] Updating shortUrl for "${docId}" -> ${expectedShortUrl}`);
         updatePromises.push(
           doc.ref.update({ shortUrl: expectedShortUrl }).catch((err) => {
-            console.error(`[Firestore Sync Error] Failed to update "${slug}":`, err.message);
+            console.error(`[Firestore Sync Error] Failed to update "${docId}":`, err.message);
           })
         );
       }
@@ -78,7 +96,7 @@ async function syncAllLinks() {
       await Promise.all(updatePromises);
       console.log(`[Firestore Sync] Successfully synced ${updatePromises.length} shortUrl field(s).`);
     } else {
-      console.log('[Firestore Sync] All shortUrl fields are up to date.');
+      console.log('[Firestore Sync] All shortUrl fields are clean and up to date.');
     }
   } catch (err) {
     console.error('[Firestore Sync Error] Failed full sync:', err.message);
@@ -96,13 +114,13 @@ function startAutoShortUrlSync() {
           if (change.type === 'added' || change.type === 'modified') {
             const doc = change.doc;
             const data = doc.data();
-            const slug = doc.id;
-            const expectedShortUrl = buildShortUrl(slug);
+            const docId = doc.id;
+            const expectedShortUrl = buildShortUrl(docId);
 
             if (data.destinationUrl && (!data.shortUrl || data.shortUrl !== expectedShortUrl)) {
               updatePromises.push(
                 doc.ref.update({ shortUrl: expectedShortUrl }).catch((err) => {
-                  console.error(`[Firestore Sync Error] Failed to update "${slug}":`, err.message);
+                  console.error(`[Firestore Sync Error] Failed to update "${docId}":`, err.message);
                 })
               );
             }
@@ -143,7 +161,7 @@ app.get('/health', (req, res) => {
 // Manual trigger endpoint to force sync all links instantly
 app.get('/api/sync-links', async (req, res) => {
   await syncAllLinks();
-  res.json({ success: true, message: 'Sync complete' });
+  res.json({ success: true, message: 'Clean sync complete' });
 });
 
 // Known SPA static routes for CSD Station website
@@ -151,41 +169,57 @@ const SPA_ROUTES = new Set(['privacy-policy', 'terms-of-service', 'cookie-policy
 
 /**
  * GET /:slug - URL Shortener Redirect & Analytics Tracker
+ * Smart matching: Handles exact ID, decoded ID, and slugified ID (e.g., autofficina-calo).
  */
 app.get('/:slug', async (req, res, next) => {
-  // Decode slug parameter (handles %20 and special characters)
   let rawSlug = req.params.slug;
-  let slug = rawSlug;
+  let decodedSlug = rawSlug;
   try {
-    slug = decodeURIComponent(rawSlug);
+    decodedSlug = decodeURIComponent(rawSlug);
   } catch (e) {
-    slug = rawSlug;
+    decodedSlug = rawSlug;
   }
 
   // Skip static assets or recognized SPA sub-routes
-  if (slug.includes('.') || SPA_ROUTES.has(slug)) {
+  if (decodedSlug.includes('.') || SPA_ROUTES.has(decodedSlug)) {
     return next();
   }
 
   try {
-    let docRef = db.collection('links').doc(slug);
+    let docRef = db.collection('links').doc(decodedSlug);
     let docSnap = await docRef.get();
 
-    // Fallback: try rawSlug if decoded slug does not exist
-    if (!docSnap.exists && rawSlug !== slug) {
+    // Fallback 1: try raw slug
+    if (!docSnap.exists && rawSlug !== decodedSlug) {
       docRef = db.collection('links').doc(rawSlug);
       docSnap = await docRef.get();
     }
 
+    // Fallback 2: search by slugified ID or clean shortUrl match
     if (!docSnap.exists) {
-      console.warn(`[Shortener] Slug not found in Firestore: "${slug}"`);
+      const targetSlug = slugify(decodedSlug);
+      const snapshot = await db.collection('links').get();
+
+      snapshot.forEach((doc) => {
+        if (!docSnap.exists) {
+          if (slugify(doc.id) === targetSlug) {
+            docRef = doc.ref;
+            docSnap = doc;
+          }
+        }
+      });
+    }
+
+    if (!docSnap.exists) {
+      console.warn(`[Shortener] Slug not found in Firestore: "${decodedSlug}"`);
       return res.status(404).sendFile(path.join(distPath, 'index.html'));
     }
 
     const data = docSnap.data();
-    const generatedShortUrl = buildShortUrl(slug);
+    const docId = docSnap.id;
+    const generatedShortUrl = buildShortUrl(docId);
 
-    // Prepare fields to update: increment clicks + ensure canonical shortUrl
+    // Prepare fields to update: increment clicks + ensure clean shortUrl
     const updates = {
       clicks: FieldValue.increment(1)
     };
@@ -196,7 +230,7 @@ app.get('/:slug', async (req, res, next) => {
 
     // Atomically update Firestore document
     await docRef.update(updates);
-    console.log(`[Shortener] Slug "${slug}" clicked (${(data.clicks || 0) + 1} total). Redirecting to: ${data.destinationUrl}`);
+    console.log(`[Shortener] Slug "${docId}" clicked (${(data.clicks || 0) + 1} total). Redirecting to: ${data.destinationUrl}`);
 
     // HTTP 302 Redirect to destinationUrl
     if (data.destinationUrl) {
@@ -205,7 +239,7 @@ app.get('/:slug', async (req, res, next) => {
       return res.status(404).sendFile(path.join(distPath, 'index.html'));
     }
   } catch (error) {
-    console.error(`[Shortener Error] Error processing slug "${slug}":`, error);
+    console.error(`[Shortener Error] Error processing slug "${decodedSlug}":`, error);
     return res.status(500).json({ error: 'Internal Server Error', message: error.message });
   }
 });
