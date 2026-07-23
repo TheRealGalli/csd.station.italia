@@ -1,0 +1,40 @@
+steps:
+  # Step 1: Build Docker image
+  - name: 'gcr.io/cloud-builders/docker'
+    args:
+      - 'build'
+      - '-t'
+      - 'europe-west1-docker.pkg.dev/$PROJECT_ID/cloud-run-source-deploy/nfc'
+      - '.'
+
+  # Step 2: Push Docker image to Artifact Registry
+  - name: 'gcr.io/cloud-builders/docker'
+    args:
+      - 'push'
+      - 'europe-west1-docker.pkg.dev/$PROJECT_ID/cloud-run-source-deploy/nfc'
+
+  # Step 3: Deploy to Cloud Run
+  - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk:slim'
+    entrypoint: 'gcloud'
+    args:
+      - 'run'
+      - 'services'
+      - 'update'
+      - 'nfc'
+      - '--image=europe-west1-docker.pkg.dev/$PROJECT_ID/cloud-run-source-deploy/nfc'
+      - '--region=europe-west1'
+      - '--set-env-vars=BASE_URL=https://nfc.csd-station.it'
+
+  # Step 4: Wait for Cloud Run to be ready and trigger sync
+  - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk:slim'
+    entrypoint: 'bash'
+    args:
+      - '-c'
+      - |
+        echo "Waiting 15 seconds for Cloud Run to be ready..."
+        sleep 15
+        echo "Triggering shortUrl sync..."
+        curl -sf https://nfc.csd-station.it/api/sync-links && echo "Sync completed successfully!" || echo "Sync request failed, check logs."
+
+images:
+  - 'europe-west1-docker.pkg.dev/$PROJECT_ID/cloud-run-source-deploy/nfc'
