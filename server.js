@@ -36,39 +36,83 @@ try {
   db = getFirestore();
 }
 
-// Fixed canonical public base URL for Cloud Run (can be overridden via BASE_URL environment variable)
-const CANONICAL_BASE_URL = (process.env.BASE_URL || 'https://nfc-271110757335.europe-west1.run.app').replace(/\/$/, '');
+// Fixed canonical public base URL for Cloud Run (defaults to custom domain https://nfc.csd-station.it)
+const CANONICAL_BASE_URL = (process.env.BASE_URL || 'https://nfc.csd-station.it').replace(/\/$/, '');
 
 function getBaseUrl() {
   return CANONICAL_BASE_URL;
 }
 
-// Real-time Firestore Listener: Automatically generates and updates `shortUrl` to canonical URL for all documents
+// Generate properly encoded shortUrl (handles spaces, accents like "Autofficina Calò")
+function buildShortUrl(slug) {
+  const baseUrl = getBaseUrl();
+  return `${baseUrl}/${encodeURIComponent(slug)}`;
+}
+
+/**
+ * Synchronize all links in Firestore database:
+ * Ensures every document with a `destinationUrl` has a valid, properly formatted `shortUrl`.
+ */
+async function syncAllLinks() {
+  try {
+    console.log('[Firestore Sync] Running full sync of links collection...');
+    const snapshot = await db.collection('links').get();
+    const updatePromises = [];
+
+    snapshot.forEach((doc) => {
+      const data = doc.data();
+      const slug = doc.id;
+      const expectedShortUrl = buildShortUrl(slug);
+
+      if (data.destinationUrl && (!data.shortUrl || data.shortUrl !== expectedShortUrl)) {
+        console.log(`[Firestore Sync] Updating shortUrl for "${slug}" -> ${expectedShortUrl}`);
+        updatePromises.push(
+          doc.ref.update({ shortUrl: expectedShortUrl }).catch((err) => {
+            console.error(`[Firestore Sync Error] Failed to update "${slug}":`, err.message);
+          })
+        );
+      }
+    });
+
+    if (updatePromises.length > 0) {
+      await Promise.all(updatePromises);
+      console.log(`[Firestore Sync] Successfully synced ${updatePromises.length} shortUrl field(s).`);
+    } else {
+      console.log('[Firestore Sync] All shortUrl fields are up to date.');
+    }
+  } catch (err) {
+    console.error('[Firestore Sync Error] Failed full sync:', err.message);
+  }
+}
+
+// Real-time Firestore Listener for immediate updates when server is active
 function startAutoShortUrlSync() {
   console.log('[Firestore Sync] Starting real-time shortUrl sync listener...');
   try {
     db.collection('links').onSnapshot(
-      (snapshot) => {
-        snapshot.docChanges().forEach(async (change) => {
+      async (snapshot) => {
+        const updatePromises = [];
+        snapshot.docChanges().forEach((change) => {
           if (change.type === 'added' || change.type === 'modified') {
             const doc = change.doc;
             const data = doc.data();
             const slug = doc.id;
+            const expectedShortUrl = buildShortUrl(slug);
 
-            const baseUrl = getBaseUrl();
-            const expectedShortUrl = `${baseUrl}/${slug}`;
-
-            // Auto-update shortUrl if missing, empty, or set to an old/incorrect URL
             if (data.destinationUrl && (!data.shortUrl || data.shortUrl !== expectedShortUrl)) {
-              try {
-                await doc.ref.update({ shortUrl: expectedShortUrl });
-                console.log(`[Firestore Sync] Updated shortUrl for "${slug}": ${expectedShortUrl}`);
-              } catch (err) {
-                console.error(`[Firestore Sync Error] Failed to update shortUrl for "${slug}":`, err.message);
-              }
+              updatePromises.push(
+                doc.ref.update({ shortUrl: expectedShortUrl }).catch((err) => {
+                  console.error(`[Firestore Sync Error] Failed to update "${slug}":`, err.message);
+                })
+              );
             }
           }
         });
+
+        if (updatePromises.length > 0) {
+          await Promise.all(updatePromises);
+          console.log(`[Firestore Sync] Real-time snapshot updated ${updatePromises.length} document(s).`);
+        }
       },
       (error) => {
         console.error('[Firestore Sync Error] Snapshot listener error:', error.message);
@@ -79,8 +123,10 @@ function startAutoShortUrlSync() {
   }
 }
 
-// Start automatic real-time sync on server boot
-startAutoShortUrlSync();
+// Run full sync and start real-time listener on server boot
+syncAllLinks().then(() => {
+  startAutoShortUrlSync();
+});
 
 // Middleware
 app.use(express.json());
@@ -94,14 +140,27 @@ app.get('/health', (req, res) => {
   res.status(200).send('OK');
 });
 
+// Manual trigger endpoint to force sync all links instantly
+app.get('/api/sync-links', async (req, res) => {
+  await syncAllLinks();
+  res.json({ success: true, message: 'Sync complete' });
+});
+
 // Known SPA static routes for CSD Station website
-const SPA_ROUTES = new Set(['privacy-policy', 'terms-of-service', 'cookie-policy']);
+const SPA_ROUTES = new Set(['privacy-policy', 'terms-of-service', 'cookie-policy', 'api']);
 
 /**
  * GET /:slug - URL Shortener Redirect & Analytics Tracker
  */
 app.get('/:slug', async (req, res, next) => {
-  const { slug } = req.params;
+  // Decode slug parameter (handles %20 and special characters)
+  let rawSlug = req.params.slug;
+  let slug = rawSlug;
+  try {
+    slug = decodeURIComponent(rawSlug);
+  } catch (e) {
+    slug = rawSlug;
+  }
 
   // Skip static assets or recognized SPA sub-routes
   if (slug.includes('.') || SPA_ROUTES.has(slug)) {
@@ -109,8 +168,14 @@ app.get('/:slug', async (req, res, next) => {
   }
 
   try {
-    const docRef = db.collection('links').doc(slug);
-    const docSnap = await docRef.get();
+    let docRef = db.collection('links').doc(slug);
+    let docSnap = await docRef.get();
+
+    // Fallback: try rawSlug if decoded slug does not exist
+    if (!docSnap.exists && rawSlug !== slug) {
+      docRef = db.collection('links').doc(rawSlug);
+      docSnap = await docRef.get();
+    }
 
     if (!docSnap.exists) {
       console.warn(`[Shortener] Slug not found in Firestore: "${slug}"`);
@@ -118,10 +183,7 @@ app.get('/:slug', async (req, res, next) => {
     }
 
     const data = docSnap.data();
-
-    // Canonical base URL
-    const baseUrl = getBaseUrl();
-    const generatedShortUrl = `${baseUrl}/${slug}`;
+    const generatedShortUrl = buildShortUrl(slug);
 
     // Prepare fields to update: increment clicks + ensure canonical shortUrl
     const updates = {
