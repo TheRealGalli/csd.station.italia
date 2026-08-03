@@ -44,6 +44,28 @@ function getBaseUrl() {
 }
 
 /**
+ * Helper to get current month (YYYY-MM) and current date (DD/MM/YYYY)
+ * in Italian timezone (Europe/Rome).
+ */
+function getRomeDateInfo() {
+  const now = new Date();
+  const currentMonth = new Intl.DateTimeFormat('en-CA', {
+    timeZone: 'Europe/Rome',
+    year: 'numeric',
+    month: '2-digit'
+  }).format(now);
+
+  const todayDate = new Intl.DateTimeFormat('it-IT', {
+    timeZone: 'Europe/Rome',
+    day: '2-digit',
+    month: '2-digit',
+    year: 'numeric'
+  }).format(now);
+
+  return { currentMonth, todayDate };
+}
+
+/**
  * Slugify helper: Converts text with accents, spaces, and special characters
  * into a clean, elegant ASCII URL slug.
  * Example: "Autofficina-Calò" -> "autofficina-calo"
@@ -69,23 +91,45 @@ function buildShortUrl(docId) {
 
 /**
  * Synchronize all links in Firestore database:
- * Ensures every document with a `destinationUrl` has a clean `shortUrl`.
+ * 1. Ensures shortUrl is up to date and clean.
+ * 2. Checks monthly reset (resets clicks and peak day counters on the 1st of each month).
  */
 async function syncAllLinks() {
   try {
     console.log('[Firestore Sync] Running full sync of links collection...');
     const snapshot = await db.collection('links').get();
     const updatePromises = [];
+    const { currentMonth, todayDate } = getRomeDateInfo();
 
     snapshot.forEach((doc) => {
       const data = doc.data();
       const docId = doc.id;
       const expectedShortUrl = buildShortUrl(docId);
+      const docUpdates = {};
 
+      // Check if a new month started -> reset monthly clicks and peak day counters
+      if (data.lastResetMonth !== currentMonth) {
+        docUpdates.clicks = 0;
+        docUpdates.currentDayDate = todayDate;
+        docUpdates.currentDayClicks = 0;
+        docUpdates.peakDayDate = "";
+        docUpdates.peakDayClicks = 0;
+        docUpdates.lastResetMonth = currentMonth;
+      } else {
+        if (data.peakDayDate === undefined) docUpdates.peakDayDate = "";
+        if (data.peakDayClicks === undefined) docUpdates.peakDayClicks = 0;
+        if (data.clicks === undefined) docUpdates.clicks = 0;
+      }
+
+      // Ensure canonical clean shortUrl
       if (data.destinationUrl && (!data.shortUrl || data.shortUrl !== expectedShortUrl)) {
-        console.log(`[Firestore Sync] Updating shortUrl for "${docId}" -> ${expectedShortUrl}`);
+        docUpdates.shortUrl = expectedShortUrl;
+      }
+
+      if (Object.keys(docUpdates).length > 0) {
+        console.log(`[Firestore Sync] Updating document "${docId}":`, docUpdates);
         updatePromises.push(
-          doc.ref.update({ shortUrl: expectedShortUrl }).catch((err) => {
+          doc.ref.update(docUpdates).catch((err) => {
             console.error(`[Firestore Sync Error] Failed to update "${docId}":`, err.message);
           })
         );
@@ -94,9 +138,9 @@ async function syncAllLinks() {
 
     if (updatePromises.length > 0) {
       await Promise.all(updatePromises);
-      console.log(`[Firestore Sync] Successfully synced ${updatePromises.length} shortUrl field(s).`);
+      console.log(`[Firestore Sync] Successfully synced ${updatePromises.length} document(s).`);
     } else {
-      console.log('[Firestore Sync] All shortUrl fields are clean and up to date.');
+      console.log('[Firestore Sync] All documents are up to date.');
     }
   } catch (err) {
     console.error('[Firestore Sync Error] Failed full sync:', err.message);
@@ -110,16 +154,35 @@ function startAutoShortUrlSync() {
     db.collection('links').onSnapshot(
       async (snapshot) => {
         const updatePromises = [];
+        const { currentMonth, todayDate } = getRomeDateInfo();
+
         snapshot.docChanges().forEach((change) => {
           if (change.type === 'added' || change.type === 'modified') {
             const doc = change.doc;
             const data = doc.data();
             const docId = doc.id;
             const expectedShortUrl = buildShortUrl(docId);
+            const docUpdates = {};
+
+            if (data.lastResetMonth !== currentMonth) {
+              docUpdates.clicks = 0;
+              docUpdates.currentDayDate = todayDate;
+              docUpdates.currentDayClicks = 0;
+              docUpdates.peakDayDate = "";
+              docUpdates.peakDayClicks = 0;
+              docUpdates.lastResetMonth = currentMonth;
+            } else {
+              if (data.peakDayDate === undefined) docUpdates.peakDayDate = "";
+              if (data.peakDayClicks === undefined) docUpdates.peakDayClicks = 0;
+            }
 
             if (data.destinationUrl && (!data.shortUrl || data.shortUrl !== expectedShortUrl)) {
+              docUpdates.shortUrl = expectedShortUrl;
+            }
+
+            if (Object.keys(docUpdates).length > 0) {
               updatePromises.push(
-                doc.ref.update({ shortUrl: expectedShortUrl }).catch((err) => {
+                doc.ref.update(docUpdates).catch((err) => {
                   console.error(`[Firestore Sync Error] Failed to update "${docId}":`, err.message);
                 })
               );
@@ -169,7 +232,7 @@ const SPA_ROUTES = new Set(['privacy-policy', 'terms-of-service', 'cookie-policy
 
 /**
  * GET /:slug - URL Shortener Redirect & Analytics Tracker
- * Smart matching: Handles exact ID, decoded ID, and slugified ID (e.g., autofficina-calo).
+ * Handles monthly reset and peak day tracking on click.
  */
 app.get('/:slug', async (req, res, next) => {
   let rawSlug = req.params.slug;
@@ -218,19 +281,52 @@ app.get('/:slug', async (req, res, next) => {
     const data = docSnap.data();
     const docId = docSnap.id;
     const generatedShortUrl = buildShortUrl(docId);
+    const { currentMonth, todayDate } = getRomeDateInfo();
 
-    // Prepare fields to update: increment clicks + ensure clean shortUrl
-    const updates = {
-      clicks: FieldValue.increment(1)
-    };
+    let updates = {};
 
+    // Check if new month -> reset monthly clicks and peak day
+    if (data.lastResetMonth !== currentMonth) {
+      updates = {
+        clicks: 1,
+        currentDayDate: todayDate,
+        currentDayClicks: 1,
+        peakDayDate: todayDate,
+        peakDayClicks: 1,
+        lastResetMonth: currentMonth
+      };
+    } else {
+      // Same month -> increment total monthly clicks
+      const newClicks = (data.clicks || 0) + 1;
+      updates.clicks = newClicks;
+
+      // Track daily clicks for today
+      let newDayClicks = 1;
+      if (data.currentDayDate === todayDate) {
+        newDayClicks = (data.currentDayClicks || 0) + 1;
+      }
+      updates.currentDayDate = todayDate;
+      updates.currentDayClicks = newDayClicks;
+
+      // Track peak day (giornata record del mese)
+      const currentPeakClicks = data.peakDayClicks || 0;
+      if (newDayClicks > currentPeakClicks) {
+        updates.peakDayClicks = newDayClicks;
+        updates.peakDayDate = todayDate;
+      } else {
+        if (!data.peakDayDate) updates.peakDayDate = todayDate;
+        if (data.peakDayClicks === undefined) updates.peakDayClicks = newDayClicks;
+      }
+    }
+
+    // Ensure clean shortUrl
     if (!data.shortUrl || data.shortUrl !== generatedShortUrl) {
       updates.shortUrl = generatedShortUrl;
     }
 
     // Atomically update Firestore document
     await docRef.update(updates);
-    console.log(`[Shortener] Slug "${docId}" clicked (${(data.clicks || 0) + 1} total). Redirecting to: ${data.destinationUrl}`);
+    console.log(`[Shortener] Slug "${docId}" clicked (${updates.clicks} total this month, today: ${updates.currentDayClicks}, peak: ${updates.peakDayClicks} on ${updates.peakDayDate}). Redirecting to: ${data.destinationUrl}`);
 
     // HTTP 302 Redirect to destinationUrl
     if (data.destinationUrl) {
