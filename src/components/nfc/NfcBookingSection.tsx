@@ -1,31 +1,9 @@
-import { useState } from "react";
 import { useScrollReveal } from "@/hooks/useScrollReveal";
-import { CreditCard, Send, CheckCircle2, Star, ShieldCheck } from "lucide-react";
+import { ArrowRight, CheckCircle2, Star, BarChart3, QrCode, ShieldCheck } from "lucide-react";
 import nfcCardImg from "@/assets/nfc-card.jpg";
 
 export const NfcBookingSection = () => {
   const { ref: sectionRef, isVisible } = useScrollReveal({ threshold: 0.1 });
-  const [submitted, setSubmitted] = useState(false);
-  const [loading, setLoading] = useState(false);
-  const [formData, setFormData] = useState({
-    name: "",
-    businessName: "",
-    email: "",
-    phone: "",
-    sector: "ristorazione",
-    quantity: "2",
-    googleMapsUrl: "",
-    notes: "",
-  });
-
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    setLoading(true);
-    setTimeout(() => {
-      setLoading(false);
-      setSubmitted(true);
-    }, 800);
-  };
 
   return (
     <section
@@ -33,218 +11,115 @@ export const NfcBookingSection = () => {
       ref={sectionRef as any}
       id="nfc-booking"
     >
-      <div className="max-w-6xl mx-auto px-6 lg:px-8">
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
-          {/* Left Info Column */}
-          <div
-            className={`lg:col-span-5 flex flex-col gap-6 ${
-              isVisible ? "animate-fade-in-up" : "reveal-hidden"
-            }`}
-          >
-            <span className="section-tag bg-google-blue-light text-google-blue w-fit">
-              Ordina le tue Card NFC
+      <div className="max-w-4xl mx-auto px-6 lg:px-8">
+        <div
+          className={`text-center flex flex-col items-center gap-8 ${
+            isVisible ? "animate-fade-in-up" : "reveal-hidden"
+          }`}
+        >
+          {/* Header */}
+          <div className="flex flex-col items-center gap-3">
+            <span className="section-tag bg-google-green-light text-google-green">
+              Inizia Subito — Una Tantum
             </span>
             <h2 className="text-3xl sm:text-4xl font-extrabold text-gray-900 tracking-tight">
-              Richiedi le tue <span className="text-google-blue">Card NFC Google</span> Personalizzate
+              Ordina le tue <span className="text-google-green">Card NFC Google</span> Adesso
             </h2>
-            <p className="text-gray-600 leading-relaxed text-base">
-              Compila il modulo per ordinare le tue Card NFC CSD Station. Ti invieremo un'anteprima digitale configurata direttamente con la tua scheda Google Maps.
+            <p className="text-lg text-gray-600 max-w-2xl">
+              Contattaci direttamente per ricevere un preventivo personalizzato, l'anteprima della tua card configurata con la tua scheda Google Maps e la spedizione in tutta Italia.
             </p>
-
-            {/* Product Feature Checklist */}
-            <div className="space-y-3 mt-2">
-              <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-xl border border-gray-200">
-                <CheckCircle2 className="w-5 h-5 text-google-green shrink-0" />
-                <span className="text-sm font-semibold text-gray-800">
-                  Prezzo Una Tantum (Pagamento unico senza abbonamenti)
-                </span>
-              </div>
-              <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-xl border border-gray-200">
-                <CheckCircle2 className="w-5 h-5 text-google-green shrink-0" />
-                <span className="text-sm font-semibold text-gray-800">
-                  Statistiche Mensili sugli accessi incluse gratis
-                </span>
-              </div>
-              <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-xl border border-gray-200">
-                <CheckCircle2 className="w-5 h-5 text-google-green shrink-0" />
-                <span className="text-sm font-semibold text-gray-800">
-                  QR Code personalizzato integrato sulla carta
-                </span>
-              </div>
-            </div>
-
-            {/* Visual Mini Badge */}
-            <div className="p-4 rounded-2xl bg-gradient-to-r from-google-blue/10 via-blue-50 to-google-green/10 border border-blue-100 flex items-center gap-4 mt-2">
-              <img
-                src={nfcCardImg}
-                alt="Mini Card NFC"
-                className="w-16 h-20 object-cover rounded-lg shadow-md border border-white"
-              />
-              <div>
-                <div className="text-xs font-bold text-google-blue uppercase tracking-wider">
-                  Configurazione Immediata
-                </div>
-                <div className="text-sm font-extrabold text-gray-900 mt-0.5">
-                  Pronta all'uso in 48 ore
-                </div>
-                <div className="text-xs text-gray-500 mt-0.5">
-                  Spedizione rapida in tutta Italia
-                </div>
-              </div>
-            </div>
           </div>
 
-          {/* Right Form Column */}
-          <div className="lg:col-span-7 bg-white rounded-3xl p-8 lg:p-10 border-2 border-gray-200 shadow-2xl relative">
-            {submitted ? (
-              <div className="text-center py-12 flex flex-col items-center gap-4 animate-scale-in">
-                <div className="w-16 h-16 rounded-full bg-google-green-light text-google-green flex items-center justify-center">
-                  <CheckCircle2 className="w-10 h-10" />
+          {/* Card Showcase + CTA Block */}
+          <div className="w-full bg-gradient-to-br from-gray-50 to-white rounded-3xl border border-gray-200 shadow-xl overflow-hidden">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-0">
+              {/* Left: Product image */}
+              <div className="relative bg-gradient-to-br from-green-50 to-blue-50 flex items-center justify-center p-10">
+                <div className="relative group max-w-[260px] w-full">
+                  <div className="absolute -inset-1 bg-gradient-to-r from-google-blue via-google-yellow to-google-green rounded-2xl blur opacity-25 group-hover:opacity-50 transition duration-500" />
+                  <div className="relative bg-white rounded-xl p-4 shadow-xl border border-gray-100">
+                    <img
+                      src={nfcCardImg}
+                      alt="Card NFC Recensioni Google"
+                      className="w-full object-contain rounded-lg"
+                    />
+                  </div>
                 </div>
-                <h3 className="text-2xl font-extrabold text-gray-900">
-                  Richiesta Inviata con Successo!
-                </h3>
-                <p className="text-gray-600 max-w-md">
-                  Grazie <strong className="text-gray-900">{formData.name}</strong>. Il nostro team configurerà l'anteprima per <strong className="text-gray-900">{formData.businessName}</strong> e ti ricontatterà a breve su <strong className="text-google-blue">{formData.email || formData.phone}</strong>.
-                </p>
-                <button
-                  onClick={() => setSubmitted(false)}
-                  className="btn btn-outline mt-4"
-                >
-                  Invia un'altra richiesta
-                </button>
+                {/* Floating badge */}
+                <div className="absolute top-5 left-5 bg-white/90 backdrop-blur-md px-3 py-1.5 rounded-full shadow-md border border-gray-100 flex items-center gap-1.5 text-xs font-bold text-gray-900">
+                  <Star className="w-3.5 h-3.5 text-amber-400 fill-amber-400" />
+                  5.0 Google Maps
+                </div>
               </div>
-            ) : (
-              <form onSubmit={handleSubmit} className="flex flex-col gap-5">
-                <h3 className="text-xl font-bold text-gray-900 flex items-center gap-2 border-b border-gray-100 pb-4">
-                  <CreditCard className="w-5 h-5 text-google-blue" />
-                  Modulo di Ordine Card NFC
-                </h3>
 
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1.5">
-                      Nome e Cognome *
-                    </label>
-                    <input
-                      type="text"
-                      required
-                      placeholder="Mario Rossi"
-                      value={formData.name}
-                      onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                      className="w-full px-4 py-3 rounded-xl border border-gray-300 focus:ring-2 focus:ring-google-blue focus:border-google-blue outline-none text-sm transition-all"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1.5">
-                      Nome Attività / Business *
-                    </label>
-                    <input
-                      type="text"
-                      required
-                      placeholder="Ristorante Bella Napoli"
-                      value={formData.businessName}
-                      onChange={(e) => setFormData({ ...formData, businessName: e.target.value })}
-                      className="w-full px-4 py-3 rounded-xl border border-gray-300 focus:ring-2 focus:ring-google-blue focus:border-google-blue outline-none text-sm transition-all"
-                    />
-                  </div>
-                </div>
-
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1.5">
-                      Email di Contatto *
-                    </label>
-                    <input
-                      type="email"
-                      required
-                      placeholder="mario@bellanapoli.it"
-                      value={formData.email}
-                      onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                      className="w-full px-4 py-3 rounded-xl border border-gray-300 focus:ring-2 focus:ring-google-blue focus:border-google-blue outline-none text-sm transition-all"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1.5">
-                      Telefono / WhatsApp *
-                    </label>
-                    <input
-                      type="tel"
-                      required
-                      placeholder="+39 340 1234567"
-                      value={formData.phone}
-                      onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-                      className="w-full px-4 py-3 rounded-xl border border-gray-300 focus:ring-2 focus:ring-google-blue focus:border-google-blue outline-none text-sm transition-all"
-                    />
-                  </div>
-                </div>
-
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1.5">
-                      Settore Attività
-                    </label>
-                    <select
-                      value={formData.sector}
-                      onChange={(e) => setFormData({ ...formData, sector: e.target.value })}
-                      className="w-full px-4 py-3 rounded-xl border border-gray-300 focus:ring-2 focus:ring-google-blue focus:border-google-blue outline-none text-sm transition-all bg-white"
-                    >
-                      <option value="ristorazione">Ristorante / Bar / Pizzeria</option>
-                      <option value="medico">Studio Medico / Dentistico</option>
-                      <option value="beauty">Centro Estetico / Parrucchiere</option>
-                      <option value="hotel">Hotel / B&B / Struttura Ricettiva</option>
-                      <option value="altro">Altro Settore</option>
-                    </select>
-                  </div>
-                  <div>
-                    <label className="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1.5">
-                      Quantità Card Richieste
-                    </label>
-                    <select
-                      value={formData.quantity}
-                      onChange={(e) => setFormData({ ...formData, quantity: e.target.value })}
-                      className="w-full px-4 py-3 rounded-xl border border-gray-300 focus:ring-2 focus:ring-google-blue focus:border-google-blue outline-none text-sm transition-all bg-white"
-                    >
-                      <option value="1">1 Card NFC (Starter)</option>
-                      <option value="2">2 Card NFC (Consigliato Ristoranti)</option>
-                      <option value="5">5 Card NFC (Pack Multi-Tavolo)</option>
-                      <option value="10+">10+ Card NFC (Catene / Grandi Strutture)</option>
-                    </select>
-                  </div>
-                </div>
-
+              {/* Right: What's included + CTA */}
+              <div className="flex flex-col justify-between p-8 lg:p-10 gap-6">
                 <div>
-                  <label className="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1.5">
-                    Link Google Maps (Opzionale)
-                  </label>
-                  <input
-                    type="url"
-                    placeholder="https://maps.google.com/..."
-                    value={formData.googleMapsUrl}
-                    onChange={(e) => setFormData({ ...formData, googleMapsUrl: e.target.value })}
-                    className="w-full px-4 py-3 rounded-xl border border-gray-300 focus:ring-2 focus:ring-google-blue focus:border-google-blue outline-none text-sm transition-all"
-                  />
+                  <h3 className="text-xl font-extrabold text-gray-900 mb-5">
+                    Tutto Incluso nel Prezzo Unico:
+                  </h3>
+                  <ul className="space-y-4">
+                    <li className="flex items-start gap-3">
+                      <div className="w-9 h-9 rounded-xl bg-google-blue-light text-google-blue flex items-center justify-center shrink-0">
+                        <ShieldCheck className="w-5 h-5" />
+                      </div>
+                      <div>
+                        <div className="text-sm font-bold text-gray-900">Chip NFC ultra-veloce</div>
+                        <div className="text-xs text-gray-500">Tap immediato in 2 secondi, compatibile con tutti i dispositivi</div>
+                      </div>
+                    </li>
+                    <li className="flex items-start gap-3">
+                      <div className="w-9 h-9 rounded-xl bg-google-green-light text-google-green flex items-center justify-center shrink-0">
+                        <BarChart3 className="w-5 h-5" />
+                      </div>
+                      <div>
+                        <div className="text-sm font-bold text-gray-900">Statistiche Mensili Incluse</div>
+                        <div className="text-xs text-gray-500">Report periodico con tap, scansioni e tasso di conversione</div>
+                      </div>
+                    </li>
+                    <li className="flex items-start gap-3">
+                      <div className="w-9 h-9 rounded-xl bg-google-yellow-light text-amber-600 flex items-center justify-center shrink-0">
+                        <QrCode className="w-5 h-5" />
+                      </div>
+                      <div>
+                        <div className="text-sm font-bold text-gray-900">QR Code Personalizzato Stampato</div>
+                        <div className="text-xs text-gray-500">Massima compatibilità anche per chi non usa NFC</div>
+                      </div>
+                    </li>
+                    <li className="flex items-start gap-3">
+                      <div className="w-9 h-9 rounded-xl bg-purple-50 text-purple-600 flex items-center justify-center shrink-0">
+                        <CheckCircle2 className="w-5 h-5" />
+                      </div>
+                      <div>
+                        <div className="text-sm font-bold text-gray-900">Nessun Canone Mensile</div>
+                        <div className="text-xs text-gray-500">Pagamento una tantum, la card è tua per sempre</div>
+                      </div>
+                    </li>
+                  </ul>
                 </div>
 
-                <button
-                  type="submit"
-                  disabled={loading}
-                  className="btn btn-primary btn-lg w-full mt-2 font-extrabold tracking-wide"
+                {/* Green CTA Button */}
+                <a
+                  href="https://wa.me/393518628203?text=Ciao!%20Vorrei%20ordinare%20le%20Card%20NFC%20Recensioni%20Google%20di%20CSD%20Station.%20Potete%20darmi%20informazioni?"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  id="nfc-order-cta"
+                  className="group w-full flex items-center justify-center gap-3 py-4 px-6 rounded-2xl font-extrabold text-white text-base tracking-wide transition-all duration-200 shadow-lg hover:shadow-xl hover:-translate-y-0.5"
+                  style={{ backgroundColor: "#25D366" }}
                 >
-                  {loading ? (
-                    "Elaborazione in corso..."
-                  ) : (
-                    <>
-                      Invia Ordine & Richiedi Anteprima NFC
-                      <Send className="w-5 h-5" />
-                    </>
-                  )}
-                </button>
-                <div className="text-center text-xs text-gray-400">
-                  🔒 Dati protetti secondo la normativa GDPR europea.
-                </div>
-              </form>
-            )}
+                  {/* WhatsApp icon inline */}
+                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-5 h-5 shrink-0">
+                    <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/>
+                  </svg>
+                  Ordina Ora su WhatsApp
+                  <ArrowRight className="w-5 h-5 transition-transform group-hover:translate-x-1" />
+                </a>
+
+                <p className="text-center text-xs text-gray-400">
+                  🔒 Risposta garantita in meno di 24 ore • Spedizione in tutta Italia
+                </p>
+              </div>
+            </div>
           </div>
         </div>
       </div>
