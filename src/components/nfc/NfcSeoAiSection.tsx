@@ -1,5 +1,5 @@
 import { useScrollReveal } from "@/hooks/useScrollReveal";
-import { Cpu, Search, Sparkles, MapPin, Award } from "lucide-react";
+import { Cpu, Search, MapPin, Award } from "lucide-react";
 
 export const NfcSeoAiSection = () => {
   const { ref: sectionRef, isVisible } = useScrollReveal({ threshold: 0.1 });
@@ -17,7 +17,6 @@ export const NfcSeoAiSection = () => {
           }`}
         >
           <span className="section-tag bg-google-yellow-light text-gray-900 border border-google-yellow/40">
-            <Sparkles className="w-3.5 h-3.5 text-google-yellow fill-google-yellow" />
             La Nuova Frontiera SEO & AI Search
           </span>
           <h2 className="text-3xl sm:text-4xl font-extrabold text-gray-900 tracking-tight mt-2">
@@ -41,7 +40,7 @@ export const NfcSeoAiSection = () => {
                 Raccomandazioni Vocali & AI Direct Search
               </h3>
               <p className="text-gray-600 text-sm leading-relaxed">
-                Quando un utente chiede a Google Gemini: <em>"Gemini, consigliami il miglior ristorante della zona"</em>, l'IA seleziona esclusivamente le attività con le **migliori e più recenti recensioni su Google Maps**.
+                Quando un utente chiede a Google Gemini: <em>"Gemini, consigliami il miglior ristorante della zona"</em>, l'IA seleziona esclusivamente le attività con le <strong className="text-gray-900">migliori e più recenti recensioni su Google Maps</strong>.
               </p>
             </div>
             <div className="mt-6 pt-4 border-t border-gray-100 text-xs font-semibold text-google-blue flex items-center gap-1.5">

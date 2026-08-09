@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useScrollReveal } from "@/hooks/useScrollReveal";
-import { TrendingUp, ArrowUpRight, CheckCircle2, Sparkles, Star } from "lucide-react";
+import { TrendingUp, ArrowUpRight, CheckCircle2, Star } from "lucide-react";
 
 export const NfcStatsImpact = () => {
   const { ref: sectionRef, isVisible } = useScrollReveal({ threshold: 0.1 });
@@ -9,20 +9,47 @@ export const NfcStatsImpact = () => {
   const [sector, setSector] = useState<"ristoranti" | "medici" | "beauty" | "hotel">("ristoranti");
   const [weeklyClients, setWeeklyClients] = useState<number>(150);
 
-  // Growth formulas
-  const conversionRateOld = 0.02; // ~2% write reviews normally
-  const conversionRateNfc = 0.32; // ~32% write reviews with NFC card tap
-
-  const weeklyOldReviews = Math.round(weeklyClients * conversionRateOld);
-  const weeklyNfcReviews = Math.round(weeklyClients * conversionRateNfc);
-  const annualNfcReviews = weeklyNfcReviews * 52;
-
-  const sectorLabels = {
-    ristoranti: "Ristorante / Bar",
-    medici: "Studio Medico / Dentistico",
-    beauty: "Centro Estetico / Parrucchiere",
-    hotel: "Hotel & B&B",
+  // Sector defaults & labels
+  const sectorConfigs = {
+    ristoranti: {
+      label: "Ristorante / Bar",
+      buttonLabel: "Inizia Ora per il Tuo Ristorante",
+      defaultClients: 180,
+      conversionRateOld: 0.02,
+      conversionRateNfc: 0.32,
+    },
+    medici: {
+      label: "Studio Medico / Dentistico",
+      buttonLabel: "Inizia Ora per il Tuo Studio",
+      defaultClients: 60,
+      conversionRateOld: 0.02,
+      conversionRateNfc: 0.40, // higher conversion per patient visit
+    },
+    beauty: {
+      label: "Centro Estetico / Parrucchiere",
+      buttonLabel: "Inizia Ora per il Tuo Centro",
+      defaultClients: 80,
+      conversionRateOld: 0.02,
+      conversionRateNfc: 0.35,
+    },
+    hotel: {
+      label: "Hotel & B&B",
+      buttonLabel: "Inizia Ora per il Tuo Hotel",
+      defaultClients: 100,
+      conversionRateOld: 0.02,
+      conversionRateNfc: 0.30,
+    },
   };
+
+  const handleSectorChange = (key: keyof typeof sectorConfigs) => {
+    setSector(key);
+    setWeeklyClients(sectorConfigs[key].defaultClients);
+  };
+
+  const config = sectorConfigs[sector];
+  const weeklyOldReviews = Math.max(1, Math.round(weeklyClients * config.conversionRateOld));
+  const weeklyNfcReviews = Math.round(weeklyClients * config.conversionRateNfc);
+  const annualNfcReviews = weeklyNfcReviews * 52;
 
   return (
     <section
@@ -78,11 +105,10 @@ export const NfcStatsImpact = () => {
             </ul>
           </div>
 
-          {/* After Card (CSD Station) */}
+          {/* After Card (CSD Station) — Removed Sparkler Icon from badge as requested */}
           <div className="bg-gradient-to-br from-white to-blue-50/50 p-8 rounded-2xl border-2 border-google-blue shadow-xl relative overflow-hidden">
-            <div className="absolute top-0 right-0 bg-google-blue text-white text-xs font-bold px-4 py-1.5 rounded-bl-xl uppercase tracking-wider flex items-center gap-1">
-              <Sparkles className="w-3.5 h-3.5 fill-current" />
-              Con Card NFC CSD Station
+            <div className="absolute top-0 right-0 bg-google-blue text-white text-xs font-bold px-4 py-1.5 rounded-bl-xl uppercase tracking-wider">
+              CON CARD NFC CSD STATION
             </div>
             <div className="text-sm font-semibold text-google-blue uppercase tracking-wider mb-2">
               Risultato Garantito
@@ -124,17 +150,17 @@ export const NfcStatsImpact = () => {
             
             {/* Sector selector */}
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 bg-gray-100 p-1.5 rounded-2xl shrink-0">
-              {(Object.keys(sectorLabels) as Array<keyof typeof sectorLabels>).map((key) => (
+              {(Object.keys(sectorConfigs) as Array<keyof typeof sectorConfigs>).map((key) => (
                 <button
                   key={key}
-                  onClick={() => setSector(key)}
-                  className={`px-3 py-2 rounded-xl text-xs font-bold transition-all ${
+                  onClick={() => handleSectorChange(key)}
+                  className={`px-3.5 py-2 rounded-xl text-xs font-bold transition-all ${
                     sector === key
                       ? "bg-white text-google-blue shadow-sm"
                       : "text-gray-600 hover:text-gray-900"
                   }`}
                 >
-                  {sectorLabels[key].split(" ")[0]}
+                  {sectorConfigs[key].label.split(" ")[0]}
                 </button>
               ))}
             </div>
@@ -154,7 +180,7 @@ export const NfcStatsImpact = () => {
                 </div>
                 <input
                   type="range"
-                  min="30"
+                  min="20"
                   max="500"
                   step="10"
                   value={weeklyClients}
@@ -162,7 +188,7 @@ export const NfcStatsImpact = () => {
                   className="w-full h-3 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-google-blue"
                 />
                 <div className="flex justify-between text-xs text-gray-400 mt-2">
-                  <span>30 clienti/sett</span>
+                  <span>20 clienti/sett</span>
                   <span>250 clienti/sett</span>
                   <span>500+ clienti/sett</span>
                 </div>
@@ -173,8 +199,8 @@ export const NfcStatsImpact = () => {
               </div>
             </div>
 
-            {/* Results Display */}
-            <div className="lg:col-span-5 bg-gradient-to-br from-gray-900 to-gray-800 text-white rounded-2xl p-6 shadow-2xl flex flex-col justify-between gap-6">
+            {/* Results Display — Equalized sizing across all tabs */}
+            <div className="lg:col-span-5 bg-gradient-to-br from-gray-900 to-gray-800 text-white rounded-2xl p-6 shadow-2xl flex flex-col justify-between gap-6 min-h-[280px]">
               <div className="flex items-center justify-between">
                 <span className="text-xs font-semibold uppercase tracking-wider text-gray-400">
                   Previsione Crescita Anno 1
@@ -189,7 +215,7 @@ export const NfcStatsImpact = () => {
                 <div className="text-xs text-gray-400">Stima Nuove Recensioni/Anno:</div>
                 <div className="text-4xl sm:text-5xl font-black text-white mt-1 tracking-tight flex items-center gap-2">
                   +{annualNfcReviews.toLocaleString()}
-                  <Star className="w-8 h-8 text-amber-400 fill-amber-400" />
+                  <Star className="w-8 h-8 text-amber-400 fill-amber-400 shrink-0" />
                 </div>
                 <div className="text-sm text-google-green font-semibold mt-2">
                   ovvero ~{weeklyNfcReviews} recensioni reali a settimana (rispetto alle vecchie {weeklyOldReviews})
@@ -200,7 +226,7 @@ export const NfcStatsImpact = () => {
                 href="#nfc-booking"
                 className="w-full py-3 bg-google-blue hover:bg-blue-600 text-white text-center font-bold rounded-xl transition-colors flex items-center justify-center gap-2 text-sm"
               >
-                Inizia Ora per il Tuo {sectorLabels[sector]}
+                {config.buttonLabel}
                 <ArrowUpRight className="w-4 h-4" />
               </a>
             </div>
