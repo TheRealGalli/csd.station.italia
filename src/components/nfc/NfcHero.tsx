@@ -7,7 +7,7 @@ export const NfcHero = () => {
 
   return (
     <section
-      className="relative pt-28 lg:pt-36 pb-16 lg:pb-24 bg-gradient-to-b from-blue-50/40 via-white to-white overflow-hidden"
+      className="relative pt-24 lg:pt-32 pb-16 lg:pb-24 bg-gradient-to-b from-blue-50/40 via-white to-white overflow-hidden"
       ref={heroRef as any}
       id="nfc-hero"
     >
@@ -77,26 +77,26 @@ export const NfcHero = () => {
             </div>
           </div>
 
-          {/* Right — Interactive Card Mockup & Showcase */}
+          {/* Right — Google NFC Card Showcase */}
           <div
             className={`flex-1 flex justify-center lg:justify-end relative ${
               isVisible ? "animate-fade-in delay-200" : "reveal-hidden"
             }`}
           >
-            <div className="relative group max-w-md w-full">
+            <div className="relative group max-w-sm sm:max-w-md w-full">
               {/* Decorative background glow */}
-              <div className="absolute -inset-1 bg-gradient-to-r from-google-blue via-google-yellow to-google-green rounded-3xl blur opacity-30 group-hover:opacity-60 transition duration-500" />
+              <div className="absolute -inset-1.5 bg-gradient-to-r from-google-blue via-google-yellow to-google-green rounded-3xl blur-lg opacity-30 group-hover:opacity-50 transition duration-500" />
               
-              <div className="relative bg-white rounded-2xl p-4 shadow-2xl border border-gray-100 overflow-hidden">
-                <div className="relative overflow-hidden rounded-xl bg-gray-50 aspect-[3/4] flex items-center justify-center">
+              <div className="relative bg-white rounded-3xl p-5 shadow-2xl border border-gray-100 overflow-hidden">
+                <div className="relative overflow-hidden rounded-2xl bg-gray-50 aspect-[3/4.2] flex items-center justify-center border border-gray-200/60">
                   <img
                     src={nfcCardImg}
                     alt="Card NFC Recensioni Google"
-                    className="w-full h-full object-cover transform group-hover:scale-105 transition-transform duration-500"
+                    className="w-full h-full object-contain p-2 transform group-hover:scale-102 transition-transform duration-500 bg-white"
                   />
                   
                   {/* Floating Live Tap Tag */}
-                  <div className="absolute top-4 right-4 bg-white/95 backdrop-blur-md px-3 py-1.5 rounded-full shadow-lg border border-gray-100 flex items-center gap-2">
+                  <div className="absolute top-4 right-4 bg-white/95 backdrop-blur-md px-3 py-1.5 rounded-full shadow-md border border-gray-100 flex items-center gap-2">
                     <span className="w-2.5 h-2.5 rounded-full bg-google-green animate-ping" />
                     <span className="text-xs font-bold text-gray-900">NFC Active Tap</span>
                   </div>

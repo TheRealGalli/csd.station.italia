@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Menu, X, ArrowRight, Bot, CreditCard, Sparkles } from "lucide-react";
+import { Menu, X, ArrowRight, Bot, CreditCard } from "lucide-react";
 import { useLocation, Link } from "react-router-dom";
 import { useSiteMode } from "@/context/SiteModeContext";
 
@@ -45,23 +45,22 @@ export const Header = () => {
     <header
       className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
         scrolled || !isHomePage
-          ? "bg-white/95 backdrop-blur-md shadow-md border-b border-gray-100"
-          : "bg-white/90 backdrop-blur-md border-b border-gray-100/60"
+          ? "bg-white/95 backdrop-blur-md shadow-sm border-b border-gray-200/80"
+          : "bg-white/95 backdrop-blur-md border-b border-gray-200/60"
       }`}
     >
       {/* Top Section Switcher Sub-Bar */}
-      <div className="bg-gradient-to-r from-google-blue/10 via-blue-50/70 to-google-green/10 border-b border-gray-200/60 py-1.5 px-4">
-        <div className="max-w-6xl mx-auto flex items-center justify-between gap-2">
-          <div className="hidden sm:flex items-center gap-1.5 text-xs font-semibold text-gray-600">
-            <Sparkles className="w-3.5 h-3.5 text-google-blue" />
-            <span>Seleziona Servizio CSD Station:</span>
+      <div className="bg-gray-50/90 border-b border-gray-200/60 py-1.5 px-4">
+        <div className="max-w-6xl mx-auto flex items-center justify-between gap-4">
+          <div className="hidden sm:block text-xs font-semibold text-gray-500 tracking-tight">
+            Seleziona Servizio CSD Station:
           </div>
 
           {/* Mode Switcher Pill */}
-          <div className="inline-flex p-1 bg-white border border-gray-200 shadow-sm rounded-full mx-auto sm:mx-0">
+          <div className="inline-flex p-0.5 bg-gray-200/70 border border-gray-300/60 shadow-inner rounded-full mx-auto sm:mx-0">
             <button
               onClick={() => setMode("automazioni")}
-              className={`px-3 sm:px-4 py-1 rounded-full text-xs font-extrabold transition-all duration-200 flex items-center gap-1.5 ${
+              className={`px-3.5 py-1 rounded-full text-xs font-bold transition-all duration-200 flex items-center gap-1.5 ${
                 mode === "automazioni"
                   ? "bg-google-blue text-white shadow-sm"
                   : "text-gray-600 hover:text-gray-900 hover:bg-gray-100"
@@ -72,45 +71,42 @@ export const Header = () => {
             </button>
             <button
               onClick={() => setMode("nfc")}
-              className={`px-3 sm:px-4 py-1 rounded-full text-xs font-extrabold transition-all duration-200 flex items-center gap-1.5 ${
+              className={`px-3.5 py-1 rounded-full text-xs font-bold transition-all duration-200 flex items-center gap-1.5 ${
                 mode === "nfc"
-                  ? "bg-google-green text-white shadow-sm"
+                  ? "bg-google-blue text-white shadow-sm"
                   : "text-gray-600 hover:text-gray-900 hover:bg-gray-100"
               }`}
             >
               <CreditCard className="w-3.5 h-3.5" />
               Card NFC Recensioni Google
-              <span className="hidden md:inline-block px-1.5 py-0.5 text-[9px] font-black uppercase rounded-full bg-amber-400 text-gray-900">
-                SEO AI
-              </span>
             </button>
           </div>
 
-          <div className="hidden md:block text-[11px] font-medium text-gray-500">
-            {mode === "automazioni" ? "Workflow & AI Agent" : "Soluzione Una Tantum • No Canone"}
+          <div className="hidden md:block text-[11px] font-medium text-gray-400">
+            {mode === "automazioni" ? "Workflow & AI Agent" : "Soluzione Una Tantum"}
           </div>
         </div>
       </div>
 
-      {/* Main Header Nav */}
+      {/* Main Header Nav — Thin, perfectly aligned & identical for both modes */}
       <div className="max-w-6xl mx-auto px-6 lg:px-8">
-        <div className="flex items-center justify-between h-16 lg:h-18">
+        <div className="flex items-center justify-between h-14 lg:h-16">
           {/* Logo */}
-          <Link to="/" className="flex items-center gap-2.5 group" id="header-logo">
-            <span className="text-xl font-bold text-gray-900 tracking-tight">
-              CSD <span className="text-google-blue">Station</span>
-              <span className="ml-2 text-xs font-semibold px-2 py-0.5 rounded-md bg-gray-100 text-gray-600 border border-gray-200">
+          <Link to="/" className="flex items-center gap-2 group" id="header-logo">
+            <span className="text-lg font-bold text-gray-900 tracking-tight flex items-center gap-2">
+              <span>CSD <span className="text-google-blue">Station</span></span>
+              <span className="text-[11px] font-medium px-2 py-0.5 rounded-md bg-gray-100 text-gray-600 border border-gray-200/80">
                 {mode === "automazioni" ? "Automazioni" : "NFC Cards"}
               </span>
             </span>
           </Link>
 
-          {/* Desktop Navigation */}
+          {/* Desktop Navigation — Slim, sleek line height */}
           <nav className="hidden lg:flex items-center gap-1" id="desktop-nav">
             {menuItems.map((item) => (
               <a
                 key={item.href}
-                className="px-3.5 py-1.5 text-gray-700 hover:text-gray-900 hover:bg-gray-100/70 rounded-full transition-all text-xs lg:text-sm font-semibold"
+                className="px-3 py-1.5 text-gray-700 hover:text-gray-900 hover:bg-gray-100 rounded-full transition-all text-xs lg:text-sm font-medium tracking-tight"
                 href={getHref(item.href)}
               >
                 {item.label}
@@ -120,9 +116,13 @@ export const Header = () => {
 
           {/* Desktop CTA */}
           <div className="hidden lg:flex items-center gap-3">
-            <a href={getHref(ctaHref)} className="btn btn-primary group text-xs font-bold px-4 py-2" id="header-cta">
+            <a
+              href={getHref(ctaHref)}
+              className="btn btn-primary group text-xs font-semibold px-4 py-2 rounded-full shadow-sm"
+              id="header-cta"
+            >
               {ctaText}
-              <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-0.5" />
+              <ArrowRight className="w-3.5 h-3.5 transition-transform group-hover:translate-x-0.5" />
             </a>
           </div>
 
@@ -133,7 +133,7 @@ export const Header = () => {
             aria-label="Toggle menu"
             id="mobile-menu-toggle"
           >
-            {open ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+            {open ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
           </button>
         </div>
       </div>
@@ -147,7 +147,7 @@ export const Header = () => {
                 key={item.href}
                 href={getHref(item.href)}
                 onClick={() => setOpen(false)}
-                className="flex items-center justify-between text-base font-medium text-gray-800 hover:text-google-blue hover:bg-gray-50 rounded-xl px-4 py-3 transition-all"
+                className="flex items-center justify-between text-sm font-medium text-gray-800 hover:text-google-blue hover:bg-gray-50 rounded-xl px-4 py-2.5 transition-all"
               >
                 {item.label}
                 <ArrowRight className="w-4 h-4 opacity-40" />
@@ -157,7 +157,7 @@ export const Header = () => {
               <a
                 href={getHref(ctaHref)}
                 onClick={() => setOpen(false)}
-                className="btn btn-primary w-full"
+                className="btn btn-primary w-full text-xs font-semibold py-2.5"
               >
                 {ctaText}
                 <ArrowRight className="w-4 h-4" />
