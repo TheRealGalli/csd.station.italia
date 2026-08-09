@@ -1,10 +1,12 @@
-import { Building, Github, Mail, MapPin } from "lucide-react";
+import { Mail, MapPin } from "lucide-react";
 import { Link, useLocation } from "react-router-dom";
+import { useSiteMode } from "@/context/SiteModeContext";
 
 export const Footer = () => {
   const currentYear = new Date().getFullYear();
   const location = useLocation();
   const isHomePage = location.pathname === "/";
+  const { setMode } = useSiteMode();
 
   const getHref = (href: string) => (isHomePage ? href : `/${href}`);
 
@@ -23,73 +25,67 @@ export const Footer = () => {
               </p>
             </div>
             <p className="text-gray-600 text-sm leading-relaxed max-w-md">
-              Soluzioni di automazione AI e ottimizzazione dello spazio di lavoro.
-              Consulenze gratuite di 30 minuti per le aziende pronte a scalare in modo più intelligente.
+              Soluzioni di Automazione AI e Card NFC Recensioni Google per far crescere la visibilità locale della tua attività su Google Maps e Gemini AI.
             </p>
             <div className="flex flex-col gap-1.5 text-sm text-gray-500">
               <span className="flex items-center gap-2">
-                <MapPin className="w-4 h-4" />
-                Su tutto territorio nazionale : ITA
+                <MapPin className="w-4 h-4 text-google-blue" />
+                Su tutto il territorio nazionale, ITA
               </span>
               <span className="flex items-center gap-2">
-                <Mail className="w-4 h-4" />
+                <Mail className="w-4 h-4 text-google-green" />
                 carlo@csd-station.it
               </span>
             </div>
           </div>
 
-          {/* Quick Links */}
+          {/* Quick Links Automazioni */}
           <div className="flex flex-col gap-4">
             <h4 className="text-sm font-semibold uppercase tracking-wider text-gray-900">
-              Link Rapidi
+              Automazioni AI
             </h4>
             <div className="flex flex-col gap-2">
-              {[
-                { label: "Automazione", href: "#demo" },
-                { label: "Chi Siamo", href: "#about" },
-                { label: "Servizi", href: "#services" },
-                { label: "Come Funziona", href: "#how-it-works" },
-                { label: "Prenota Chiamata", href: "#booking" },
-                { label: "Certificazioni", href: "#certifications" },
-              ].map((link) => (
-                <a
-                  key={link.label}
-                  href={getHref(link.href)}
-                  className="text-gray-600 hover:text-google-blue transition-colors text-sm"
-                >
-                  {link.label}
-                </a>
-              ))}
+              <button
+                onClick={() => setMode("automazioni")}
+                className="text-left text-gray-600 hover:text-google-blue transition-colors text-sm font-medium"
+              >
+                🤖 Vai a Sezione Automazioni
+              </button>
+              <a href={getHref("#demo")} className="text-gray-600 hover:text-google-blue transition-colors text-sm">
+                Interactive Demo
+              </a>
+              <a href={getHref("#services")} className="text-gray-600 hover:text-google-blue transition-colors text-sm">
+                Servizi AI & Workflow
+              </a>
+              <a href={getHref("#booking")} className="text-gray-600 hover:text-google-blue transition-colors text-sm">
+                Prenota Consulenza
+              </a>
             </div>
           </div>
 
-          {/* Connect */}
+          {/* Quick Links NFC */}
           <div className="flex flex-col gap-4">
             <h4 className="text-sm font-semibold uppercase tracking-wider text-gray-900">
-              Connettiamoci
+              Card NFC Recensioni
             </h4>
-            <div className="flex gap-3">
-              <a
-                href="https://wa.me/393518628203"
-                target="_blank"
-                rel="noopener noreferrer"
-                aria-label="WhatsApp"
-                className="w-10 h-10 rounded-xl bg-white border border-gray-200 hover:bg-[#25D366] hover:text-white hover:border-[#25D366] flex items-center justify-center transition-all"
-                id="footer-whatsapp"
+            <div className="flex flex-col gap-2">
+              <button
+                onClick={() => setMode("nfc")}
+                className="text-left text-google-green hover:text-green-700 transition-colors text-sm font-bold"
               >
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-5 h-5">
-                  <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/>
-                </svg>
+                💳 Vai a Sezione Card NFC
+              </button>
+              <a href={getHref("#nfc-stats")} className="text-gray-600 hover:text-google-green transition-colors text-sm">
+                Impatto Recensioni (3 ➔ 50)
               </a>
-              <a
-                href="https://github.com/TheRealGalli"
-                target="_blank"
-                rel="noopener noreferrer"
-                aria-label="GitHub"
-                className="w-10 h-10 rounded-xl bg-white border border-gray-200 hover:bg-gray-900 hover:text-white hover:border-gray-900 flex items-center justify-center transition-all"
-                id="footer-github"
-              >
-                <Github className="w-5 h-5" />
+              <a href={getHref("#nfc-seo")} className="text-gray-600 hover:text-google-green transition-colors text-sm">
+                Google Maps & Gemini AI
+              </a>
+              <a href={getHref("#nfc-value")} className="text-gray-600 hover:text-google-green transition-colors text-sm">
+                Statistiche Mensili & QR Code
+              </a>
+              <a href={getHref("#nfc-booking")} className="text-gray-600 hover:text-google-green transition-colors text-sm font-bold">
+                Ordina Card NFC
               </a>
             </div>
           </div>

@@ -7,18 +7,21 @@ import { CookiePolicy } from "./pages/CookiePolicy";
 import { CookieBanner } from "./components/CookieBanner";
 
 import { ScrollToTop } from "./components/ScrollToTop";
+import { SiteModeProvider } from "./context/SiteModeContext";
 
 const App = () => (
   <BrowserRouter>
-    <ScrollToTop />
-    <Routes>
-      <Route path="/" element={<Index />} />
-      <Route path="/privacy-policy" element={<PrivacyPolicy />} />
-      <Route path="/terms-of-service" element={<TermsOfService />} />
-      <Route path="/cookie-policy" element={<CookiePolicy />} />
-      <Route path="*" element={<NotFound />} />
-    </Routes>
-    <CookieBanner />
+    <SiteModeProvider>
+      <ScrollToTop />
+      <Routes>
+        <Route path="/" element={<Index />} />
+        <Route path="/privacy-policy" element={<PrivacyPolicy />} />
+        <Route path="/terms-of-service" element={<TermsOfService />} />
+        <Route path="/cookie-policy" element={<CookiePolicy />} />
+        <Route path="*" element={<NotFound />} />
+      </Routes>
+      <CookieBanner />
+    </SiteModeProvider>
   </BrowserRouter>
 );
 
