@@ -30,8 +30,8 @@ export const NfcVersatilitySection = () => {
         {/* Comparison Table / Box Grid */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
           {/* Card NFC CSD Station (Winner) */}
-          <div className="bg-white p-8 lg:p-10 rounded-3xl border-2 border-google-green shadow-xl relative flex flex-col justify-between min-h-[520px]">
-            <div className="absolute top-4 right-4 bg-google-green text-white text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wider">
+          <div className="bg-white p-6 sm:p-8 lg:p-10 rounded-3xl border-2 border-google-green shadow-xl relative flex flex-col justify-between min-h-[560px]">
+            <div className="absolute top-4 right-4 bg-google-green text-white text-[11px] sm:text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wider">
               Scelta Intelligente
             </div>
 
@@ -85,8 +85,8 @@ export const NfcVersatilitySection = () => {
           </div>
 
           {/* Stand fisso da banco (Old method) */}
-          <div className="bg-white p-8 lg:p-10 rounded-3xl border border-gray-200 shadow-sm relative flex flex-col justify-between opacity-80 hover:opacity-100 transition-opacity min-h-[520px]">
-            <div className="absolute top-4 right-4 bg-gray-200 text-gray-700 text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wider">
+          <div className="bg-white p-6 sm:p-8 lg:p-10 rounded-3xl border border-gray-200 shadow-sm relative flex flex-col justify-between opacity-80 hover:opacity-100 transition-opacity min-h-[560px]">
+            <div className="absolute top-4 right-4 bg-gray-200 text-gray-700 text-[11px] sm:text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wider">
               Stand Fisso Tradizionale
             </div>
 

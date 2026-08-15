@@ -26,7 +26,7 @@ export const NfcHero = () => {
             <div className="flex justify-center lg:justify-start">
               <span className="section-tag bg-google-green-light text-google-green border border-google-green/20 flex items-center gap-1.5 px-4 py-1.5 rounded-full text-xs font-bold uppercase tracking-wider">
                 <Zap className="w-3.5 h-3.5 fill-current" />
-                Recensioni Google Instantanee • Una Tantum
+                Recensioni Google Istantanee
               </span>
             </div>
 
