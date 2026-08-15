@@ -7,7 +7,7 @@ export const NfcHero = () => {
 
   return (
     <section
-      className="relative pt-24 lg:pt-32 pb-16 lg:pb-24 bg-gradient-to-b from-blue-50/40 via-white to-white overflow-hidden"
+      className="relative pt-28 sm:pt-32 lg:pt-36 pb-16 lg:pb-24 bg-gradient-to-b from-blue-50/40 via-white to-white overflow-hidden"
       ref={heroRef as any}
       id="nfc-hero"
     >
@@ -23,9 +23,9 @@ export const NfcHero = () => {
             }`}
           >
             {/* Tag */}
-            <div className="flex justify-center lg:justify-start">
-              <span className="section-tag bg-google-green-light text-google-green border border-google-green/20 flex items-center gap-1.5 px-4 py-1.5 rounded-full text-xs font-bold uppercase tracking-wider">
-                <Zap className="w-3.5 h-3.5 fill-current" />
+            <div className="flex justify-center lg:justify-start mt-1 mb-1">
+              <span className="section-tag bg-google-green-light text-google-green border border-google-green/30 inline-flex items-center gap-2 px-5 py-2 rounded-full text-xs font-bold uppercase tracking-wider shadow-sm">
+                <Zap className="w-4 h-4 fill-current shrink-0" />
                 Recensioni Google Istantanee
               </span>
             </div>
