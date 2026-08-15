@@ -19,7 +19,7 @@ export const NfcVersatilitySection = () => {
           <span className="section-tag bg-google-green-light text-google-green">
             Versatilità & Design Tascabile
           </span>
-          <h2 className="text-3xl sm:text-4xl font-extrabold text-gray-900 tracking-tight mt-2">
+          <h2 className="text-3xl sm:text-4xl font-extrabold text-gray-900 tracking-tight mt-5">
             Perché la <span className="text-google-blue">Card NFC Tascabile</span> vince sugli Stand Fissi da Banco
           </h2>
           <p className="text-lg text-gray-600 mt-4">

@@ -67,7 +67,7 @@ export const NfcStatsImpact = () => {
           <span className="section-tag bg-google-blue-light text-google-blue">
             Risultati Reali dei Nostri Clienti
           </span>
-          <h2 className="text-3xl sm:text-4xl font-extrabold text-gray-900 tracking-tight mt-2">
+          <h2 className="text-3xl sm:text-4xl font-extrabold text-gray-900 tracking-tight mt-5">
             Da <span className="text-red-500 line-through">3 recensioni</span> a oltre{" "}
             <span className="text-google-green">50 recensioni a settimana</span>
           </h2>

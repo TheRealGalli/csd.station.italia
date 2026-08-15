@@ -54,7 +54,7 @@ export const NfcVerticalsSection = () => {
           <span className="section-tag bg-google-green-light text-google-green">
             Settori di Successo
           </span>
-          <h2 className="text-3xl sm:text-4xl font-extrabold text-gray-900 tracking-tight mt-2">
+          <h2 className="text-3xl sm:text-4xl font-extrabold text-gray-900 tracking-tight mt-5">
             Ideale per qualsiasi attività commerciale con presenza locale
           </h2>
           <p className="text-lg text-gray-600 mt-4">

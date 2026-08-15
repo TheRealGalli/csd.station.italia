@@ -18,7 +18,7 @@ export const NfcBookingSection = () => {
           }`}
         >
           {/* Header */}
-          <div className="flex flex-col items-center gap-3">
+          <div className="flex flex-col items-center gap-5">
             <span className="section-tag bg-google-green-light text-google-green">
               Inizia Subito — Una Tantum
             </span>

@@ -19,7 +19,7 @@ export const NfcValueAddSection = () => {
           <span className="section-tag bg-google-blue-light text-google-blue">
             Valore Aggiunto CSD Station
           </span>
-          <h2 className="text-3xl sm:text-4xl font-extrabold text-gray-900 tracking-tight mt-2">
+          <h2 className="text-3xl sm:text-4xl font-extrabold text-gray-900 tracking-tight mt-5">
             Tutto Incluso nel Prezzo <span className="text-google-blue">Una Tantum</span>
           </h2>
           <p className="text-lg text-gray-600 mt-4">

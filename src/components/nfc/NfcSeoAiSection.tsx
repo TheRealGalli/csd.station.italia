@@ -19,7 +19,7 @@ export const NfcSeoAiSection = () => {
           <span className="section-tag bg-google-yellow-light text-gray-900 border border-google-yellow/40">
             La Nuova Frontiera SEO & AI Search
           </span>
-          <h2 className="text-3xl sm:text-4xl font-extrabold text-gray-900 tracking-tight mt-2">
+          <h2 className="text-3xl sm:text-4xl font-extrabold text-gray-900 tracking-tight mt-5">
             Perché le Recensioni sono il fattore #1 per l'
             <span className="text-google-blue">Intelligenza Artificiale</span> e <span className="text-google-green">Google Gemini</span>
           </h2>
