@@ -30,14 +30,14 @@ export const NfcVersatilitySection = () => {
         {/* Comparison Table / Box Grid */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
           {/* Card NFC CSD Station (Winner) */}
-          <div className="bg-white p-6 sm:p-8 lg:p-10 rounded-3xl border-2 border-google-green shadow-xl relative flex flex-col justify-between min-h-[560px]">
-            <div className="absolute top-4 right-4 bg-google-green text-white text-[11px] sm:text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wider">
+          <div className="bg-white p-6 sm:p-8 lg:p-10 rounded-3xl border-2 border-google-green shadow-xl relative flex flex-col justify-between">
+            <div className="absolute top-5 right-5 sm:top-6 sm:right-6 bg-google-green text-white text-[11px] sm:text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wider z-10">
               Scelta Intelligente
             </div>
 
-            <div>
+            <div className="mt-6 sm:mt-8">
               <div className="flex items-center gap-3 mb-6">
-                <div className="w-12 h-12 rounded-2xl bg-google-green-light text-google-green flex items-center justify-center font-bold text-xl">
+                <div className="w-12 h-12 rounded-2xl bg-google-green-light text-google-green flex items-center justify-center font-bold text-xl shrink-0">
                   <Smartphone className="w-6 h-6" />
                 </div>
                 <div>
@@ -85,14 +85,14 @@ export const NfcVersatilitySection = () => {
           </div>
 
           {/* Stand fisso da banco (Old method) */}
-          <div className="bg-white p-6 sm:p-8 lg:p-10 rounded-3xl border border-gray-200 shadow-sm relative flex flex-col justify-between opacity-80 hover:opacity-100 transition-opacity min-h-[560px]">
-            <div className="absolute top-4 right-4 bg-gray-200 text-gray-700 text-[11px] sm:text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wider">
+          <div className="bg-white p-6 sm:p-8 lg:p-10 rounded-3xl border border-gray-200 shadow-sm relative flex flex-col justify-between opacity-80 hover:opacity-100 transition-opacity">
+            <div className="absolute top-5 right-5 sm:top-6 sm:right-6 bg-gray-200 text-gray-700 text-[11px] sm:text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wider z-10">
               Stand Fisso Tradizionale
             </div>
 
-            <div>
+            <div className="mt-6 sm:mt-8">
               <div className="flex items-center gap-3 mb-6">
-                <div className="w-12 h-12 rounded-2xl bg-gray-100 text-gray-500 flex items-center justify-center font-bold text-xl">
+                <div className="w-12 h-12 rounded-2xl bg-gray-100 text-gray-500 flex items-center justify-center font-bold text-xl shrink-0">
                   <Layers className="w-6 h-6" />
                 </div>
                 <div>
