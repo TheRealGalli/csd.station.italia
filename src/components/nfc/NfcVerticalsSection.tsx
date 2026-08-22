@@ -61,7 +61,7 @@ export const NfcVerticalsSection = () => {
     },
     {
       icon: Wrench,
-      title: "Officine, Gommisti & Auto",
+      title: "Officine, Gommisti & Concessionari",
       accentColor: "bg-blue-100 text-blue-800 border-blue-200",
       description: "Presentata all'accettazione o sul bancone al momento della riconsegna delle chiavi dell'auto.",
       stats: "+300% reputazione riparazioni",
@@ -69,7 +69,7 @@ export const NfcVerticalsSection = () => {
     },
     {
       icon: Dumbbell,
-      title: "Palestre, Fitness & Sport",
+      title: "Palestre, Fitness & Personal Trainer",
       accentColor: "bg-amber-100 text-amber-800 border-amber-200",
       description: "Esposta al desk di accoglienza o proposta dal Personal Trainer al termine dell'allenamento.",
       stats: "Più richieste di prova gratuita",
