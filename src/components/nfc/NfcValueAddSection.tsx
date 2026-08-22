@@ -28,7 +28,11 @@ export const NfcValueAddSection = () => {
         </div>
 
         {/* 3 Pillar Value Added Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+        <div
+          className={`grid grid-cols-1 md:grid-cols-3 gap-8 ${
+            isVisible ? "animate-fade-in-up delay-100" : "reveal-hidden"
+          }`}
+        >
           {/* Feature 1: One-time payment */}
           <div className="bg-gradient-to-b from-gray-50 to-white p-8 rounded-3xl border border-gray-200 shadow-lg relative overflow-hidden flex flex-col justify-between">
             <div>

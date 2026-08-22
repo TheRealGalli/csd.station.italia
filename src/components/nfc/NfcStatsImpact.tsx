@@ -115,7 +115,11 @@ export const NfcStatsImpact = () => {
         </div>
 
         {/* Comparison Cards Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-16">
+        <div
+          className={`grid grid-cols-1 md:grid-cols-2 gap-8 mb-16 ${
+            isVisible ? "animate-fade-in-up delay-100" : "reveal-hidden"
+          }`}
+        >
           {/* Before Card */}
           <div className="bg-white p-8 rounded-2xl border border-red-100 shadow-sm relative overflow-hidden">
             <div className="absolute top-0 right-0 bg-red-100 text-red-700 text-xs font-bold px-4 py-1.5 rounded-bl-xl uppercase tracking-wider">
@@ -143,7 +147,7 @@ export const NfcStatsImpact = () => {
             </ul>
           </div>
 
-          {/* After Card (CSD Station) — Removed Sparkler Icon from badge as requested */}
+          {/* After Card (CSD Station) */}
           <div className="bg-gradient-to-br from-white to-blue-50/50 p-8 rounded-2xl border-2 border-google-blue shadow-xl relative overflow-hidden">
             <div className="absolute top-0 right-0 bg-google-blue text-white text-xs font-bold px-4 py-1.5 rounded-bl-xl uppercase tracking-wider">
               CON CARD NFC CSD STATION
@@ -172,7 +176,11 @@ export const NfcStatsImpact = () => {
         </div>
 
         {/* Interactive ROI Calculator */}
-        <div className="bg-white rounded-3xl p-8 lg:p-12 border border-gray-200 shadow-xl">
+        <div
+          className={`bg-white rounded-3xl p-8 lg:p-12 border border-gray-200 shadow-xl ${
+            isVisible ? "animate-fade-in-up delay-200" : "reveal-hidden"
+          }`}
+        >
           <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 border-b border-gray-100 pb-8 mb-8">
             <div>
               <span className="text-xs font-extrabold uppercase tracking-wider text-google-blue bg-blue-50 px-3 py-1 rounded-full">

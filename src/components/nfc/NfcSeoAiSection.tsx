@@ -29,7 +29,11 @@ export const NfcSeoAiSection = () => {
         </div>
 
         {/* Feature Cards Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+        <div
+          className={`grid grid-cols-1 md:grid-cols-3 gap-8 ${
+            isVisible ? "animate-fade-in-up delay-100" : "reveal-hidden"
+          }`}
+        >
           {/* Card 1: Gemini & AI Engines */}
           <div className="card hover:border-google-blue transition-all flex flex-col justify-between">
             <div>
@@ -86,7 +90,11 @@ export const NfcSeoAiSection = () => {
         </div>
 
         {/* AI Prompt Example Box */}
-        <div className="mt-12 bg-gray-900 text-white rounded-3xl p-6 sm:p-8 border border-gray-800 shadow-2xl relative overflow-hidden">
+        <div
+          className={`mt-12 bg-gray-900 text-white rounded-3xl p-6 sm:p-8 border border-gray-800 shadow-2xl relative overflow-hidden ${
+            isVisible ? "animate-fade-in-up delay-200" : "reveal-hidden"
+          }`}
+        >
           <div className="flex flex-col md:flex-row items-center gap-6 justify-between">
             <div className="flex items-center gap-4">
               <div className="w-12 h-12 rounded-full bg-google-blue/20 text-google-blue flex items-center justify-center shrink-0 border border-google-blue/40">

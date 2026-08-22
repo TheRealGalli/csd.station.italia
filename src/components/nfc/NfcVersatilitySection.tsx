@@ -28,7 +28,11 @@ export const NfcVersatilitySection = () => {
         </div>
 
         {/* Comparison Table / Box Grid */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        <div
+          className={`grid grid-cols-1 lg:grid-cols-2 gap-8 ${
+            isVisible ? "animate-fade-in-up delay-100" : "reveal-hidden"
+          }`}
+        >
           {/* Card NFC CSD Station (Winner) */}
           <div className="bg-white p-6 sm:p-8 lg:p-10 rounded-3xl border-2 border-google-green shadow-xl relative flex flex-col justify-between">
             <div className="absolute top-5 right-5 sm:top-6 sm:right-6 bg-google-green text-white text-[11px] sm:text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wider z-10">

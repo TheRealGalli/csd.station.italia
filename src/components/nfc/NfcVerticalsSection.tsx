@@ -142,7 +142,11 @@ export const NfcVerticalsSection = () => {
         </div>
 
         {/* 2-Card Slider Display with Fixed Uniform Height */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 transition-all duration-300 items-stretch">
+        <div
+          className={`grid grid-cols-1 md:grid-cols-2 gap-8 transition-all duration-300 items-stretch ${
+            isVisible ? "animate-fade-in-up delay-100" : "reveal-hidden"
+          }`}
+        >
           {visibleItems.map((item, idx) => {
             const Icon = item.icon;
             return (
