@@ -6,27 +6,32 @@ export const NfcStatsImpact = () => {
   const { ref: sectionRef, isVisible } = useScrollReveal({ threshold: 0.1 });
 
   // Interactive ROI Calculator state
-  const [sector, setSector] = useState<"ristoranti" | "medici" | "beauty" | "hotel">("ristoranti");
+  const [sector, setSector] = useState<
+    "ristoranti" | "medici" | "beauty" | "hotel" | "retail" | "automotive" | "fitness" | "pet"
+  >("ristoranti");
   const [weeklyClients, setWeeklyClients] = useState<number>(150);
 
   // Sector defaults & labels
   const sectorConfigs = {
     ristoranti: {
       label: "Ristorante / Bar",
+      shortLabel: "Ristorante",
       buttonLabel: "Inizia Ora per il Tuo Ristorante",
       defaultClients: 180,
       conversionRateOld: 0.02,
       conversionRateNfc: 0.32,
     },
     medici: {
-      label: "Studio Medico / Dentistico",
+      label: "Studio Legale / Medico / Professionale",
+      shortLabel: "Studio",
       buttonLabel: "Inizia Ora per il Tuo Studio",
       defaultClients: 60,
       conversionRateOld: 0.02,
-      conversionRateNfc: 0.40, // higher conversion per patient visit
+      conversionRateNfc: 0.40,
     },
     beauty: {
       label: "Centro Estetico / Parrucchiere",
+      shortLabel: "Centro",
       buttonLabel: "Inizia Ora per il Tuo Centro",
       defaultClients: 80,
       conversionRateOld: 0.02,
@@ -34,10 +39,43 @@ export const NfcStatsImpact = () => {
     },
     hotel: {
       label: "Hotel & B&B",
+      shortLabel: "Hotel",
       buttonLabel: "Inizia Ora per il Tuo Hotel",
       defaultClients: 100,
       conversionRateOld: 0.02,
       conversionRateNfc: 0.30,
+    },
+    retail: {
+      label: "Boutique & Negozio Retail",
+      shortLabel: "Boutique",
+      buttonLabel: "Inizia Ora per il Tuo Negozio",
+      defaultClients: 120,
+      conversionRateOld: 0.02,
+      conversionRateNfc: 0.28,
+    },
+    automotive: {
+      label: "Officina / Gommista / Auto",
+      shortLabel: "Officina",
+      buttonLabel: "Inizia Ora per la Tua Officina",
+      defaultClients: 50,
+      conversionRateOld: 0.02,
+      conversionRateNfc: 0.38,
+    },
+    fitness: {
+      label: "Palestra & Centro Fitness",
+      shortLabel: "Fitness",
+      buttonLabel: "Inizia Ora per la Tua Palestra",
+      defaultClients: 140,
+      conversionRateOld: 0.02,
+      conversionRateNfc: 0.33,
+    },
+    pet: {
+      label: "Clinica Veterinaria & Pet Care",
+      shortLabel: "Pet Care",
+      buttonLabel: "Inizia Ora per il Tuo Centro Pet",
+      defaultClients: 70,
+      conversionRateOld: 0.02,
+      conversionRateNfc: 0.36,
     },
   };
 
@@ -149,18 +187,18 @@ export const NfcStatsImpact = () => {
             </div>
             
             {/* Sector selector */}
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 bg-gray-100 p-1.5 rounded-2xl shrink-0">
+            <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-8 gap-2 bg-gray-100 p-1.5 rounded-2xl shrink-0 w-full lg:w-auto">
               {(Object.keys(sectorConfigs) as Array<keyof typeof sectorConfigs>).map((key) => (
                 <button
                   key={key}
                   onClick={() => handleSectorChange(key)}
-                  className={`px-3.5 py-2 rounded-xl text-xs font-bold transition-all ${
+                  className={`px-3 py-2 rounded-xl text-xs font-bold transition-all text-center ${
                     sector === key
                       ? "bg-white text-google-blue shadow-sm"
                       : "text-gray-600 hover:text-gray-900"
                   }`}
                 >
-                  {sectorConfigs[key].label.split(" ")[0]}
+                  {sectorConfigs[key].shortLabel}
                 </button>
               ))}
             </div>

@@ -1,5 +1,5 @@
 import { useScrollReveal } from "@/hooks/useScrollReveal";
-import { Utensils, Stethoscope, Scissors, Building2, CheckCircle } from "lucide-react";
+import { Utensils, Stethoscope, Scissors, Building2, ShoppingBag, Wrench, Dumbbell, HeartPulse, CheckCircle } from "lucide-react";
 
 export const NfcVerticalsSection = () => {
   const { ref: sectionRef, isVisible } = useScrollReveal({ threshold: 0.1 });
@@ -35,7 +35,39 @@ export const NfcVerticalsSection = () => {
       accentColor: "bg-google-green-light text-google-green border-google-green/20",
       description: "Presentata alla reception durante le operazioni di Check-out mentre si ringrazia l'ospite per il soggiorno.",
       stats: "Supera i concorrenti della tua città",
-      highlights: ["Recensioni da turisti italiani e stranieri", "Riconoscimento instantaneo Trip/Google"],
+      highlights: ["Recensioni da turisti italiani e stranieri", "Riconoscimento istantaneo Trip/Google"],
+    },
+    {
+      icon: ShoppingBag,
+      title: "Boutique, Retail & Negozi",
+      accentColor: "bg-purple-100 text-purple-700 border-purple-200",
+      description: "Posizionata sul banco cassa al momento dell'impacchettamento del prodotto o pagamento.",
+      stats: "+250% di recensioni da clienti in negozio",
+      highlights: ["Perfetto per abbigliamento, ottica e gioiellerie", "Fidelizza il cliente locale"],
+    },
+    {
+      icon: Wrench,
+      title: "Officine, Gommisti & Auto",
+      accentColor: "bg-blue-100 text-blue-800 border-blue-200",
+      description: "Presentata all'accettazione o sul bancone al momento della riconsegna delle chiavi dell'auto.",
+      stats: "+300% di reputazione per riparazioni",
+      highlights: ["Genera massima fiducia per guasti e tagliandi", "Recensioni verificate al ritiro auto"],
+    },
+    {
+      icon: Dumbbell,
+      title: "Palestre, Fitness & Sport",
+      accentColor: "bg-amber-100 text-amber-800 border-amber-200",
+      description: "Esposta al desk di accoglienza o proposta dal Personal Trainer al termine dell'allenamento.",
+      stats: "Aumenta le richieste di prova gratuita",
+      highlights: ["Ideale per centri fitness, yoga e pilates", "Coinvolge gli iscritti più entusiasti"],
+    },
+    {
+      icon: HeartPulse,
+      title: "Cliniche Veterinarie & Pet Care",
+      accentColor: "bg-rose-100 text-rose-700 border-rose-200",
+      description: "Porgi la card al proprietario dell'animale al termine della visita o del servizio di toelettatura.",
+      stats: "Dominanza locale nelle ricerche Pet",
+      highlights: ["Recensioni ad altissimo valore emotivo", "Attira nuovi proprietari in zona"],
     },
   ];
 
