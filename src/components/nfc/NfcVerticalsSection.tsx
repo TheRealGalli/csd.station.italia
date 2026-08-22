@@ -1,8 +1,22 @@
+import { useState } from "react";
 import { useScrollReveal } from "@/hooks/useScrollReveal";
-import { Utensils, Stethoscope, Scissors, Building2, ShoppingBag, Wrench, Dumbbell, HeartPulse, CheckCircle } from "lucide-react";
+import {
+  Utensils,
+  Stethoscope,
+  Scissors,
+  Building2,
+  ShoppingBag,
+  Wrench,
+  Dumbbell,
+  HeartPulse,
+  CheckCircle,
+  ChevronLeft,
+  ChevronRight,
+} from "lucide-react";
 
 export const NfcVerticalsSection = () => {
   const { ref: sectionRef, isVisible } = useScrollReveal({ threshold: 0.1 });
+  const [currentPage, setCurrentPage] = useState(0);
 
   const verticals = [
     {
@@ -71,6 +85,18 @@ export const NfcVerticalsSection = () => {
     },
   ];
 
+  const totalPages = Math.ceil(verticals.length / 2);
+
+  const prevPage = () => {
+    setCurrentPage((prev) => (prev === 0 ? totalPages - 1 : prev - 1));
+  };
+
+  const nextPage = () => {
+    setCurrentPage((prev) => (prev === totalPages - 1 ? 0 : prev + 1));
+  };
+
+  const visibleItems = verticals.slice(currentPage * 2, currentPage * 2 + 2);
+
   return (
     <section
       className="py-20 bg-gray-50 border-t border-gray-200/60"
@@ -78,30 +104,51 @@ export const NfcVerticalsSection = () => {
       id="nfc-verticals"
     >
       <div className="max-w-6xl mx-auto px-6 lg:px-8">
+        {/* Header with Navigation Arrows */}
         <div
-          className={`text-center max-w-3xl mx-auto mb-16 ${
+          className={`flex flex-col md:flex-row md:items-end justify-between mb-12 gap-6 ${
             isVisible ? "animate-fade-in-up" : "reveal-hidden"
           }`}
         >
-          <span className="section-tag bg-google-green-light text-google-green">
-            Settori di Successo
-          </span>
-          <h2 className="text-3xl sm:text-4xl font-extrabold text-gray-900 tracking-tight mt-5">
-            Ideale per qualsiasi attività commerciale con presenza locale
-          </h2>
-          <p className="text-lg text-gray-600 mt-4">
-            Scopri come i vari settori utilizzano le Card NFC CSD Station per trasformare la soddisfazione del cliente in recensioni a 5 stelle.
-          </p>
+          <div className="max-w-2xl">
+            <span className="section-tag bg-google-green-light text-google-green">
+              Settori di Successo
+            </span>
+            <h2 className="text-3xl sm:text-4xl font-extrabold text-gray-900 tracking-tight mt-5">
+              Ideale per qualsiasi attività commerciale con presenza locale
+            </h2>
+            <p className="text-lg text-gray-600 mt-4">
+              Scopri come i vari settori utilizzano le Card NFC CSD Station per trasformare la soddisfazione del cliente in recensioni a 5 stelle.
+            </p>
+          </div>
+
+          {/* Slider Arrow Controls */}
+          <div className="flex items-center gap-3 shrink-0 self-start md:self-end">
+            <button
+              onClick={prevPage}
+              className="w-12 h-12 rounded-2xl bg-white border border-gray-200 shadow-sm hover:shadow-md hover:bg-gray-100 text-gray-700 flex items-center justify-center transition-all duration-200 active:scale-95"
+              aria-label="Settori precedenti"
+            >
+              <ChevronLeft className="w-6 h-6" />
+            </button>
+            <button
+              onClick={nextPage}
+              className="w-12 h-12 rounded-2xl bg-white border border-gray-200 shadow-sm hover:shadow-md hover:bg-gray-100 text-gray-700 flex items-center justify-center transition-all duration-200 active:scale-95"
+              aria-label="Settori successivi"
+            >
+              <ChevronRight className="w-6 h-6" />
+            </button>
+          </div>
         </div>
 
-        {/* Verticals Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-          {verticals.map((item, idx) => {
+        {/* 2-Card Slider Display */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 transition-all duration-300">
+          {visibleItems.map((item, idx) => {
             const Icon = item.icon;
             return (
               <div
                 key={idx}
-                className="bg-white rounded-3xl p-8 border border-gray-200 shadow-md hover:shadow-xl transition-all duration-300 flex flex-col justify-between"
+                className="bg-white rounded-3xl p-8 border border-gray-200 shadow-md hover:shadow-xl transition-all duration-300 flex flex-col justify-between min-h-[320px] animate-fade-in"
               >
                 <div>
                   <div className="flex items-center justify-between mb-6">
@@ -133,7 +180,24 @@ export const NfcVerticalsSection = () => {
             );
           })}
         </div>
+
+        {/* Pagination Dots Indicator */}
+        <div className="flex items-center justify-center gap-2.5 mt-10">
+          {Array.from({ length: totalPages }).map((_, pageIdx) => (
+            <button
+              key={pageIdx}
+              onClick={() => setCurrentPage(pageIdx)}
+              className={`h-2.5 rounded-full transition-all duration-300 ${
+                currentPage === pageIdx
+                  ? "w-8 bg-google-green"
+                  : "w-2.5 bg-gray-300 hover:bg-gray-400"
+              }`}
+              aria-label={`Vai alla pagina ${pageIdx + 1}`}
+            />
+          ))}
+        </div>
       </div>
     </section>
   );
 };
+
