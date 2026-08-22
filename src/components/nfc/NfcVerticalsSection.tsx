@@ -15,11 +15,11 @@ export const NfcVerticalsSection = () => {
     },
     {
       icon: Stethoscope,
-      title: "Studi Medici e Dentistici",
+      title: "Studi Professionali (Legali, Medici & Dentistici)",
       accentColor: "bg-google-blue-light text-google-blue border-google-blue/20",
-      description: "Al termine della visita, il medico o la reception porge la card al paziente mentre programma l'appuntamento successivo.",
-      stats: "+400% di recensioni certificate di pazienti felici",
-      highlights: ["Massima autorevolezza su Google Maps", "Genera fiducia per nuovi pazienti"],
+      description: "Al termine della consulenza o visita, il professionista o la reception porge la card al cliente/paziente mentre si saluta o si programma il prossimo appuntamento.",
+      stats: "+400% di recensioni di clienti e pazienti felici",
+      highlights: ["Massima autorevolezza per professionisti e studi", "Genera fiducia immediata per nuovi clienti"],
     },
     {
       icon: Scissors,
