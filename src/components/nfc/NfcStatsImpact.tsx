@@ -186,13 +186,13 @@ export const NfcStatsImpact = () => {
               </p>
             </div>
             
-            {/* Sector selector */}
-            <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-8 gap-2 bg-gray-100 p-1.5 rounded-2xl shrink-0 w-full lg:w-auto">
+            {/* Sector selector: 4 top, 4 bottom */}
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 bg-gray-100 p-1.5 rounded-2xl shrink-0 w-full md:w-auto">
               {(Object.keys(sectorConfigs) as Array<keyof typeof sectorConfigs>).map((key) => (
                 <button
                   key={key}
                   onClick={() => handleSectorChange(key)}
-                  className={`px-3 py-2 rounded-xl text-xs font-bold transition-all text-center ${
+                  className={`px-4 py-2 rounded-xl text-xs font-bold transition-all text-center ${
                     sector === key
                       ? "bg-white text-google-blue shadow-sm"
                       : "text-gray-600 hover:text-gray-900"
