@@ -1,5 +1,6 @@
 import { useScrollReveal } from "@/hooks/useScrollReveal";
 import { ArrowRight, CheckCircle2, Star, BarChart3, QrCode, ShieldCheck } from "lucide-react";
+import { Link } from "react-router-dom";
 import nfcCardImg from "@/assets/nfc-card.jpg";
 
 export const NfcBookingSection = () => {
@@ -117,6 +118,16 @@ export const NfcBookingSection = () => {
 
                 <p className="text-center text-xs text-gray-400">
                   🔒 Risposta garantita in meno di 24 ore • Spedizione in tutta Italia
+                </p>
+                <p className="text-center text-[11px] text-gray-500 mt-1 leading-normal">
+                  Inviando la richiesta accetti i nostri{" "}
+                  <Link to="/nfc/terms-of-service?mode=nfc" className="underline hover:text-google-green transition-colors font-medium">
+                    Termini di Servizio (Resi B2B e Spedizioni)
+                  </Link>{" "}
+                  e dichiari di aver letto la{" "}
+                  <Link to="/nfc/privacy-policy?mode=nfc" className="underline hover:text-google-green transition-colors font-medium">
+                    Privacy Policy
+                  </Link>.
                 </p>
               </div>
             </div>
