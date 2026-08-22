@@ -19,16 +19,16 @@ const TermsOfService = () => {
           <ul>
             <li><strong>Carlo Galli (P.IVA 01630510525)</strong>: Sono i riferimenti legali e fiscali del professionista.</li>
             <li><strong>CSD Station Italia</strong>: È il brand e il portale web utilizzato dal Fornitore per la propria attività.</li>
-            <li><strong>Automazione</strong>: Si riferisce a una singola routine o flusso di lavoro automatizzato sviluppato utilizzando Google Workspace Studio, che si integra con applicazioni di Google Workspace.</li>
+            <li><strong>Automazione</strong>: Si riferisce a una singola routine o flusso di lavoro automatizzato sviluppato utilizzando l'ambiente Google Workspace, Google Apps Script e Google Cloud Platform, che si integra con applicazioni di Google Workspace.</li>
             <li><strong>Asset</strong>: Si riferisce all'insieme completo di automazioni, fogli di calcolo collegati, configurazioni, dati e ambiente Google Workspace (es. account automazioni@dominio.com) fornito e implementato dal Fornitore per il Cliente, come soluzione integrata.</li>
           </ul>
 
           <h2 className="text-xl font-bold text-gray-900 mt-8 mb-4">1. Servizi Offerti</h2>
           <p>
-            CSD Station Italia è specializzata nella fornitura di servizi professionali di consulenza e sviluppo di soluzioni automatizzate basate principalmente sull'ecosistema Google Workspace Studio. Il nostro obiettivo è ottimizzare i processi e introdurre automazioni intelligenti per i nostri clienti.
+            CSD Station Italia è specializzata nella fornitura di servizi professionali di consulenza e sviluppo di soluzioni automatizzate basate principalmente sull'ecosistema Google Workspace, Google Apps Script e Google Cloud Platform. Il nostro obiettivo è ottimizzare i processi e introdurre automazioni intelligenti per i nostri clienti.
           </p>
           <p>
-            Il sito web <code>csd-station.it</code> funge principalmente da piattaforma informativa e di contatto per presentare le nostre capacità e facilitare la prenotazione di consulenze iniziali, focalizzate sulla creazione di automazioni e l'ottimizzazione tramite Google Workspace Studio.
+            Il sito web <code>csd-station.it</code> funge principalmente da piattaforma informativa e di contatto per presentare le nostre capacità e facilitare la prenotazione di consulenze iniziali, focalizzate sulla creazione di automazioni e l'ottimizzazione tramite strumenti dell'ecosistema Google Workspace, Google Apps Script e Google Cloud Platform.
           </p>
           <p>
             <strong>Nota bene:</strong> L'erogazione di servizi professionali di consulenza, sviluppo e implementazione di Asset è regolata da uno specifico <strong>Accordo di Servizio e Proposta Tecnica per Asset</strong> (di seguito "Accordo di Servizio"), sottoscritto tra le Parti. Tale Accordo di Servizio, che prevale sui presenti Termini generali per quanto riguarda le specifiche del progetto, include anche le disposizioni relative al trattamento dei dati personali (DPA) ai sensi del GDPR, ove applicabile.
@@ -58,7 +58,6 @@ const TermsOfService = () => {
           <ul>
             <li>Utilizzare il sito web o i servizi per scopi illegali o non autorizzati.</li>
             <li>Tentare di decodificare, decompilare o disassemblare qualsiasi software che compone o fa parte delle soluzioni fornite, se non espressamente autorizzato nell'Accordo di Servizio.</li>
-            <li><strong>Contatti B2B:</strong> Nelle comunicazioni professionali svolte dal Fornitore, ogni comunicazione include una chiara informativa sull'origine dei dati e un meccanismo di opposizione (Opt-out) tramite risposta diretta (es. "CANCELLAMI").</li>
           </ul>
 
           <h2 className="text-xl font-bold text-gray-900 mt-8 mb-4">6. Riservatezza</h2>

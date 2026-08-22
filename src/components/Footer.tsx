@@ -6,9 +6,12 @@ export const Footer = () => {
   const currentYear = new Date().getFullYear();
   const location = useLocation();
   const isHomePage = location.pathname === "/";
-  const { setMode } = useSiteMode();
+  const { mode, setMode } = useSiteMode();
 
   const getHref = (href: string) => (isHomePage ? href : `/${href}`);
+  const privacyPolicyHref = mode === "nfc" ? "/nfc/privacy-policy?mode=nfc" : "/privacy-policy?mode=automazioni";
+  const termsOfServiceHref = mode === "nfc" ? "/nfc/terms-of-service?mode=nfc" : "/terms-of-service?mode=automazioni";
+  const cookiePolicyHref = isHomePage ? `/cookie-policy?mode=${mode}` : `/cookie-policy?mode=${mode}`;
 
   return (
     <footer className="border-t border-gray-200 bg-gray-50" id="footer">
@@ -97,13 +100,13 @@ export const Footer = () => {
             © {currentYear} Carlo Galli (P.IVA). Tutti i diritti riservati.
           </p>
           <div className="flex items-center gap-4 text-xs text-gray-500">
-            <Link to="/privacy-policy" className="hover:text-gray-700 transition-colors">
+            <Link to={privacyPolicyHref} className="hover:text-gray-700 transition-colors">
               Privacy Policy
             </Link>
-            <Link to="/cookie-policy" className="hover:text-gray-700 transition-colors">
+            <Link to={cookiePolicyHref} className="hover:text-gray-700 transition-colors">
               Cookie Policy
             </Link>
-            <Link to="/terms-of-service" className="hover:text-gray-700 transition-colors">
+            <Link to={termsOfServiceHref} className="hover:text-gray-700 transition-colors">
               Termini di Servizio
             </Link>
           </div>
