@@ -36,9 +36,13 @@ export const SiteModeProvider: React.FC<{ children: React.ReactNode }> = ({ chil
 
   const setMode = (newMode: SiteMode) => {
     setModeState(newMode);
-    const params = new URLSearchParams(location.search);
-    params.set("mode", newMode);
-    navigate({ search: params.toString() }, { replace: true });
+    if (location.pathname !== "/") {
+      navigate(`/?mode=${newMode}`);
+    } else {
+      const params = new URLSearchParams(location.search);
+      params.set("mode", newMode);
+      navigate({ search: params.toString() }, { replace: true });
+    }
   };
 
   const toggleMode = () => {
