@@ -192,6 +192,13 @@ export async function sendMonthlyReports() {
 
   console.log(`[Monthly Report] Found ${clientGroups.size} unique client email(s) to notify.`);
 
+  // Support Test Override: TEST_EMAIL env var or --test command-line argument
+  const testEmailArg = process.argv.find((arg) => arg.startsWith('--test='))?.split('=')[1] || process.env.TEST_EMAIL;
+
+  if (testEmailArg) {
+    console.log(`\n🧪 [TEST MODE ACTIVE] Redirecting ALL emails to test address: "${testEmailArg}"`);
+  }
+
   const results = [];
   const senderEmail = process.env.SMTP_USER;
 
@@ -204,20 +211,23 @@ export async function sendMonthlyReports() {
       totalClicks,
     });
 
+    const destinationAddress = testEmailArg || email;
+    const subjectPrefix = testEmailArg ? '[TEST OVERRIDE] ' : '';
+
     const mailOptions = {
       from: `"${process.env.SENDER_NAME || 'CSD Station Italia'}" <${senderEmail}>`,
-      to: email,
-      subject: `📊 Report Mensile NFC (${formattedMonth}): ${totalClicks} tap ricevuti — ${client.clientName}`,
+      to: destinationAddress,
+      subject: `${subjectPrefix}📊 Report Mensile NFC (${formattedMonth}): ${totalClicks} tap ricevuti — ${client.clientName}`,
       html: htmlContent,
     };
 
     try {
       const info = await transporter.sendMail(mailOptions);
-      console.log(`[Monthly Report SUCCESS] Sent email to "${email}" (${client.locations.length} location(s)). MessageId: ${info.messageId}`);
-      results.push({ email, status: 'SENT', messageId: info.messageId, locationCount: client.locations.length });
+      console.log(`[Monthly Report SUCCESS] Sent email for "${client.clientName}" -> Delivered to: "${destinationAddress}" (${client.locations.length} location(s)). MessageId: ${info.messageId}`);
+      results.push({ clientEmail: email, deliveredTo: destinationAddress, status: 'SENT', messageId: info.messageId, locationCount: client.locations.length });
     } catch (sendErr) {
-      console.error(`[Monthly Report ERROR] Failed to send email to "${email}":`, sendErr.message);
-      results.push({ email, status: 'FAILED', error: sendErr.message });
+      console.error(`[Monthly Report ERROR] Failed to send email for "${client.clientName}" to "${destinationAddress}":`, sendErr.message);
+      results.push({ clientEmail: email, deliveredTo: destinationAddress, status: 'FAILED', error: sendErr.message });
     }
   }
 
