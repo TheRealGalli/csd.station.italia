@@ -164,7 +164,14 @@ export async function sendMonthlyReports() {
 
   snapshot.forEach((doc) => {
     const data = doc.data();
-    let email = (data.contact_email || data.email || data.client_email || '').trim().toLowerCase();
+    let email = (
+      data.clientEmail ||
+      data.contact_email ||
+      data.contactEmail ||
+      data.email ||
+      data.client_email ||
+      ''
+    ).trim().toLowerCase();
 
     // If in test mode and document lacks email, assign fallback test email
     if (!email && testEmailArg) {
