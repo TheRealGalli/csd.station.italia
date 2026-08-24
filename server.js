@@ -227,6 +227,28 @@ app.get('/api/sync-links', async (req, res) => {
   res.json({ success: true, message: 'Clean sync complete' });
 });
 
+/**
+ * Automated Monthly Report Cron Endpoint (For Google Cloud Scheduler on 1st of month)
+ * Usage: GET /api/cron/send-monthly-reports?key=YOUR_CRON_SECRET
+ */
+app.get('/api/cron/send-monthly-reports', async (req, res) => {
+  const secretKey = process.env.CRON_SECRET;
+  const providedKey = req.query.key || req.headers['x-cron-secret'];
+
+  if (secretKey && providedKey !== secretKey) {
+    return res.status(401).json({ error: 'Unauthorized: Invalid CRON_SECRET key.' });
+  }
+
+  try {
+    const { sendMonthlyReports } = await import('./scripts/send-monthly-reports.js');
+    const result = await sendMonthlyReports();
+    return res.json({ success: true, message: 'Monthly report dispatch complete.', result });
+  } catch (error) {
+    console.error('[Cron API Error] Failed to send monthly reports:', error.message);
+    return res.status(500).json({ error: 'Failed to send monthly reports', details: error.message });
+  }
+});
+
 // Known SPA static routes for CSD Station website
 const SPA_ROUTES = new Set(['privacy-policy', 'terms-of-service', 'cookie-policy', 'api']);
 
