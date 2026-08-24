@@ -164,17 +164,23 @@ export async function sendMonthlyReports() {
 
   snapshot.forEach((doc) => {
     const data = doc.data();
-    const email = (data.contact_email || data.email || '').trim().toLowerCase();
+    let email = (data.contact_email || data.email || data.client_email || '').trim().toLowerCase();
+
+    // If in test mode and document lacks email, assign fallback test email
+    if (!email && testEmailArg) {
+      console.log(`[Test Mode Info] Document "${doc.id}" has no contact_email in Firestore. Assigning fallback for test.`);
+      email = `test-placeholder-${doc.id}@preview.local`;
+    }
 
     if (!email) {
-      console.warn(`[Monthly Report Warning] Document "${doc.id}" has no contact_email configured. Skipping.`);
+      console.warn(`[Monthly Report Warning] Document "${doc.id}" has no contact_email configured in Firestore. Skipping.`);
       return;
     }
 
     if (!clientGroups.has(email)) {
       clientGroups.set(email, {
         email,
-        clientName: data.client_name || data.clientName || doc.id,
+        clientName: data.client_name || data.clientName || data.title || doc.id,
         locations: [],
       });
     }
