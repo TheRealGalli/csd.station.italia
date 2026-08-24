@@ -165,15 +165,24 @@ export async function sendMonthlyReports() {
 
   // Support Test Override: TEST_EMAIL env var or --test command-line argument
   const testEmailArg = process.argv.find((arg) => arg.startsWith('--test='))?.split('=')[1] || process.env.TEST_EMAIL;
+  const targetSlugArg = process.argv.find((arg) => arg.startsWith('--slug='))?.split('=')[1];
 
   if (testEmailArg) {
     console.log(`\n🧪 [TEST MODE ACTIVE] Redirecting ALL emails to test address: "${testEmailArg}"`);
+  }
+  if (targetSlugArg) {
+    console.log(`🎯 [SLUG FILTER ACTIVE] Processing ONLY slug: "${targetSlugArg}"`);
   }
 
   // Group links by contact_email
   const clientGroups = new Map();
 
   snapshot.forEach((doc) => {
+    // If slug filter is set, skip documents that don't match
+    if (targetSlugArg && doc.id !== targetSlugArg && !doc.id.toLowerCase().includes(targetSlugArg.toLowerCase())) {
+      return;
+    }
+
     const data = doc.data();
     let email = (
       data.clientEmail ||
