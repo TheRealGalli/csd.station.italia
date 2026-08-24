@@ -159,6 +159,13 @@ export async function sendMonthlyReports() {
   }).format(now);
   const formattedMonth = monthLabel.charAt(0).toUpperCase() + monthLabel.slice(1);
 
+  // Support Test Override: TEST_EMAIL env var or --test command-line argument
+  const testEmailArg = process.argv.find((arg) => arg.startsWith('--test='))?.split('=')[1] || process.env.TEST_EMAIL;
+
+  if (testEmailArg) {
+    console.log(`\n🧪 [TEST MODE ACTIVE] Redirecting ALL emails to test address: "${testEmailArg}"`);
+  }
+
   // Group links by contact_email
   const clientGroups = new Map();
 
@@ -204,13 +211,6 @@ export async function sendMonthlyReports() {
   });
 
   console.log(`[Monthly Report] Found ${clientGroups.size} unique client email(s) to notify.`);
-
-  // Support Test Override: TEST_EMAIL env var or --test command-line argument
-  const testEmailArg = process.argv.find((arg) => arg.startsWith('--test='))?.split('=')[1] || process.env.TEST_EMAIL;
-
-  if (testEmailArg) {
-    console.log(`\n🧪 [TEST MODE ACTIVE] Redirecting ALL emails to test address: "${testEmailArg}"`);
-  }
 
   const results = [];
   const senderEmail = process.env.SMTP_USER;
