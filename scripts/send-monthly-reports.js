@@ -24,9 +24,10 @@ try {
  */
 function createTransporter() {
   const smtpUser = process.env.SMTP_USER;
-  const smtpPass = process.env.SMTP_PASS;
+  const rawPass = process.env.SMTP_PASS || '';
+  const smtpPass = rawPass.replace(/\s+/g, ''); // Clean spaces if present
   const smtpHost = process.env.SMTP_HOST || 'smtp.gmail.com';
-  const smtpPort = parseInt(process.env.SMTP_PORT || '465', 10);
+  const smtpPort = parseInt(process.env.SMTP_PORT || '587', 10);
 
   if (!smtpUser || !smtpPass) {
     throw new Error('CONFIG ERROR: Environment variables SMTP_USER and SMTP_PASS are required.');
@@ -35,10 +36,13 @@ function createTransporter() {
   return nodemailer.createTransport({
     host: smtpHost,
     port: smtpPort,
-    secure: smtpPort === 465, // true for 465, false for other ports
+    secure: smtpPort === 465, // true for 465 (SSL), false for 587 (STARTTLS)
     auth: {
       user: smtpUser,
       pass: smtpPass,
+    },
+    tls: {
+      rejectUnauthorized: false,
     },
   });
 }
