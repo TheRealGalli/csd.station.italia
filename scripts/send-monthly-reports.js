@@ -98,8 +98,8 @@ function generateReportHtml({ clientName, monthLabel, locations, totalClicks }) 
       <div style="display: inline-block; background-color: rgba(34, 197, 94, 0.15); color: #4ade80; border: 1px solid rgba(74, 222, 128, 0.3); font-size: 11px; font-weight: 800; padding: 5px 14px; border-radius: 9999px; text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 14px;">
         REPORT MENSILE INTERAZIONI NFC
       </div>
-      <h1 style="margin: 0; font-size: 24px; font-weight: 800; letter-spacing: -0.02em; color: #ffffff;">
-        Report Performance di ${clientName}
+      <h1 style="margin: 0; font-size: 24px; font-weight: 800; letter-spacing: -0.02em; color: #ffffff !important;">
+        <span style="color: #ffffff !important;">Report Performance di ${clientName}</span>
       </h1>
       <p style="margin: 8px 0 0 0; font-size: 14px; color: #94a3b8; font-weight: 500;">
         Mese di Riferimento: <strong style="color: #e2e8f0;">${monthLabel}</strong>
