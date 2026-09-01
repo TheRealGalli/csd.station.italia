@@ -62,7 +62,12 @@ function getRomeDateInfo() {
     year: 'numeric'
   }).format(now);
 
-  return { currentMonth, todayDate };
+  const dayOfMonth = parseInt(new Intl.DateTimeFormat('it-IT', {
+    timeZone: 'Europe/Rome',
+    day: 'numeric'
+  }).format(now), 10);
+
+  return { currentMonth, todayDate, dayOfMonth };
 }
 
 /**
@@ -162,9 +167,13 @@ function startAutoShortUrlSync() {
             const data = doc.data();
             const docId = doc.id;
             const expectedShortUrl = buildShortUrl(docId);
+            const { currentMonth, todayDate, dayOfMonth } = getRomeDateInfo();
             const docUpdates = {};
 
-            if (data.lastResetMonth !== currentMonth) {
+            // Reset occurs on Day 2 of the month or later (leaving Day 1 100% intact for monthly reporting)
+            const isNewMonth = data.lastResetMonth !== currentMonth && dayOfMonth >= 2;
+
+            if (isNewMonth) {
               if (data.lastResetMonth && data.clicks !== undefined) {
                 const historyKey = `history.${data.lastResetMonth}`;
                 docUpdates[historyKey] = {
@@ -312,12 +321,14 @@ app.get('/:slug', async (req, res, next) => {
     const data = docSnap.data();
     const docId = docSnap.id;
     const generatedShortUrl = buildShortUrl(docId);
-    const { currentMonth, todayDate } = getRomeDateInfo();
+    const { currentMonth, todayDate, dayOfMonth } = getRomeDateInfo();
 
     let updates = {};
 
-    // Check if new month -> reset monthly clicks and peak day (saving history snapshot first)
-    if (data.lastResetMonth !== currentMonth) {
+    // Reset occurs on Day 2 of the month or later (leaving Day 1 100% intact for monthly reporting)
+    const isNewMonth = data.lastResetMonth !== currentMonth && dayOfMonth >= 2;
+
+    if (isNewMonth) {
       if (data.lastResetMonth && data.clicks !== undefined) {
         const historyKey = `history.${data.lastResetMonth}`;
         updates[historyKey] = {
