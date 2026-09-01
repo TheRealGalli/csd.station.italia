@@ -154,13 +154,17 @@ export async function sendMonthlyReports() {
     return { success: true, count: 0, details: 'No links found.' };
   }
 
-  // Current Month Label (e.g. "Agosto 2026")
+  // Completed Month Label (e.g. if run on Sept 1st, report refers to completed month "Agosto 2026")
   const now = new Date();
+  const reportDate = now.getDate() <= 5 
+    ? new Date(now.getFullYear(), now.getMonth() - 1, 1)
+    : now;
+
   const monthLabel = new Intl.DateTimeFormat('it-IT', {
     timeZone: 'Europe/Rome',
     month: 'long',
     year: 'numeric',
-  }).format(now);
+  }).format(reportDate);
   const formattedMonth = monthLabel.charAt(0).toUpperCase() + monthLabel.slice(1);
 
   // Support Test Override: TEST_EMAIL env var or --test command-line argument
