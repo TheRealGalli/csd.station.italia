@@ -1,0 +1,9 @@
+# CSD Station Italia (csd-station.it)
+
+CyberSpaceDokingStation Italia — Soluzioni di automazione AI e ottimizzazione dello spazio di lavoro.
+
+- [Home](https://csd-station.it/)
+- [Privacy Policy](https://csd-station.it/privacy-policy)
+- [Cookie Policy](https://csd-station.it/cookie-policy)
+- [Termini di Servizio](https://csd-station.it/terms-of-service)
+- [Contenuto Integrale per LLM](https://csd-station.it/llms-full.txt)
