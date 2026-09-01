@@ -216,13 +216,26 @@ export async function sendMonthlyReports() {
       });
     }
 
+    const targetMonthKey = new Intl.DateTimeFormat('en-CA', {
+      timeZone: 'Europe/Rome',
+      year: 'numeric',
+      month: '2-digit',
+    }).format(reportDate);
+
+    // If reset already occurred for targetMonth, check history snapshot first
+    const historySnapshot = data.history ? data.history[targetMonthKey] : null;
+
+    const clicks = historySnapshot ? historySnapshot.clicks : (data.clicks || 0);
+    const peakDayDate = historySnapshot ? historySnapshot.peakDayDate : (data.peakDayDate || 'N/D');
+    const peakDayClicks = historySnapshot ? historySnapshot.peakDayClicks : (data.peakDayClicks || 0);
+
     const group = clientGroups.get(email);
     group.locations.push({
       id: doc.id,
       location_name: data.location_name || data.locationName || data.title || doc.id,
-      clicks: data.clicks || 0,
-      peakDayDate: data.peakDayDate || 'N/D',
-      peakDayClicks: data.peakDayClicks || 0,
+      clicks,
+      peakDayDate,
+      peakDayClicks,
       ...data,
     });
   });

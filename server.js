@@ -165,6 +165,15 @@ function startAutoShortUrlSync() {
             const docUpdates = {};
 
             if (data.lastResetMonth !== currentMonth) {
+              if (data.lastResetMonth && data.clicks !== undefined) {
+                const historyKey = `history.${data.lastResetMonth}`;
+                docUpdates[historyKey] = {
+                  clicks: data.clicks || 0,
+                  peakDayDate: data.peakDayDate || "",
+                  peakDayClicks: data.peakDayClicks || 0,
+                  savedAt: new Date().toISOString()
+                };
+              }
               docUpdates.clicks = 0;
               docUpdates.currentDayDate = todayDate;
               docUpdates.currentDayClicks = 0;
@@ -307,9 +316,20 @@ app.get('/:slug', async (req, res, next) => {
 
     let updates = {};
 
-    // Check if new month -> reset monthly clicks and peak day
+    // Check if new month -> reset monthly clicks and peak day (saving history snapshot first)
     if (data.lastResetMonth !== currentMonth) {
+      if (data.lastResetMonth && data.clicks !== undefined) {
+        const historyKey = `history.${data.lastResetMonth}`;
+        updates[historyKey] = {
+          clicks: data.clicks || 0,
+          peakDayDate: data.peakDayDate || "",
+          peakDayClicks: data.peakDayClicks || 0,
+          savedAt: new Date().toISOString()
+        };
+      }
+
       updates = {
+        ...updates,
         clicks: 1,
         currentDayDate: todayDate,
         currentDayClicks: 1,
