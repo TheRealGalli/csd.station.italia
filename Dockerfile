@@ -31,6 +31,7 @@ RUN npm ci --only=production
 COPY --from=builder /app/dist ./dist
 COPY --from=builder /app/server.js ./server.js
 COPY --from=builder /app/index.js ./index.js
+COPY --from=builder /app/scripts ./scripts
 
 EXPOSE 8080
 
