@@ -119,7 +119,7 @@ export const NfcHero = () => {
               isVisible ? "animate-fade-in delay-200" : "reveal-hidden"
             }`}
           >
-            <div className="relative group max-w-[290px] xs:max-w-[320px] sm:max-w-md w-full -translate-x-3 sm:translate-x-0 lg:mr-14">
+            <div className="relative group max-w-[340px] sm:max-w-md w-full mx-auto lg:mr-14">
               {/* Decorative background glow */}
               <div className="absolute -inset-1.5 bg-gradient-to-r from-google-blue via-google-yellow to-google-green rounded-3xl blur-lg opacity-30 group-hover:opacity-50 transition duration-500" />
               
@@ -167,10 +167,10 @@ export const NfcHero = () => {
                 </div>
               </div>
 
-              {/* Single Navigation Arrow - Always on the right side, outside the plate container */}
+              {/* Single Navigation Arrow - Hidden on mobile, visible on tablet & desktop outside the plate */}
               <button
                 onClick={toggleModel}
-                className="absolute -right-11 sm:-right-13 lg:-right-16 top-1/2 -translate-y-1/2 z-30 w-11 h-11 sm:w-12 sm:h-12 rounded-full bg-white shadow-xl hover:shadow-2xl border border-gray-200/90 flex items-center justify-center text-gray-800 hover:text-google-blue hover:scale-110 active:scale-95 transition-all duration-200 group/btn focus:outline-none focus:ring-2 focus:ring-google-blue/40 cursor-pointer"
+                className="hidden sm:flex absolute -right-13 lg:-right-16 top-1/2 -translate-y-1/2 z-30 w-12 h-12 rounded-full bg-white shadow-xl hover:shadow-2xl border border-gray-200/90 items-center justify-center text-gray-800 hover:text-google-blue hover:scale-110 active:scale-95 transition-all duration-200 group/btn focus:outline-none focus:ring-2 focus:ring-google-blue/40 cursor-pointer"
                 aria-label={currentIndex === 0 ? "Vedi Plate Adesiva NFC" : "Torna a Card NFC"}
                 title={currentIndex === 0 ? "Vedi Plate Adesiva NFC" : "Torna a Card NFC"}
               >
