@@ -154,8 +154,8 @@ export const NfcHero = () => {
                     <span className="text-xs font-bold text-gray-900">{currentModel.badge}</span>
                   </div>
 
-                  {/* Floating rating badge */}
-                  <div className="absolute bottom-4 left-4 right-4 bg-white/95 backdrop-blur-md p-3.5 rounded-xl shadow-xl border border-gray-100 flex items-center justify-between z-20">
+                  {/* Floating rating badge - hidden on mobile so it doesn't cover the product, visible on sm and up */}
+                  <div className="hidden sm:flex absolute bottom-4 left-4 right-4 bg-white/95 backdrop-blur-md p-3.5 rounded-xl shadow-xl border border-gray-100 items-center justify-between z-20">
                     <div>
                       <div className="text-xs text-gray-500 font-medium">{currentModel.statTitle}</div>
                       <div className="text-lg font-extrabold text-google-blue">{currentModel.statValue}</div>
@@ -187,15 +187,15 @@ export const NfcHero = () => {
                   <button
                     key={model.id}
                     onClick={() => setCurrentIndex(idx)}
-                    className={`px-4 py-1.5 rounded-full text-xs font-bold transition-all duration-300 flex items-center gap-2 cursor-pointer ${
+                    className={`px-4 py-1.5 rounded-full text-xs font-bold transition-colors duration-200 flex items-center gap-2 cursor-pointer select-none outline-none [-webkit-tap-highlight-color:transparent] ${
                       currentIndex === idx
-                        ? "bg-gray-900 text-white shadow-md scale-105"
-                        : "bg-white/90 text-gray-600 hover:bg-gray-100 hover:text-gray-900 border border-gray-200/80 shadow-sm"
+                        ? "bg-gray-900 text-white shadow-md border border-gray-900"
+                        : "bg-transparent text-gray-600 hover:text-gray-900 hover:bg-black/5 border border-gray-300/80"
                     }`}
                   >
                     <span
                       className={`w-2 h-2 rounded-full ${
-                        currentIndex === idx ? "bg-google-green" : "bg-gray-300"
+                        currentIndex === idx ? "bg-google-green" : "bg-gray-400"
                       }`}
                     />
                     {model.title}
