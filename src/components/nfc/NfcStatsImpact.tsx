@@ -241,7 +241,7 @@ export const NfcStatsImpact = () => {
               </div>
 
               <div className="bg-gray-50 p-4 rounded-xl text-xs text-gray-600 leading-relaxed border border-gray-200/80">
-                💡 <strong className="text-gray-900">Come calcoliamo:</strong> I dati si basano sul tasso medio di conversione di tap della card NFC sul luogo rispetto al solo metodo verbale.
+                💡 <strong className="text-gray-900">Come calcoliamo:</strong> I dati si basano sul tasso medio di conversione di tap della card NFC.
               </div>
             </div>
 
