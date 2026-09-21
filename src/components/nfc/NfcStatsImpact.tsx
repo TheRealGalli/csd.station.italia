@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useScrollReveal } from "@/hooks/useScrollReveal";
-import { TrendingUp, ArrowUpRight, CheckCircle2, Star } from "lucide-react";
+import { ArrowUpRight, CheckCircle2, Star } from "lucide-react";
 
 export const NfcStatsImpact = () => {
   const { ref: sectionRef, isVisible } = useScrollReveal({ threshold: 0.1 });
@@ -247,13 +247,9 @@ export const NfcStatsImpact = () => {
 
             {/* Results Display — Equalized sizing across all tabs */}
             <div className="lg:col-span-5 bg-gradient-to-br from-gray-900 to-gray-800 text-white rounded-2xl p-6 shadow-2xl flex flex-col justify-between gap-6 min-h-[280px]">
-              <div className="flex items-center justify-between">
+              <div>
                 <span className="text-xs font-semibold uppercase tracking-wider text-gray-400">
                   Previsione Crescita Anno 1
-                </span>
-                <span className="inline-flex items-center gap-1 text-xs font-bold text-google-green bg-google-green/20 px-2.5 py-1 rounded-full">
-                  <TrendingUp className="w-3.5 h-3.5" />
-                  +1600% ROI
                 </span>
               </div>
 
