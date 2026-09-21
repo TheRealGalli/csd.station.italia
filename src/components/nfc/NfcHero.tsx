@@ -236,8 +236,8 @@ export const NfcHero = () => {
                   ))}
                 </div>
 
-                {/* Interaction hint text */}
-                <p className="text-[11px] sm:text-xs text-gray-400 font-medium text-center mt-2.5 select-none">
+                {/* Interaction hint text - only on mobile */}
+                <p className="block sm:hidden text-[11px] text-gray-400 font-medium text-center mt-2.5 select-none">
                   Tocca o scorri per vedere i nostri prodotti
                 </p>
               </div>

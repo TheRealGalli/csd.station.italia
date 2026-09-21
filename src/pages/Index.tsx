@@ -44,8 +44,8 @@ const Index = () => {
             <NfcHero />
             <NfcStatsImpact />
             <NfcSeoAiSection />
-            <NfcVersatilitySection />
             <NfcValueAddSection />
+            <NfcVersatilitySection />
             <NfcVerticalsSection />
             <NfcBookingSection />
             <Certifications />
