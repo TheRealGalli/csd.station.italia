@@ -37,12 +37,8 @@ export const NfcHero = () => {
 
   const currentModel = NFC_MODELS[currentIndex];
 
-  const nextModel = () => {
-    setCurrentIndex((prev) => (prev + 1) % NFC_MODELS.length);
-  };
-
-  const prevModel = () => {
-    setCurrentIndex((prev) => (prev - 1 + NFC_MODELS.length) % NFC_MODELS.length);
+  const toggleModel = () => {
+    setCurrentIndex((prev) => (prev === 0 ? 1 : 0));
   };
 
   return (
@@ -54,7 +50,7 @@ export const NfcHero = () => {
       {/* Background glow effects */}
       <div className="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[400px] bg-google-blue/10 blur-[120px] rounded-full pointer-events-none" />
 
-      <div className="max-w-6xl mx-auto px-6 lg:px-8 relative z-10">
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
         <div className="flex flex-col lg:flex-row items-center gap-12 lg:gap-16">
           {/* Left — Text Content */}
           <div
@@ -123,7 +119,7 @@ export const NfcHero = () => {
               isVisible ? "animate-fade-in delay-200" : "reveal-hidden"
             }`}
           >
-            <div className="relative group max-w-sm sm:max-w-md w-full">
+            <div className="relative group max-w-[290px] xs:max-w-[320px] sm:max-w-md w-full -translate-x-3 sm:translate-x-0 lg:mr-14">
               {/* Decorative background glow */}
               <div className="absolute -inset-1.5 bg-gradient-to-r from-google-blue via-google-yellow to-google-green rounded-3xl blur-lg opacity-30 group-hover:opacity-50 transition duration-500" />
               
@@ -171,25 +167,18 @@ export const NfcHero = () => {
                 </div>
               </div>
 
-              {/* Navigation Arrows */}
-              {/* Right Arrow - always clickable to navigate */}
+              {/* Single Navigation Arrow - Always on the right side, outside the plate container */}
               <button
-                onClick={nextModel}
-                className="absolute -right-3 sm:-right-5 top-1/2 -translate-y-1/2 z-30 w-11 h-11 sm:w-12 sm:h-12 rounded-full bg-white shadow-xl border border-gray-200/90 flex items-center justify-center text-gray-800 hover:text-google-blue hover:scale-110 active:scale-95 transition-all duration-200 group/btn focus:outline-none focus:ring-2 focus:ring-google-blue/40 cursor-pointer"
-                aria-label="Modello successivo"
-                title="Vedi altro modello"
+                onClick={toggleModel}
+                className="absolute -right-11 sm:-right-13 lg:-right-16 top-1/2 -translate-y-1/2 z-30 w-11 h-11 sm:w-12 sm:h-12 rounded-full bg-white shadow-xl hover:shadow-2xl border border-gray-200/90 flex items-center justify-center text-gray-800 hover:text-google-blue hover:scale-110 active:scale-95 transition-all duration-200 group/btn focus:outline-none focus:ring-2 focus:ring-google-blue/40 cursor-pointer"
+                aria-label={currentIndex === 0 ? "Vedi Plate Adesiva NFC" : "Torna a Card NFC"}
+                title={currentIndex === 0 ? "Vedi Plate Adesiva NFC" : "Torna a Card NFC"}
               >
-                <ChevronRight className="w-6 h-6 transition-transform group-hover/btn:translate-x-0.5 text-gray-700 group-hover/btn:text-google-blue" />
-              </button>
-
-              {/* Left Arrow */}
-              <button
-                onClick={prevModel}
-                className="absolute -left-3 sm:-left-5 top-1/2 -translate-y-1/2 z-30 w-11 h-11 sm:w-12 sm:h-12 rounded-full bg-white shadow-xl border border-gray-200/90 flex items-center justify-center text-gray-800 hover:text-google-blue hover:scale-110 active:scale-95 transition-all duration-200 group/btn focus:outline-none focus:ring-2 focus:ring-google-blue/40 cursor-pointer"
-                aria-label="Modello precedente"
-                title="Modello precedente"
-              >
-                <ChevronLeft className="w-6 h-6 transition-transform group-hover/btn:-translate-x-0.5 text-gray-700 group-hover/btn:text-google-blue" />
+                {currentIndex === 0 ? (
+                  <ChevronRight className="w-6 h-6 transition-transform group-hover/btn:translate-x-0.5 text-gray-700 group-hover/btn:text-google-blue" />
+                ) : (
+                  <ChevronLeft className="w-6 h-6 transition-transform group-hover/btn:-translate-x-0.5 text-gray-700 group-hover/btn:text-google-blue" />
+                )}
               </button>
 
               {/* Model Selector Pills */}
