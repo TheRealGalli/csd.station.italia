@@ -1,9 +1,49 @@
+import { useState } from "react";
 import { useScrollReveal } from "@/hooks/useScrollReveal";
-import { ArrowRight, Star, Zap, ShieldCheck, BarChart3, QrCode } from "lucide-react";
+import { ArrowRight, Star, Zap, ShieldCheck, BarChart3, QrCode, ChevronRight, ChevronLeft } from "lucide-react";
 import nfcCardImg from "@/assets/nfc-card.jpg";
+import nfcPlateImg from "@/assets/nfc-plate.png";
+
+const NFC_MODELS = [
+  {
+    id: "card",
+    title: "Card NFC",
+    badge: "NFC Active Tap",
+    badgeDotClass: "bg-google-green animate-ping",
+    image: nfcCardImg,
+    alt: "Card NFC Recensioni Google",
+    statTitle: "Incremento Recensioni",
+    statValue: "+1500% al mese",
+    statBadge: "Valutazione 5.0 ★",
+    isPlate: false,
+  },
+  {
+    id: "plate",
+    title: "Plate Adesiva NFC",
+    badge: "NFC Plate Adesiva",
+    badgeDotClass: "bg-google-blue animate-ping",
+    image: nfcPlateImg,
+    alt: "Plate Adesiva NFC Recensioni Google",
+    statTitle: "Incremento Recensioni",
+    statValue: "+1500% al mese",
+    statBadge: "Valutazione 5.0 ★",
+    isPlate: true,
+  },
+];
 
 export const NfcHero = () => {
   const { ref: heroRef, isVisible } = useScrollReveal({ threshold: 0.1 });
+  const [currentIndex, setCurrentIndex] = useState(0);
+
+  const currentModel = NFC_MODELS[currentIndex];
+
+  const nextModel = () => {
+    setCurrentIndex((prev) => (prev + 1) % NFC_MODELS.length);
+  };
+
+  const prevModel = () => {
+    setCurrentIndex((prev) => (prev - 1 + NFC_MODELS.length) % NFC_MODELS.length);
+  };
 
   return (
     <section
@@ -36,7 +76,7 @@ export const NfcHero = () => {
             </h1>
 
             <p className="text-lg lg:text-xl text-gray-600 leading-relaxed max-w-xl mx-auto lg:mx-0">
-              Con le <strong className="text-gray-900 font-semibold">Card NFC CSD Station</strong> i tuoi clienti lasciano una recensione a 5 stelle in 2 secondi. Passa da 3 a oltre <strong className="text-google-blue">50 recensioni a settimana</strong>, scala su Google Maps e domina i consigli dei motori AI come <strong className="text-google-green">Google Gemini</strong>.
+              Con le <strong className="text-gray-900 font-semibold">Card & Plate NFC CSD Station</strong> i tuoi clienti lasciano una recensione a 5 stelle in 2 secondi. Passa da 3 a oltre <strong className="text-google-blue">50 recensioni a settimana</strong>, scala su Google Maps e domina i consigli dei motori AI come <strong className="text-google-green">Google Gemini</strong>.
             </p>
 
             {/* Feature Pills */}
@@ -58,7 +98,7 @@ export const NfcHero = () => {
             {/* CTA Buttons */}
             <div className="flex flex-col sm:flex-row gap-3 justify-center lg:justify-start mt-2">
               <a href="#nfc-booking" className="btn btn-primary btn-lg group" id="nfc-hero-cta">
-                Ordina le tue Card NFC
+                Ordina i tuoi dispositivi NFC
                 <ArrowRight className="w-5 h-5 transition-transform group-hover:translate-x-1" />
               </a>
               <a href="#nfc-stats" className="btn btn-outline btn-lg" id="nfc-hero-secondary">
@@ -73,13 +113,13 @@ export const NfcHero = () => {
                   <Star key={i} className="w-4 h-4 fill-current" />
                 ))}
               </div>
-              <span className="font-medium text-gray-800">Card ufficiali con Chip NFC ultra-veloce</span>
+              <span className="font-medium text-gray-800">Dispositivi ufficiali con Chip NFC ultra-veloce</span>
             </div>
           </div>
 
-          {/* Right — Google NFC Card Showcase */}
+          {/* Right — Google NFC Card & Plate Showcase */}
           <div
-            className={`flex-1 flex justify-center lg:justify-end relative ${
+            className={`flex-1 flex flex-col items-center lg:items-end justify-center relative ${
               isVisible ? "animate-fade-in delay-200" : "reveal-hidden"
             }`}
           >
@@ -87,31 +127,91 @@ export const NfcHero = () => {
               {/* Decorative background glow */}
               <div className="absolute -inset-1.5 bg-gradient-to-r from-google-blue via-google-yellow to-google-green rounded-3xl blur-lg opacity-30 group-hover:opacity-50 transition duration-500" />
               
+              {/* Showcase Container */}
               <div className="relative bg-white rounded-3xl p-5 shadow-2xl border border-gray-100 overflow-hidden">
-                <div className="relative overflow-hidden rounded-2xl bg-gray-50 aspect-[3/4.2] flex items-center justify-center border border-gray-200/60">
-                  <img
-                    src={nfcCardImg}
-                    alt="Card NFC Recensioni Google"
-                    className="w-full h-full object-contain p-2 transform group-hover:scale-102 transition-transform duration-500 bg-white"
-                  />
+                <div className="relative overflow-hidden rounded-2xl bg-white aspect-[3/4.2] flex items-center justify-center border border-gray-200/60">
+                  {/* Current Model Display */}
+                  <div
+                    key={currentModel.id}
+                    className="w-full h-full flex items-center justify-center animate-fade-in transition-all duration-300"
+                  >
+                    {currentModel.isPlate ? (
+                      <div className="w-full h-full flex items-center justify-center p-6 sm:p-8 bg-white">
+                        <img
+                          src={currentModel.image}
+                          alt={currentModel.alt}
+                          className="w-[75%] max-w-[270px] aspect-square object-contain drop-shadow-md rounded-2xl transform group-hover:scale-105 transition-transform duration-500 select-none"
+                        />
+                      </div>
+                    ) : (
+                      <img
+                        src={currentModel.image}
+                        alt={currentModel.alt}
+                        className="w-full h-full object-contain p-2 transform group-hover:scale-102 transition-transform duration-500 bg-white select-none"
+                      />
+                    )}
+                  </div>
                   
                   {/* Floating Live Tap Tag */}
-                  <div className="absolute top-4 right-4 bg-white/95 backdrop-blur-md px-3 py-1.5 rounded-full shadow-md border border-gray-100 flex items-center gap-2">
-                    <span className="w-2.5 h-2.5 rounded-full bg-google-green animate-ping" />
-                    <span className="text-xs font-bold text-gray-900">NFC Active Tap</span>
+                  <div className="absolute top-4 right-4 bg-white/95 backdrop-blur-md px-3 py-1.5 rounded-full shadow-md border border-gray-100 flex items-center gap-2 z-20">
+                    <span className={`w-2.5 h-2.5 rounded-full ${currentModel.badgeDotClass}`} />
+                    <span className="text-xs font-bold text-gray-900">{currentModel.badge}</span>
                   </div>
 
                   {/* Floating rating badge */}
-                  <div className="absolute bottom-4 left-4 right-4 bg-white/95 backdrop-blur-md p-3.5 rounded-xl shadow-xl border border-gray-100 flex items-center justify-between">
+                  <div className="absolute bottom-4 left-4 right-4 bg-white/95 backdrop-blur-md p-3.5 rounded-xl shadow-xl border border-gray-100 flex items-center justify-between z-20">
                     <div>
-                      <div className="text-xs text-gray-500 font-medium">Incremento Recensioni</div>
-                      <div className="text-lg font-extrabold text-google-blue">+1500% al mese</div>
+                      <div className="text-xs text-gray-500 font-medium">{currentModel.statTitle}</div>
+                      <div className="text-lg font-extrabold text-google-blue">{currentModel.statValue}</div>
                     </div>
                     <div className="bg-google-green-light px-3 py-1 rounded-lg text-google-green text-xs font-bold">
-                      Valutazione 5.0 ★
+                      {currentModel.statBadge}
                     </div>
                   </div>
                 </div>
+              </div>
+
+              {/* Navigation Arrows */}
+              {/* Right Arrow - always clickable to navigate */}
+              <button
+                onClick={nextModel}
+                className="absolute -right-3 sm:-right-5 top-1/2 -translate-y-1/2 z-30 w-11 h-11 sm:w-12 sm:h-12 rounded-full bg-white shadow-xl border border-gray-200/90 flex items-center justify-center text-gray-800 hover:text-google-blue hover:scale-110 active:scale-95 transition-all duration-200 group/btn focus:outline-none focus:ring-2 focus:ring-google-blue/40 cursor-pointer"
+                aria-label="Modello successivo"
+                title="Vedi altro modello"
+              >
+                <ChevronRight className="w-6 h-6 transition-transform group-hover/btn:translate-x-0.5 text-gray-700 group-hover/btn:text-google-blue" />
+              </button>
+
+              {/* Left Arrow */}
+              <button
+                onClick={prevModel}
+                className="absolute -left-3 sm:-left-5 top-1/2 -translate-y-1/2 z-30 w-11 h-11 sm:w-12 sm:h-12 rounded-full bg-white shadow-xl border border-gray-200/90 flex items-center justify-center text-gray-800 hover:text-google-blue hover:scale-110 active:scale-95 transition-all duration-200 group/btn focus:outline-none focus:ring-2 focus:ring-google-blue/40 cursor-pointer"
+                aria-label="Modello precedente"
+                title="Modello precedente"
+              >
+                <ChevronLeft className="w-6 h-6 transition-transform group-hover/btn:-translate-x-0.5 text-gray-700 group-hover/btn:text-google-blue" />
+              </button>
+
+              {/* Model Selector Pills */}
+              <div className="flex items-center justify-center gap-2 mt-4">
+                {NFC_MODELS.map((model, idx) => (
+                  <button
+                    key={model.id}
+                    onClick={() => setCurrentIndex(idx)}
+                    className={`px-4 py-1.5 rounded-full text-xs font-bold transition-all duration-300 flex items-center gap-2 cursor-pointer ${
+                      currentIndex === idx
+                        ? "bg-gray-900 text-white shadow-md scale-105"
+                        : "bg-white/90 text-gray-600 hover:bg-gray-100 hover:text-gray-900 border border-gray-200/80 shadow-sm"
+                    }`}
+                  >
+                    <span
+                      className={`w-2 h-2 rounded-full ${
+                        currentIndex === idx ? "bg-google-green" : "bg-gray-300"
+                      }`}
+                    />
+                    {model.title}
+                  </button>
+                ))}
               </div>
             </div>
           </div>
