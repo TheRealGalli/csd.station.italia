@@ -153,7 +153,7 @@ export const NfcStatsImpact = () => {
               CON CARD NFC CSD STATION
             </div>
             <div className="text-sm font-semibold text-google-blue uppercase tracking-wider mb-2">
-              Risultato Garantito
+              Risultato Raggiungibile
             </div>
             <div className="text-4xl sm:text-5xl font-black text-google-blue mb-4 flex items-baseline gap-2">
               50+ <span className="text-lg font-bold text-google-green">recensioni / settimana</span>
