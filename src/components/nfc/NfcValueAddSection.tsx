@@ -143,17 +143,17 @@ export const NfcValueAddSection = () => {
 
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 my-6">
             <div className="bg-gray-50 p-4 rounded-2xl border border-gray-200/70">
-              <div className="text-xs font-semibold text-gray-500">Punto Vendita #1 — Cassa Centrale</div>
+              <div className="text-xs font-semibold text-gray-500">Punto Vendita #1 — Milano Centro</div>
               <div className="text-2xl font-black text-gray-900 mt-1">248 Tap</div>
               <div className="text-xs font-medium text-google-blue mt-0.5">Giornata di picco: 38 tap (6 Ottobre 2026)</div>
             </div>
             <div className="bg-gray-50 p-4 rounded-2xl border border-gray-200/70">
-              <div className="text-xs font-semibold text-gray-500">Punto Vendita #2 — Sala / Tavoli</div>
+              <div className="text-xs font-semibold text-gray-500">Punto Vendita #2 — Torino</div>
               <div className="text-2xl font-black text-gray-900 mt-1">164 Tap</div>
               <div className="text-xs font-medium text-google-blue mt-0.5">Giornata di picco: 26 tap (14 Ottobre 2026)</div>
             </div>
             <div className="bg-gray-50 p-4 rounded-2xl border border-gray-200/70">
-              <div className="text-xs font-semibold text-gray-500">Punto Vendita #3 — Desk Reception</div>
+              <div className="text-xs font-semibold text-gray-500">Punto Vendita #3 — Bologna</div>
               <div className="text-2xl font-black text-gray-900 mt-1">82 Tap</div>
               <div className="text-xs font-medium text-google-blue mt-0.5">Giornata di picco: 16 tap (22 Ottobre 2026)</div>
             </div>
