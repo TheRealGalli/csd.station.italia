@@ -34,32 +34,34 @@ const NFC_MODELS = [
 export const NfcHero = () => {
   const { ref: heroRef, isVisible } = useScrollReveal({ threshold: 0.1 });
   const [currentIndex, setCurrentIndex] = useState(0);
-  const [hasInteracted, setHasInteracted] = useState(false);
   const [touchStartX, setTouchStartX] = useState<number | null>(null);
+  const [touchStartY, setTouchStartY] = useState<number | null>(null);
 
   const currentModel = NFC_MODELS[currentIndex];
 
   const toggleModel = () => {
     setCurrentIndex((prev) => (prev === 0 ? 1 : 0));
-    setHasInteracted(true);
   };
 
   const selectModel = (idx: number) => {
     setCurrentIndex(idx);
-    setHasInteracted(true);
   };
 
   const handleTouchStart = (e: React.TouchEvent) => {
     setTouchStartX(e.touches[0].clientX);
+    setTouchStartY(e.touches[0].clientY);
   };
 
   const handleTouchEnd = (e: React.TouchEvent) => {
-    if (touchStartX === null) return;
-    const diff = touchStartX - e.changedTouches[0].clientX;
-    if (Math.abs(diff) > 35) {
+    if (touchStartX === null || touchStartY === null) return;
+    const diffX = touchStartX - e.changedTouches[0].clientX;
+    const diffY = touchStartY - e.changedTouches[0].clientY;
+    // Only toggle if horizontal swipe is intentional and dominant
+    if (Math.abs(diffX) > 40 && Math.abs(diffX) > Math.abs(diffY)) {
       toggleModel();
     }
     setTouchStartX(null);
+    setTouchStartY(null);
   };
 
   return (
@@ -218,10 +220,6 @@ export const NfcHero = () => {
                         e.stopPropagation();
                         selectModel(idx);
                       }}
-                      onTouchEnd={(e) => {
-                        e.stopPropagation();
-                        selectModel(idx);
-                      }}
                       className={`px-4 py-2 sm:py-1.5 rounded-full text-xs font-bold transition-colors duration-200 flex items-center gap-2 cursor-pointer select-none outline-none touch-manipulation ${
                         currentIndex === idx
                           ? "bg-gray-900 text-white shadow-md border border-gray-900"
@@ -238,12 +236,10 @@ export const NfcHero = () => {
                   ))}
                 </div>
 
-                {/* First-touch hint text */}
-                {!hasInteracted && (
-                  <p className="text-[11px] sm:text-xs text-gray-400/90 font-medium text-center mt-2 animate-pulse select-none">
-                    Tocca per scorrere i nostri prodotti
-                  </p>
-                )}
+                {/* Interaction hint text */}
+                <p className="text-[11px] sm:text-xs text-gray-400 font-medium text-center mt-2.5 select-none">
+                  Tocca o scorri per vedere i nostri prodotti
+                </p>
               </div>
             </div>
           </div>
