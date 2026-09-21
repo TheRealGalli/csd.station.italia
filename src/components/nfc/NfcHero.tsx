@@ -34,11 +34,32 @@ const NFC_MODELS = [
 export const NfcHero = () => {
   const { ref: heroRef, isVisible } = useScrollReveal({ threshold: 0.1 });
   const [currentIndex, setCurrentIndex] = useState(0);
+  const [hasInteracted, setHasInteracted] = useState(false);
+  const [touchStartX, setTouchStartX] = useState<number | null>(null);
 
   const currentModel = NFC_MODELS[currentIndex];
 
   const toggleModel = () => {
     setCurrentIndex((prev) => (prev === 0 ? 1 : 0));
+    setHasInteracted(true);
+  };
+
+  const selectModel = (idx: number) => {
+    setCurrentIndex(idx);
+    setHasInteracted(true);
+  };
+
+  const handleTouchStart = (e: React.TouchEvent) => {
+    setTouchStartX(e.touches[0].clientX);
+  };
+
+  const handleTouchEnd = (e: React.TouchEvent) => {
+    if (touchStartX === null) return;
+    const diff = touchStartX - e.changedTouches[0].clientX;
+    if (Math.abs(diff) > 35) {
+      toggleModel();
+    }
+    setTouchStartX(null);
   };
 
   return (
@@ -121,10 +142,15 @@ export const NfcHero = () => {
           >
             <div className="relative group max-w-[340px] sm:max-w-md w-full mx-auto lg:mr-14">
               {/* Decorative background glow */}
-              <div className="absolute -inset-1.5 bg-gradient-to-r from-google-blue via-google-yellow to-google-green rounded-3xl blur-lg opacity-30 group-hover:opacity-50 transition duration-500" />
+              <div className="absolute -inset-1.5 bg-gradient-to-r from-google-blue via-google-yellow to-google-green rounded-3xl blur-lg opacity-30 group-hover:opacity-50 transition duration-500 pointer-events-none" />
               
               {/* Showcase Container */}
-              <div className="relative bg-white rounded-3xl p-5 shadow-2xl border border-gray-100 overflow-hidden">
+              <div
+                onClick={toggleModel}
+                onTouchStart={handleTouchStart}
+                onTouchEnd={handleTouchEnd}
+                className="relative bg-white rounded-3xl p-5 shadow-2xl border border-gray-100 overflow-hidden cursor-pointer select-none touch-pan-y"
+              >
                 <div className="relative overflow-hidden rounded-2xl bg-white aspect-[3/4.2] flex items-center justify-center border border-gray-200/60">
                   {/* Current Model Display */}
                   <div
@@ -149,13 +175,13 @@ export const NfcHero = () => {
                   </div>
                   
                   {/* Floating Live Tap Tag */}
-                  <div className="absolute top-4 right-4 bg-white/95 backdrop-blur-md px-3 py-1.5 rounded-full shadow-md border border-gray-100 flex items-center gap-2 z-20">
+                  <div className="absolute top-4 right-4 bg-white/95 backdrop-blur-md px-3 py-1.5 rounded-full shadow-md border border-gray-100 flex items-center gap-2 z-20 pointer-events-none">
                     <span className={`w-2.5 h-2.5 rounded-full ${currentModel.badgeDotClass}`} />
                     <span className="text-xs font-bold text-gray-900">{currentModel.badge}</span>
                   </div>
 
                   {/* Floating rating badge - hidden on mobile so it doesn't cover the product, visible on sm and up */}
-                  <div className="hidden sm:flex absolute bottom-4 left-4 right-4 bg-white/95 backdrop-blur-md p-3.5 rounded-xl shadow-xl border border-gray-100 items-center justify-between z-20">
+                  <div className="hidden sm:flex absolute bottom-4 left-4 right-4 bg-white/95 backdrop-blur-md p-3.5 rounded-xl shadow-xl border border-gray-100 items-center justify-between z-20 pointer-events-none">
                     <div>
                       <div className="text-xs text-gray-500 font-medium">{currentModel.statTitle}</div>
                       <div className="text-lg font-extrabold text-google-blue">{currentModel.statValue}</div>
@@ -182,25 +208,42 @@ export const NfcHero = () => {
               </button>
 
               {/* Model Selector Pills */}
-              <div className="flex items-center justify-center gap-2 mt-4">
-                {NFC_MODELS.map((model, idx) => (
-                  <button
-                    key={model.id}
-                    onClick={() => setCurrentIndex(idx)}
-                    className={`px-4 py-1.5 rounded-full text-xs font-bold transition-colors duration-200 flex items-center gap-2 cursor-pointer select-none outline-none [-webkit-tap-highlight-color:transparent] ${
-                      currentIndex === idx
-                        ? "bg-gray-900 text-white shadow-md border border-gray-900"
-                        : "bg-transparent text-gray-600 hover:text-gray-900 hover:bg-black/5 border border-gray-300/80"
-                    }`}
-                  >
-                    <span
-                      className={`w-2 h-2 rounded-full ${
-                        currentIndex === idx ? "bg-google-green" : "bg-gray-400"
+              <div className="relative z-30 flex flex-col items-center justify-center mt-4">
+                <div className="flex items-center justify-center gap-2.5">
+                  {NFC_MODELS.map((model, idx) => (
+                    <button
+                      key={model.id}
+                      type="button"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        selectModel(idx);
+                      }}
+                      onTouchEnd={(e) => {
+                        e.stopPropagation();
+                        selectModel(idx);
+                      }}
+                      className={`px-4 py-2 sm:py-1.5 rounded-full text-xs font-bold transition-colors duration-200 flex items-center gap-2 cursor-pointer select-none outline-none touch-manipulation ${
+                        currentIndex === idx
+                          ? "bg-gray-900 text-white shadow-md border border-gray-900"
+                          : "bg-transparent text-gray-600 hover:text-gray-900 hover:bg-black/5 border border-gray-300/80 active:bg-black/10"
                       }`}
-                    />
-                    {model.title}
-                  </button>
-                ))}
+                    >
+                      <span
+                        className={`w-2 h-2 rounded-full ${
+                          currentIndex === idx ? "bg-google-green" : "bg-gray-400"
+                        }`}
+                      />
+                      {model.title}
+                    </button>
+                  ))}
+                </div>
+
+                {/* First-touch hint text */}
+                {!hasInteracted && (
+                  <p className="text-[11px] sm:text-xs text-gray-400/90 font-medium text-center mt-2 animate-pulse select-none">
+                    Tocca per scorrere i nostri prodotti
+                  </p>
+                )}
               </div>
             </div>
           </div>

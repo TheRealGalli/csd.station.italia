@@ -24,7 +24,7 @@ export const NfcSeoAiSection = () => {
             <span className="text-google-blue">Intelligenza Artificiale</span> e <span className="text-google-green">Google Gemini</span>
           </h2>
           <p className="text-lg text-gray-600 mt-4">
-            Oggi i clienti non cercano più solo su Google Web. Chiedono a <strong className="text-gray-900 font-semibold">Google Gemini, ChatGPT e SearchGPT</strong> dove mangiare, curarsi o fare acquisti.
+            Oggi i clienti non cercano più solo su Google Web. Chiedono a <strong className="text-gray-900 font-semibold">Google Gemini, ChatGPT e Claude</strong> dove mangiare, curarsi o fare acquisti.
           </p>
         </div>
 
