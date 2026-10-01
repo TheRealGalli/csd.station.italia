@@ -104,7 +104,7 @@ async function syncAllLinks() {
     console.log('[Firestore Sync] Running full sync of links collection...');
     const snapshot = await db.collection('links').get();
     const updatePromises = [];
-    const { currentMonth, todayDate } = getRomeDateInfo();
+    const { currentMonth, todayDate, dayOfMonth } = getRomeDateInfo();
 
     snapshot.forEach((doc) => {
       const data = doc.data();
@@ -112,8 +112,10 @@ async function syncAllLinks() {
       const expectedShortUrl = buildShortUrl(docId);
       const docUpdates = {};
 
-      // Check if a new month started -> reset monthly clicks and peak day counters
-      if (data.lastResetMonth !== currentMonth) {
+      // Reset occurs on Day 2 of the month or later (leaving Day 1 100% intact for monthly reporting)
+      const isNewMonth = data.lastResetMonth !== currentMonth && dayOfMonth >= 2;
+
+      if (isNewMonth) {
         docUpdates.clicks = 0;
         docUpdates.currentDayDate = todayDate;
         docUpdates.currentDayClicks = 0;
