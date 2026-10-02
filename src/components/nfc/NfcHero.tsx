@@ -303,11 +303,12 @@ export const NfcHero = () => {
                     scale = 1;
                     zIndex = 30;
                   } else if (isPrev) {
-                    // Slides left over the title: solidly covers the title with 100% opaque card
-                    translateX = -1 * (currentIndex - idx) * 380;
-                    opacity = 1;
-                    scale = 1;
-                    zIndex = 20 + idx;
+                    // Slides left and dissolves with a smooth fade-out leaving the title clean
+                    translateX = -1 * (currentIndex - idx) * 260;
+                    opacity = 0;
+                    scale = 0.96;
+                    zIndex = 10;
+                    pointerEvents = "none";
                   } else if (isNext) {
                     // Positioned at the right edge of the screen, with half (cardWidth/2) outside, 100% solid
                     translateX = distToEdge - cardWidth / 2;
