@@ -29,8 +29,8 @@ export const Header = () => {
     { label: "Card NFC", href: "#nfc-hero" },
     { label: "Impatto", href: "#nfc-stats" },
     { label: "SEO & Gemini AI", href: "#nfc-seo" },
-    { label: "Versatilità", href: "#nfc-versatility" },
     { label: "Tutto Incluso", href: "#nfc-value" },
+    { label: "Versatilità", href: "#nfc-versatility" },
     { label: "Settori", href: "#nfc-verticals" },
   ];
 
