@@ -8,7 +8,7 @@ import nfcStandImg from "@/assets/nfc-stand.png";
 const NFC_MODELS = [
   {
     id: "card",
-    title: "Card NFC",
+    title: "Card NFC", mobileTitle: "Card",
     price: "19,90 €",
     image: nfcCardImg,
     alt: "Card NFC Recensioni Google",
@@ -18,7 +18,7 @@ const NFC_MODELS = [
   },
   {
     id: "plate",
-    title: "Plate Adesiva NFC",
+    title: "Plate Adesiva NFC", mobileTitle: "Plate Adesiva",
     price: "34,90 €",
     image: nfcPlateImg,
     alt: "Plate Adesiva NFC Recensioni Google",
@@ -28,7 +28,7 @@ const NFC_MODELS = [
   },
   {
     id: "stand",
-    title: "Stand NFC",
+    title: "Stand NFC", mobileTitle: "Stand",
     price: "39,90 €",
     image: nfcStandImg,
     alt: "Stand da Banco NFC Recensioni Google",
@@ -235,11 +235,11 @@ export const NfcHero = () => {
 
             {/* CTA Buttons */}
             <div className="flex flex-col sm:flex-row gap-3 justify-center lg:justify-start mt-2">
-              <a href="#nfc-booking" className="btn btn-primary btn-lg group" id="nfc-hero-cta">
-                Ordina i tuoi dispositivi NFC
-                <ArrowRight className="w-5 h-5 transition-transform group-hover:translate-x-1" />
+              <a href="#nfc-booking" className="btn btn-primary group px-5 py-2.5 text-sm font-semibold" id="nfc-hero-cta">
+                Ordina i tuoi dispositivi
+                <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
               </a>
-              <a href="#nfc-stats" className="btn btn-outline btn-lg" id="nfc-hero-secondary">
+              <a href="#nfc-stats" className="btn btn-outline px-5 py-2.5 text-sm font-semibold whitespace-nowrap" id="nfc-hero-secondary">
                 Scopri l'Impatto
               </a>
             </div>
@@ -358,18 +358,18 @@ export const NfcHero = () => {
                         e.stopPropagation();
                         selectModel(idx);
                       }}
-                      className={`px-4 py-2 sm:py-1.5 rounded-full text-xs font-bold transition-colors duration-200 flex items-center gap-2 cursor-pointer select-none outline-none touch-manipulation ${
+                      className={`px-3 py-1.5 rounded-full text-xs font-bold transition-colors duration-200 flex items-center gap-1.5 cursor-pointer select-none outline-none touch-manipulation ${
                         currentIndex === idx
                           ? "bg-gray-900 text-white shadow-md border border-gray-900"
                           : "bg-transparent text-gray-600 hover:text-gray-900 hover:bg-black/5 border border-gray-300/80 active:bg-black/10"
                       }`}
                     >
                       <span
-                        className={`w-2 h-2 rounded-full ${
+                        className={`w-2 h-2 rounded-full flex-shrink-0 ${
                           currentIndex === idx ? "bg-google-green" : "bg-gray-400"
                         }`}
                       />
-                      {model.title}
+                      <span className="sm:hidden">{model.mobileTitle}</span><span className="hidden sm:inline">{model.title}</span>
                     </button>
                   ))}
                 </div>
