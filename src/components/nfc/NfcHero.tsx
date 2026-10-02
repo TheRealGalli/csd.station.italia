@@ -13,6 +13,7 @@ const NFC_MODELS = [
     alt: "Card NFC Recensioni Google",
     isPlate: false,
     isStand: false,
+    whatsappUrl: "https://wa.me/393518628203?text=Ciao!%20Mi%20interessava%20avere%20pi%C3%B9%20informazioni%20sulle%20Card%20NFC.",
   },
   {
     id: "plate",
@@ -21,6 +22,7 @@ const NFC_MODELS = [
     alt: "Plate Adesiva NFC Recensioni Google",
     isPlate: true,
     isStand: false,
+    whatsappUrl: "https://wa.me/393518628203?text=Ciao!%20Mi%20interessava%20avere%20pi%C3%B9%20informazioni%20sulle%20Plate%20adesive%20NFC.",
   },
   {
     id: "stand",
@@ -29,6 +31,7 @@ const NFC_MODELS = [
     alt: "Stand da Banco NFC Recensioni Google",
     isPlate: false,
     isStand: true,
+    whatsappUrl: "https://wa.me/393518628203?text=Ciao!%20Mi%20interessava%20avere%20pi%C3%B9%20informazioni%20sugli%20Stand%20NFC.",
   },
 ];
 
@@ -141,6 +144,39 @@ export const NfcHero = () => {
     );
   };
 
+  const renderCardBody = (model: typeof NFC_MODELS[0], isActive: boolean) => (
+    <div
+      className={`relative bg-white rounded-3xl p-4 sm:p-5 border transition-all duration-300 overflow-hidden flex flex-col justify-between ${
+        isActive
+          ? "shadow-2xl border-gray-100"
+          : "shadow-xl border-gray-200/90 hover:shadow-2xl"
+      }`}
+    >
+      {/* Product Image Frame */}
+      <div className="relative overflow-hidden rounded-2xl bg-white aspect-[3/3.1] flex items-center justify-center border border-gray-200/60">
+        {renderCardVisual(model, isActive)}
+      </div>
+
+      {/* WhatsApp CTA Button */}
+      <div className="mt-3.5 pt-0.5">
+        <a
+          href={model.whatsappUrl}
+          target="_blank"
+          rel="noopener noreferrer"
+          onClick={(e) => e.stopPropagation()}
+          className="group/wa w-full flex items-center justify-center gap-2 py-3 px-4 rounded-xl font-extrabold text-white text-sm tracking-wide transition-all duration-200 shadow-md hover:shadow-xl hover:-translate-y-0.5 active:scale-95"
+          style={{ backgroundColor: "#25D366" }}
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-4 h-4 shrink-0">
+            <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/>
+          </svg>
+          <span>Ordina Ora su WhatsApp</span>
+          <ArrowRight className="w-4 h-4 transition-transform group-hover/wa:translate-x-1" />
+        </a>
+      </div>
+    </div>
+  );
+
   return (
     <section
       className="relative pt-28 sm:pt-32 lg:pt-36 pb-16 lg:pb-24 bg-gradient-to-b from-blue-50/40 via-white to-white overflow-hidden w-full"
@@ -234,16 +270,12 @@ export const NfcHero = () => {
                 {/* Ambient glow behind card */}
                 <div className="absolute -inset-2 bg-gradient-to-r from-google-blue via-google-yellow to-google-green rounded-3xl blur-2xl opacity-40 transition-opacity duration-500 pointer-events-none" />
 
-                {/* Card box */}
-                <div className="relative bg-white rounded-3xl p-5 shadow-2xl border border-gray-100 overflow-hidden cursor-pointer">
-                  <div className="relative overflow-hidden rounded-2xl bg-white aspect-[3/4] flex items-center justify-center border border-gray-200/60">
-                    {renderCardVisual(currentModel, true)}
-                  </div>
-                </div>
+                {/* Card box with WhatsApp button */}
+                {renderCardBody(currentModel, true)}
               </div>
 
               {/* DESKTOP DISPLAY (>= 1024px): Prominent cards, full integral card, peeking half off-screen */}
-              <div className="hidden lg:block relative w-[380px] xl:w-[400px] h-[510px]">
+              <div className="hidden lg:block relative w-[380px] xl:w-[400px] h-[530px]">
                 {NFC_MODELS.map((model, idx) => {
                   const isActive = idx === currentIndex;
                   const isPrev = idx < currentIndex;
@@ -301,18 +333,8 @@ export const NfcHero = () => {
                         <div className="absolute -inset-2 bg-gradient-to-r from-google-blue via-google-yellow to-google-green rounded-3xl blur-2xl opacity-40 transition-opacity duration-500 pointer-events-none" />
                       )}
 
-                      {/* Complete, integral card container (no tags, no stats, just clean hardware photo) */}
-                      <div
-                        className={`relative bg-white rounded-3xl p-5 border transition-all duration-300 overflow-hidden ${
-                          isActive
-                            ? "shadow-2xl border-gray-100"
-                            : "shadow-xl border-gray-200/90 hover:shadow-2xl"
-                        }`}
-                      >
-                        <div className="relative overflow-hidden rounded-2xl bg-white aspect-[3/4] flex items-center justify-center border border-gray-200/60">
-                          {renderCardVisual(model, isActive)}
-                        </div>
-                      </div>
+                      {/* Complete, integral card container with WhatsApp button */}
+                      {renderCardBody(model, isActive)}
                     </div>
                   );
                 })}
