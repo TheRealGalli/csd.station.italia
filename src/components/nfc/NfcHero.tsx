@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from "react";
 import { useScrollReveal } from "@/hooks/useScrollReveal";
-import { ArrowRight, Star, Zap, ShieldCheck, BarChart3, QrCode } from "lucide-react";
+import { ArrowRight, Star, Zap, ShieldCheck, BarChart3 } from "lucide-react";
 import nfcCardImg from "@/assets/nfc-card.jpg";
 import nfcPlateImg from "@/assets/nfc-plate.png";
 import nfcStandImg from "@/assets/nfc-stand.png";
@@ -9,6 +9,7 @@ const NFC_MODELS = [
   {
     id: "card",
     title: "Card NFC",
+    price: "19,90 €",
     image: nfcCardImg,
     alt: "Card NFC Recensioni Google",
     isPlate: false,
@@ -18,6 +19,7 @@ const NFC_MODELS = [
   {
     id: "plate",
     title: "Plate Adesiva NFC",
+    price: "34,90 €",
     image: nfcPlateImg,
     alt: "Plate Adesiva NFC Recensioni Google",
     isPlate: true,
@@ -27,6 +29,7 @@ const NFC_MODELS = [
   {
     id: "stand",
     title: "Stand NFC",
+    price: "39,90 €",
     image: nfcStandImg,
     alt: "Stand da Banco NFC Recensioni Google",
     isPlate: false,
@@ -155,6 +158,13 @@ export const NfcHero = () => {
       {/* Product Image Frame */}
       <div className="relative overflow-hidden rounded-2xl bg-white aspect-[3/3.1] flex items-center justify-center border border-gray-200/60">
         {renderCardVisual(model, isActive)}
+
+        {/* Floating Price Tag in Top-Right */}
+        <div className="absolute top-3.5 right-3.5 z-20 bg-white/95 backdrop-blur-md px-3 py-1 rounded-full shadow-md border border-gray-200/90 flex items-center pointer-events-none">
+          <span className="text-xs sm:text-sm font-extrabold text-gray-900 tracking-tight">
+            {model.price}
+          </span>
+        </div>
       </div>
 
       {/* WhatsApp CTA Button */}
@@ -220,10 +230,6 @@ export const NfcHero = () => {
               <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-gray-100 text-gray-800 text-xs font-semibold">
                 <BarChart3 className="w-4 h-4 text-google-green" />
                 Statistiche Mensili Incluse
-              </span>
-              <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-gray-100 text-gray-800 text-xs font-semibold">
-                <QrCode className="w-4 h-4 text-google-yellow" />
-                QR Code Stampa Frontale
               </span>
             </div>
 
