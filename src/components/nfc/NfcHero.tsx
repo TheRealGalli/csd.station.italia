@@ -239,7 +239,7 @@ export const NfcHero = () => {
                 Ordina i tuoi dispositivi
                 <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
               </a>
-              <a href="#nfc-stats" className="btn btn-outline px-5 py-2.5 text-sm font-semibold whitespace-nowrap" id="nfc-hero-secondary">
+              <a href="#nfc-value" className="btn btn-outline px-5 py-2.5 text-sm font-semibold whitespace-nowrap" id="nfc-hero-secondary">
                 Scopri l'Impatto
               </a>
             </div>
