@@ -95,56 +95,35 @@ Benvenuto su csd-station.it. La tua privacy è di fondamentale importanza per no
 1. Titolare del Trattamento dei Dati
 Il Titolare del Trattamento dei tuoi dati personali per i servizi offerti tramite csd-station.it è:
 Carlo Galli (P.IVA 01630510525)
-Indirizzo: Via Francesco Campana 45, Colle Val d'Elsa, 53034, Italia
-Email: carlo@csd-station.it (per comunicazioni dirette relative al sito .it)
-Email: carlo@csd-station.com (per comunicazioni e gestione operativa generale)
-Telefono: +393518628203
+Indirizzo: Via Francesco Campana 45, Colle di Val d'Elsa, 53034 (SI), Italia
+Email: carlo@csd-station.it
+Telefono: +39 351 862 8203
+Sede operativa ed attività esclusivamente in Italia.
 
-2. Responsabile del Trattamento e Infrastruttura Tecnica
-Per la gestione tecnica dell'infrastruttura di raccolta e archiviazione dei dati, CSD Station Italia si avvale della collaborazione di:
-CyberSpaceDokingStation LLC
-Indirizzo: 7901 4th St N, Ste 300, St. Petersburg, FL 33702, USA
-Email: carlo@csd-station.com
-CyberSpaceDokingStation LLC agisce in qualità di Responsabile del Trattamento per conto di Carlo Galli (P.IVA), fornendo l'infrastruttura tecnica di Google Workspace (Google Calendar, Gmail, Google Forms, Google Sheets, Google Cloud) attraverso il dominio csd-station.com. Questo garantisce che, sebbene i dati siano processati e stoccati principalmente tramite l'account Google Workspace associato alla LLC americana, ciò avvenga sotto le direttive e per conto di Carlo Galli (P.IVA) e in piena conformità con il GDPR.
+2. Infrastruttura Cloud e Google Workspace
+Per la gestione operativa, contatti e prenotazioni, CSD Station si affida all'infrastruttura di Google Workspace (Google Cloud, Gmail, Calendar, Sheets, Forms). Google agisce come fornitore tecnologico e responsabile/sub-responsabile in conformità al GDPR (Cloud Data Processing Addendum).
 
-3. Dati Personali Raccolti
-Raccogliamo i seguenti tipi di dati personali:
-- Dati forniti volontariamente dall'utente per la prenotazione: nome, cognome, indirizzo email e altre informazioni fornite nel modulo Google Calendar gestito tramite l'infrastruttura di csd-station.com.
-- Dati raccolti tramite comunicazioni successive: informazioni relative a esigenze professionali e dettagli del progetto raccolti tramite email, Google Forms o Google Sheets.
-- Dati raccolti da fonti pubbliche per finalità di contatto (B2B): dati professionali pubblicamente accessibili (nomi, email aziendali, numeri di telefono, siti web) raccolti da Google Maps o siti aziendali per invio di proposte personalizzate.
-- Dati di navigazione e cookie: dati raccolti tramite l'integrazione di servizi di terze parti come Google Calendar. Consulta la Cookie Policy per i dettagli.
+3. Servizi di Automazione AI per i Clienti
+Carlo Galli progetta, sviluppa, testa e consegna i sistemi di automazione al Cliente. Dopo il collaudo e la consegna, CSD Station non conserva accessi né tratta dati operativi del Cliente o dei suoi utenti finali. Il Cliente opera come Titolare del Trattamento, mentre Google agisce come fornitore tecnologico / sub-responsabile per l'infrastruttura cloud sottostante.
 
-4. Finalità del Trattamento dei Dati
-- Gestione delle prenotazioni di consulenza.
-- Comunicazioni e assistenza clienti.
-- Erogazione dei servizi di automazione e consulenza.
-- Analisi e Proposta Commerciale Personalizzata tramite strumenti di intelligenza artificiale integrati in Google Workspace.
-- Adempimento di obblighi legali e regolamentari.
+4. Dati Personali Raccolti
+- Dati per la prenotazione consulenze (Google Calendar): nome, cognome, email, note.
+- Dati raccolti tramite comunicazioni dirette: richieste e dettagli di progetto via email (carlo@csd-station.it).
+- Dati pubblici B2B: dati professionali pubblici per proposte mirate con informativa e opt-out immediato.
+- Dati tecnici e cookie: si veda la Cookie Policy.
 
-5. Base Giuridica del Trattamento
-- Esecuzione di misure precontrattuali o contrattuali (Art. 6.1.b GDPR).
-- Consenso per cookie non essenziali e marketing (Art. 6.1.a GDPR).
-- Interesse legittimo per gestione, sicurezza e miglioramento dei servizi (Art. 6.1.f GDPR).
-- Obbligo legale (Art. 6.1.c GDPR).
+5. Finalità e Basi Giuridiche
+- Gestione prenotazioni e comunicazioni (misure precontrattuali/contrattuali Art. 6.1.b GDPR).
+- Legittimo interesse per contatto B2B professionale con opt-out immediato (Art. 6.1.f GDPR).
+- Obblighi legali e fiscali italiani (Art. 6.1.c GDPR).
 
-6. Modalità del Trattamento e Sicurezza dei Dati
-Il trattamento avviene tramite strumenti informatici affidandosi a Google Workspace (account CyberSpaceDokingStation LLC e Italia). Include l'uso di AI integrata in Google Workspace Studio per ottimizzazione senza API esterne o addestramento di modelli pubblici. Google garantisce la conformità GDPR tramite il Cloud Data Processing Addendum (CDPA) e le Clausole Contrattuali Standard (SCCs), oltre all'adesione all'EU-U.S. Data Privacy Framework (DPF).
+6. Destinatari e Trasferimento Dati
+- Fornitore tecnologico Google (conforme GDPR tramite CDPA e Data Privacy Framework).
+- Dati gestiti in Italia e UE; nessun trasferimento a società terze estere.
 
-7. Destinatari dei Dati
-I dati possono essere comunicati a CyberSpaceDokingStation LLC, Google LLC, collaboratori autorizzati di Carlo Galli e autorità competenti ove richiesto dalla legge.
-
-8. Trasferimento Dati Extra-UE
-I dati sono trasferiti negli USA (Google e CyberSpaceDokingStation LLC) sulla base delle SCCs e del Data Privacy Framework (DPF).
-
-9. Periodo di Conservazione dei Dati
-I dati sono conservati per il tempo necessario alle finalità (durata rapporto contrattuale + obblighi legali/fiscali). I dati cookie seguono i tempi della Cookie Policy.
-
-10. Diritti dell'Interessato
-Hai diritto ad: accesso, rettifica, cancellazione (oblio), limitazione, portabilità, opposizione, revoca del consenso e reclamo all'Autorità Garante.
-Contatti per i diritti: carlo@csd-station.it o carlo@csd-station.com.
-
-11. Modifiche alla Privacy Policy
-Ci riserviamo il diritto di modificare la policy. L'ultimo aggiornamento è indicato in cima.
+7. Conservazione e Diritti
+- Dati conservati per il tempo strettamente necessario (10 anni per obblighi fiscali).
+- Diritti GDPR esercitabili scrivendo a carlo@csd-station.it.
 
 12. Cookie Policy
 Consulta la specifica Cookie Policy per i dettagli sui cookie.

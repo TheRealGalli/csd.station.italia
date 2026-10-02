@@ -8,121 +8,104 @@ const PrivacyPolicy = () => {
       <main className="flex-grow pt-32 pb-16 px-6 lg:px-8">
         <div className="max-w-4xl mx-auto prose prose-blue prose-sm sm:prose-base lg:prose-lg text-gray-700">
           <h1 className="text-3xl font-extrabold text-gray-900 mb-8 border-b pb-4">Privacy Policy</h1>
-          <p className="text-sm text-gray-500 mb-8 italic">Ultimo aggiornamento: 23 marzo 2026</p>
+          <p className="text-sm text-gray-500 mb-8 italic">Ultimo aggiornamento: 2 ottobre 2026</p>
 
           <p>
-            Benvenuto su <code>csd-station.it</code>. La tua privacy è di fondamentale importanza per noi. Questa Privacy Policy descrive come Carlo Galli (P.IVA), operante come CSD Station (di seguito "noi", "nostro" o "CSD Station Italia"), raccoglie, utilizza e protegge i tuoi dati personali in conformità con il Regolamento Generale sulla Protezione dei Dati (GDPR) dell'Unione Europea.
+            Benvenuto su <code>csd-station.it</code>. La tua privacy è di fondamentale importanza per noi. Questa Privacy Policy descrive in modo chiaro e trasparente come Carlo Galli (P.IVA 01630510525), operante come CSD Station (di seguito "noi", "nostro" o "CSD Station Italia"), raccoglie, utilizza e protegge i dati personali in conformità con il Regolamento Generale sulla Protezione dei Dati (GDPR - Regolamento UE 2016/679).
           </p>
 
           <h2 className="text-xl font-bold text-gray-900 mt-8 mb-4">1. Titolare del Trattamento dei Dati</h2>
-          <p>Il Titolare del Trattamento dei tuoi dati personali per i servizi offerti tramite <code>csd-station.it</code> è:</p>
+          <p>Il Titolare del Trattamento dei dati personali per le attività e i servizi offerti tramite <code>csd-station.it</code> è:</p>
           <div className="bg-gray-50 p-4 rounded-xl border border-gray-100 not-prose text-sm mb-6">
             <p><strong>Carlo Galli (P.IVA 01630510525)</strong></p>
-            <p>Indirizzo: Via Francesco Campana 45, Colle Val d'Elsa, 53034, Italia</p>
-            <p>Email: <a href="mailto:carlo@csd-station.it" className="text-blue-600">carlo@csd-station.it</a> (per comunicazioni dirette relative al sito .it)</p>
-            <p>Email: <a href="mailto:carlo@csd-station.com" className="text-blue-600">carlo@csd-station.com</a> (per comunicazioni e gestione operativa generale)</p>
-            <p>Telefono: +393518628203</p>
-          </div>
-
-          <h2 className="text-xl font-bold text-gray-900 mt-8 mb-4">2. Responsabile del Trattamento e Infrastruttura Tecnica</h2>
-          <p>
-            Per la gestione tecnica dell'infrastruttura di raccolta e archiviazione dei dati, CSD Station Italia si avvale della collaborazione di:
-          </p>
-          <div className="bg-gray-50 p-4 rounded-xl border border-gray-100 not-prose text-sm mb-6">
-            <p><strong>CyberSpaceDokingStation LLC</strong></p>
-            <p>Indirizzo: 7901 4th St N, Ste 300, St. Petersburg, FL 33702, USA</p>
-            <p>Email: <a href="mailto:carlo@csd-station.com" className="text-blue-600">carlo@csd-station.com</a></p>
+            <p>Sede: Via Francesco Campana 45, Colle di Val d'Elsa, 53034 (SI), Italia</p>
+            <p>Email: <a href="mailto:carlo@csd-station.it" className="text-blue-600 font-medium">carlo@csd-station.it</a></p>
+            <p>Telefono: +39 351 862 8203</p>
           </div>
           <p>
-            CyberSpaceDokingStation LLC agisce in qualità di Responsabile del Trattamento per conto di Carlo Galli (P.IVA), fornendo l'infrastruttura tecnica di Google Workspace (Google Calendar, Gmail, Google Forms, Google Sheets, Google Cloud) attraverso il dominio <code>csd-station.com</code>. Questo garantisce che, sebbene i dati siano processati e stoccati principalmente tramite l'account Google Workspace associato alla LLC americana, ciò avvenga sotto le direttive e per conto di Carlo Galli (P.IVA) e in piena conformità con il GDPR, come dettagliato nella sezione 5.
+            Tutte le attività di CSD Station hanno sede e operano esclusivamente in Italia.
           </p>
 
-          <h2 className="text-xl font-bold text-gray-900 mt-8 mb-4">3. Dati Personali Raccolti</h2>
-          <p>Raccogliamo i seguenti tipi di dati personali:</p>
+          <h2 className="text-xl font-bold text-gray-900 mt-8 mb-4">2. Infrastruttura Tecnica e Servizi Cloud (Google Workspace)</h2>
+          <p>
+            Per la gestione dei contatti, delle comunicazioni, delle prenotazioni e dell'organizzazione del lavoro, ci affidiamo all'infrastruttura sicura di <strong>Google Workspace</strong> (Gmail, Google Calendar, Google Forms, Google Sheets, Google Cloud Platform). Google agisce come fornitore tecnologico e responsabile del trattamento (o sub-responsabile) in piena aderenza al GDPR, grazie al Cloud Data Processing Addendum (CDPA) e alle misure di sicurezza certificate adottate a livello globale ed europeo.
+          </p>
+
+          <h2 className="text-xl font-bold text-gray-900 mt-8 mb-4">3. Servizi di Automazione AI e Ruolo Privacy</h2>
+          <p>
+            In relazione alla progettazione e fornitura di automazioni personalizzate e soluzioni di intelligenza artificiale per i nostri Clienti:
+          </p>
           <ul>
-            <li><strong>Dati forniti volontariamente dall'utente per la prenotazione:</strong> Quando prenoti una consulenza gratuita tramite il modulo di prenotazione basato su Google Calendar, che è integrato o linkato dal nostro sito (<code>csd-station.it</code>), ma gestito tramite l'infrastruttura Google Workspace di <code>csd-station.com</code> (CyberSpaceDokingStation LLC), raccogliamo il tuo nome, cognome, indirizzo email e qualsiasi altra informazione che scegli di fornire nel campo note o richiesta.</li>
-            <li><strong>Dati raccolti tramite comunicazioni successive:</strong> Dopo la prenotazione, potremmo raccogliere ulteriori dati personali tramite comunicazioni via email (utilizzando sia <code>carlo@csd-station.it</code> che <code>carlo@csd-station.com</code> su Gmail), moduli Google (Google Forms) o fogli di calcolo (Google Sheets) per la gestione delle consulenze, la profilazione delle esigenze e l'erogazione dei nostri servizi. Questi dati possono includere informazioni relative alle tue esigenze professionali, dettagli del progetto e altri dati pertinenti alla nostra collaborazione.</li>
-            <li><strong>Dati raccolti da fonti pubbliche per finalità di contatto (B2B):</strong> Raccogliamo dati professionali pubblicamente accessibili (come nomi, email aziendali, numeri di telefono e URL di siti web) tramite piattaforme pubbliche quali Google Maps o registri aziendali. Questi dati vengono utilizzati esclusivamente per l'invio di proposte di consulenza e soluzioni automatizzate personalizzate a soggetti B2B.</li>
-            <li><strong>Dati di navigazione e cookie:</strong> Anche se il nostro sito è statico, l'integrazione di servizi di terze parti come Google Calendar e l'eventuale utilizzo di strumenti di analisi (se attivati) possono comportare la raccolta di dati di navigazione e l'installazione di cookie sul tuo dispositivo. Per maggiori dettagli, consulta la nostra <strong>Cookie Policy</strong>.</li>
+            <li>
+              <strong>Sviluppo, test e consegna:</strong> Carlo Galli crea l'architettura del sistema di automazione, la configura nell'ambiente concordato, esegue i test di funzionamento e la fa partire.
+            </li>
+            <li>
+              <strong>Nessun trattamento dati post-consegna:</strong> Una volta collaudata e consegnata la soluzione, il sistema viene affidato interamente al Cliente. CSD Station <strong>non conserva accessi, non visualizza e non tratta i dati personali</strong> che transitano o vengono elaborati dall'automazione nel normale esercizio dell'attività del Cliente. Di conseguenza, CSD Station non agisce come responsabile continuativo del trattamento per i dati operativi del Cliente.
+            </li>
+            <li>
+              <strong>Titolare e Sub-responsabile:</strong> Il Cliente agisce come unico ed esclusivo <strong>Titolare del Trattamento</strong> per i dati gestiti tramite la propria automazione. L'infrastruttura cloud sottostante (es. Google Workspace, Google Cloud, Apps Script) fa capo a <strong>Google in qualità di fornitore dell'infrastruttura / sub-responsabile</strong>, secondo i termini di servizio e le condizioni privacy concordate direttamente con Google o attive nell'ambiente di lavoro.
+            </li>
           </ul>
 
-          <h2 className="text-xl font-bold text-gray-900 mt-8 mb-4">4. Finalità del Trattamento dei Dati</h2>
-          <p>Trattiamo i tuoi dati personali per le seguenti finalità:</p>
+          <h2 className="text-xl font-bold text-gray-900 mt-8 mb-4">4. Dati Personali Raccolti tramite il Sito</h2>
+          <p>Raccogliamo esclusivamente i dati necessari per gestire le relazioni con utenti e clienti:</p>
           <ul>
-            <li><strong>Gestione delle prenotazioni:</strong> Per gestire e confermare le tue prenotazioni di consulenza gratuita, anche se la prenotazione avviene tramite l'infrastruttura di <code>csd-station.com</code>.</li>
-            <li><strong>Comunicazioni e assistenza:</strong> Per contattarti in merito alle tue prenotazioni, rispondere alle tue richieste e fornirti assistenza, utilizzando le email <code>carlo@csd-station.it</code> e <code>carlo@csd-station.com</code>.</li>
-            <li><strong>Erogazione dei servizi:</strong> Per comprendere le tue esigenze e fornirti i servizi richiesti, anche attraverso l'utilizzo di strumenti e funzionalità dell'ambiente Google Workspace, Google Apps Script e Google Cloud Platform (gestiti tramite <code>csd-station.com</code>), inclusi form, analisi di dati e funzionalità di intelligenza artificiale per ottimizzare l'offerta.</li>
-            <li><strong>Analisi e Proposta Commerciale Personalizzata (Cold Outreach B2B):</strong> Utilizziamo i dati pubblici raccolti per analizzare la presenza digitale dei potenziali clienti professionali tramite strumenti di intelligenza artificiale integrati nell'ecosistema Google Workspace, Google Apps Script e Google Cloud Platform, al fine di generare comunicazioni di primo contatto pertinenti e di valore. Tale contatto è sempre accompagnato da un'informativa chiara al primo invio e da un'opzione di opt-out immediato e semplificato.</li>
-            <li><strong>Adempimento di obblighi legali:</strong> Per adempiere a qualsiasi obbligo legale o regolamentare applicabile alla nostra attività italiana.</li>
+            <li><strong>Dati per la prenotazione:</strong> Quando prenoti una consulenza tramite il modulo integrato basato su Google Calendar, raccogliamo nome, cognome, indirizzo email ed eventuali dettagli inseriti nel campo note.</li>
+            <li><strong>Dati di contatto e richieste commerciali:</strong> Dati forniti volontariamente tramite email (<code>carlo@csd-station.it</code>) o moduli di contatto per richiedere preventivi, informazioni o dettagli su progetti di automazione.</li>
+            <li><strong>Dati di contatto professionale B2B (fonti pubbliche):</strong> Dati pubblici di contatto (es. da Google Maps o registri pubblici di imprese) utilizzati per l'invio mirato di comunicazioni e proposte di consulenza a professionisti e aziende, garantendo sempre informativa al primo contatto e possibilità di disiscrizione immediata (opt-out).</li>
+            <li><strong>Dati tecnici e cookie:</strong> Dati di navigazione strettamente necessari al funzionamento del sito o relativi a servizi terzi integrati. Per maggiori informazioni, consulta la nostra Cookie Policy.</li>
           </ul>
 
-          <h2 className="text-xl font-bold text-gray-900 mt-8 mb-4">5. Base Giuridica del Trattamento</h2>
-          <p>Il trattamento dei tuoi dati personali si basa sulle seguenti basi giuridiche:</p>
+          <h2 className="text-xl font-bold text-gray-900 mt-8 mb-4">5. Finalità del Trattamento dei Dati</h2>
           <ul>
-            <li><strong>Esecuzione di misure precontrattuali o contrattuali:</strong> Il trattamento è necessario per dare seguito alla tua richiesta di prenotazione e per fornirti i servizi richiesti (Art. 6, par. 1, lett. b) GDPR).</li>
-            <li><strong>Consenso:</strong> Per l'installazione di cookie non essenziali e, in alcuni casi, per specifiche finalità di marketing o profilazione, richiederemo il tuo consenso esplicito (Art. 6, par. 1, lett. a) GDPR).</li>
-            <li><strong>Interesse legittimo:</strong> Il trattamento è necessario per il perseguimento del nostro legittimo interesse a gestire e migliorare i nostri servizi, a prevenire frodi, a svolgere attività di contatto B2B personalizzato e a garantire la sicurezza delle nostre operazioni (Art. 6, par. 1, lett. f) GDPR). Per l'attività di contatto B2B basata su dati pubblici, il Titolare ha svolto e formalizzato una specifica valutazione di bilanciamento degli interessi (<strong>Legitimate Interest Assessment - LIA</strong>), assicurando che le aspettative dei soggetti professionali siano rispettate e garantendo sempre l'informativa al primo contatto e l'esercizio dell'opt-out immediato.</li>
-            <li><strong>Obbligo legale:</strong> Il trattamento è necessario per adempiere a un obbligo legale al quale siamo soggetti (Art. 6, par. 1, lett. c) GDPR).</li>
+            <li><strong>Gestione delle prenotazioni e consulenze:</strong> Per confermare e svolgere le sessioni di consulenza richieste.</li>
+            <li><strong>Comunicazioni e supporto:</strong> Per rispondere alle richieste di contatto, fornire assistenza e gestire i preventivi via email.</li>
+            <li><strong>Sviluppo ed erogazione dei servizi:</strong> Per analizzare i requisiti tecnici e sviluppare le soluzioni di automazione richieste dal Cliente.</li>
+            <li><strong>Adempimenti amministrativi e contabili:</strong> Per la corretta fatturazione e gli adempimenti previsti dalla legge italiana.</li>
           </ul>
 
-          <h2 className="text-xl font-bold text-gray-900 mt-8 mb-4">6. Modalità del Trattamento e Sicurezza dei Dati</h2>
-          <p>
-            Il trattamento dei dati personali avviene principalmente tramite strumenti informatici e telematici. Per tutte le operazioni di raccolta, archiviazione ed elaborazione dei dati, ci affidiamo interamente ai servizi dell'ambiente Google Workspace, Google Apps Script e Google Cloud Platform, gestiti attraverso l'account di <strong>CyberSpaceDokingStation LLC (<code>csd-station.com</code>)</strong> e l'account <strong>CyberSpaceDokingStation Italia (<code>csd-station.it</code>)</strong>.
-          </p>
-          <p>
-            Il trattamento include l'utilizzo di funzionalità di intelligenza artificiale integrate esclusivamente nell'ambiente Google Workspace, Google Apps Script e Google Cloud Platform. Tale processo avviene senza l'ausilio di API esterne o piattaforme terze al di fuori del perimetro di sicurezza di Google, garantendo che i dati non vengano utilizzati per l'addestramento di modelli pubblici e che rimangano protetti all'interno dell'infrastruttura certificata.
-          </p>
-          <p>
-            Google, in qualità di sub-Responsabile del Trattamento, si impegna a garantire la conformità al GDPR e ha adottato misure tecniche e organizzative adeguate per proteggere i tuoi dati. Tra Carlo Galli (P.IVA) e CyberSpaceDokingStation LLC sono state stipulate le Clausole Contrattuali Standard (SCCs - Standard Contractual Clauses) approvate dalla Commissione Europea per disciplinare l'affidamento del trattamento ed il trasferimento dei dati. Inoltre, CyberSpaceDokingStation LLC ha accettato il Cloud Data Processing Addendum (CDPA) di Google LLC, mentre Google LLC aderisce al Data Privacy Framework (DPF) UE-USA.
-          </p>
+          <h2 className="text-xl font-bold text-gray-900 mt-8 mb-4">6. Basi Giuridiche del Trattamento</h2>
+          <ul>
+            <li><strong>Esecuzione di misure precontrattuali o contrattuali (Art. 6.1.b GDPR):</strong> Per la gestione delle richieste, appuntamenti e fornitura dei servizi concordati.</li>
+            <li><strong>Legittimo interesse (Art. 6.1.f GDPR):</strong> Per le comunicazioni promozionali B2B personalizzate dirette ad aziende e professionisti (con diritto di opt-out immediato) e per garantire la sicurezza del sito.</li>
+            <li><strong>Obbligo di legge (Art. 6.1.c GDPR):</strong> Per obblighi fiscali, contabili e normativi vigenti in Italia.</li>
+          </ul>
 
           <h2 className="text-xl font-bold text-gray-900 mt-8 mb-4">7. Destinatari dei Dati</h2>
-          <p>I tuoi dati personali potranno essere comunicati a:</p>
+          <p>I dati personali raccolti tramite il sito non vengono diffusi o venduti a terzi. Possono essere comunicati a:</p>
           <ul>
-            <li><strong>CyberSpaceDokingStation LLC:</strong> In qualità di Responsabile del Trattamento che fornisce l'infrastruttura Google Workspace.</li>
-            <li><strong>Google LLC:</strong> In qualità di fornitore dei servizi Google Workspace (Google Calendar, Gmail, Google Forms, Google Sheets, Google Cloud) e nostro sub-Responsabile del Trattamento.</li>
-            <li><strong>Collaboratori di Carlo Galli (P.IVA) e CyberSpaceDokingStation LLC:</strong> Autorizzati al trattamento dei dati per le finalità sopra indicate.</li>
-            <li><strong>Autorità competenti:</strong> Ove richiesto da obblighi legali o per far valere un diritto in sede giudiziaria.</li>
+            <li><strong>Google LLC / Google Ireland Ltd:</strong> In qualità di fornitore dell'infrastruttura Google Workspace e dei servizi cloud utilizzati per la gestione operativa.</li>
+            <li><strong>Consulenti fiscali o legali:</strong> Limitatamente agli adempimenti di contabilità e fatturazione previsti dalla legge italiana.</li>
+            <li><strong>Autorità competenti:</strong> Ove espressamente richiesto da norme di legge o provvedimenti giudiziari.</li>
           </ul>
 
-          <h2 className="text-xl font-bold text-gray-900 mt-8 mb-4">8. Trasferimento Dati Extra-UE</h2>
+          <h2 className="text-xl font-bold text-gray-900 mt-8 mb-4">8. Trasferimento dei Dati</h2>
           <p>
-            I tuoi dati personali raccolti tramite <code>csd-station.it</code> potranno essere trasferiti al di fuori dell'Unione Europea, in particolare verso gli Stati Uniti, dove ha sede CyberSpaceDokingStation LLC e dove sono localizzati i server di Google LLC. Tale trasferimento avviene nel pieno rispetto del Capo V del GDPR ed è garantito dai seguenti strumenti giuridici:
+            Le attività del Titolare si svolgono in Italia. I dati gestiti tramite i servizi cloud di Google Workspace sono trattati nel rispetto del Capo V del GDPR, mediante garanzie appropriate quali il Cloud Data Processing Addendum (CDPA), le Clausole Contrattuali Standard (SCCs) approvate dalla Commissione Europea e la conformità al Data Privacy Framework (DPF).
           </p>
-          <ul>
-            <li><strong>Per CyberSpaceDokingStation LLC:</strong> L'affidamento dei trattamenti e il trasferimento dei dati sono regolati dalle <strong>Clausole Contrattuali Standard (SCCs - Standard Contractual Clauses)</strong> approvate dalla Commissione Europea e stipulate direttamente tra Carlo Galli (P.IVA) e la LLC.</li>
-            <li><strong>Per Google LLC:</strong> Il trasferimento è disciplinato dal Cloud Data Processing Addendum (CDPA) e dall'adesione di Google LLC all'<strong>EU-U.S. Data Privacy Framework (DPF)</strong>, garantendo un livello di protezione adeguato ed equivalente a quello europeo.</li>
-          </ul>
 
-          <h2 className="text-xl font-bold text-gray-900 mt-8 mb-4">9. Periodo di Conservazione dei Dati</h2>
+          <h2 className="text-xl font-bold text-gray-900 mt-8 mb-4">9. Conservazione dei Dati</h2>
           <p>
-            I tuoi dati personali saranno conservati per il tempo strettamente necessario al raggiungimento delle finalità per cui sono stati raccolti, o per il tempo richiesto dalla normativa applicabile. In particolare:
+            I dati relativi alle comunicazioni e alle richieste vengono conservati per il tempo necessario a evadere la richiesta e gestire il rapporto professionale. I dati fiscali e di fatturazione sono conservati per 10 anni come stabilito dalla normativa italiana.
           </p>
-          <ul>
-            <li>I dati relativi alle prenotazioni e alle comunicazioni saranno conservati per la durata del rapporto contrattuale e per un periodo successivo necessario per adempiere agli obblighi legali, fiscali e contabili.</li>
-            <li>I dati raccolti tramite cookie saranno conservati per il periodo indicato nella nostra <strong>Cookie Policy</strong>.</li>
-          </ul>
-          <p>Al termine del periodo di conservazione, i dati verranno cancellati o resi anonimi in modo irreversibile.</p>
 
           <h2 className="text-xl font-bold text-gray-900 mt-8 mb-4">10. Diritti dell'Interessato</h2>
-          <p>In qualità di interessato, hai il diritto di esercitare i seguenti diritti ai sensi del GDPR:</p>
-          <ul>
-            <li><strong>Diritto di accesso:</strong> Ottenere la conferma che sia in corso un trattamento di dati personali che ti riguardano e, in tal caso, di ottenere l'accesso ai dati e a informazioni specifiche.</li>
-            <li><strong>Diritto di rettifica:</strong> Ottenere la rettifica dei dati personali inesatti che ti riguardano e l'integrazione dei dati personali incompleti.</li>
-            <li><strong>Diritto alla cancellazione (diritto all'oblio):</strong> Ottenere la cancellazione dei dati personali che ti riguardano senza ingiustificato ritardo.</li>
-            <li><strong>Diritto di limitazione di trattamento:</strong> Ottenere la limitazione del trattamento quando ricorre una delle ipotesi previste dall'Art. 18 GDPR.</li>
-            <li><strong>Diritto alla portabilità dei dati:</strong> Ricevere in un formato strutturato, di uso comune e leggibile da dispositivo automatico i dati personali che ti riguardano e/o richiederne la trasmissione ad un altro titolare del trattamento.</li>
-            <li><strong>Diritto di opposizione:</strong> Opporsi in qualsiasi momento al trattamento dei dati personali che ti riguardano, compresa la profilazione.</li>
-            <li><strong>Diritto di revocare il consenso:</strong> Revocare il consenso in qualsiasi momento, senza pregiudicare la liceità del trattamento basata sul consenso prestato prima della revoca.</li>
-            <li><strong>Diritto di proporre reclamo:</strong> Proporre reclamo all'Autorità di controllo competente (per l'Italia, il Garante per la protezione dei dati personali).</li>
-          </ul>
-          <p>Per esercitare i tuoi diritti, puoi contattarci all'indirizzo email <a href="mailto:carlo@csd-station.it" className="text-blue-600">carlo@csd-station.it</a> o <a href="mailto:carlo@csd-station.com" className="text-blue-600">carlo@csd-station.com</a>.</p>
+          <p>
+            In qualità di interessato, ai sensi degli Artt. 15-22 del GDPR, hai il diritto di richiedere l'accesso ai tuoi dati personali, la rettifica, la cancellazione, la limitazione del trattamento, l'opposizione al trattamento e la portabilità dei dati, nonché di revocare il consenso o proporre reclamo al Garante per la Protezione dei Dati Personali (<a href="https://www.garanteprivacy.it" target="_blank" rel="noopener noreferrer" className="text-blue-600 underline">garanteprivacy.it</a>).
+          </p>
+          <p>
+            Per esercitare tali diritti, puoi scrivere all'indirizzo email <a href="mailto:carlo@csd-station.it" className="text-blue-600 font-medium">carlo@csd-station.it</a>.
+          </p>
 
-          <h2 className="text-xl font-bold text-gray-900 mt-8 mb-4">11. Modifiche alla presente Privacy Policy</h2>
-          <p>Ci riserviamo il diritto di modificare la presente Privacy Policy in qualsiasi momento. Ti invitiamo a consultare periodicamente questa pagina per essere sempre aggiornato sulle eventuali modifiche. La data dell'ultimo aggiornamento sarà indicata in cima alla pagina.</p>
+          <h2 className="text-xl font-bold text-gray-900 mt-8 mb-4">11. Modifiche alla Privacy Policy</h2>
+          <p>
+            Eventuali aggiornamenti alla presente informativa saranno pubblicati su questa pagina, con indicazione della data di revisione in alto.
+          </p>
 
           <h2 className="text-xl font-bold text-gray-900 mt-8 mb-4">12. Cookie Policy</h2>
-          <p>Per informazioni dettagliate sull'uso dei cookie sul nostro sito, ti invitiamo a consultare la nostra specifica <strong><a href="/cookie-policy" className="text-blue-600">Cookie Policy</a></strong></p>
+          <p>
+            Per maggiori informazioni sui cookie utilizzati sul nostro sito, consulta la nostra <strong><a href="/cookie-policy" className="text-blue-600">Cookie Policy</a></strong>.
+          </p>
         </div>
       </main>
       <Footer />
