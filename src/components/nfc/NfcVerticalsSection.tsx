@@ -17,6 +17,7 @@ import {
 export const NfcVerticalsSection = () => {
   const { ref: sectionRef, isVisible } = useScrollReveal({ threshold: 0.1 });
   const [currentPage, setCurrentPage] = useState(0);
+  const [touchStartX, setTouchStartX] = useState<number | null>(null);
 
   const verticals = [
     {
@@ -97,6 +98,20 @@ export const NfcVerticalsSection = () => {
 
   const visibleItems = verticals.slice(currentPage * 2, currentPage * 2 + 2);
 
+  const handleTouchStart = (e: React.TouchEvent) => {
+    setTouchStartX(e.touches[0].clientX);
+  };
+
+  const handleTouchEnd = (e: React.TouchEvent) => {
+    if (touchStartX === null) return;
+    const diff = touchStartX - e.changedTouches[0].clientX;
+    if (Math.abs(diff) > 40) {
+      if (diff > 0) nextPage();
+      else prevPage();
+    }
+    setTouchStartX(null);
+  };
+
   return (
     <section
       className="py-20 bg-gray-50 border-t border-gray-200/60"
@@ -146,6 +161,8 @@ export const NfcVerticalsSection = () => {
           className={`grid grid-cols-1 md:grid-cols-2 gap-8 transition-all duration-300 items-stretch ${
             isVisible ? "animate-fade-in-up delay-100" : "reveal-hidden"
           }`}
+          onTouchStart={handleTouchStart}
+          onTouchEnd={handleTouchEnd}
         >
           {visibleItems.map((item, idx) => {
             const Icon = item.icon;
