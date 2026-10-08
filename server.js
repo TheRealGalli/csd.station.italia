@@ -399,6 +399,14 @@ app.get('/:slug', async (req, res, next) => {
       updates.shortUrl = generatedShortUrl;
     }
 
+    // Ensure all 9 required fields exist if any are missing
+    const missing = fillMissingLinkFields(data, docId);
+    for (const [key, value] of Object.entries(missing)) {
+      if (updates[key] === undefined) {
+        updates[key] = value;
+      }
+    }
+
     // Atomically update Firestore document
     await docRef.update(updates);
     console.log(`[Shortener] Slug "${docId}" clicked (${updates.clicks} total this month, today: ${updates.currentDayClicks}, peak: ${updates.peakDayClicks} on ${updates.peakDayDate}). Redirecting to: ${data.destinationUrl}`);
