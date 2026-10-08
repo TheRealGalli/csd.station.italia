@@ -95,9 +95,52 @@ function buildShortUrl(docId) {
 }
 
 /**
+ * Helper to ensure all 9 required NFC link variables exist on a document.
+ * Sets default initial values (0 or empty strings) without EVER overwriting
+ * existing data (clicks, URLs, emails, dates) on already active documents.
+ */
+function fillMissingLinkFields(data, docId) {
+  const updates = {};
+  const expectedShortUrl = buildShortUrl(docId);
+
+  // 1. clicks (int64 / number)
+  if (data.clicks === undefined) updates.clicks = 0;
+
+  // 2. clientEmail (string)
+  if (data.clientEmail === undefined) updates.clientEmail = '';
+
+  // 3. destinationUrl (string)
+  if (data.destinationUrl === undefined) updates.destinationUrl = '';
+
+  // 4. shortUrl (string) - ensure always initialized to canonical URL
+  if (!data.shortUrl || (data.destinationUrl && data.shortUrl !== expectedShortUrl)) {
+    updates.shortUrl = expectedShortUrl;
+  }
+
+  // 5. peakDayDate (string)
+  if (data.peakDayDate === undefined) updates.peakDayDate = '';
+
+  // 6. peakDayClicks (int64 / number)
+  if (data.peakDayClicks === undefined) updates.peakDayClicks = 0;
+
+  // 7. lastResetMonth (string)
+  if (data.lastResetMonth === undefined) updates.lastResetMonth = '';
+
+  // 8. currentDayClicks (int64 / number)
+  if (data.currentDayClicks === undefined) updates.currentDayClicks = 0;
+
+  // 9. currentDayDate (string)
+  if (data.currentDayDate === undefined) updates.currentDayDate = '';
+
+  return updates;
+}
+
+/**
  * Synchronize all links in Firestore database:
- * 1. Ensures shortUrl is up to date and clean.
- * 2. Checks monthly reset (resets clicks and peak day counters on the 1st of each month).
+ * 1. Automatically fills all 9 required variables for newly created/incomplete documents.
+ * 2. Ensures shortUrl is up to date and clean.
+ * 3. Checks monthly reset on the 2nd of each month (without touching day 1 for reports).
+ * 4. NEVER overwrites or resets existing active documents.
  */
 async function syncAllLinks() {
   try {
@@ -109,28 +152,27 @@ async function syncAllLinks() {
     snapshot.forEach((doc) => {
       const data = doc.data();
       const docId = doc.id;
-      const expectedShortUrl = buildShortUrl(docId);
       const docUpdates = {};
 
       // Reset occurs on Day 2 of the month or later (leaving Day 1 100% intact for monthly reporting)
-      const isNewMonth = data.lastResetMonth !== currentMonth && dayOfMonth >= 2;
+      // Only resets documents that actually have an active previous month recorded
+      const isNewMonth = Boolean(data.lastResetMonth) && data.lastResetMonth !== currentMonth && dayOfMonth >= 2;
 
       if (isNewMonth) {
         docUpdates.clicks = 0;
         docUpdates.currentDayDate = todayDate;
         docUpdates.currentDayClicks = 0;
-        docUpdates.peakDayDate = "";
+        docUpdates.peakDayDate = '';
         docUpdates.peakDayClicks = 0;
         docUpdates.lastResetMonth = currentMonth;
-      } else {
-        if (data.peakDayDate === undefined) docUpdates.peakDayDate = "";
-        if (data.peakDayClicks === undefined) docUpdates.peakDayClicks = 0;
-        if (data.clicks === undefined) docUpdates.clicks = 0;
       }
 
-      // Ensure canonical clean shortUrl
-      if (data.destinationUrl && (!data.shortUrl || data.shortUrl !== expectedShortUrl)) {
-        docUpdates.shortUrl = expectedShortUrl;
+      // Automatically fill any missing fields without touching existing values
+      const missing = fillMissingLinkFields(data, docId);
+      for (const [key, value] of Object.entries(missing)) {
+        if (docUpdates[key] === undefined) {
+          docUpdates[key] = value;
+        }
       }
 
       if (Object.keys(docUpdates).length > 0) {
@@ -161,34 +203,33 @@ function startAutoShortUrlSync() {
     db.collection('links').onSnapshot(
       async (snapshot) => {
         const updatePromises = [];
-        const { currentMonth, todayDate } = getRomeDateInfo();
+        const { currentMonth, todayDate, dayOfMonth } = getRomeDateInfo();
 
         snapshot.docChanges().forEach((change) => {
           if (change.type === 'added' || change.type === 'modified') {
             const doc = change.doc;
             const data = doc.data();
             const docId = doc.id;
-            const expectedShortUrl = buildShortUrl(docId);
-            const { currentMonth, todayDate, dayOfMonth } = getRomeDateInfo();
             const docUpdates = {};
 
             // Reset occurs on Day 2 of the month or later (leaving Day 1 100% intact for monthly reporting)
-            const isNewMonth = data.lastResetMonth !== currentMonth && dayOfMonth >= 2;
+            const isNewMonth = Boolean(data.lastResetMonth) && data.lastResetMonth !== currentMonth && dayOfMonth >= 2;
 
             if (isNewMonth) {
               docUpdates.clicks = 0;
               docUpdates.currentDayDate = todayDate;
               docUpdates.currentDayClicks = 0;
-              docUpdates.peakDayDate = "";
+              docUpdates.peakDayDate = '';
               docUpdates.peakDayClicks = 0;
               docUpdates.lastResetMonth = currentMonth;
-            } else {
-              if (data.peakDayDate === undefined) docUpdates.peakDayDate = "";
-              if (data.peakDayClicks === undefined) docUpdates.peakDayClicks = 0;
             }
 
-            if (data.destinationUrl && (!data.shortUrl || data.shortUrl !== expectedShortUrl)) {
-              docUpdates.shortUrl = expectedShortUrl;
+            // Automatically fill any missing fields without touching existing values
+            const missing = fillMissingLinkFields(data, docId);
+            for (const [key, value] of Object.entries(missing)) {
+              if (docUpdates[key] === undefined) {
+                docUpdates[key] = value;
+              }
             }
 
             if (Object.keys(docUpdates).length > 0) {
@@ -239,6 +280,364 @@ app.get('/api/sync-links', async (req, res) => {
 });
 
 /**
+ * Direct Link Creation API
+ * Allows creating a new link document with all 9 variables initialized in 1 step.
+ * Usage GET:  /api/create-link?id=autofficina-halo&destinationUrl=https://...&clientEmail=...
+ * Usage POST: /api/create-link (JSON body: { id, destinationUrl, clientEmail })
+ */
+app.all('/api/create-link', async (req, res) => {
+  try {
+    const rawId = req.query.id || req.query.slug || req.query.title || req.body?.id || req.body?.slug || req.body?.title;
+    if (!rawId || typeof rawId !== 'string' || !rawId.trim()) {
+      return res.status(400).json({
+        error: 'Parametro "id" o "title" mancante. Esempio: /api/create-link?id=autofficina-halo'
+      });
+    }
+
+    const cleanSlug = slugify(rawId);
+    const destinationUrl = (req.query.destinationUrl || req.body?.destinationUrl || '').trim();
+    const clientEmail = (req.query.clientEmail || req.body?.clientEmail || '').trim();
+
+    const docRef = db.collection('links').doc(cleanSlug);
+    const existingSnap = await docRef.get();
+
+    if (existingSnap.exists) {
+      return res.status(200).json({
+        success: false,
+        message: `Il documento "${cleanSlug}" esiste già in Firestore. Nessuna modifica apportata per preservare i dati esistenti.`,
+        docId: cleanSlug,
+        shortUrl: buildShortUrl(cleanSlug),
+        data: existingSnap.data()
+      });
+    }
+
+    const expectedShortUrl = buildShortUrl(cleanSlug);
+    const newDocData = {
+      clicks: 0,
+      clientEmail: clientEmail,
+      destinationUrl: destinationUrl,
+      shortUrl: expectedShortUrl,
+      peakDayDate: '',
+      peakDayClicks: 0,
+      lastResetMonth: '',
+      currentDayClicks: 0,
+      currentDayDate: ''
+    };
+
+    await docRef.set(newDocData);
+    console.log(`[Firestore Link Created] Creato nuovo documento "${cleanSlug}":`, newDocData);
+
+    return res.status(201).json({
+      success: true,
+      message: `Documento "${cleanSlug}" creato con successo in Firestore con tutte le 9 variabili!`,
+      docId: cleanSlug,
+      shortUrl: expectedShortUrl,
+      data: newDocData
+    });
+  } catch (error) {
+    console.error('[Create Link Error]', error);
+    return res.status(500).json({ error: 'Errore durante la creazione del link', details: error.message });
+  }
+});
+
+/**
+ * Modern CSD Station Admin Web Page to quickly generate new NFC Links
+ */
+app.get('/crea-link', (req, res) => {
+  res.type('html').send(`<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Crea Nuovo Link NFC — CSD Station</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Outfit', -apple-system, BlinkMacSystemFont, sans-serif;
+      background: #090d16;
+      color: #e2e8f0;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+    }
+    .container {
+      width: 100%;
+      max-width: 580px;
+      background: radial-gradient(circle at top right, rgba(56, 189, 248, 0.08), transparent 60%),
+                  radial-gradient(circle at bottom left, rgba(16, 185, 129, 0.05), transparent 60%),
+                  #0e1526;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 24px;
+      padding: 36px 32px;
+      box-shadow: 0 20px 40px -15px rgba(0, 0, 0, 0.7);
+    }
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: rgba(56, 189, 248, 0.12);
+      border: 1px solid rgba(56, 189, 248, 0.3);
+      color: #38bdf8;
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      padding: 4px 12px;
+      border-radius: 9999px;
+      margin-bottom: 12px;
+    }
+    h1 { font-size: 26px; font-weight: 800; color: #ffffff; letter-spacing: -0.02em; margin-bottom: 8px; }
+    p.subtitle { font-size: 14px; color: #94a3b8; margin-bottom: 24px; line-height: 1.5; }
+    .form-group { margin-bottom: 18px; }
+    label { display: block; font-size: 13px; font-weight: 600; color: #cbd5e1; margin-bottom: 6px; }
+    .optional { color: #64748b; font-weight: 400; font-size: 11px; }
+    input {
+      width: 100%;
+      background: #090e1a;
+      border: 1px solid #1e293b;
+      border-radius: 12px;
+      padding: 12px 14px;
+      color: #ffffff;
+      font-size: 14px;
+      font-family: inherit;
+      transition: all 0.2s;
+    }
+    input:focus {
+      outline: none;
+      border-color: #38bdf8;
+      box-shadow: 0 0 0 3px rgba(56, 189, 248, 0.15);
+    }
+    .preview-box {
+      background: rgba(15, 23, 42, 0.8);
+      border: 1px dashed #334155;
+      border-radius: 12px;
+      padding: 12px;
+      margin-top: 8px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 12px;
+      color: #38bdf8;
+      word-break: break-all;
+    }
+    .preview-label { font-size: 10px; color: #64748b; text-transform: uppercase; margin-bottom: 2px; font-family: 'Outfit', sans-serif; font-weight: 600; }
+    button.btn-submit {
+      width: 100%;
+      background: linear-gradient(135deg, #0ea5e9 0%, #2563eb 100%);
+      color: #ffffff;
+      border: none;
+      border-radius: 12px;
+      padding: 14px;
+      font-size: 15px;
+      font-weight: 700;
+      cursor: pointer;
+      margin-top: 10px;
+      transition: transform 0.15s, box-shadow 0.15s;
+      box-shadow: 0 4px 14px rgba(14, 165, 233, 0.35);
+    }
+    button.btn-submit:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 6px 20px rgba(14, 165, 233, 0.45);
+    }
+    button.btn-submit:disabled { opacity: 0.5; cursor: not-allowed; }
+    .result {
+      margin-top: 24px;
+      border-radius: 14px;
+      padding: 18px;
+      display: none;
+    }
+    .result.success {
+      display: block;
+      background: rgba(16, 185, 129, 0.08);
+      border: 1px solid rgba(16, 185, 129, 0.3);
+    }
+    .result.error {
+      display: block;
+      background: rgba(239, 68, 68, 0.08);
+      border: 1px solid rgba(239, 68, 68, 0.3);
+    }
+    .variables-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      margin-top: 14px;
+      font-size: 11px;
+      background: rgba(0, 0, 0, 0.3);
+      padding: 12px;
+      border-radius: 10px;
+    }
+    .var-badge { color: #94a3b8; font-family: 'JetBrains Mono', monospace; }
+    .var-badge span { color: #34d399; font-weight: 600; }
+    .btn-copy {
+      background: #1e293b;
+      border: 1px solid #334155;
+      color: #f1f5f9;
+      padding: 8px 12px;
+      border-radius: 8px;
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      margin-top: 10px;
+    }
+    .btn-copy:hover { background: #334155; }
+    .info-note {
+      margin-top: 24px;
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid rgba(255, 255, 255, 0.06);
+      border-radius: 12px;
+      padding: 14px;
+      font-size: 12px;
+      color: #94a3b8;
+      line-height: 1.5;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="badge">⚡ CSD Station Engine</div>
+    <h1>Crea Nuovo Link NFC</h1>
+    <p class="subtitle">Inserisci il nome della pagina/attività. Verrà creata la scheda in Firestore con tutte le 9 variabili pronte e shortUrl configurato.</p>
+
+    <form id="createForm">
+      <div class="form-group">
+        <label for="linkId">Titolo / Document ID *</label>
+        <input type="text" id="linkId" placeholder="es. autofficina-halo o Centro Dentale Zanardi" required autofocus>
+        <div class="preview-box">
+          <div class="preview-label">Short URL generato:</div>
+          <span id="urlPreview">https://nfc.csd-station.it/...</span>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="destUrl">Destination URL <span class="optional">(Opzionale - link Google Maps / Recensioni)</span></label>
+        <input type="url" id="destUrl" placeholder="https://maps.app.goo.gl/...">
+      </div>
+
+      <div class="form-group">
+        <label for="email">Client Email <span class="optional">(Opzionale - per report mensile)</span></label>
+        <input type="email" id="email" placeholder="cliente@azienda.it">
+      </div>
+
+      <button type="submit" id="submitBtn" class="btn-submit">Crea Scheda NFC Automatica</button>
+    </form>
+
+    <div id="resultBox" class="result">
+      <div id="resultTitle" style="font-weight: 700; font-size: 15px; margin-bottom: 6px;"></div>
+      <div id="resultMessage" style="font-size: 13px; color: #cbd5e1;"></div>
+      <button id="copyBtn" class="btn-copy" style="display:none;" onclick="copyShortUrl()">📋 Copia Short URL</button>
+      <div id="varsBox" class="variables-grid" style="display:none;"></div>
+    </div>
+
+    <div class="info-note">
+      💡 <strong>Oppure da Firestore Studio:</strong> Puoi anche continuare a creare il documento direttamente dal pannello Google Cloud Firestore inserendo il Document ID e salvando. Il server in background completerà istantaneamente tutte le 9 variabili mancanti senza sovrascrivere mai i documenti esistenti.
+    </div>
+  </div>
+
+  <script>
+    const baseUrl = 'https://nfc.csd-station.it';
+    const linkInput = document.getElementById('linkId');
+    const urlPreview = document.getElementById('urlPreview');
+    const form = document.getElementById('createForm');
+    const submitBtn = document.getElementById('submitBtn');
+    const resultBox = document.getElementById('resultBox');
+    const resultTitle = document.getElementById('resultTitle');
+    const resultMessage = document.getElementById('resultMessage');
+    const copyBtn = document.getElementById('copyBtn');
+    const varsBox = document.getElementById('varsBox');
+
+    let lastCreatedUrl = '';
+
+    function slugify(text) {
+      return text.toString().normalize('NFD').replace(/[\\u0300-\\u036f]/g, '')
+        .toLowerCase().trim().replace(/[^a-z0-9 -]/g, '').replace(/\\s+/g, '-').replace(/-+/g, '-');
+    }
+
+    linkInput.addEventListener('input', () => {
+      const slug = slugify(linkInput.value);
+      urlPreview.textContent = slug ? (baseUrl + '/' + slug) : (baseUrl + '/...');
+    });
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      submitBtn.disabled = true;
+      submitBtn.textContent = 'Creazione in corso...';
+      resultBox.className = 'result';
+      resultBox.style.display = 'none';
+
+      try {
+        const res = await fetch('/api/create-link', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            id: linkInput.value,
+            destinationUrl: document.getElementById('destUrl').value,
+            clientEmail: document.getElementById('email').value
+          })
+        });
+
+        const data = await res.json();
+
+        if (res.ok && data.success) {
+          resultBox.className = 'result success';
+          resultTitle.textContent = '✅ Scheda NFC Creata con Successo!';
+          resultTitle.style.color = '#34d399';
+          resultMessage.innerHTML = 'Documento: <strong>' + data.docId + '</strong><br>Short URL: <a href="' + data.shortUrl + '" target="_blank" style="color:#38bdf8; text-decoration:none;">' + data.shortUrl + '</a>';
+          lastCreatedUrl = data.shortUrl;
+          copyBtn.style.display = 'inline-flex';
+
+          varsBox.style.display = 'grid';
+          varsBox.innerHTML = \`
+            <div class="var-badge">clicks: <span>\${data.data.clicks}</span></div>
+            <div class="var-badge">peakDayClicks: <span>\${data.data.peakDayClicks}</span></div>
+            <div class="var-badge">currentDayClicks: <span>\${data.data.currentDayClicks}</span></div>
+            <div class="var-badge">peakDayDate: <span>""</span></div>
+            <div class="var-badge">lastResetMonth: <span>""</span></div>
+            <div class="var-badge">currentDayDate: <span>""</span></div>
+            <div class="var-badge">clientEmail: <span>"\${data.data.clientEmail}"</span></div>
+            <div class="var-badge">destinationUrl: <span>"\${data.data.destinationUrl}"</span></div>
+          \`;
+          resultBox.style.display = 'block';
+        } else {
+          resultBox.className = 'result error';
+          resultTitle.textContent = '⚠️ Attenzione';
+          resultTitle.style.color = '#f87171';
+          resultMessage.textContent = data.message || data.error || 'Errore nella creazione.';
+          copyBtn.style.display = 'none';
+          varsBox.style.display = 'none';
+          resultBox.style.display = 'block';
+        }
+      } catch (err) {
+        resultBox.className = 'result error';
+        resultTitle.textContent = '❌ Errore di Rete';
+        resultTitle.style.color = '#f87171';
+        resultMessage.textContent = err.message;
+        resultBox.style.display = 'block';
+      } finally {
+        submitBtn.disabled = false;
+        submitBtn.textContent = 'Crea Scheda NFC Automatica';
+      }
+    });
+
+    function copyShortUrl() {
+      if (lastCreatedUrl) {
+        navigator.clipboard.writeText(lastCreatedUrl);
+        copyBtn.textContent = '✅ Copiato!';
+        setTimeout(() => { copyBtn.textContent = '📋 Copia Short URL'; }, 2000);
+      }
+    }
+  </script>
+</body>
+</html>`);
+});
+
+/**
  * Automated Monthly Report Cron Endpoint (For Google Cloud Scheduler on 1st of month)
  * Usage: GET /api/cron/send-monthly-reports?key=YOUR_CRON_SECRET
  */
@@ -261,7 +660,7 @@ app.get('/api/cron/send-monthly-reports', async (req, res) => {
 });
 
 // Known SPA static routes for CSD Station website
-const SPA_ROUTES = new Set(['privacy-policy', 'terms-of-service', 'cookie-policy', 'api']);
+const SPA_ROUTES = new Set(['privacy-policy', 'terms-of-service', 'cookie-policy', 'api', 'crea-link']);
 
 /**
  * GET /:slug - URL Shortener Redirect & Analytics Tracker
