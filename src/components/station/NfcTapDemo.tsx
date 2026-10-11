@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { Check, Nfc, RotateCcw, Volume2, VolumeX } from 'lucide-react';
+import { Check, Nfc, RotateCcw } from 'lucide-react';
 import { useNfcChime } from './StationExperiences';
 import './nfc-tap.css';
 
@@ -9,7 +9,7 @@ export default function NfcTapDemo() {
   const [phase, setPhase] = useState<TapPhase>('idle');
   const stageRef = useRef<HTMLDivElement>(null);
   const [cardStartX, setCardStartX] = useState<number>(520);
-  const { soundEnabled, setSoundEnabled, audioUnavailable, prepareAudio, playChime } = useNfcChime();
+  const { prepareAudio, playChime } = useNfcChime();
   const tapped = ['reading', 'leaving', 'done'].includes(phase);
   const busy = phase !== 'idle' && phase !== 'done';
 
@@ -59,8 +59,6 @@ export default function NfcTapDemo() {
     <button className="tap-button" disabled={busy} onClick={() => { void prepareAudio(); setPhase('approaching'); }}>
       {tapped ? <RotateCcw size={19}/> : <Nfc size={19}/>} {busy ? 'Tap in corso…' : tapped ? 'Riprova il tap' : 'Simula un tap'}
     </button>
-    <button className="sound-toggle" aria-pressed={soundEnabled} aria-label={soundEnabled ? 'Disattiva suono NFC' : 'Attiva suono NFC'} onClick={() => { const enabled = !soundEnabled; setSoundEnabled(enabled); if (enabled) void prepareAudio(true); }}>{soundEnabled ? <Volume2 size={13}/> : <VolumeX size={13}/>} Suono {soundEnabled ? 'attivo' : 'disattivato'}</button>
-    {audioUnavailable && <small className="audio-unavailable">Audio non disponibile in questo browser.</small>}
     <small>Dimostrazione · Nessuna recensione viene inviata</small>
   </div>;
 }
