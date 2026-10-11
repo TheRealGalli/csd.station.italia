@@ -7,8 +7,8 @@
 .tap-reading .nfc-demo-card{transform:translateX(var(--card-offset)) rotate(-4deg);opacity:1}
 .tap-leaving .nfc-demo-card{animation:nfc-card-depart .8s cubic-bezier(.5,0,.7,.5) both}
 .tap-reading .phone{animation:nfc-phone-recognize .55s ease-out}
-.nfc-tap-caption{font:9px ui-monospace,monospace;color:#758468;text-align:center;min-height:28px;padding:4px 8px;line-height:1.6}
-.tap-demo .tap-button{margin-top:12px;cursor:pointer}.tap-demo .tap-button:disabled{cursor:default;opacity:.75}
+.nfc-tap-caption{font:9px ui-monospace,monospace;color:#758468;text-align:center;min-height:28px;padding:4px 8px;line-height:1.6;position:relative;z-index:2}
+.tap-demo .tap-button{margin-top:14px;cursor:pointer;position:relative;z-index:2}.tap-demo .tap-button:disabled{cursor:default;opacity:.75}
 @keyframes nfc-card-arrive{0%{opacity:0;transform:translateX(var(--card-start-x,480px)) rotate(5deg)}15%{opacity:1}100%{opacity:1;transform:translateX(var(--card-offset)) rotate(-4deg)}}
 @keyframes nfc-card-depart{0%{opacity:1;transform:translateX(var(--card-offset)) rotate(-4deg)}80%{opacity:1}100%{opacity:0;transform:translateX(var(--card-start-x,480px)) rotate(5deg)}}
 @keyframes nfc-phone-recognize{0%,100%{box-shadow:0 18px 34px #28342120}45%{box-shadow:0 0 0 9px #a6ce7433,0 0 38px #9bbb7366}}
@@ -21,4 +21,3 @@
 .tap-demo .phone-content p,.tap-demo .nfc-tap-caption{color:#718064}
 .tap-demo .phone-stars{color:#7e955e}
 .tap-demo .demo-pill{color:#627c45;background:#e3ecd9}
-.tap-demo .sound-toggle{color:#627c45;border-color:#c5d4b7;background:transparent}
