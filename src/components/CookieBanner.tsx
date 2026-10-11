@@ -43,7 +43,7 @@ export const CookieBanner = () => {
     if (!isVisible) return null;
 
     return (
-        <div className="fixed bottom-0 left-0 right-0 z-[100] p-4 md:p-6 animate-fade-in-up">
+        <div className="cookie-consent fixed bottom-0 left-0 right-0 z-[100] p-4 md:p-6 animate-fade-in-up">
             <div className="max-w-4xl mx-auto bg-white/95 backdrop-blur-md border border-gray-200 shadow-2xl rounded-2xl p-6 md:p-8 flex flex-col md:flex-row items-center gap-6">
                 <div className="flex-shrink-0 bg-blue-50 p-4 rounded-full">
                     <Cookie className="w-8 h-8 text-blue-600" />
@@ -55,8 +55,8 @@ export const CookieBanner = () => {
                         Impostazioni Cookie
                     </h3>
                     <p className="text-gray-600 text-sm leading-relaxed">
-                        Usiamo i cookie per migliorare la tua esperienza, proteggere dai bot e abilitare il sistema di prenotazione. 
-                        I cookie necessari sono attivi di default. Per il widget di Google Calendar, abbiamo bisogno del tuo consenso per il tracciamento di terze parti. 
+                        Qui puoi gestire le tue preferenze sui cookie.
+                        Per contattarci, i pulsanti del sito aprono WhatsApp su tua richiesta.
                         Leggi la nostra <Link to="/cookie-policy" className="text-blue-600 underline">Cookie Policy</Link> per i dettagli.
                     </p>
                 </div>
@@ -77,6 +77,7 @@ export const CookieBanner = () => {
                 </div>
                 
                 <button 
+                    aria-label="Chiudi preferenze cookie"
                     onClick={() => setIsVisible(false)}
                     className="absolute top-4 right-4 text-gray-400 hover:text-gray-600 md:hidden"
                 >

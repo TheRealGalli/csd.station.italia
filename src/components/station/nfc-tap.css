@@ -1,0 +1,24 @@
+.nfc-tap-stage{width:100%;max-width:430px;height:426px;position:relative;isolation:isolate;overflow:visible;display:grid;place-items:center;--card-offset:-106px}
+.nfc-card-track{position:absolute;inset:0;overflow:hidden;z-index:1;pointer-events:none}
+.nfc-tap-stage .phone{z-index:2;flex-shrink:0}
+.nfc-demo-card{position:absolute;z-index:1;left:calc(50% - 78px);top:130px;width:156px;height:98px;border:1px solid #aab1a6;border-radius:11px;background:linear-gradient(125deg,#d3d7cf 0%,#b6beb1 55%,#a7b19f 100%);box-shadow:0 10px 20px #28342126;color:#53634b;transform:translateX(350px) rotate(5deg);opacity:0;display:flex;flex-direction:column;justify-content:space-between;padding:16px 19px;will-change:transform,opacity}
+.nfc-demo-card>span{font:9px ui-monospace,monospace;letter-spacing:2px}
+.tap-approaching .nfc-demo-card{animation:nfc-card-arrive .95s cubic-bezier(.22,.68,.2,1) both}
+.tap-reading .nfc-demo-card{transform:translateX(var(--card-offset)) rotate(-4deg);opacity:1}
+.tap-leaving .nfc-demo-card{animation:nfc-card-depart .8s cubic-bezier(.5,0,.7,.5) both}
+.tap-reading .phone{animation:nfc-phone-recognize .55s ease-out}
+.nfc-tap-caption{font:9px ui-monospace,monospace;color:#758468;text-align:center;min-height:28px;padding:4px 8px;line-height:1.6}
+.tap-demo .tap-button{margin-top:12px;cursor:pointer}.tap-demo .tap-button:disabled{cursor:wait;opacity:.75}
+@keyframes nfc-card-arrive{0%{opacity:0;transform:translateX(350px) rotate(5deg)}15%{opacity:1}100%{opacity:1;transform:translateX(var(--card-offset)) rotate(-4deg)}}
+@keyframes nfc-card-depart{0%{opacity:1;transform:translateX(var(--card-offset)) rotate(-4deg)}80%{opacity:1}100%{opacity:0;transform:translateX(350px) rotate(5deg)}}
+@keyframes nfc-phone-recognize{0%,100%{box-shadow:0 18px 34px #28342120}45%{box-shadow:0 0 0 9px #a6ce7433,0 0 38px #9bbb7366}}
+@media(max-width:420px){.nfc-tap-stage{--card-offset:-92px}.nfc-card-track{position:absolute;inset:0;overflow:hidden;z-index:1;pointer-events:none}
+.nfc-tap-stage .phone{width:190px}.nfc-demo-card{width:136px;height:86px;left:calc(50% - 68px);padding:13px 16px}}
+@media(prefers-reduced-motion:reduce){.tap-approaching .nfc-demo-card,.tap-leaving .nfc-demo-card{animation-duration:.01s}.tap-reading .phone{animation:none}}
+
+/* One sage palette; only the moving card is clipped, never the phone shadow. */
+.tap-demo .phone{background:var(--paper);box-shadow:0 18px 34px #28342120}
+.tap-demo .phone-content p,.tap-demo .nfc-tap-caption{color:#718064}
+.tap-demo .phone-stars{color:#7e955e}
+.tap-demo .demo-pill{color:#627c45;background:#e3ecd9}
+.tap-demo .sound-toggle{color:#627c45;border-color:#c5d4b7;background:transparent}
