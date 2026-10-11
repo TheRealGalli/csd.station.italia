@@ -6,8 +6,6 @@ import TermsOfService from "./pages/TermsOfService";
 import NfcPrivacyPolicy from "./pages/NfcPrivacyPolicy";
 import NfcTermsOfService from "./pages/NfcTermsOfService";
 import { CookiePolicy } from "./pages/CookiePolicy";
-import { CookieBanner } from "./components/CookieBanner";
-
 import { ScrollToTop } from "./components/ScrollToTop";
 import { SiteModeProvider } from "./context/SiteModeContext";
 
@@ -26,7 +24,6 @@ const App = () => (
         <Route path="/cookie-policy" element={<CookiePolicy />} />
         <Route path="*" element={<NotFound />} />
       </Routes>
-      <CookieBanner />
     </SiteModeProvider>
   </BrowserRouter>
 );

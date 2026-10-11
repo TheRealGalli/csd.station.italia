@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Check, Nfc, RotateCcw, Volume2, VolumeX } from 'lucide-react';
 import { useNfcChime } from './StationExperiences';
 import './nfc-tap.css';
@@ -7,9 +7,32 @@ type TapPhase = 'idle' | 'approaching' | 'reading' | 'leaving' | 'done';
 
 export default function NfcTapDemo() {
   const [phase, setPhase] = useState<TapPhase>('idle');
+  const stageRef = useRef<HTMLDivElement>(null);
+  const [cardStartX, setCardStartX] = useState<number>(520);
   const { soundEnabled, setSoundEnabled, audioUnavailable, prepareAudio, playChime } = useNfcChime();
   const tapped = ['reading', 'leaving', 'done'].includes(phase);
   const busy = phase !== 'idle' && phase !== 'done';
+
+  useEffect(() => {
+    const updateCardStart = () => {
+      if (stageRef.current) {
+        const rect = stageRef.current.getBoundingClientRect();
+        // The card base position is left: calc(50% - 78px) inside stage
+        const cardBaseLeft = rect.left + rect.width / 2 - 78;
+        // Distance from card base to window right edge + 180px buffer ensures it enters from off-screen
+        const dist = window.innerWidth - cardBaseLeft + 180;
+        setCardStartX(Math.max(dist, 400));
+      }
+    };
+
+    updateCardStart();
+    window.addEventListener('resize', updateCardStart);
+    const timer = window.setTimeout(updateCardStart, 150);
+    return () => {
+      window.removeEventListener('resize', updateCardStart);
+      window.clearTimeout(timer);
+    };
+  }, []);
 
   useEffect(() => {
     if (phase !== 'reading') return;
@@ -18,7 +41,7 @@ export default function NfcTapDemo() {
   }, [phase]);
 
   return <div className="tap-demo">
-    <div className={`nfc-tap-stage tap-${phase}`}>
+    <div className={`nfc-tap-stage tap-${phase}`} ref={stageRef} style={{ '--card-start-x': `${cardStartX}px` } as React.CSSProperties}>
       <div className="nfc-card-track" aria-hidden="true"><div className="nfc-demo-card" aria-hidden="true" onAnimationEnd={event => {
         if (event.animationName === 'nfc-card-arrive' && phase === 'approaching') {
           setPhase('reading');
