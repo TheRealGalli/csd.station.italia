@@ -86,7 +86,7 @@ export function MobileNfc({ products, whatsapp }: { products: Product[]; whatsap
       <h2 id="mobile-shop-title">Un solo acquisto.<br/><em>Pronto all’uso.</em></h2>
       <p>Configurazione, QR e report mensili inclusi.</p>
       <div className="mobile-products">{products.map((product, i) => <article key={product.name}>
-        <div className="mobile-product-image"><img src={product.image} alt={product.name} loading="lazy" width="100" height="112"/></div>
+        <div className={`mobile-product-image ${i === 2 ? 'mobile-product-stand' : ''}`}><img src={product.image} alt={product.name} loading="lazy" width="100" height="112"/></div>
         <div><h3>{product.name}</h3><p>{['Da portare sempre con te.', 'Da applicare dove serve.', 'In bella vista sul banco.'][i]}</p><strong>{product.price}</strong></div>
         <a href={whatsapp(`Ciao Carlo! Mi interessa ${product.name} (${product.price}) di CSD Station. Vorrei informazioni su configurazione e spedizione.`)} target="_blank" rel="noreferrer">Richiedi {i === 0 ? 'la card' : i === 1 ? 'la plate' : 'lo stand'}<ArrowUpRight size={17}/></a>
       </article>)}</div>
