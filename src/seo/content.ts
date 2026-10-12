@@ -1,0 +1,23 @@
+// Shared by desktop, mobile, and build-time search documents.
+export const consultingIntro = 'Consulenza AI e informatica per PMI e professionisti. Organizziamo processi, dati e strumenti per ridurre il lavoro ripetitivo, con automazioni su misura.';
+export const nfcIntro = 'Card, plate adesive e stand NFC con QR code per invitare i clienti a lasciare recensioni sul tuo profilo Google Maps. Configurazione e report mensili inclusi.';
+export const trainingIntro = 'Training AI aziendale per PMI e team: un percorso su misura degli strumenti che usate, delle attività quotidiane e degli obiettivi della vostra azienda.';
+export const consultingFaq = [
+  ['A chi è rivolta la consulenza AI e informatica?', 'A PMI, professionisti e attività che vogliono ridurre attività manuali e ripetitive. Si parte dal lavoro reale: richieste clienti, documenti, dati e inventario. CSD Station opera dalla Toscana e segue progetti in tutta Italia.'],
+  ['Non ho ancora un sistema digitale. Possiamo partire da zero?', 'Sì. Anche da carta, email e fogli di calcolo. Prima si chiarisce il processo e si organizzano i dati; poi si scelgono i passaggi da automatizzare. Non serve acquistare nuove tecnologie prima di aver capito il bisogno.'],
+  ['Devo cambiare tutti gli strumenti che uso?', 'Si parte da quelli che hai. Valutiamo cosa integrare, cosa migliorare e cosa eventualmente sostituire. L’ecosistema Google, software e hardware vengono scelti in base al progetto, non il contrario.'],
+  ['La consulenza NFC comprende anche l’inventario?', 'Sì. Possiamo valutare tag NFC per identificare attrezzature e articoli, registrare entrate e uscite e sapere dove si trovano. Il lettore o lo smartphone identifica l’oggetto; il sistema concordato registra e aggiorna il movimento. Le card per recensioni Google sono invece un prodotto separato.'],
+  ['Come affrontiamo privacy e aspetti legali?', 'Accessi, privacy e trattamento dei dati fanno parte dell’analisi tecnica fin dall’inizio. Carlo si occupa della parte informatica; per pareri e documenti legali si valuta il coinvolgimento di professionisti abilitati.'],
+  ['Quanto costa un progetto e come si inizia?', 'Scrivimi su WhatsApp e raccontami come lavori. Dopo il primo confronto definiamo attività, priorità e un preventivo dedicato, prima di iniziare lo sviluppo. Il costo dipende dal processo, dagli strumenti e dalle integrazioni.'],
+];
+export const nfcFaq = [
+  ['Come funziona una card NFC per recensioni Google?', 'Il cliente avvicina uno smartphone compatibile con NFC attivo e apre il collegamento alla tua scheda Google Maps. Il QR code offre un’alternativa alla lettura NFC. Per pubblicare una recensione serve un account Google; ogni cliente sceglie liberamente se e cosa scrivere.'],
+  ['Quale scegliere tra card, plate adesiva e stand NFC?', 'La card è pratica da portare con sé e presentare al cliente. La plate adesiva crea un punto fisso su una superficie adatta. Lo stand è pensato per essere visibile sul banco o alla reception. La scelta dipende da dove incontri i clienti.'],
+  ['Cosa è incluso? Ci sono canoni mensili?', 'Il supporto scelto, la configurazione del collegamento, il QR code e i report mensili di utilizzo. Il pagamento è una tantum, senza canone mensile. Quantità, personalizzazioni e spedizione si concordano prima dell’ordine.'],
+  ['I report misurano le recensioni ricevute?', 'No: misurano l’utilizzo del collegamento, come le aperture registrate. Un’apertura non equivale a una recensione pubblicata. La card facilita l’accesso alla pagina, senza generare recensioni o garantire nuove valutazioni.'],
+];
+export const trainingFaq = [
+  ['Il training AI è adatto a una PMI che parte da zero?', 'Sì. Prima ci confrontiamo con il referente per capire competenze, strumenti e obiettivi del team. Il training è aziendale e personalizzato, anche per chi inizia; non è un corso individuale a programma fisso.'],
+  ['Quali strumenti e attività possiamo approfondire?', 'Partiamo da ciò che usate: assistenti AI, strumenti di scrittura e generazione di contenuti, applicazioni aziendali ed ecosistemi di lavoro. Quando utili e supportati, affrontiamo connettori, server MCP e procedure riutilizzabili, anche tramite skills: quali dati rendono accessibili, quali permessi richiedono e quando serve una conferma umana.'],
+  ['Come si organizza il training aziendale?', 'Da remoto su Google Meet oppure in presenza presso la vostra azienda, su accordo. Scrivimi su WhatsApp indicando attività, strumenti e persone da coinvolgere: definiamo insieme programma, modalità e obiettivi.'],
+];

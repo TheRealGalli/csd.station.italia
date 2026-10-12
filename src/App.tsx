@@ -7,14 +7,17 @@ import NfcPrivacyPolicy from "./pages/NfcPrivacyPolicy";
 import NfcTermsOfService from "./pages/NfcTermsOfService";
 import { CookiePolicy } from "./pages/CookiePolicy";
 import { ScrollToTop } from "./components/ScrollToTop";
+import { RouteSeo } from "./seo/RouteSeo";
 import { SiteModeProvider } from "./context/SiteModeContext";
 
-const App = () => (
-  <BrowserRouter>
+export const AppContent = () => (
     <SiteModeProvider>
+      <RouteSeo />
       <ScrollToTop />
       <Routes>
         <Route path="/" element={<Index />} />
+        <Route path="/card-nfc/" element={<Index />} />
+        <Route path="/training-ai/" element={<Index />} />
         <Route path="/privacy-policy" element={<PrivacyPolicy />} />
         <Route path="/terms-of-service" element={<TermsOfService />} />
         <Route path="/nfc/privacy-policy" element={<NfcPrivacyPolicy />} />
@@ -25,7 +28,8 @@ const App = () => (
         <Route path="*" element={<NotFound />} />
       </Routes>
     </SiteModeProvider>
-  </BrowserRouter>
 );
+
+const App = () => <BrowserRouter><AppContent /></BrowserRouter>;
 
 export default App;

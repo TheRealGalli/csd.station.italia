@@ -1,10 +1,13 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { ArrowDown, ArrowRight, ArrowUpRight, Check, ChevronDown, FileText, Mail, Package, Sparkles } from 'lucide-react';
+import { ArrowDown, ArrowRight, ArrowUpRight, Check, FileText, Mail, Package, Sparkles } from 'lucide-react';
 import portrait from '@/assets/profile-web.jpg';
 import { OttoHero } from './StationExperiences';
 import NfcTapDemo from './NfcTapDemo';
 import './mobile-landing.css';
+import { servicePaths } from '@/seo/routes';
+import { nfcIntro } from '@/seo/content';
+import { ServiceAnswers } from './ServiceAnswers';
 
 const examples = [
   { label: 'Richieste', icon: Mail, source: 'Martina · Richiesta di preventivo', message: '«Mi servono 12 sedie, da consegnare a Siena venerdì.»',
@@ -44,9 +47,9 @@ function CompactExamples() {
 export function MobileConsulting({ contact, skills }: { contact: string; skills: string }) {
   return <div className="mobile-landing mobile-consulting">
     <section className="mobile-hero mobile-section" id="services" aria-labelledby="mobile-consulting-title">
-      <span className="mobile-eyebrow"><i/> CONSULENZA · AI · AUTOMAZIONI</span>
+      <span className="mobile-eyebrow"><i/> CONSULENZA AI E INFORMATICA PER PMI</span>
       <h1 id="mobile-consulting-title">Meno routine.<br/><em>Più possibilità.</em></h1>
-      <div className="mobile-hero-story"><p>Troviamo ciò che ti fa perdere tempo.<br/><strong>E lo facciamo lavorare per te.</strong></p><OttoHero/></div>
+      <div className="mobile-hero-story"><p>Consulenza AI e informatica per PMI. Meno lavoro ripetitivo, con processi chiari e automazioni su misura.</p><OttoHero/></div>
       <a className="mobile-primary" href={contact} target="_blank" rel="noreferrer">Parliamone su WhatsApp <ArrowUpRight size={20}/></a>
       <a className="mobile-scroll-link" href="#demo">Guarda un esempio <ArrowDown size={16}/></a>
     </section>
@@ -59,15 +62,12 @@ export function MobileConsulting({ contact, skills }: { contact: string; skills:
       <span className="mobile-eyebrow">03 / PARTIAMO DA TE</span>
       <h2 id="mobile-contact-title">Una persona.<br/><em>Un progetto su misura.</em></h2>
       <div className="mobile-person" id="about"><img src={portrait} alt="Carlo Galli" width="64" height="64" loading="lazy"/><div><strong>Carlo, piacere.</strong><span>Il tuo contatto diretto in CSD Station.</span></div></div>
-      <p>AI e Google, software, hardware e NFC. Scegliamo gli strumenti in base al tuo lavoro.</p>
-      <div className="mobile-details" id="metodo">
-        <details><summary>Si può partire da zero?<ChevronDown size={18}/></summary><p>Sì, anche da carta e fogli di calcolo. Capiamo il processo, mettiamo ordine nei dati e definiamo cosa automatizzare. Prima di sviluppare, concordiamo attività e preventivo.</p></details>
-        <details><summary>E privacy e gestione dei dati?<ChevronDown size={18}/></summary><p>Accessi, privacy e trattamento dei dati fanno parte dell’analisi tecnica. Per pareri e documenti legali coinvolgiamo, quando necessario, professionisti abilitati.</p></details>
-      </div>
+      <p>Carlo Galli: consulenza informatica, AI, hardware e NFC per la tua attività. Dalla Toscana, in tutta Italia.</p>
+      <div className="mobile-details" id="metodo"><ServiceAnswers mode="automazioni"/></div>
       <a className="mobile-primary" href={contact} target="_blank" rel="noreferrer">Raccontami come lavori <ArrowUpRight size={20}/></a>
       <a className="mobile-subtle-link" href={skills} target="_blank" rel="noreferrer">Le mie competenze Google <ArrowUpRight size={16}/></a>
-      <Link className="mobile-crosslink" to="/?mode=nfc"><span>Cerchi le card NFC?<small>Scopri card, plate e stand.</small></span><ArrowRight size={20}/></Link>
-      <Link className="mobile-crosslink" to="/?mode=training"><span>Vuoi formare il tuo team?<small>Training AI per la tua azienda.</small></span><ArrowRight size={20}/></Link>
+      <Link className="mobile-crosslink" to={servicePaths.nfc}><span>Cerchi le card NFC?<small>Scopri card, plate e stand.</small></span><ArrowRight size={20}/></Link>
+      <Link className="mobile-crosslink" to={servicePaths.training}><span>Vuoi formare il tuo team?<small>Training AI per la tua azienda.</small></span><ArrowRight size={20}/></Link>
     </section>
   </div>;
 }
@@ -78,7 +78,7 @@ export function MobileNfc({ products, whatsapp }: { products: Product[]; whatsap
     <section className="mobile-section mobile-nfc-hero" aria-labelledby="mobile-nfc-title">
       <span className="mobile-eyebrow"><i/> CARD · PLATE · STAND</span>
       <h1 id="mobile-nfc-title">Un piccolo tap.<br/><em>Sei già più vicino.</em></h1>
-      <p>Porta i clienti alla tua pagina Google.<br/>Con NFC o QR code.</p>
+      <p>{nfcIntro}</p>
       <NfcTapDemo/>
       <a className="mobile-scroll-link" href="#prodotti">Scegli il tuo formato <ArrowDown size={16}/></a>
     </section>
@@ -96,13 +96,9 @@ export function MobileNfc({ products, whatsapp }: { products: Product[]; whatsap
     <section className="mobile-section mobile-contact-section" id="nfc-booking" aria-labelledby="mobile-nfc-contact-title">
       <span className="mobile-eyebrow">03 / ALLA CONFIGURAZIONE PENSIAMO NOI</span>
       <h2 id="mobile-nfc-contact-title">La tua attività.<br/><em>A un tap di distanza.</em></h2>
-      <div className="mobile-details">
-        <details><summary>Serve un telefono particolare?<ChevronDown size={18}/></summary><p>Per il tap serve uno smartphone compatibile con NFC attivo. Il QR code è un’alternativa. Per pubblicare una recensione su Google serve un account.</p></details>
-        <details><summary>Cosa misurano i report?<ChevronDown size={18}/></summary><p>Le aperture del collegamento, non le recensioni ricevute. Ogni cliente sceglie liberamente se e cosa scrivere.</p></details>
-        <details><summary>Ci sono canoni mensili?<ChevronDown size={18}/></summary><p>No. Il pagamento del supporto è una tantum, con configurazione, QR code e report mensili inclusi. Concordiamo i dettagli dell’ordine prima dell’acquisto.</p></details>
-      </div>
+      <div className="mobile-details"><ServiceAnswers mode="nfc"/></div>
       <a className="mobile-primary" href={whatsapp('Ciao Carlo! Vorrei informazioni sui prodotti NFC di CSD Station.')} target="_blank" rel="noreferrer">Scrivimi su WhatsApp <ArrowUpRight size={20}/></a>
-      <Link className="mobile-crosslink" to="/?mode=automazioni"><span>NFC anche per l’inventario?<small>Parliamo della tua idea.</small></span><ArrowRight size={20}/></Link>
+      <Link className="mobile-crosslink" to={servicePaths.automazioni}><span>NFC anche per l’inventario?<small>Parliamo della tua idea.</small></span><ArrowRight size={20}/></Link>
     </section>
   </div>;
 }

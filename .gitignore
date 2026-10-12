@@ -4,3 +4,6 @@ dist
 .env*
 
 
+
+# Temporary server rendering bundle, removed after the static build
+.seo-build/

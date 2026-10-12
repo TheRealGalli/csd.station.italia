@@ -7,46 +7,8 @@
     <link rel="apple-touch-icon" sizes="180x180" href="/csd-touch-icon.png" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>CSD Station</title>
-    <script type="text/javascript">
-      // Single Page Apps for GitHub Pages
-      // https://github.com/rafgraph/spa-github-pages
-      (function(l) {
-        if (l.search[1] === 'p') {
-          var decoded = l.search.slice(1).split('&').map(function(s) { 
-            return s.replace(/~and~/g, '&') 
-          }).filter(function(v) {
-            return v.slice(0, 2) === 'p='
-          })[0];
-          if (decoded) {
-            window.history.replaceState(null, null,
-              l.pathname.slice(0, -1) + decoded.slice(2) +
-              (l.hash || '')
-            );
-          }
-        }
-      }(window.location))
-    </script>
-    <meta name="description" content="Consulenza informatica, automazioni e AI per ridurre il lavoro ripetitivo. Card e prodotti NFC per la tua attività.">
-    <meta name="author" content="CyberSpaceDokingStation" />
-
-    <meta property="og:type" content="website" />
-    
-    
-    <meta property="og:image" content="/csd-brand.png">
-
-    <meta name="twitter:card" content="summary" />
-    
-    
-    <meta name="twitter:image" content="/csd-brand.png">
-    
-  
-  
-  
-  <meta property="og:title" content="CSD Station">
-  <meta name="twitter:title" content="CSD Station">
-  <meta property="og:description" content="Consulenza, automazioni AI e prodotti NFC. Meno lavoro ripetitivo. Più possibilità.">
-  <meta name="twitter:description" content="Consulenza, automazioni AI e prodotti NFC. Meno lavoro ripetitivo. Più possibilità.">
-</head>
+    <!--seo-head-->
+  </head>
   <body>
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>

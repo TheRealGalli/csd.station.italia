@@ -3,6 +3,8 @@ import { ArrowDown, ArrowUpRight, Check, ChevronDown, Link2, MapPin, MessageSqua
 import portrait from '@/assets/profile-web.jpg';
 import { Otto } from './StationExperiences';
 import './training.css';
+import { trainingIntro } from '@/seo/content';
+import { ServiceAnswers } from './ServiceAnswers';
 
 export const trainingMessage = 'Ciao Carlo! Vorrei organizzare un training sull’intelligenza artificiale per il team della mia azienda. Possiamo confrontarci su strumenti, attività e obiettivi?';
 export const trainingContact = `https://wa.me/393518628203?text=${encodeURIComponent(trainingMessage)}`;
@@ -22,7 +24,7 @@ function TrainingNotebook() {
   return <div className="training-notebook">
     <div className="training-notebook-top"><span><Users size={16}/> IL TUO TEAM, AL CENTRO</span><span>AI / TRAINING</span></div>
     <div className="training-objectives" role="group" aria-label="Esplora gli obiettivi del training">
-      {objectives.map((item, index) => <button key={item.label} type="button" aria-pressed={selected === index} onClick={() => setSelected(index)}>{item.icon ? <item.icon size={20}/> : <TrainingOtto variant="tab"/>}<span>{item.label}</span></button>)}
+      {objectives.map((item, index) => <button key={item.label} type="button" aria-pressed={selected === index} onClick={() => setSelected(index)}><div className="training-objective-icon">{item.icon ? <item.icon size={20}/> : <TrainingOtto variant="tab"/>}</div><span>{item.label}</span></button>)}
     </div>
     {/* Overlapping panels reserve the tallest content at every viewport width. */}
     <div className="training-notebook-panels" aria-live="polite" aria-atomic="true">
@@ -44,9 +46,9 @@ export default function Training() {
   return <div className="training-page">
     <section className="training-hero training-section wrap" aria-labelledby="training-title">
       <div className="training-hero-copy">
-        <span className="training-eyebrow"><i/> FORMAZIONE AI PER AZIENDE</span>
+        <span className="training-eyebrow"><i/> TRAINING AI PER AZIENDE E PMI</span>
         <h1 id="training-title">L’intelligenza artificiale.<br/><em>Nel lavoro <br/>del tuo team.</em></h1>
-        <p>Un training costruito sugli strumenti che usate, sulle attività che svolgete e sugli obiettivi della vostra azienda.</p>
+        <p>{trainingIntro}</p>
         <a className="training-cta" href={trainingContact} target="_blank" rel="noreferrer">Parliamo del tuo team <ArrowUpRight size={19}/></a>
         <div className="training-hero-note"><Users size={16}/><span>Per team aziendali · Da remoto o in presenza</span></div>
         <a className="training-anchor" href="#training-percorso">Come costruiamo il percorso <ArrowDown size={16}/></a>
@@ -69,6 +71,7 @@ export default function Training() {
 
     <section className="training-section training-contact wrap" id="training-contatto" aria-labelledby="training-contact-title">
       <div className="training-section-heading"><div><span className="training-eyebrow">03 / PARLIAMONE</span><h2 id="training-contact-title">Il primo passo?<br/><em>Conoscere la tua realtà.</em></h2></div><p>Raccontami che cosa fate e chi vorresti coinvolgere. Da qui capiamo quale training proporre.</p></div>
+      <ServiceAnswers mode="training"/>
       <div className="training-contact-layout"><div>
         <div className="training-formats" role="group" aria-label="Modalità di formazione preferita, facoltativa">
           <button type="button" aria-pressed={format === 'remote'} onClick={() => setFormat(format === 'remote' ? null : 'remote')}><Video size={24}/><strong>Da remoto</strong><span>Sessioni con il team su Google Meet.</span><i>{format === 'remote' ? <Check size={17}/> : <ArrowUpRight size={17}/>}</i></button>

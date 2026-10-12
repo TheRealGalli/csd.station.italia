@@ -73,3 +73,15 @@
  .station-nav .brand-symbol{width:23px;height:27px}
  .station-nav .brand-symbol i{height:5px}.station-nav .brand-symbol i:nth-child(2){width:20px}.station-nav .brand-symbol i:nth-child(3){width:15px}
 }
+
+/* Useful answers shared across viewport sizes; no extra mobile section. */
+.service-answers{min-width:0}
+.service-answers details{border-bottom:1px solid #9cb38340}
+.service-answers summary{list-style:none;display:flex;align-items:center;justify-content:space-between;gap:16px;min-height:52px;padding:16px 0;cursor:pointer;font-size:14px;line-height:1.5}
+.service-answers summary::-webkit-details-marker{display:none}
+.service-answers summary svg{flex-shrink:0;transition:transform .2s}
+.service-answers details[open] summary svg{transform:rotate(180deg)}
+.service-answers p{font-size:14px;line-height:1.8;padding-bottom:20px;max-width:760px}
+.training-contact>.service-answers{margin-bottom:34px;color:#b5c8a3}
+.training-contact>.service-answers summary{color:#e0ecd0}
+@media(max-width:767px){.service-answers summary,.service-answers p{font-size:13px}.training-contact>.service-answers{margin-bottom:26px}}
