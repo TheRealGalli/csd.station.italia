@@ -1,6 +1,6 @@
 import { useEffect, useState, useSyncExternalStore } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { ArrowUpRight, ArrowRight, ArrowDown, Menu, X, Zap, Workflow, ScanLine, Boxes, ShieldCheck, Sparkles, Check, Mail, FileText, Database, Activity, Radio, Play, RotateCcw, Plus, Minus, BarChart3, Nfc, Cpu, GraduationCap } from 'lucide-react';
+import { ArrowUpRight, ArrowRight, ArrowDown, Zap, Workflow, ScanLine, Boxes, ShieldCheck, Sparkles, Check, Mail, FileText, Database, Activity, Radio, Play, RotateCcw, Plus, Minus, BarChart3, Nfc, Cpu, GraduationCap } from 'lucide-react';
 import portrait from '@/assets/profile-web.jpg';
 import card from '@/assets/nfc-card.jpg';
 import plate from '@/assets/nfc-plate.png';
@@ -17,14 +17,21 @@ const processContact = whatsapp('Ciao Carlo! Vorrei capire come automatizzare le
 const skills = 'https://www.skills.google/public_profiles/4a3ed6b8-9f55-463f-83a6-8c218717a8fd';
 export function Brand() { return <span className="station-brand"><span className="brand-symbol"><i/><i/><i/></span><span>CSD<span className="brand-light"> Station</span><small>CONSULENZA · AI · NFC</small></span></span>; }
 export function StationHeader() {
-  const [open, setOpen] = useState(false);
   const location = useLocation();
-  useEffect(() => { setOpen(false); }, [location]);
-  useEffect(() => { const close = (e: KeyboardEvent) => { if (e.key === 'Escape') setOpen(false); }; window.addEventListener('keydown', close); return () => window.removeEventListener('keydown', close); }, []);
-  const mode = new URLSearchParams(location.search).get('mode');
+  const requestedMode = new URLSearchParams(location.search).get('mode');
+  const mode = requestedMode === 'nfc' || requestedMode === 'training' ? requestedMode : 'automazioni';
   const contactHref = mode === 'training' ? trainingContact : mode === 'nfc' ? whatsapp('Ciao Carlo! Vorrei informazioni sulle card e sui prodotti NFC di CSD Station.') : consultingContact;
-  return <header className="station-header"><div className="station-nav wrap"><Link to="/" aria-label="CSD Station, homepage" onClick={() => { setOpen(false); window.scrollTo({top: 0, behavior: "instant" as ScrollBehavior}); }}><Brand/></Link><nav className={open ? 'station-links is-open' : 'station-links'} id="station-navigation" onClick={() => setOpen(false)} aria-label="Navigazione principale"><Link className={mode === 'automazioni' ? 'active' : ''} aria-current={mode === 'automazioni' ? 'page' : undefined} to="/?mode=automazioni">Consulenza AI</Link><Link className={mode === 'nfc' ? 'active' : ''} aria-current={mode === 'nfc' ? 'page' : undefined} to="/?mode=nfc">Card NFC <span className="nav-dot"/></Link><Link className={mode === 'training' ? 'active' : ''} aria-current={mode === 'training' ? 'page' : undefined} to="/?mode=training">Training</Link><a className="mobile-contact" href={contactHref} target="_blank" rel="noreferrer">Parliamone <ArrowUpRight size={16}/></a></nav><a className="station-button small nav-contact" href={contactHref} target="_blank" rel="noreferrer">Parliamone <ArrowUpRight size={16}/></a><button className="menu-toggle" aria-label={open ? 'Chiudi menu' : 'Apri menu'} aria-expanded={open} aria-controls="station-navigation" onClick={() => setOpen(!open)}>{open ? <X/> : <Menu/>}</button></div></header>;
+  return <header className="station-header"><div className="station-nav wrap">
+    <Link to="/" aria-label="CSD Station, homepage" onClick={() => window.scrollTo({top: 0, behavior: 'instant' as ScrollBehavior})}><Brand/></Link>
+    <nav className="station-links" id="station-navigation" aria-label="Navigazione principale">
+      <Link className={mode === 'automazioni' ? 'active' : ''} aria-current={mode === 'automazioni' ? 'page' : undefined} to="/?mode=automazioni">Consulenza AI</Link>
+      <Link className={mode === 'training' ? 'active' : ''} aria-current={mode === 'training' ? 'page' : undefined} to="/?mode=training">Training</Link>
+      <Link className={mode === 'nfc' ? 'active' : ''} aria-current={mode === 'nfc' ? 'page' : undefined} to="/?mode=nfc">Card NFC <span className="nav-dot"/></Link>
+    </nav>
+    <a className="station-button small nav-contact" href={contactHref} target="_blank" rel="noreferrer">Parliamone <ArrowUpRight size={16}/></a>
+  </div></header>;
 }
+
 export function StationFooter() { return <footer className="station-footer"><div className="wrap footer-top"><Link to="/" aria-label="CSD Station homepage"><Brand/></Link><p>Tecnologia che lavora.<br/>Tempo che torna tuo.</p><div><a href="mailto:carlo@csd-station.it">carlo@csd-station.it <ArrowUpRight size={16}/></a><span>Dalla Toscana, in tutta Italia.</span></div></div><div className="wrap footer-bottom"><span>© {new Date().getFullYear()} CSD Station · Carlo Galli · P.IVA 01630510525</span><div><Link to="/privacy-policy">Privacy consulenza</Link><Link to="/nfc/privacy-policy?mode=nfc">Privacy NFC</Link><Link to="/terms-of-service">Termini consulenza</Link><Link to="/nfc/terms-of-service?mode=nfc">Termini NFC</Link><Link to="/cookie-policy">Cookie</Link></div></div></footer>; }
 function Eyebrow({children}: {children: React.ReactNode}) { return <div className="station-eyebrow"><span/>{children}</div>; }
 function Contact({nfc = false}: {nfc?: boolean}) { return <section className={`contact-section ${nfc ? 'nfc-contact' : ''}`} id={nfc ? 'nfc-booking' : 'booking'}><div className="wrap contact-inner"><div><Eyebrow>IL PROSSIMO PASSO È SEMPLICE</Eyebrow><h2>{nfc ? <>La tua prossima recensione<br/>inizia con un tap.</> : <>Partiamo da ciò che<br/>ti fa perdere tempo.</>}</h2><p>{nfc ? 'Scegli il formato. Alla configurazione pensiamo noi.' : 'Raccontami su WhatsApp come lavori e dove perdi tempo. Capiamo insieme da dove cominciare.'}</p></div><div className="contact-actions"><a className="station-button" href={nfc ? whatsapp('Ciao Carlo! Vorrei informazioni sui prodotti NFC di CSD Station.') : processContact} target="_blank" rel="noreferrer">{nfc ? 'Scrivimi su WhatsApp' : 'Parliamone su WhatsApp'}<ArrowUpRight size={18}/></a><span>{nfc ? 'Preventivo e dettagli di spedizione su richiesta' : 'Un contatto diretto con Carlo, senza appuntamento'}</span><a className="contact-email" href="mailto:carlo@csd-station.it">Oppure scrivimi un’email <ArrowRight size={15}/></a></div></div></section>; }

@@ -20,7 +20,15 @@
 .training-objectives{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:5px;padding:14px 14px 0}
 .station-site .training-objectives button{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:7px;font-size:10px;line-height:1.4;min-height:65px;padding:10px 4px;border:1px solid #93a77b69;border-radius:6px;background:transparent;color:#587244}
 .station-site .training-objectives button[aria-pressed=true]{background:#344e29;color:#e1f5cf;border-color:#344e29}
-.training-notebook-page{padding:28px 25px 20px;min-height:361px}
+.training-notebook-panels{display:grid;min-width:0}
+.training-notebook-page{grid-area:1/1;min-width:0;padding:28px 25px 20px;min-height:361px}
+.training-notebook-page[aria-hidden=true]{visibility:hidden;pointer-events:none}
+.training-otto{position:relative;flex-shrink:0;width:30px;height:39px;--otto-scale:.2}
+.training-otto>.otto{position:absolute;top:0;left:0;transform:scale(var(--otto-scale));transform-origin:top left;animation:none}
+.training-otto .otto-eye{animation:none}
+.training-otto-heading{width:36px;height:47px;--otto-scale:.24}
+.training-otto-wave{width:75px;height:98px;--otto-scale:.5}
+.training-otto-wave .arm-right{transform:rotate(-140deg)}
 .training-page-number{display:block;font:9px ui-monospace,monospace;letter-spacing:1px;color:#637d4e;margin-bottom:22px}
 .training-page-heading{display:flex;align-items:flex-start;gap:14px}.training-page-heading>svg{flex-shrink:0;color:#6b874e;margin-top:3px}
 .station-site .training-page-heading h2{font-size:28px;letter-spacing:-.04em;line-height:1.13}
@@ -37,7 +45,8 @@
 .station-site .training-path h3{font-size:25px;line-height:1.2;letter-spacing:-.04em;margin-bottom:15px}
 .training-path p{font-size:13px;color:#b1c3a0;line-height:1.8}
 .training-responsibility{display:flex;align-items:flex-start;gap:26px;border:1px solid #a7c08730;border-radius:12px;padding:33px 35px;margin-top:46px;background:linear-gradient(110deg,#a5c77914,transparent)}
-.training-shield{width:65px;height:65px;border:1px solid #a2c17e55;border-radius:18px;display:grid;place-items:center;color:#c5f476;flex-shrink:0}
+.training-responsibility>div:last-child{min-width:0}
+.training-responsibility details strong{font-weight:550;color:#d3e8bd}
 .training-responsibility .training-eyebrow{margin-bottom:12px;font-size:9px}.station-site .training-responsibility h3{font-size:29px;line-height:1.15}
 .training-responsibility p{color:#b2c5a0;font-size:13px;line-height:1.8;margin-top:14px;max-width:690px}
 .training-responsibility details{margin-top:13px}.training-responsibility summary{list-style:none;display:flex;align-items:center;justify-content:space-between;gap:14px;min-height:44px;font-size:12px;color:#d3e8bd;cursor:pointer}.training-responsibility summary::-webkit-details-marker{display:none}.training-responsibility summary svg{flex-shrink:0}.training-responsibility details[open] summary svg{transform:rotate(180deg)}
@@ -58,7 +67,7 @@
  .training-notebook{box-shadow:3px 4px 0 #576948,6px 8px 0 #2c3c26;border-radius:10px}.training-notebook-top{font-size:8px;padding:14px}.training-notebook-top>span:last-child{display:none}.training-objectives{padding:11px 10px 0;gap:5px}.station-site .training-objectives button{font-size:10px;min-height:68px;padding:9px 4px}.training-notebook-page{padding:22px 17px 17px;min-height:345px}.training-page-number{font-size:8px;margin-bottom:18px}.station-site .training-page-heading h2{font-size:25px}.training-page-heading{gap:11px}.training-page-heading>svg{width:22px}.training-notebook dl{margin-top:18px}.training-notebook dd{font-size:12px}.training-notebook dt{font-size:11px}.training-notebook .training-page-outcome{font-size:12px;padding:12px}.training-notebook-bottom{font-size:11px;padding:13px 17px}
  .training-section-heading{display:block;margin-bottom:29px}.station-site .training-section-heading h2{font-size:clamp(29px,8vw,43px);line-height:1.12}.training-section-heading>p{font-size:14px;max-width:none;margin-top:19px;line-height:1.7}.training-method,.training-contact{border-top:0}.training-method:before,.training-contact:before{content:'';display:block;height:1px;background:linear-gradient(90deg,#bfd5a72e,transparent);margin:0 0 34px}
  .training-path{display:flex;flex-direction:column;gap:24px}.training-path li{display:grid;grid-template-columns:30px minmax(0,1fr);column-gap:12px}.training-path li>span{grid-row:1/3;margin:3px 0 0;font-size:11px}.station-site .training-path h3{font-size:21px;margin-bottom:9px}.training-path p{font-size:13px;line-height:1.7}
- .training-responsibility{padding:21px 19px;margin-top:30px;display:block}.training-shield{width:44px;height:44px;border-radius:12px;margin-bottom:20px}.training-shield svg{width:23px}.training-responsibility .training-eyebrow{font-size:9px;letter-spacing:.5px}.station-site .training-responsibility h3{font-size:25px}.training-responsibility h3 br{display:none}.training-responsibility p{font-size:13px}.training-responsibility summary{font-size:12px}
+ .training-responsibility{padding:21px 19px;margin-top:30px;display:block}.training-responsibility .training-otto-wave{width:54px;height:71px;--otto-scale:.36;margin-bottom:20px}.training-responsibility .training-eyebrow{font-size:9px;letter-spacing:.5px}.station-site .training-responsibility h3{font-size:25px}.training-responsibility h3 br{display:none}.training-responsibility p{font-size:13px}.training-responsibility summary{font-size:12px}
  .training-contact-layout{grid-template-columns:1fr;gap:24px}.training-formats{gap:10px}.station-site .training-formats button{padding:18px 14px;min-height:178px}.training-formats strong{font-size:18px}.training-formats span{font-size:12px}.training-formats i{top:15px;right:11px}.training-page .training-format-note{font-size:11px}.training-contact-card .training-cta{gap:9px}.training-person strong{font-size:14px}.training-contact-note{font-size:11px}
  .training-service-link{padding:24px;gap:15px;flex-wrap:wrap}.training-service-link>svg:first-child{display:none}.training-service-link>b{width:100%}
 }

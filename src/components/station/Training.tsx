@@ -1,31 +1,37 @@
 import { useState } from 'react';
-import { ArrowDown, ArrowUpRight, Check, ChevronDown, Link2, MapPin, MessageSquare, ShieldCheck, Sparkles, Users, Video } from 'lucide-react';
+import { ArrowDown, ArrowUpRight, Check, ChevronDown, Link2, MapPin, MessageSquare, ShieldCheck, Users, Video } from 'lucide-react';
 import portrait from '@/assets/profile-web.jpg';
+import { Otto } from './StationExperiences';
 import './training.css';
 
 export const trainingMessage = 'Ciao Carlo! Vorrei organizzare un training sull’intelligenza artificiale per il team della mia azienda. Possiamo confrontarci su strumenti, attività e obiettivi?';
 export const trainingContact = `https://wa.me/393518628203?text=${encodeURIComponent(trainingMessage)}`;
 
 const objectives = [
-  { label: 'Lavoro quotidiano', icon: Sparkles, title: 'Dalle richieste ai risultati utili.', question: 'Quali attività assorbono più tempo al tuo team?', practice: 'Preparare richieste chiare, lavorare su testi e contenuti, verificare le risposte.', outcome: 'Capire quando l’AI aiuta e quando serve il giudizio di una persona.' },
+  { label: 'Lavoro quotidiano', icon: null, title: <>Dalle richieste quotidiane<br/>ai risultati per il team.</>, question: 'Quali attività assorbono più tempo al tuo team?', practice: 'Preparare richieste chiare, lavorare su testi e contenuti, verificare le risposte.', outcome: 'Capire quando l’AI aiuta e quando serve il giudizio di una persona.' },
   { label: 'Strumenti collegati', icon: Link2, title: 'L’AI dentro il vostro modo di lavorare.', question: 'Quali applicazioni usate già in azienda?', practice: 'Esplorare collegamenti e procedure riutilizzabili, quando gli strumenti lo consentono.', outcome: 'Ridurre i passaggi ripetitivi, sapendo quali dati e permessi sono coinvolti.' },
   { label: 'Uso consapevole', icon: ShieldCheck, title: 'Più capacità. Più consapevolezza.', question: 'Quali informazioni e decisioni gestisce il team?', practice: 'Riconoscere dati delicati, risultati da controllare e attività da sottoporre a verifica.', outcome: 'Usare gli strumenti con attenzione alle regole e alle responsabilità aziendali.' },
 ];
 
+function TrainingOtto({ variant }: { variant: 'tab' | 'heading' | 'wave' }) {
+  return <div className={`training-otto training-otto-${variant}`} aria-hidden="true"><Otto mood={variant === 'wave' ? 'happy' : 'awake'}/></div>;
+}
+
 function TrainingNotebook() {
   const [selected, setSelected] = useState(0);
-  const objective = objectives[selected];
-  const Icon = objective.icon;
   return <div className="training-notebook">
     <div className="training-notebook-top"><span><Users size={16}/> IL TUO TEAM, AL CENTRO</span><span>AI / TRAINING</span></div>
     <div className="training-objectives" role="group" aria-label="Esplora gli obiettivi del training">
-      {objectives.map((item, index) => <button key={item.label} type="button" aria-pressed={selected === index} onClick={() => setSelected(index)}><item.icon size={17}/><span>{item.label}</span></button>)}
+      {objectives.map((item, index) => <button key={item.label} type="button" aria-pressed={selected === index} onClick={() => setSelected(index)}>{item.icon ? <item.icon size={20}/> : <TrainingOtto variant="tab"/>}<span>{item.label}</span></button>)}
     </div>
-    <div className="training-notebook-page" aria-live="polite" aria-atomic="true">
-      <span className="training-page-number">0{selected + 1} / ESEMPIO DI OBIETTIVO</span>
-      <div className="training-page-heading"><Icon size={27}/><h2>{objective.title}</h2></div>
-      <dl><div><dt>Partiamo da qui</dt><dd>{objective.question}</dd></div><div><dt>Facciamo pratica</dt><dd>{objective.practice}</dd></div></dl>
-      <p className="training-page-outcome"><Check size={17}/>{objective.outcome}</p>
+    {/* Overlapping panels reserve the tallest content at every viewport width. */}
+    <div className="training-notebook-panels" aria-live="polite" aria-atomic="true">
+      {objectives.map((objective, index) => <div key={objective.label} className="training-notebook-page" aria-hidden={selected !== index}>
+        <span className="training-page-number">0{index + 1} / ESEMPIO DI OBIETTIVO</span>
+        <div className="training-page-heading">{objective.icon ? <objective.icon size={27}/> : <TrainingOtto variant="heading"/>}<h2>{objective.title}</h2></div>
+        <dl><div><dt>Partiamo da qui</dt><dd>{objective.question}</dd></div><div><dt>Facciamo pratica</dt><dd>{objective.practice}</dd></div></dl>
+        <p className="training-page-outcome"><Check size={17}/>{objective.outcome}</p>
+      </div>)}
     </div>
     <div className="training-notebook-bottom"><i/> Il programma si costruisce insieme.</div>
   </div>;
@@ -55,7 +61,10 @@ export default function Training() {
         <li><span>02</span><h3>Facciamo pratica.</h3><p>Esempi ed esercitazioni vicini al vostro lavoro, con contenuti adatti a essere usati nella formazione.</p></li>
         <li><span>03</span><h3>Costruiamo buone abitudini.</h3><p>Richieste più efficaci, verifiche dei risultati e criteri per scegliere quando usare l’AI.</p></li>
       </ol>
-      <div className="training-responsibility"><div className="training-shield"><ShieldCheck size={30}/></div><div><span className="training-eyebrow">DATI, COMPLIANCE E RESPONSABILITÀ</span><h3>Saper usare l’AI significa <br/>anche sapere quando fermarsi.</h3><p>Dati personali, riservatezza, permessi e controllo umano entrano nella pratica del training.</p><details><summary>Come affrontiamo privacy e GDPR <ChevronDown size={18}/></summary><p>Partiamo dalle procedure aziendali e dai casi d’uso: quali informazioni condividere, chi può accedervi e quali risultati verificare. Per esigenze giuridiche specifiche, valutiamo il coinvolgimento di professionisti abilitati.</p></details></div></div>
+      <div className="training-responsibility"><TrainingOtto variant="wave"/><div><span className="training-eyebrow">DATI, COMPLIANCE E RESPONSABILITÀ</span><h3>Saper usare l’AI significa <br/>anche sapere quando fermarsi.</h3><p>Dati personali, riservatezza, permessi e controllo umano entrano nella pratica del training.</p><details><summary>Come affrontiamo privacy e GDPR <ChevronDown size={18}/></summary><p><strong>Partiamo da un caso concreto.</strong> Un sistema che prepara bozze di pratiche dai documenti condivisi nello studio può essere utile, ma va valutato prima di usarlo. Esaminiamo finalità, base giuridica, dati necessari, autorizzazioni e rischi: avere accesso a un documento non significa poterlo caricare in qualsiasi servizio.</p>
+        <p><strong>Scegliamo strumenti e account adatti.</strong> Nel training impariamo a verificare garanzie contrattuali, conservazione, eventuale riutilizzo dei contenuti e trasferimenti dei dati. La buona prassi è usare account aziendali individuali, approvati e gestiti dall’organizzazione, evitando quelli personali. Un piano “business”, da solo, non garantisce la conformità.</p>
+        <p><strong>Una persona mantiene il controllo.</strong> Nei passaggi delicati introduciamo una verifica umana concreta: qualcuno confronta la bozza con le fonti e può correggerla o bloccarla prima dell’invio o di una decisione. È il principio del <em>human in the loop</em>. Definiamo chi può accedere a cosa e condividiamo solo i dati necessari; nelle esercitazioni privilegiamo esempi fittizi.</p>
+        <p>Il percorso parte dalle vostre procedure e dal livello di rischio. Per esigenze giuridiche specifiche, valutiamo il coinvolgimento di professionisti abilitati.</p></details></div></div>
     </section>
 
     <section className="training-section training-contact wrap" id="training-contatto" aria-labelledby="training-contact-title">
