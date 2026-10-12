@@ -67,6 +67,7 @@ export function MobileConsulting({ contact, skills }: { contact: string; skills:
       <a className="mobile-primary" href={contact} target="_blank" rel="noreferrer">Raccontami come lavori <ArrowUpRight size={20}/></a>
       <a className="mobile-subtle-link" href={skills} target="_blank" rel="noreferrer">Le mie competenze Google <ArrowUpRight size={16}/></a>
       <Link className="mobile-crosslink" to="/?mode=nfc"><span>Cerchi le card NFC?<small>Scopri card, plate e stand.</small></span><ArrowRight size={20}/></Link>
+      <Link className="mobile-crosslink" to="/?mode=training"><span>Vuoi formare il tuo team?<small>Training AI per la tua azienda.</small></span><ArrowRight size={20}/></Link>
     </section>
   </div>;
 }

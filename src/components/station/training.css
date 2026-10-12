@@ -1,0 +1,65 @@
+/* Training follows the existing station palette, with one continuous background. */
+.training-site{background:#152016;color:#f0f4e9}
+.training-site .station-header{background:#152016;border-bottom-color:#d1e3ba15}
+.training-site .station-footer{background:#152016;border-top:1px solid #bfd4a425}
+.training-page{background:radial-gradient(ellipse 55% 35% at 95% 12%,#9dca6d14,transparent);color:#f0f4e9}
+.training-section{padding-block:76px;scroll-margin-top:100px}
+.training-eyebrow{display:flex;align-items:center;gap:8px;font:10px ui-monospace,monospace;letter-spacing:1.4px;color:#a9be94;line-height:1.6;margin-bottom:22px}
+.training-eyebrow>i{width:5px;height:5px;flex-shrink:0;border-radius:50%;background:#c5f476}
+.training-hero{display:grid;grid-template-columns:1.1fr 1fr;gap:65px;align-items:center;padding-block:74px 90px}
+.training-hero-copy{min-width:0}.training-hero h1{font-size:clamp(42px,4.5vw,66px);line-height:1.08;letter-spacing:-.055em;font-weight:500}
+.training-page em{color:#c5f476;font-style:normal}
+.training-hero-copy>p{font-size:15px;line-height:1.85;color:#b2c3a1;max-width:405px;margin:25px 0 28px}
+.training-cta{display:inline-flex;align-items:center;justify-content:space-between;gap:16px;min-height:54px;padding:16px 20px;background:#c5f476;color:#203017;border-radius:8px;font-size:13px;font-weight:550}
+.training-cta svg{flex-shrink:0}.training-cta:hover{background:#d2ffa0}
+.training-hero-note{display:flex;align-items:center;gap:9px;color:#aec49b;font-size:11px;margin-top:19px;line-height:1.6}
+.training-hero-note svg{flex-shrink:0}.training-anchor{display:inline-flex;align-items:center;gap:10px;color:#a8bd95;font-size:12px;min-height:44px;margin-top:13px}
+.training-notebook{position:relative;border:1px solid #bcd2a461;border-radius:15px;background:#dfe8d1;color:#24371e;box-shadow:6px 7px 0 #576948,12px 14px 0 #2c3c26,0 35px 70px #0002;min-width:0}
+.training-notebook-top{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:18px 20px;border-bottom:1px solid #899c7140;font:8px ui-monospace,monospace;letter-spacing:1px;color:#5e764b}
+.training-notebook-top>span:first-child{display:flex;align-items:center;gap:8px}
+.training-objectives{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:5px;padding:14px 14px 0}
+.station-site .training-objectives button{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:7px;font-size:10px;line-height:1.4;min-height:65px;padding:10px 4px;border:1px solid #93a77b69;border-radius:6px;background:transparent;color:#587244}
+.station-site .training-objectives button[aria-pressed=true]{background:#344e29;color:#e1f5cf;border-color:#344e29}
+.training-notebook-page{padding:28px 25px 20px;min-height:361px}
+.training-page-number{display:block;font:9px ui-monospace,monospace;letter-spacing:1px;color:#637d4e;margin-bottom:22px}
+.training-page-heading{display:flex;align-items:flex-start;gap:14px}.training-page-heading>svg{flex-shrink:0;color:#6b874e;margin-top:3px}
+.station-site .training-page-heading h2{font-size:28px;letter-spacing:-.04em;line-height:1.13}
+.training-notebook dl{margin-top:24px}.training-notebook dl>div{border-top:1px solid #93a67948;padding:13px 0}
+.training-notebook dt{font-size:10px;color:#6c8058;margin-bottom:6px}.training-notebook dd{font-size:13px;line-height:1.65;margin:0;color:#3e5730}
+.training-notebook .training-page-outcome{display:flex;align-items:flex-start;gap:8px;padding:13px 14px;background:#c8d9b0;border-radius:7px;color:#3c592c;font-size:12px;line-height:1.65;margin-top:9px}.training-page-outcome svg{flex-shrink:0;margin-top:3px}
+.training-notebook-bottom{display:flex;align-items:center;gap:8px;padding:15px 25px;border-top:1px solid #93a67948;font-size:10px;color:#5e7749}.training-notebook-bottom i{width:5px;height:5px;border-radius:50%;background:#738c51}
+.training-method,.training-contact{border-top:1px solid #abc48d26}
+.training-section-heading{display:flex;align-items:flex-end;justify-content:space-between;gap:45px;margin-bottom:42px}
+.training-section-heading h2{font-size:clamp(34px,3.5vw,48px);line-height:1.13}
+.training-section-heading>p{font-size:14px;line-height:1.8;max-width:310px;color:#adc099}
+.training-path{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));list-style:none;gap:38px;padding:0;margin:0}
+.training-path li{min-width:0}.training-path li>span{display:block;color:#b2d68c;font:12px ui-monospace,monospace;margin-bottom:19px}
+.station-site .training-path h3{font-size:25px;line-height:1.2;letter-spacing:-.04em;margin-bottom:15px}
+.training-path p{font-size:13px;color:#b1c3a0;line-height:1.8}
+.training-responsibility{display:flex;align-items:flex-start;gap:26px;border:1px solid #a7c08730;border-radius:12px;padding:33px 35px;margin-top:46px;background:linear-gradient(110deg,#a5c77914,transparent)}
+.training-shield{width:65px;height:65px;border:1px solid #a2c17e55;border-radius:18px;display:grid;place-items:center;color:#c5f476;flex-shrink:0}
+.training-responsibility .training-eyebrow{margin-bottom:12px;font-size:9px}.station-site .training-responsibility h3{font-size:29px;line-height:1.15}
+.training-responsibility p{color:#b2c5a0;font-size:13px;line-height:1.8;margin-top:14px;max-width:690px}
+.training-responsibility details{margin-top:13px}.training-responsibility summary{list-style:none;display:flex;align-items:center;justify-content:space-between;gap:14px;min-height:44px;font-size:12px;color:#d3e8bd;cursor:pointer}.training-responsibility summary::-webkit-details-marker{display:none}.training-responsibility summary svg{flex-shrink:0}.training-responsibility details[open] summary svg{transform:rotate(180deg)}
+.training-contact-layout{display:grid;grid-template-columns:1.15fr 1fr;gap:55px;align-items:center}
+.training-formats{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.station-site .training-formats button{position:relative;display:flex;flex-direction:column;align-items:flex-start;text-align:left;padding:22px;border:1px solid #a1ba853d;background:transparent;color:#a8c28e;border-radius:10px;min-height:173px;gap:12px}
+.training-formats strong{font-size:19px;font-weight:500;color:#e0eccf}.training-formats span{font-size:12px;line-height:1.65;color:#b0c29c}.training-formats i{position:absolute;top:18px;right:15px;display:grid;place-items:center}
+.station-site .training-formats button[aria-pressed=true]{background:#c5f47612;border-color:#b7d98e}
+.training-page .training-format-note{font-size:11px;line-height:1.6;color:#a6ba93;margin-top:13px;min-height:36px}
+.training-person{display:flex;align-items:center;gap:14px;margin-bottom:23px}.training-person img{width:52px;height:52px;border-radius:50%;object-fit:cover;object-position:50% 28%}.training-person strong{display:block;font-size:15px;font-weight:500;line-height:1.5}.training-person span{display:block;font-size:11px;color:#a7bd93;margin-top:4px;line-height:1.5}
+.training-contact-card .training-cta{width:100%}.training-contact-note{display:block;text-align:center;font-size:11px;color:#aabd97;line-height:1.5;margin-top:13px}
+/* A third service is discoverable without changing the two existing cards. */
+.training-service-link{grid-column:1/-1;display:flex;align-items:center;justify-content:space-between;gap:30px;padding:30px 34px;border:1px solid #cad4bd;border-radius:12px;background:#e7eddc;color:#26391e}
+.training-service-link>div{flex:1}.training-service-link>svg{color:#668648;flex-shrink:0}.training-service-link span{font:9px ui-monospace,monospace;letter-spacing:1px;color:#71845e}.station-site .training-service-link h3{font-size:29px;margin:9px 0}.training-service-link p{font-size:13px;color:#657956}.training-service-link>b{display:flex;align-items:center;gap:12px;font-size:12px;font-weight:500}
+@media(max-width:1000px){.training-hero{gap:38px}.training-hero h1{font-size:47px}.training-section-heading{gap:30px}.training-path{gap:25px}.training-contact-layout{gap:30px}.training-notebook-page{padding:24px 20px}.training-notebook-top{padding-inline:16px;font-size:7px}}
+@media(max-width:767px){
+ .training-section.wrap{width:100%;max-width:580px;padding:38px 24px 44px;margin-inline:auto}.training-hero{display:flex;flex-direction:column;gap:34px;align-items:stretch}.training-eyebrow{font-size:10px;letter-spacing:1px;margin-bottom:20px}.training-hero h1{font-size:clamp(36px,9vw,54px)}.training-hero h1 em br{display:none}.training-hero-copy>p{font-size:14px;margin:21px 0 23px;line-height:1.7;max-width:none}.training-hero-copy .training-cta{width:100%}.training-cta{font-size:13px;min-height:54px;padding:15px 17px}.training-hero-note{font-size:11px;margin-top:14px}.training-anchor{display:flex;justify-content:center;font-size:12px;margin-top:5px;min-height:44px}
+ .training-notebook{box-shadow:3px 4px 0 #576948,6px 8px 0 #2c3c26;border-radius:10px}.training-notebook-top{font-size:8px;padding:14px}.training-notebook-top>span:last-child{display:none}.training-objectives{padding:11px 10px 0;gap:5px}.station-site .training-objectives button{font-size:10px;min-height:68px;padding:9px 4px}.training-notebook-page{padding:22px 17px 17px;min-height:345px}.training-page-number{font-size:8px;margin-bottom:18px}.station-site .training-page-heading h2{font-size:25px}.training-page-heading{gap:11px}.training-page-heading>svg{width:22px}.training-notebook dl{margin-top:18px}.training-notebook dd{font-size:12px}.training-notebook dt{font-size:11px}.training-notebook .training-page-outcome{font-size:12px;padding:12px}.training-notebook-bottom{font-size:11px;padding:13px 17px}
+ .training-section-heading{display:block;margin-bottom:29px}.station-site .training-section-heading h2{font-size:clamp(29px,8vw,43px);line-height:1.12}.training-section-heading>p{font-size:14px;max-width:none;margin-top:19px;line-height:1.7}.training-method,.training-contact{border-top:0}.training-method:before,.training-contact:before{content:'';display:block;height:1px;background:linear-gradient(90deg,#bfd5a72e,transparent);margin:0 0 34px}
+ .training-path{display:flex;flex-direction:column;gap:24px}.training-path li{display:grid;grid-template-columns:30px minmax(0,1fr);column-gap:12px}.training-path li>span{grid-row:1/3;margin:3px 0 0;font-size:11px}.station-site .training-path h3{font-size:21px;margin-bottom:9px}.training-path p{font-size:13px;line-height:1.7}
+ .training-responsibility{padding:21px 19px;margin-top:30px;display:block}.training-shield{width:44px;height:44px;border-radius:12px;margin-bottom:20px}.training-shield svg{width:23px}.training-responsibility .training-eyebrow{font-size:9px;letter-spacing:.5px}.station-site .training-responsibility h3{font-size:25px}.training-responsibility h3 br{display:none}.training-responsibility p{font-size:13px}.training-responsibility summary{font-size:12px}
+ .training-contact-layout{grid-template-columns:1fr;gap:24px}.training-formats{gap:10px}.station-site .training-formats button{padding:18px 14px;min-height:178px}.training-formats strong{font-size:18px}.training-formats span{font-size:12px}.training-formats i{top:15px;right:11px}.training-page .training-format-note{font-size:11px}.training-contact-card .training-cta{gap:9px}.training-person strong{font-size:14px}.training-contact-note{font-size:11px}
+ .training-service-link{padding:24px;gap:15px;flex-wrap:wrap}.training-service-link>svg:first-child{display:none}.training-service-link>b{width:100%}
+}
+@media(max-width:360px){.training-section.wrap{padding-inline:20px}.training-hero h1{font-size:34px}.training-contact-card .training-cta{font-size:12px}.training-objectives button span{max-width:80px}}

@@ -1,7 +1,7 @@
 import React, { createContext, useContext, useState, useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 
-export type SiteMode = "automazioni" | "nfc";
+export type SiteMode = "automazioni" | "nfc" | "training";
 
 interface SiteModeContextType {
   mode: SiteMode;
@@ -18,7 +18,7 @@ export const SiteModeProvider: React.FC<{ children: React.ReactNode }> = ({ chil
   const [mode, setModeState] = useState<SiteMode>(() => {
     const params = new URLSearchParams(location.search);
     const modeParam = params.get("mode");
-    if (modeParam === "nfc" || modeParam === "automazioni") {
+    if (modeParam === "nfc" || modeParam === "automazioni" || modeParam === "training") {
       return modeParam;
     }
     return "automazioni";
@@ -27,7 +27,7 @@ export const SiteModeProvider: React.FC<{ children: React.ReactNode }> = ({ chil
   useEffect(() => {
     const params = new URLSearchParams(location.search);
     const modeParam = params.get("mode");
-    if (modeParam === "nfc" || modeParam === "automazioni") {
+    if (modeParam === "nfc" || modeParam === "automazioni" || modeParam === "training") {
       if (modeParam !== mode) {
         setModeState(modeParam);
       }
