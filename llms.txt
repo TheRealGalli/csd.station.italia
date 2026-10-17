@@ -1,0 +1,28 @@
+# CSD Station
+
+> Consulenza AI e informatica, prodotti NFC per recensioni Google e training AI aziendali personalizzati per PMI e team. Carlo Galli, dalla Toscana in tutta Italia.
+
+Il contatto iniziale avviene via WhatsApp o email. Consulenza e training sono definiti dopo un confronto su strumenti, attività e obiettivi; non hanno un prezzo standard pubblicato. I training si svolgono da remoto su Google Meet o in presenza su accordo. Per esigenze giuridiche specifiche si valuta il coinvolgimento di professionisti abilitati.
+
+Le card NFC aprono un collegamento: non pubblicano recensioni. I report misurano le aperture, non le recensioni ricevute. Gli esempi interattivi usano dati inventati, non risultati cliente documentati.
+
+## Servizi — contenuti in Markdown
+
+- [Consulenza AI, informatica e automazioni](https://csd-station.it/index.md): processi, strumenti Google, software, hardware e inventario NFC.
+- [Training AI per aziende e PMI](https://csd-station.it/training-ai/index.md): formazione personalizzata per team, utilizzo consapevole e gestione dei dati.
+- [Card, plate e stand NFC](https://csd-station.it/card-nfc/index.md): prodotti per facilitare le recensioni su Google Maps, prezzi e servizio incluso.
+
+## Pagine web
+
+- [Consulenza](https://csd-station.it/)
+- [Training](https://csd-station.it/training-ai/)
+- [Prodotti NFC](https://csd-station.it/card-nfc/)
+
+## Optional
+
+- [Testo completo dei servizi](https://csd-station.it/llms-full.txt): generato dalle pagine a ogni build.
+- [Privacy consulenza](https://csd-station.it/privacy-policy/)
+- [Privacy NFC](https://csd-station.it/nfc/privacy-policy/)
+- [Termini consulenza](https://csd-station.it/terms-of-service/)
+- [Termini NFC](https://csd-station.it/nfc/terms-of-service/)
+- [Cookie policy](https://csd-station.it/cookie-policy/)
