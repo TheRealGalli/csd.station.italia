@@ -113,7 +113,7 @@ export function askOtto(text) {
   const p = practices[0];
   return {text:`**${p.name}** · ${p.type}, al ${p.progress}%. Stipula ${p.stipula}. Mancano agibilità e IBAN della venditrice; il modulo di erogazione è compilato. Responsabile: ${person(p.owner).name}.`, links:[['Apri nello Studio','studio'],['Scadenze','scadenze']]};
  }
- if (hit(t, ['chiamat','telefon','centralino'])) return {text:`Stamattina **${calls.length} chiamate**: un nuovo cliente (Laura Bianchi, prima casa), Banca Arno, Giorgio Sarti per spostare la firma e un anonimo a cui non ho dato informazioni.`, links:[['Apri il centralino','centralino']]};
+ if (hit(t, ['chiamat','telefon','centralino'])) return {text:`Oggi **${calls.length} chiamate**: un nuovo cliente (Laura Bianchi, prima casa), Banca Arno, Giorgio Sarti per spostare la firma e un anonimo a cui non ho dato informazioni.`, links:[['Apri il centralino','centralino']]};
  if (hit(t, ['email','posta','mail'])) return {text:`Ho letto **${mails.length} email** e preparato ${mails.filter(m => m.draft).length} bozze di risposta. Due sono ad alta priorità: Banca Arno e lo statuto Lumen Tech.`, links:[['Apri la posta','posta']]};
  if (hit(t, ['scadenz','termin','trascri','deposit'])) {
   const urgent = deadlines.filter(d => d.state === 'urgent');

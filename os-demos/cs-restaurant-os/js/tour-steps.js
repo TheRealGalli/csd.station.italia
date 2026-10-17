@@ -1,8 +1,9 @@
+import {now as NOW, service as SV} from './clock.js';
 // Passaggi della Demo interattiva di CS Restaurant OS (motore in tour.js).
 export function restaurantTour({toggleOtto, ui, D}) {
  return [
   {route:'home', target:'.live-kpis', otto:'wave', say:'Ciao! Sono Otto 👋', title:'Benvenuto in CS Restaurant OS',
-   text:'Sabato sera, servizio in corso. Questi numeri sono **vivi**: incasso, tavoli, comande in cucina si aggiornano mentre il locale lavora.'},
+   text:`${NOW.weekday[0].toUpperCase() + NOW.weekday.slice(1)} ${SV.when}, servizio in corso.`+' Questi numeri sono **vivi**: incasso, tavoli, comande in cucina si aggiornano mentre il locale lavora.'},
   {route:'home', target:'.floor.mini', title:'La sala, a colpo d’occhio',
    text:'Ogni tavolo con il suo colore: **verde** in servizio, **giallo** conto richiesto, **bianco** libero. Il puntino rosso indica piatti pronti al pass.'},
   {route:'home', target:'.feed-panel', title:'Tutto quello che succede',
@@ -15,8 +16,8 @@ export function restaurantTour({toggleOtto, ui, D}) {
    text:'Ho aggiunto una **carbonara**: il conto è salito di 14 €. Nello stesso istante la comanda è partita per la cucina e il magazzino si è aggiornato. Andiamo a vedere.'},
   {before:[{click:'.sidebar a[href="#kds"]'}], target:'.k-waiting', title:'02 · Già in cucina',
    text:'La carbonara del tavolo 3 è arrivata al pass, con **gli allergeni in evidenza**. Le comande oltre i 15 minuti diventano rosse.'},
-  {before:[{click:'.k-waiting .ticket'}], target:'.k-cooking', title:'Un tocco e si avanza',
-   text:'Il cuoco tocca la comanda: passa **in preparazione**, poi **pronta**. La sala lo vede subito sul tavolo.'},
+  {before:[{click:'.k-waiting .ticket'}, {wait:300}, {click:'.k-waiting .ticket.selected [data-advance]'}], target:'.k-cooking', title:'Apri e conferma',
+   text:'Il cuoco apre la comanda e conferma: passa **in preparazione**, poi **pronta**. Un tocco per sbaglio non sposta niente. La sala lo vede subito sul tavolo.'},
   {before:[{click:'.sidebar a[href="#magazzino"]'}], target:'[data-ing="guanciale"]', title:'08 · Il magazzino si scala da solo',
    text:'Ogni piatto venduto toglie i suoi ingredienti dalla ricetta: per una carbonara **120 g di pasta, 50 g di guanciale, 2 uova, 30 g di pecorino**.'},
   {route:'magazzino', target:'.otto-panel', otto:'point', title:'Sai cosa manca prima che manchi',
@@ -24,7 +25,7 @@ export function restaurantTour({toggleOtto, ui, D}) {
   {before:[{click:'.sidebar a[href="#sala"]'}, {click:'.ftable[data-table="T8"]'}], target:'#table-panel', title:'Il tavolo 8 chiede il conto',
    text:'Conto pronto, voce per voce. Chiudiamolo.'},
   {before:[{click:'#table-panel [data-action^="close:"]'}, {wait:400}], target:'.kpi-revenue', otto:'happy', title:'Incasso aggiornato',
-   text:'Il conto è chiuso: l’**incasso della serata** è salito e il tavolo è di nuovo libero per i prossimi ospiti.'},
+   text:'Il conto è chiuso: l’**incasso del servizio** è salito e il tavolo è di nuovo libero per i prossimi ospiti.'},
   {before:[{click:'.sidebar a[href="#menu_pos"]'}], target:'.qr-card', title:'03 · Un QR per ogni tavolo', text:'Ogni tavolo ha il suo QR. Sopra c’è l’**editor del menu**: prezzi, piatti, disponibilità. Ogni modifica arriva subito su tutti i tavoli.'},
   {route:'menu_pos', before:[{call:() => { ui.qr = {table:'T7', cart:{}, step:'menu', cat:'Antipasti', receipt:null}; }}, {click:'[data-qr-cat="Antipasti"]'}, {click:'[data-qr-add="bruschetta"]'}, {click:'[data-qr-cat="Primi"]'}, {click:'[data-qr-add="carbonara"]'}, {wait:300}], target:'.guest-phone', otto:'happy', say:'Ordina il tavolo 7!', title:'L’ospite ordina dal telefono',
    text:'Il tavolo 7 inquadra il QR e sceglie **bruschetta e carbonara**. Vede allergeni, prezzi e solo i piatti che ci sono davvero. Niente app da scaricare.'},
@@ -41,6 +42,6 @@ export function restaurantTour({toggleOtto, ui, D}) {
   {before:[{click:'.sidebar a[href="#recensioni_ai"]'}], target:'.review .otto-note', title:'05 · Recensioni con risposta pronta',
    text:'Ogni recensione ha una bozza nel tuo tono. Per quelle negative, Otto propone come **rimediare**.'},
   {before:[{call:() => toggleOtto(true)}, {wait:300}, {click:'.drawer-suggest [data-otto]'}], target:'#otto-drawer', otto:'happy', say:'Ci sono sempre io!', title:'Un solo assistente, ovunque',
-   text:'Da qualsiasi pagina, e presto **da WhatsApp**, chiedi a Otto com’è andata la serata, cosa manca, quali tavoli aspettano. **Buon servizio!**'}
+   text:'Da qualsiasi pagina, e presto **da WhatsApp**, chiedi a Otto com’è andato il servizio, cosa manca, quali tavoli aspettano. **Buon servizio!**'}
  ];
 }

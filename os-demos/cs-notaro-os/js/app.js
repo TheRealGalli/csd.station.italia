@@ -9,6 +9,7 @@ import {initGame, gameChip, mountGame, gameInvite} from './game.js';
 import {challenges} from './challenges.js';
 import {notaroTour} from './tour-steps.js';
 import {live, subscribe as onLive, startLive} from './live.js';
+import {now as NOW} from './clock.js';
 
 const app = document.querySelector('#app'), dialog = document.querySelector('#dialog');
 const compact = matchMedia('(max-width:760px)');
@@ -90,10 +91,10 @@ function home() {
   {icon:'scan', text:'Rossi / Verdi: subalterno 8 o 6? Perizia e visura dicono 8, la bozza 6.', go:'studio', label:'Apri nello Studio'},
   {icon:'shield', text:'Lumen Tech: il socio Helix Ventures (40%) richiede l’identificazione del titolare effettivo.', go:'antiriciclaggio', label:'Vedi la verifica'}
  ];
- return `${heading(today().toUpperCase(), 'Buongiorno, Notaio Conti.', 'Otto ha già letto ciò che è arrivato. Ecco lo studio di oggi.')}
+ return `${heading(today().toUpperCase(), `${NOW.greet}, Notaio Conti.`, 'Otto ha già letto ciò che è arrivato. Ecco lo studio di oggi.')}
  <section class="briefing">
   <div class="briefing-copy"><span class="eyebrow"><span class="live-dot"></span> IL PUNTO DI OTTO · AGGIORNATO ALLE ${new Intl.DateTimeFormat('it-IT', {hour:'2-digit', minute:'2-digit', timeZone:'Europe/Rome'}).format(new Date())}</span>
-   <h2>Stamattina ho letto <b>${D.mails.length} email</b> e gestito <b>${D.calls.length} chiamate</b>.<br>Ho preparato <b>${D.mails.filter(m => m.draft).length} bozze</b> e distribuito <b>${D.tasks.length} attività</b> nel team.</h2>
+   <h2>${NOW.part === 'mattina' ? 'Stamattina' : 'Oggi'} ho letto <b>${D.mails.length} email</b> e gestito <b>${D.calls.length} chiamate</b>.<br>Ho preparato <b>${D.mails.filter(m => m.draft).length} bozze</b> e distribuito <b>${D.tasks.length} attività</b> nel team.</h2>
    <p>Due decisioni spettano a te. Tutto il resto è pronto da approvare.</p>
    <div class="welcome-actions"><a class="btn btn-primary" href="#posta">Apri la coda di oggi${icon('arrow')}</a><button class="hero-secondary" data-action="otto">Chiedi a Otto ${icon('otto-happy')}</button></div></div>
   <div class="otto-scene small"><div class="scene-orbit orbit-1"></div><div class="scene-floor"></div><div class="hero-otto">${otto('happy')}</div></div>

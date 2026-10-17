@@ -17,7 +17,7 @@ export const modules = [
  {id:'magazzino', title:'Magazzino & food cost', icon:'box', group:'management', live:true, description:'Ogni piatto venduto scala gli ingredienti. Sai cosa manca prima che manchi.', features:['Scarico automatico da ricetta','Sotto scorta in tempo reale','Ordini ai fornitori']},
  {id:'fatture', title:'Cassa & Agenzia Entrate', icon:'receipt', group:'management', live:true, description:'Ogni incasso, in cassa o dal QR, diventa documento commerciale e arriva all’Agenzia delle Entrate.', features:['POS collegato al registratore','Corrispettivi telematici','Incassi Stripe riconciliati']},
  {id:'bandi', title:'Bandi & opportunità', icon:'radar', group:'management', description:'Contributi e bandi adatti al tuo locale, con le scadenze.', features:['Ricerca per territorio','Compatibilità stimata','Scadenze']},
- {id:'staff', title:'Staff & HACCP', icon:'users', group:'management', description:'Turni della serata e checklist HACCP, sempre a portata di mano.', features:['Turni','Checklist HACCP','Procedure']},
+ {id:'staff', title:'Staff & HACCP', icon:'users', group:'management', description:'Turni del servizio e checklist HACCP, sempre a portata di mano.', features:['Turni','Checklist HACCP','Procedure']},
  {id:'app_builder', title:'Brand & app', icon:'palette', group:'marketing', description:'Menu QR, portale ospiti e la tua identità su ogni dispositivo.', features:['Menu QR','Portale ospiti','Identità']}
 ];
 export const moduleById = id => modules.find(m => m.id === id);

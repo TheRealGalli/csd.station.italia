@@ -5,6 +5,7 @@ import {startTour} from './tour.js';
 import {initGame, gameChip, mountGame, gameInvite} from './game.js';
 import {challenges} from './challenges.js';
 import {restaurantTour} from './tour-steps.js';
+import {now as NOW, service as SV} from './clock.js';
 
 const app = document.querySelector('#app'), dialog = document.querySelector('#dialog');
 const compact = matchMedia('(max-width:760px)');
@@ -22,7 +23,7 @@ const ottoPanel = (title, text, action='') => `<div class="otto-panel"><span cla
 const stateLabel = {waiting:['In attesa', 'badge-amber'], cooking:['In preparazione', 'badge-violet'], ready:['Pronto al pass', 'badge-green'], served:['Servito', '']};
 const tableLabel = {free:'Libero', seated:'Accomodati', ordered:'In servizio', bill:'Conto'};
 let returnFocus, toastTimer, lastRoute = null, renderQueued = false;
-const ui = {table:'T3', adding:false, otto:[], category:'all', query:'', prev:{}, done:{reviews:[], haccp:[]}, qr:{table:'T7', cart:{}, step:'menu', cat:'Primi', receipt:null}, menuReply:''};
+const ui = {ticket:null, table:'T3', adding:false, otto:[], category:'all', query:'', prev:{}, done:{reviews:[], haccp:[]}, qr:{table:'T7', cart:{}, step:'menu', cat:'Primi', receipt:null}, menuReply:''};
 
 // ————— shell —————
 function navItem(id, title, ic, extra='') {
@@ -39,7 +40,7 @@ function shell() {
   <button class="nav-close icon-btn" data-action="sidebar" aria-label="Chiudi navigazione">${icon('close')}</button>
   <a href="#home" class="brand" aria-label="CSD Station, il servizio di stasera">${brand()}</a>
   <div class="workspace-switch static"><span class="workspace-icon">${icon('store')}</span><span><strong>${esc(D.restaurant.name)}</strong><small>${esc(D.restaurant.city)} · ristorante dimostrativo</small></span></div>
-  <nav><div class="nav-group">${navItem('home', 'Il servizio di stasera', 'home', '<span class="live-dot"></span>')}${navItem('modules', 'L’ecosistema', 'flow')}</div>
+  <nav><div class="nav-group">${navItem('home', SV.title, 'home', '<span class="live-dot"></span>')}${navItem('modules', 'L’ecosistema', 'flow')}</div>
   ${Object.entries(groups).map(([g, l]) => `<span class="nav-label">${l.toUpperCase()}</span>${modules.filter(m => m.group === g).map(m => navItem(m.id, m.title, m.icon, extra(m))).join('')}`).join('')}</nav>
   <div class="sidebar-bottom"><button class="plan-mini" data-action="otto"><span class="plan-orbit">${icon('otto-happy')}</span><span>Chiedi a Otto<small>Un solo assistente per tutto il locale</small></span>${icon('chevron')}</button>${navItem('settings', 'Impostazioni', 'settings')}<button class="account" data-action="account"><span class="avatar">MR</span><span>Marta Rinaldi<small>Titolare</small></span>${icon('down')}</button></div>
  </aside><div class="mobile-scrim" data-action="sidebar"></div>
@@ -53,7 +54,7 @@ function shell() {
 const pages = {home, modules:catalog, settings, sala, kds, menu_pos:menuPos, magazzino, centralino_ai:centralino, recensioni_ai:recensioni, whatsapp, fidelity_nfc:fidelity, fatture, bandi, staff, app_builder:brandPage};
 function render() {
  const id = route(), m = moduleById(id);
- const title = m?.title || {home:'Il servizio di stasera', modules:'L’ecosistema', settings:'Impostazioni'}[id] || 'Pagina non trovata';
+ const title = m?.title || {home:SV.title, modules:'L’ecosistema', settings:'Impostazioni'}[id] || 'Pagina non trovata';
  document.querySelector('#crumb').textContent = title; document.title = `${title} · CS Restaurant OS`;
  const main = document.querySelector('#main');
  main.className = id !== lastRoute ? 'enter' : ''; lastRoute = id;
@@ -85,18 +86,18 @@ function kpis() {
  const open = D.tables.reduce((n, t) => n + D.tableTotal(t), 0);
  const busy = D.tables.filter(t => t.status !== 'free').length;
  const kitchen = D.kitchenLines().filter(l => l.state !== 'served');
- return `<div class="metrics-grid live-kpis">${kpi('rev', 'Incassato stasera', euro(D.service.revenue), `${D.service.closed.length} conti chiusi · ${euro(open)} ancora in sala`, 'coins', 'kpi-revenue hero')}${kpi('tab', 'Tavoli occupati', `${busy}/${D.tables.length}`, `${D.tables.reduce((n, t) => n + t.guests, 0)} ospiti seduti ora`, 'table')}${kpi('kit', 'Comande in cucina', kitchen.length, `${kitchen.filter(l => l.state === 'ready').length} pronte al pass · ${D.service.qrOrders} dal QR`, 'chef')}${kpi('cov', 'Coperti della serata', D.service.covers + 4, `${D.bookings.length} prenotazioni in arrivo`, 'users')}</div>`;
+ return `<div class="metrics-grid live-kpis">${kpi('rev', `Incassato ${SV.today}`, euro(D.service.revenue), `${D.service.closed.length} conti chiusi · ${euro(open)} ancora in sala`, 'coins', 'kpi-revenue hero')}${kpi('tab', 'Tavoli occupati', `${busy}/${D.tables.length}`, `${D.tables.reduce((n, t) => n + t.guests, 0)} ospiti seduti ora`, 'table')}${kpi('kit', 'Comande in cucina', kitchen.length, `${kitchen.filter(l => l.state === 'ready').length} pronte al pass · ${D.service.qrOrders} dal QR`, 'chef')}${kpi('cov', `Coperti ${SV.of}`, D.service.covers + 4, `${D.bookings.length} prenotazioni in arrivo`, 'users')}</div>`;
 }
 
 // ————— IL SERVIZIO DI STASERA —————
 function home() {
  const low = D.lowStock();
- return `${heading('SERVIZIO IN CORSO · DALLE 19:00', 'Buonasera, Marta.', 'Il locale in tempo reale. Otto tiene d’occhio tutto il resto.', `<span class="live-pill"><span class="live-dot"></span>Live</span>`)}
+ return `${heading(`SERVIZIO DI ${SV.name.toUpperCase()} · ${NOW.weekday.toUpperCase()} · DALLE ${SV.start}`, `${NOW.greet}, Marta.`, 'Il locale in tempo reale. Otto tiene d’occhio tutto il resto.', `<span class="live-pill"><span class="live-dot"></span>Live</span>`)}
  ${kpis()}
  <section class="home-live">
   <div class="workspace-panel"><div class="panel-title"><h2>La sala adesso</h2><a class="text-link" href="#sala">Apri la sala${icon('arrow')}</a></div><div class="floor mini">${floorTables(true)}</div></div>
   <div class="home-side">
-   ${ottoPanel('IL PUNTO DI OTTO', `Stasera **${D.bookings.length} prenotazioni** ancora in arrivo. ${low.length ? `**${low.map(i => i.name).join(', ')}** sotto scorta: ho preparato l’ordine.` : 'Magazzino in ordine.'} Ci sono **${D.reviews.filter(r => !ui.done.reviews.includes(r.who)).length} recensioni** con risposta pronta.`, `<a class="btn btn-primary" href="#magazzino">Vedi il magazzino${icon('arrow')}</a>`)}
+   ${ottoPanel('IL PUNTO DI OTTO', `${SV.name === 'pranzo' ? 'Oggi a pranzo' : 'Stasera'} **${D.bookings.length} prenotazioni** ancora in arrivo. ${low.length ? `**${low.map(i => i.name).join(', ')}** sotto scorta: ho preparato l’ordine.` : 'Magazzino in ordine.'} Ci sono **${D.reviews.filter(r => !ui.done.reviews.includes(r.who)).length} recensioni** con risposta pronta.`, `<a class="btn btn-primary" href="#magazzino">Vedi il magazzino${icon('arrow')}</a>`)}
    <div class="workspace-panel feed-panel"><div class="panel-title"><h2><span class="live-dot"></span> Cosa sta succedendo</h2></div><ul class="feed-list">${D.service.events.slice(0, 7).map(e => `<li class="${Date.now() - e.at < 2500 ? 'row-in' : ''}"><span class="feed-kind k-${e.kind}">${icon({sala:'table', cucina:'chef', magazzino:'box', cassa:'coins'}[e.kind] || 'sparkle')}</span><span>${esc(e.text)}</span><small>${e.time}</small></li>`).join('')}</ul></div>
   </div>
  </section>
@@ -147,8 +148,8 @@ function tablePanel() {
 // ————— CUCINA —————
 function kds() {
  const lines = D.kitchenLines();
- const col = (state, title) => { const ls = lines.filter(l => l.state === state).sort((a, b) => a.at - b.at); return `<section class="kds-col k-${state}"><header><b>${title}</b><span>${ls.length}</span></header>${ls.map(l => { const d = D.dish(l.dish); const age = Math.round((Date.now() - l.at) / 60000) + (state === 'waiting' ? 2 : 9); return `<button class="ticket ${Date.now() - l.at < 2500 ? 'row-in' : ''} ${age > 15 ? 'late' : ''}" data-advance="${l.id}"><span class="tk-top"><b>${l.table}</b><small>${age}′</small></span><span class="tk-dish">${l.qty}× ${esc(d.name)}</span>${d.allergens.length ? `<span class="tk-all">${d.allergens.map(a => `<i>${a}</i>`).join('')}</span>` : ''}<span class="tk-next">${{waiting:'Inizia', cooking:'Pronto', ready:'Servito'}[state]} ${icon('arrow')}</span></button>`; }).join('') || '<p class="muted pad-s">Niente qui.</p>'}</section>`; };
- return `${heading('SALA & CUCINA · 02', 'Cucina & comande', 'Le comande arrivano dal tavolo in tempo reale. Tocca una comanda per farla avanzare.', `<span class="live-pill"><span class="live-dot"></span>Pass collegato</span>`)}
+ const col = (state, title) => { const ls = lines.filter(l => l.state === state).sort((a, b) => a.at - b.at); return `<section class="kds-col k-${state}"><header><b>${title}</b><span>${ls.length}</span></header>${ls.map(l => { const d = D.dish(l.dish); const age = Math.round((Date.now() - l.at) / 60000) + (state === 'waiting' ? 2 : 9); const sel = ui.ticket === l.id; return `<article class="ticket ${Date.now() - l.at < 2500 ? 'row-in' : ''} ${age > 15 ? 'late' : ''} ${sel ? 'selected' : ''}" data-ticket="${l.id}" tabindex="0" role="button" aria-expanded="${sel}"><span class="tk-top"><b>${l.table}</b><small>${age}′</small></span><span class="tk-dish">${l.qty}× ${esc(d.name)}</span>${d.allergens.length ? `<span class="tk-all">${d.allergens.map(a => `<i>${a}</i>`).join('')}</span>` : ''}${sel ? `<button class="tk-go" data-advance="${l.id}">${{waiting:'Avvia la preparazione', cooking:'Segna pronto al pass', ready:'Segna servito'}[state]} ${icon('arrow')}</button>` : `<span class="tk-next">Tocca per aprire</span>`}</article>`; }).join('') || '<p class="muted pad-s">Niente qui.</p>'}</section>`; };
+ return `${heading('SALA & CUCINA · 02', 'Cucina & comande', 'Le comande arrivano dal tavolo in tempo reale. Apri una comanda e conferma per farla avanzare: un tocco per sbaglio non sposta niente.', `<span class="live-pill"><span class="live-dot"></span>Pass collegato</span>`)}
  <div class="kds-board">${col('waiting', 'In attesa')}${col('cooking', 'In preparazione')}${col('ready', 'Pronti al pass')}</div>
  ${ottoNote('Le comande oltre i **15 minuti** si colorano. Gli allergeni dichiarati al telefono (celiachia del tavolo 2 delle 21:15) arriveranno qui insieme alla comanda.')}`;
 }
@@ -204,7 +205,7 @@ function menuPos() {
  <section class="workspace-panel"><div class="panel-title"><h2>Menu alla carta e margini</h2>${badge('Food cost calcolato dalle ricette')}</div><div class="table-scroll"><table class="data-table"><thead><tr><th>Piatto</th><th>Prezzo</th><th>Food cost</th><th>Margine</th><th>Allergeni</th><th>Sul QR</th></tr></thead><tbody>${D.menu.map(d => { const fc = D.foodCost(d), m = (1 - fc / d.price) * 100; return `<tr><td><b>${esc(d.name)}</b><small>${d.cat}</small></td><td>${euro(d.price)}</td><td>${euro(+fc.toFixed(2))}</td><td><span class="margin ${m < 65 ? 'low' : ''}">${m.toFixed(0)}%</span></td><td>${d.allergens.map(a => `<span class="allergen">${a}</span>`).join('') || '—'}</td><td>${badge(...dishState(d))}</td></tr>`; }).join('')}</tbody></table></div></section>`;
 }
 function menuEditor() {
- show(`<span class="dialog-kicker">EDITOR DEL MENU</span><h2 id="dialog-title">Il menu di stasera</h2><p class="dialog-description">Ogni modifica è subito su tutti i QR dei tavoli. Puoi anche chiederla a Otto a parole.</p>
+ show(`<span class="dialog-kicker">EDITOR DEL MENU</span><h2 id="dialog-title">Il menu ${SV.of === 'del pranzo' ? 'del pranzo' : 'di stasera'}</h2><p class="dialog-description">Ogni modifica è subito su tutti i QR dei tavoli. Puoi anche chiederla a Otto a parole.</p>
   <div class="editor-list">${D.menu.map(d => `<div class="editor-row"><span><b>${esc(d.name)}</b><small>${d.cat}${d.special ? ' · piatto del giorno' : ''}</small></span><label class="editor-price">€ <input type="number" min="1" step="0.5" value="${d.price}" data-edit-price="${d.id}" aria-label="Prezzo ${esc(d.name)}"></label><label class="editor-toggle"><input type="checkbox" ${d.visible ? 'checked' : ''} data-edit-visible="${d.id}" aria-label="${esc(d.name)} visibile sul QR"><i></i></label></div>`).join('')}</div>`, 'editor-dialog');
 }
 function qrAction(a) {
@@ -234,7 +235,7 @@ function magazzino() {
 // ————— moduli AI e relazioni —————
 function centralino() {
  return `${heading('INTELLIGENZA ARTIFICIALE · 04', 'Centralino AI', 'Otto risponde mentre siete in servizio: prenota, segnala le allergie, gestisce la lista d’attesa.', `<span class="live-pill"><span class="live-dot"></span>Attivo</span>`)}
- <div class="metrics-grid">${[['phone', 'Chiamate stasera', D.calls.length], ['calendar', 'Prenotazioni prese', 2], ['users', 'In lista d’attesa', 1], ['clock', 'Minuti al telefono risparmiati', 14]].map(([i, t, n]) => `<article class="metric"><div><span>${t}</span>${icon(i)}</div><strong class="has-value">${n}</strong></article>`).join('')}</div>
+ <div class="metrics-grid">${[['phone', `Chiamate ${SV.today}`, D.calls.length], ['calendar', 'Prenotazioni prese', 2], ['users', 'In lista d’attesa', 1], ['clock', 'Minuti al telefono risparmiati', 14]].map(([i, t, n]) => `<article class="metric"><div><span>${t}</span>${icon(i)}</div><strong class="has-value">${n}</strong></article>`).join('')}</div>
  <div class="call-grid">${D.liveCalls.filter(c => c.live).map(c => `<article class="workspace-panel call live-call"><div class="panel-title"><h2>${esc(c.caller)}</h2><span class="badge badge-red"><span class="live-dot red"></span> In corso</span></div><div class="transcript"><div class="bubble caller row-in">${esc(c.text)}</div><div class="bubble typing"><i></i><i></i><i></i></div></div></article>`).join('')}${D.calls.map(c => `<article class="workspace-panel call"><div class="panel-title"><h2>${esc(c.caller)}</h2><span>${badge(c.outcome, 'badge-green')} <small class="muted">${c.time}</small></span></div><div class="transcript"><div class="bubble caller">${esc(c.text)}</div><div class="bubble agent"><small>${icon('sparkle')} Otto</small>${esc(c.reply)}</div></div></article>`).join('')}</div>`;
 }
 function recensioni() {
@@ -245,7 +246,7 @@ function recensioni() {
 function whatsapp() {
  return `${heading('CLIENTI & MARKETING · 06', 'WhatsApp & campagne', 'Promemoria automatici e campagne preparate da Otto, solo agli ospiti che hanno dato il consenso.')}
  <div class="quote-layout"><section class="workspace-panel"><div class="panel-title"><h2>Campagne</h2></div>${D.campaigns.map(c => `<div class="mini-row"><span><b>${esc(c.name)}</b><small>${c.kind}${c.sent ? ` · ${c.sent} inviati · ${c.read} letti` : ''}</small></span>${c.sent ? badge(`${Math.round(c.read / c.sent * 100)}% letti`, 'badge-green') : btn('Rivedi', 'toast:Bozza pronta: in produzione parte dopo la tua approvazione', 'btn-secondary', '')}</div>`).join('')}</section>
- <aside class="module-side"><div class="phone-mock"><div class="wa bot">Ciao Luca! Ti aspettiamo stasera alle 20:45 per il vostro anniversario 🥂 Abbiamo tenuto per voi il tavolo vicino alla finestra.</div><div class="wa client">Grazie mille, a stasera!</div></div>${ottoPanel('IDEA', 'Arrivano i porcini e a novembre il tartufo: ho preparato una campagna per **118 ospiti** che hanno ordinato piatti ai funghi negli ultimi 6 mesi.')}</aside></div>`;
+ <aside class="module-side"><div class="phone-mock"><div class="wa bot">Ciao Luca! Ti aspettiamo ${SV.name === 'pranzo' ? 'oggi alle 13:15' : 'stasera alle 20:45'} per il vostro anniversario 🥂 Abbiamo tenuto per voi il tavolo vicino alla finestra.</div><div class="wa client">Grazie mille, a ${SV.name === 'pranzo' ? 'dopo' : 'stasera'}!</div></div>${ottoPanel('IDEA', 'Arrivano i porcini e a novembre il tartufo: ho preparato una campagna per **118 ospiti** che hanno ordinato piatti ai funghi negli ultimi 6 mesi.')}</aside></div>`;
 }
 function fidelity() {
  return `${heading('CLIENTI & MARKETING · 07', 'Fidelity & NFC', 'Gli ospiti abituali riconosciuti al tavolo, con punti e premi.')}
@@ -255,13 +256,13 @@ function fidelity() {
 function fatture() {
  const pays = D.service.payments, stripePays = pays.filter(p => p.method.startsWith('Stripe')), sent = pays.filter(p => p.ade === 'Trasmesso').length;
  return `${heading('GESTIONE · 09', 'Cassa & Agenzia delle Entrate', 'Ogni incasso, dal POS o dal QR con Stripe, diventa un documento commerciale e finisce nei corrispettivi trasmessi all’Agenzia. Senza fare niente.', `<span class="live-pill"><span class="live-dot"></span>Corrispettivi collegati</span>`)}
- <div class="metrics-grid">${kpi('fz', 'Incassato stasera', euro(D.service.revenue), `${D.service.closed.length} conti chiusi`, 'coins', 'hero')}${kpi('st', 'Pagato dal QR con Stripe', euro(stripePays.reduce((n, p) => n + p.amount, 0)), `${stripePays.length} pagamenti anticipati`, 'card')}${kpi('dc', 'Documenti commerciali', pays.length, 'Emessi stasera', 'receipt')}${kpi('ade', 'Trasmessi all’Agenzia', sent, `${pays.length - sent} in invio`, 'check')}</div>
- <div class="quote-layout"><section class="workspace-panel"><div class="panel-title"><h2>Incassi e documenti commerciali</h2>${badge('In tempo reale', 'badge-green')}</div><div class="table-scroll"><table class="data-table pay-table"><thead><tr><th>Documento</th><th>Ora</th><th>Cosa</th><th>Metodo</th><th>Importo</th><th>Agenzia Entrate</th></tr></thead><tbody>${pays.map(p => `<tr class="${Date.now() - p.at < 3000 ? 'row-in' : ''}"><td><b>${p.id}</b></td><td>${p.time}</td><td>${esc(p.what)}</td><td>${p.method.startsWith('Stripe') ? `<span class="stripe-tag">stripe</span> ${esc(p.method.slice(9))}` : esc(p.method)}</td><td><b>${euro(p.amount)}</b></td><td>${badge(p.ade, p.ade === 'Trasmesso' ? 'badge-green' : 'badge-amber')}</td></tr>`).join('') || '<tr><td colspan="6" class="muted">I primi incassi della serata arrivano qui.</td></tr>'}</tbody></table></div></section>
+ <div class="metrics-grid">${kpi('fz', `Incassato ${SV.today}`, euro(D.service.revenue), `${D.service.closed.length} conti chiusi`, 'coins', 'hero')}${kpi('st', 'Pagato dal QR con Stripe', euro(stripePays.reduce((n, p) => n + p.amount, 0)), `${stripePays.length} pagamenti anticipati`, 'card')}${kpi('dc', 'Documenti commerciali', pays.length, `Emessi ${SV.today}`, 'receipt')}${kpi('ade', 'Trasmessi all’Agenzia', sent, `${pays.length - sent} in invio`, 'check')}</div>
+ <div class="quote-layout"><section class="workspace-panel"><div class="panel-title"><h2>Incassi e documenti commerciali</h2>${badge('In tempo reale', 'badge-green')}</div><div class="table-scroll"><table class="data-table pay-table"><thead><tr><th>Documento</th><th>Ora</th><th>Cosa</th><th>Metodo</th><th>Importo</th><th>Agenzia Entrate</th></tr></thead><tbody>${pays.map(p => `<tr class="${Date.now() - p.at < 3000 ? 'row-in' : ''}"><td><b>${p.id}</b></td><td>${p.time}</td><td>${esc(p.what)}</td><td>${p.method.startsWith('Stripe') ? `<span class="stripe-tag">stripe</span> ${esc(p.method.slice(9))}` : esc(p.method)}</td><td><b>${euro(p.amount)}</b></td><td>${badge(p.ade, p.ade === 'Trasmesso' ? 'badge-green' : 'badge-amber')}</td></tr>`).join('') || '<tr><td colspan="6" class="muted">I primi incassi del servizio arrivano qui.</td></tr>'}</tbody></table></div></section>
  <aside class="module-side"><div class="workspace-panel ade-panel"><div class="panel-title"><h2>${icon('shield')} Collegamenti fiscali</h2></div>
   <div class="ade-row ok"><span>${icon('check')}</span><div><b>POS collegato al registratore telematico</b><small>Obbligo dal 1° gennaio 2026: le matricole sono associate nell’area Fatture e Corrispettivi. Ogni pagamento elettronico ha il suo scontrino.</small></div></div>
   <div class="ade-row ok"><span>${icon('check')}</span><div><b>Stripe riconciliato con i corrispettivi</b><small>Ogni pagamento dal QR emette il documento commerciale con lo stesso importo: l’incrocio dell’Agenzia con i dati dei pagamenti torna sempre.</small></div></div>
   <div class="ade-row next"><span>${icon('clock')}</span><div><b>Dal 2027 la cassa può diventare software</b><small>L’Agenzia sta introducendo soluzioni software certificate per memorizzare e trasmettere i corrispettivi da PC, tablet o SmartPOS. CS Restaurant OS è pensato per diventare la tua cassa.</small></div></div></div>
-  ${ottoPanel('IL PUNTO DI OTTO', `Stasera **${pays.length} documenti commerciali**, ${sent} già trasmessi. La cena dello **Studio Marchetti** va fatturata: ho preparato la fattura elettronica con i dati dell’ultima volta.`)}
+  ${ottoPanel('IL PUNTO DI OTTO', `${SV.name === 'pranzo' ? 'Oggi a pranzo' : 'Stasera'} **${pays.length} documenti commerciali**, ${sent} già trasmessi. La cena dello **Studio Marchetti** va fatturata: ho preparato la fattura elettronica con i dati dell’ultima volta.`)}
   <div class="workspace-panel"><div class="panel-title"><h2>Fatture</h2></div>${D.invoices.map(f => `<div class="mini-row"><span><b>${f.n} · ${esc(f.to)}</b><small>${euro(f.amount)}</small></span>${badge(f.state, f.state.includes('SDI') ? 'badge-green' : 'badge-amber')}</div>`).join('')}</div></aside></div>
  <div class="notice">${icon('info')}<p>Anteprima dimostrativa: nessun collegamento reale con l’Agenzia delle Entrate o con Stripe. Date e regole fiscali vanno sempre verificate con il tuo commercialista.</p></div>`;
 }
@@ -272,9 +273,9 @@ function bandi() {
  <div class="notice">${icon('info')}<p>Bandi di esempio, non reali.</p></div>`;
 }
 function staff() {
- return `${heading('GESTIONE · 11', 'Staff & HACCP', 'Chi è in turno stasera e le checklist della cucina.')}
+ return `${heading('GESTIONE · 11', 'Staff & HACCP', `Chi è in turno ${SV.today} e le checklist della cucina.`)}
  <div class="quote-layout"><section class="workspace-panel"><div class="panel-title"><h2>Checklist HACCP di oggi</h2>${badge(`${D.haccp.filter((h, i) => h.done || ui.done.haccp.includes(i)).length}/${D.haccp.length}`)}</div><div class="haccp">${D.haccp.map((h, i) => { const done = h.done || ui.done.haccp.includes(i); return `<label class="task ${done ? 'done' : ''}"><input type="checkbox" data-haccp="${i}" ${done ? 'checked' : ''} ${h.done ? 'disabled' : ''}><span><b>${esc(h.task)}</b><small>${esc(h.by)}</small></span></label>`; }).join('')}</div></section>
- <aside class="module-side"><div class="workspace-panel"><div class="panel-title"><h2>In turno stasera</h2></div>${D.staff.map(s => `<div class="mini-row"><span><b>${esc(s.name)}</b><small>${s.role}</small></span><span class="muted">${s.shift}</span></div>`).join('')}</div>
+ <aside class="module-side"><div class="workspace-panel"><div class="panel-title"><h2>In turno ${SV.today}</h2></div>${D.staff.map(s => `<div class="mini-row"><span><b>${esc(s.name)}</b><small>${s.role}</small></span><span class="muted">${s.shift}</span></div>`).join('')}</div>
  ${ottoPanel('TURNI', 'Sabato prossimo hai **38 coperti** già prenotati: ti suggerisco una persona in più in sala dalle 20.')}</aside></div>`;
 }
 function brandPage() {
@@ -362,7 +363,8 @@ document.addEventListener('click', e => {
  if ((x = el('[data-action]'))) return action(x.dataset.action);
  if ((x = el('[data-table]'))) { if (route() !== 'sala') { ui.table = x.dataset.table; location.hash = 'sala'; return; } ui.table = x.dataset.table; ui.adding = false; return render(); }
  if ((x = el('[data-add]'))) { const ok = D.addDish(ui.table, x.dataset.add); toast(ok ? `${D.dish(x.dataset.add).name} → cucina · conto e magazzino aggiornati` : 'Piatto esaurito: ingredienti insufficienti.'); return; }
- if ((x = el('[data-advance]'))) { D.advance(x.dataset.advance); return; }
+ if ((x = el('[data-advance]'))) { D.advance(x.dataset.advance); ui.ticket = null; return; }
+ if ((x = el('[data-ticket]'))) { ui.ticket = ui.ticket === x.dataset.ticket ? null : x.dataset.ticket; return render(); }
  if ((x = el('[data-category]'))) { ui.category = x.dataset.category; return render(); }
  if ((x = el('[data-otto]'))) return askGlobal(x.dataset.otto);
  if ((x = el('[data-qr-add]'))) { ui.qr.cart[x.dataset.qrAdd] = (ui.qr.cart[x.dataset.qrAdd] || 0) + 1; return render(); }
@@ -415,5 +417,5 @@ window.addEventListener('message', e => {
  if (e.data === 'csd:resume') wake(true);
  if (e.data === 'csd:pause') wake(false);
 });
-initGame(challenges, {icon, place:'il locale', pageName:id => moduleById(id)?.title || {home:'Il servizio di stasera'}[id] || id});
+initGame(challenges, {icon, place:'il locale', pageName:id => moduleById(id)?.title || {home:SV.title}[id] || id});
 shell();

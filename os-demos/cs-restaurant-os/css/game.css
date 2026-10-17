@@ -89,3 +89,9 @@
 @media(max-width:760px){.game-chip small,.gch-lvl{display:none}.gc-options button{flex:1 1 100%}}
 @media(prefers-reduced-motion:reduce){.game-card,.game-level,.game-pop,.gc-src,.game-chip{animation:none!important}}
 .touring .game-slot{display:none}
+.gch-play{font-size:12px;font-weight:650;letter-spacing:.1px;padding-right:2px}
+.gp-start{display:block;width:100%;margin-top:4px;border:0;border-radius:10px;background:#d8432f;color:#fff;font-weight:650;font-size:13px;padding:11px;box-shadow:0 8px 22px #d8432f40}
+.gp-start:hover{background:#e65640}
+.sidebar .nav-item{position:relative}
+.game-dot{position:absolute;left:24px;top:7px;width:8px;height:8px;border-radius:50%;background:#e0452f;box-shadow:0 0 0 2px var(--dark,#151e18);pointer-events:none;animation:game-dot 2.4s ease-in-out 3}
+@keyframes game-dot{50%{box-shadow:0 0 0 2px var(--dark,#151e18),0 0 0 6px #e0452f40}}

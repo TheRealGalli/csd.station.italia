@@ -1,9 +1,10 @@
+import {now as NOW} from './clock.js';
 // Passaggi della Demo interattiva di CS Notaro OS (motore in tour.js).
 export function notaroTour({toggleOtto}) {
  const setPrice = () => { const i = document.querySelector('#quote-form [name="price"]'); if (i) { i.value = ''; i.dispatchEvent(new Event('input', {bubbles:true})); } };
  return [
   {route:'home', target:'.briefing', otto:'wave', say:'Ciao! Sono Otto 👋', title:'Benvenuto in CS Notaro OS',
-   text:'Questo è lo studio di un notaio, la mattina. Prima che arrivi qualcuno, Otto ha già letto **6 email**, gestito **4 chiamate** e diviso il lavoro nel team.'},
+   text:`Questo è lo studio di un notaio, ${NOW.part === 'mattina' ? 'la mattina' : NOW.part === 'pomeriggio' ? 'il pomeriggio' : 'a fine giornata'}.`+' Prima che arrivi qualcuno, Otto ha già letto **6 email**, gestito **4 chiamate** e diviso il lavoro nel team.'},
   {route:'home', target:'.decisions', title:'Solo ciò che spetta a te',
    text:'In apertura non c’è una lista infinita: solo le **due decisioni** che un’AI non deve prendere da sola. Tutto il resto è pronto da approvare.'},
   {route:'home', target:'.eco-flow', title:'12 moduli, un solo studio',

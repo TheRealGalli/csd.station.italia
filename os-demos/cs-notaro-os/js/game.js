@@ -1,9 +1,12 @@
 // Modalità sfida CSD Station. Motore unico, identico in CS Restaurant OS e CS Notaro OS: cambiano solo le sfide (challenges.js).
 // L'idea è quella del prodotto: Otto prepara, tu verifichi. Si guadagnano punti aprendo la fonte e scegliendo bene,
-// si perdono solo con una scelta sbagliata. Chi non tocca niente resta a 0 punti e vede la demo come sempre.
+// si perdono solo con una scelta sbagliata. Chi non la avvia vede la demo come sempre.
 //
-// Sfida: {id, level:1|2|3, page, title, text, sources:[{label, text, key}], options:[{label, ok, partial, why}]}
-// Nei testi **grassetto**, nelle fonti ==evidenziato==.
+// La sfida è spenta di base: parte solo quando il visitatore la avvia. Da lì le pagine con una decisione aperta
+// hanno un puntino rosso nel menu a sinistra.
+//
+// Sfida: {id, level:1|2|3, page, title, text, sources:[{label, text, key}], options:[{label, ok, partial, why}], vars:[{...}]}
+// Nei testi **grassetto**, nelle fonti ==evidenziato==, {nome} prende il valore della variante della giornata.
 const calm = matchMedia('(prefers-reduced-motion: reduce)');
 const esc = v => String(v ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const rich = v => esc(v).replace(/\*\*(.+?)\*\*/g, '<b>$1</b>').replace(/==(.+?)==/g, '<mark>$1</mark>');
@@ -11,7 +14,7 @@ const base = {1:10, 2:20, 3:30};
 const levelNotes = {1:'Si comincia: scelte chiare per prendere la mano.', 2:'Arrivano le prime trappole. Prima di approvare, apri le fonti.', 3:'Ultimo livello: errori sottili e un po’ di fretta.'};
 
 let C = [], icon = () => '', pageName = id => id, place = 'lo studio', timer = 0;
-const S = {points:0, level:1, round:1, streak:0, last:null, solved:{}, cards:{}, showing:{}, sound:true};
+const S = {started:false, points:0, level:1, round:1, streak:0, last:null, solved:{}, cards:{}, showing:{}, sound:true};
 try { S.sound = localStorage.getItem('csd.game.sound') !== 'off'; } catch {}
 
 export function initGame(challenges, opts) {
@@ -22,15 +25,27 @@ export function initGame(challenges, opts) {
 // ————— stato —————
 const timed = c => c.level === 3 || S.round > 1;
 const duration = c => c.level === 3 ? 45 : 60;
-const open = () => C.filter(c => c.level === S.level && !S.solved[c.id]);
+// Ogni giornata usa una variante diversa (nomi e numeri) e mescola l'ordine delle risposte.
+let cache = {round:0, list:[]};
+const fill = (v, x) => typeof v === 'string' ? v.replace(/\{(\w+)\}/g, (m, k) => x[k] ?? m) : v;
+const seeded = str => [...str].reduce((a, ch) => (a * 31 + ch.charCodeAt(0)) >>> 0, 7);
+function resolve(c) {
+ const x = c.vars?.length ? c.vars[(S.round - 1) % c.vars.length] : {};
+ const f = v => fill(v, x);
+ const options = c.options.map((o, i) => ({...o, label:f(o.label), why:f(o.why), _r:seeded(`${c.id}${S.round}${i}`)})).sort((a, b) => a._r - b._r);
+ return {...c, title:f(c.title), text:f(c.text), sources:(c.sources || []).map(s => ({...s, label:f(s.label), text:f(s.text)})), options};
+}
+const list = () => { if (cache.round !== S.round) cache = {round:S.round, list:C.map(resolve)}; return cache.list; };
+const open = () => list().filter(c => c.level === S.level && !S.solved[c.id]);
 const keySources = c => (c.sources || []).map((s, i) => s.key ? i : -1).filter(i => i >= 0);
 const maxPts = c => base[c.level] + (keySources(c).length ? base[c.level] / 2 : 0);
 const face = () => S.last === 'ko' ? 'otto-think' : S.streak >= 3 ? 'otto-wink' : S.last === 'ok' ? 'otto-happy' : 'sparkle';
 const touring = () => document.body.classList.contains('touring');
-const challenge = id => C.find(c => c.id === id);
+const challenge = id => list().find(c => c.id === id);
 
 // ————— barra in alto —————
 export function gameChip() {
+ if (!S.started) return `<button class="game-chip idle" data-game="menu" aria-label="La sfida di Otto: avviala" title="La sfida di Otto"><span class="gch-face">${icon('otto-happy')}</span><b class="gch-play">Sfida</b></button>`;
  return `<button class="game-chip ${S.points ? '' : 'idle'}" data-game="menu" aria-label="La sfida di Otto: ${S.points} punti, livello ${S.level}" title="La sfida di Otto"><span class="gch-face">${icon(face())}</span><b class="gch-pts">${S.points}</b><small>pt</small><span class="gch-lvl">${[1, 2, 3].map(l => `<i class="${l < S.level ? 'done' : l === S.level ? 'on' : ''}"></i>`).join('')}</span></button>`;
 }
 function updateChip(bump) {
@@ -62,6 +77,7 @@ function card(c) {
  </section>`;
 }
 function teaser() {
+ if (!S.started) return `<div class="game-teaser"><span class="gt-face">${icon('otto-happy')}</span><p><b>Vuoi provare a gestire ${place}?</b> Con la sfida di Otto prendi tu le decisioni vere: Otto prepara, tu verifichi le fonti e approvi. Ogni scelta giusta vale punti.</p><button data-game="start">Inizia la sfida ${icon('arrow')}</button></div>`;
  const next = open()[0];
  if (!next) return '';
  return `<div class="game-teaser"><span class="gt-face">${icon(S.points ? face() : 'otto-happy')}</span><p>${S.points
@@ -70,6 +86,7 @@ function teaser() {
 }
 function inner(page) {
  if (touring()) return '';
+ if (!S.started) return page === 'home' ? teaser() : '';
  const showing = S.showing[page] && challenge(S.showing[page]);
  const c = showing || open().find(x => x.page === page);
  if (c) { S.showing[page] = c.id; return card(c); }
@@ -83,9 +100,18 @@ function arm(page) {
   timer = setTimeout(() => { if (!k.result && !touring()) { k.expired = true; k.start = 0; refresh(page); } }, Math.max(0, left));
  }
 }
+// Puntini rossi nel menu a sinistra: dove c'è una decisione aperta.
+function markNav() {
+ document.querySelectorAll('.game-dot').forEach(d => d.remove());
+ if (!S.started || touring()) return;
+ for (const page of new Set(open().map(c => c.page))) {
+  const a = document.querySelector(`.sidebar a[href="#${page}"]`);
+  a?.insertAdjacentHTML('beforeend', '<i class="game-dot" title="Decisione da prendere"></i>');
+ }
+}
 // Chiamata dall'app dopo ogni render: inserisce la sfida sotto il titolo della pagina.
 export function mountGame(page, main) {
- clearTimeout(timer);
+ clearTimeout(timer); markNav();
  const html = inner(page); if (!html) return;
  const box = `<div class="game-slot" data-gslot="${page}">${html}</div>`;
  const head = main.querySelector(':scope > .page-heading');
@@ -99,6 +125,7 @@ function refresh(page) {
  if (!el) { if (main) mountGame(page, main); return; }
  const html = inner(page);
  if (html) { el.innerHTML = html; arm(page); } else el.remove();
+ markNav();
 }
 
 // ————— punteggio —————
@@ -118,16 +145,17 @@ function pick(id, i, btn) {
  play(pts > 0 ? (pts >= 30 ? 'great' : 'good') : pts < 0 ? 'bad' : 'click');
  refresh(c.page);
  float(pts, document.querySelector(`[data-gcard="${id}"] .gc-result b`) || btn);
+ markNav();
  if (!open().length) setTimeout(levelUp, 650);
 }
 function levelUp() {
  if (S.level < 3) {
-  S.level++; updateChip();
+  S.level++; updateChip(); markNav();
   celebrate(`Livello ${S.level}`, levelNotes[S.level]);
  } else {
   const total = S.points;
   S.round++; S.level = 1; S.solved = {}; S.cards = Object.fromEntries(Object.entries(S.cards).filter(([id]) => Object.values(S.showing).includes(id)));
-  updateChip();
+  updateChip(); markNav();
   celebrate('Giornata completata!', `${total} punti. Domani si ricomincia, ma ogni decisione è a tempo.`);
  }
 }
@@ -174,8 +202,14 @@ function celebrate(title, text) {
 }
 // Alla fine della demo guidata: un invito discreto, vicino ai punti.
 export function gameInvite() {
- const next = open()[0]; if (!next || S.points) return;
- setTimeout(() => celebrate('Ora prova tu', `Otto ha una decisione per te in ${pageName(next.page)}. Aprila dai punti in alto.`), 500);
+ markNav();
+ if (S.started) return;
+ setTimeout(() => celebrate('Ora prova tu', 'Avvia la sfida di Otto da “Sfida” in alto: le decisioni vere passano a te.'), 500);
+}
+function start() {
+ S.started = true; updateChip('bump'); play('level');
+ refresh(location.hash.slice(1) || 'home'); markNav();
+ celebrate('La sfida è iniziata', 'Le decisioni da prendere hanno un puntino rosso nel menu a sinistra. Apri le fonti prima di approvare.');
 }
 
 let ac;
@@ -206,7 +240,12 @@ function menu() {
  const r = chip.getBoundingClientRect(), el = document.createElement('div');
  el.className = 'game-pop'; el.setAttribute('role', 'dialog'); el.setAttribute('aria-label', 'La sfida di Otto');
  const list = open();
- el.innerHTML = `<header><span>${icon(face())}</span><div><b>La sfida di Otto</b><small>Livello ${S.level} di 3${S.round > 1 ? ` · giorno ${S.round}` : ''} · ${S.points} punti</small></div></header>
+ if (!S.started) el.innerHTML = `<header><span>${icon('otto-happy')}</span><div><b>La sfida di Otto</b><small>Spenta · si attiva solo se vuoi</small></div></header>
+  <p>Prova a gestire ${place} come se fosse tuo. <b>Otto prepara, tu verifichi:</b> apri le fonti, poi approva la scelta giusta. 14 decisioni vere, tre livelli.</p>
+  <ul class="gp-rules"><li><i class="ok"></i>Giusto e verificato alla fonte <b>pieno + bonus</b></li><li><i class="mid"></i>Giusto ma alla cieca <b>metà</b></li><li><i class="ko"></i>Scelta sbagliata <b>punti in meno</b></li></ul>
+  <button class="gp-start" data-game="start">Inizia la sfida</button>
+  <footer><button data-game="sound">${S.sound ? 'Suoni attivi' : 'Suoni spenti'}</button></footer>`;
+ else el.innerHTML = `<header><span>${icon(face())}</span><div><b>La sfida di Otto</b><small>Livello ${S.level} di 3${S.round > 1 ? ` · giorno ${S.round}` : ''} · ${S.points} punti</small></div></header>
   <p>Gestisci il lavoro come se fosse tuo. <b>Otto prepara, tu verifichi:</b> apri le fonti, poi approva la scelta giusta.</p>
   <ul class="gp-rules"><li><i class="ok"></i>Giusto e verificato alla fonte <b>pieno + bonus</b></li><li><i class="mid"></i>Giusto ma alla cieca <b>metà</b></li><li><i class="ko"></i>Scelta sbagliata <b>punti in meno</b></li></ul>
   ${list.length ? `<span class="gp-label">DECISIONI APERTE</span>${list.map(c => `<button class="gp-item" data-game="go:${c.page}"><b>${esc(c.title)}</b><small>${esc(pageName(c.page))} · fino a +${maxPts(c)} pt</small></button>`).join('')}` : ''}
@@ -220,11 +259,12 @@ function onClick(e) {
  const [k, id, i] = b.dataset.game.split(':');
  if (k !== 'menu' && k !== 'sound') document.querySelector('.game-pop')?.remove();
  if (k === 'menu') { play('click'); return menu(); }
+ if (k === 'start') return start();
  if (k === 'go') { location.hash = id; return; }
  if (k === 'src') { const c = S.cards[id]; if (c && !c.opened.includes(+i)) c.opened.push(+i); play('open'); return refresh(challenge(id).page); }
  if (k === 'pick') return pick(id, +i, b);
  if (k === 'next') { const c = challenge(id); delete S.showing[c.page]; play('click'); return refresh(c.page); }
  if (k === 'retry') { const c = S.cards[id]; c.expired = false; c.start = 0; play('click'); return refresh(challenge(id).page); }
  if (k === 'sound') { S.sound = !S.sound; try { localStorage.setItem('csd.game.sound', S.sound ? 'on' : 'off'); } catch {} b.textContent = S.sound ? 'Suoni attivi' : 'Suoni spenti'; play('click'); return; }
- if (k === 'restart') { Object.assign(S, {points:0, level:1, round:1, streak:0, last:null, solved:{}, cards:{}, showing:{}}); updateChip(); const p = location.hash.slice(1) || 'home'; refresh(p); }
+ if (k === 'restart') { Object.assign(S, {started:false, points:0, level:1, round:1, streak:0, last:null, solved:{}, cards:{}, showing:{}}); updateChip(); refresh(location.hash.slice(1) || 'home'); }
 }
