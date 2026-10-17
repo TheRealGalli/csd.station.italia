@@ -14,7 +14,7 @@ const base = {1:10, 2:20, 3:30};
 const levelNotes = {1:'Si comincia: scelte chiare per prendere la mano.', 2:'Arrivano le prime trappole. Prima di approvare, apri le fonti.', 3:'Ultimo livello: errori sottili e un po’ di fretta.'};
 
 let C = [], icon = () => '', pageName = id => id, place = 'lo studio', timer = 0;
-const S = {started:false, points:0, level:1, round:1, streak:0, last:null, solved:{}, cards:{}, showing:{}, sound:true};
+const S = {avail:{}, seenOpen:0, started:false, points:0, level:1, round:1, streak:0, last:null, solved:{}, cards:{}, showing:{}, sound:true};
 try { S.sound = localStorage.getItem('csd.game.sound') !== 'off'; } catch {}
 
 export function initGame(challenges, opts) {
@@ -23,8 +23,9 @@ export function initGame(challenges, opts) {
 }
 
 // ————— stato —————
-const timed = c => c.level === 3 || S.round > 1;
-const duration = c => c.level === 3 ? 45 : 60;
+// Ogni decisione ha il suo tempo da quando il livello si apre: più il livello è alto, meno tempo c'è.
+const duration = c => Math.round({1:90, 2:70, 3:50}[c.level] * (S.round > 1 ? .8 : 1));
+const left = c => S.avail[c.id] ? duration(c) * 1000 - (Date.now() - S.avail[c.id]) : duration(c) * 1000;
 // Ogni giornata usa una variante diversa (nomi e numeri) e mescola l'ordine delle risposte.
 let cache = {round:0, list:[]};
 const fill = (v, x) => typeof v === 'string' ? v.replace(/\{(\w+)\}/g, (m, k) => x[k] ?? m) : v;
@@ -46,22 +47,23 @@ const challenge = id => list().find(c => c.id === id);
 // ————— barra in alto —————
 export function gameChip() {
  if (!S.started) return `<button class="game-chip idle" data-game="menu" aria-label="La sfida di Otto: avviala" title="La sfida di Otto"><span class="gch-face">${icon('otto-happy')}</span><b class="gch-play">Sfida</b></button>`;
- return `<button class="game-chip ${S.points ? '' : 'idle'}" data-game="menu" aria-label="La sfida di Otto: ${S.points} punti, livello ${S.level}" title="La sfida di Otto"><span class="gch-face">${icon(face())}</span><b class="gch-pts">${S.points}</b><small>pt</small><span class="gch-lvl">${[1, 2, 3].map(l => `<i class="${l < S.level ? 'done' : l === S.level ? 'on' : ''}"></i>`).join('')}</span></button>`;
+ return `<button class="game-chip ${S.points ? '' : 'idle'}" data-game="menu" aria-label="La sfida di Otto: ${S.points} punti, livello ${S.level}" title="La sfida di Otto"><span class="gch-face">${icon(face())}</span><b class="gch-pts">${S.points}</b><small>pt</small><span class="gch-lvl">${[1, 2, 3].map(l => `<i class="${l < S.level ? 'done' : l === S.level ? 'on' : ''}"></i>`).join('')}</span></button>${alertBtn()}`;
 }
 function updateChip(bump) {
+ document.querySelectorAll('.game-alert').forEach(el => el.remove());
  document.querySelectorAll('.game-chip').forEach(el => {
   el.outerHTML = gameChip();
  });
+ updateAlert();
  const chip = document.querySelector('.game-chip');
  if (bump && chip && !calm.matches) { chip.classList.add(bump); burst(chip, bump === 'bump-bad'); }
 }
 
 // ————— scheda della sfida dentro la pagina —————
 function card(c) {
- const k = S.cards[c.id] ||= {opened:[], start:0, expired:false, seen:false};
- const t = timed(c) && !k.result && !k.expired;
- if (t && !k.start) k.start = Date.now();
- const elapsed = k.start ? (Date.now() - k.start) / 1000 : 0;
+ const k = S.cards[c.id] ||= {opened:[], seen:false};
+ const t = !k.result;
+ const elapsed = (duration(c) * 1000 - left(c)) / 1000;
  const fresh = !k.seen; k.seen = true;
  const r = k.result;
  return `<section class="game-card l${c.level} ${fresh ? 'new' : ''} ${r ? (r.pts < 0 ? 'is-ko' : 'is-ok') : ''}" data-gcard="${c.id}">
@@ -72,7 +74,6 @@ function card(c) {
    ? `<blockquote class="gc-src ${k.opened.includes(i) && !r ? 'row-open' : ''}"><small>${icon('file')} ${esc(s.label)}</small><p>${rich(s.text)}</p></blockquote>`
    : `<button class="gc-open" data-game="src:${c.id}:${i}">${icon('eye')}<span>Apri la fonte</span><b>${esc(s.label)}</b></button>`).join('')}</div>` : ''}
   ${r ? `<div class="gc-result"><b class="${r.pts < 0 ? 'neg' : ''}">${r.pts > 0 ? '+' : ''}${r.pts} pt · ${esc(r.label)}</b><p>${rich(r.why)}</p><button data-game="next:${c.id}">Continua ${icon('arrow')}</button></div>`
-   : k.expired ? `<div class="gc-wait"><p>Tempo scaduto: Otto ha messo la decisione in attesa. Nessun punto perso.</p><button data-game="retry:${c.id}">Riprova</button></div>`
    : `<div class="gc-options">${c.options.map((o, i) => `<button data-game="pick:${c.id}:${i}">${esc(o.label)}</button>`).join('')}</div>`}
  </section>`;
 }
@@ -81,8 +82,8 @@ function teaser() {
  const next = open()[0];
  if (!next) return '';
  return `<div class="game-teaser"><span class="gt-face">${icon(S.points ? face() : 'otto-happy')}</span><p>${S.points
-  ? `<b>La sfida di Otto · livello ${S.level}, ${S.points} punti.</b> Prossima decisione in <b>${esc(pageName(next.page))}</b>.`
-  : `<b>Gestisci ${place} come se fosse tuo.</b> Otto prepara, tu verifichi: ogni decisione presa bene vale punti. La prima ti aspetta in <b>${esc(pageName(next.page))}</b>.`}</p><button data-game="go:${next.page}">Vai ${icon('arrow')}</button></div>`;
+  ? `<b>La sfida di Otto · livello ${S.level}, ${S.points} punti.</b> ${open().length} ${open().length === 1 ? 'decisione aspetta' : 'decisioni aspettano'}: aprile dal quadrato rosso <b class="gt-bang">!</b> in alto o dai puntini rossi nel menu.`
+  : `<b>Gestisci ${place} come se fosse tuo.</b> Ogni decisione ha il suo tempo: aprile dal quadrato rosso <b class="gt-bang">!</b> in alto o dai puntini rossi nel menu.`}</p><button data-game="go:${next.page}">Vai ${icon('arrow')}</button></div>`;
 }
 function inner(page) {
  if (touring()) return '';
@@ -92,13 +93,47 @@ function inner(page) {
  if (c) { S.showing[page] = c.id; return card(c); }
  return page === 'home' ? teaser() : '';
 }
-function arm(page) {
- clearTimeout(timer);
- const id = S.showing[page], c = id && challenge(id), k = c && S.cards[c.id];
- if (c && k?.start && !k.result && !k.expired) {
-  const left = duration(c) * 1000 - (Date.now() - k.start);
-  timer = setTimeout(() => { if (!k.result && !touring()) { k.expired = true; k.start = 0; refresh(page); } }, Math.max(0, left));
+function arm() {}
+// Un solo orologio per tutte le decisioni aperte: quando una scade toglie un po' di punti, meno di una scelta sbagliata.
+function openLevel() { const t = Date.now(); open().forEach(c => { S.avail[c.id] ||= t; }); }
+function tick() {
+ if (!S.started || touring() || document.hidden) { for (const id in S.avail) S.avail[id] += 1000; return; }
+ for (const c of open()) {
+  if (left(c) > 0) continue;
+  const b = base[c.level], k = S.cards[c.id] ||= {opened:[], seen:true};
+  const pts = -Math.min(Math.ceil(b / 4), S.points);
+  S.points += pts; S.solved[c.id] = true; S.streak = 0; S.last = 'ko';
+  k.result = {pts, label:'Tempo scaduto', why:'Nessuno ha deciso in tempo: Otto ha messo la pratica in attesa. Una decisione presa tardi costa meno di una sbagliata, ma costa.'};
+  play('bad'); updateChip('bump-bad'); refresh(c.page); markNav();
+  if (!open().length) setTimeout(levelUp, 650);
  }
+ updateAlert();
+}
+setInterval(tick, 1000);
+// Il quadrato rosso con il punto esclamativo: quante decisioni aspettano, e ci porta lì.
+function alertBtn() {
+ const n = S.started ? open().length : 0;
+ return n ? `<button class="game-alert" data-game="alert" aria-label="${n} decisioni da prendere" title="Decisioni da prendere"><b>!</b>${n > 1 ? `<small>${n}</small>` : ''}</button>` : '';
+}
+function updateAlert() {
+ const n = S.started ? open().length : 0;
+ document.querySelectorAll('.game-alert').forEach(el => el.remove());
+ const chip = document.querySelector('.game-chip'); if (!chip || !n) return;
+ chip.insertAdjacentHTML('afterend', alertBtn());
+ if (n > S.seenOpen) document.querySelector('.game-alert')?.classList.add('ring');
+ S.seenOpen = n;
+}
+function chooser() {
+ const list = open();
+ if (list.length === 1) { location.hash = list[0].page; return; }
+ const btn = document.querySelector('.game-alert'); if (!btn) return;
+ document.querySelector('.game-pop')?.remove();
+ const r = btn.getBoundingClientRect(), el = document.createElement('div');
+ el.className = 'game-pop'; el.setAttribute('role', 'dialog'); el.setAttribute('aria-label', 'Decisioni da prendere');
+ el.innerHTML = `<header><span>${icon('otto-think')}</span><div><b>${list.length} decisioni aspettano</b><small>Scegli da quale cominciare</small></div></header>
+  ${[...list].sort((a, b) => left(a) - left(b)).map(c => `<button class="gp-item" data-game="go:${c.page}"><b>${esc(c.title)}</b><small>${esc(pageName(c.page))} · ${Math.max(0, Math.ceil(left(c) / 1000))} s · fino a +${maxPts(c)} pt</small></button>`).join('')}`;
+ el.style.top = `${r.bottom + 10}px`; el.style.right = `${Math.max(12, innerWidth - r.right)}px`;
+ document.body.append(el);
 }
 // Puntini rossi nel menu a sinistra: dove c'è una decisione aperta.
 function markNav() {
@@ -149,13 +184,14 @@ function pick(id, i, btn) {
  if (!open().length) setTimeout(levelUp, 650);
 }
 function levelUp() {
+ if (open().length) return;
  if (S.level < 3) {
-  S.level++; updateChip(); markNav();
+  S.level++; openLevel(); updateChip(); markNav();
   celebrate(`Livello ${S.level}`, levelNotes[S.level]);
  } else {
   const total = S.points;
-  S.round++; S.level = 1; S.solved = {}; S.cards = Object.fromEntries(Object.entries(S.cards).filter(([id]) => Object.values(S.showing).includes(id)));
-  updateChip(); markNav();
+  S.round++; S.level = 1; S.solved = {}; S.avail = {}; S.cards = Object.fromEntries(Object.entries(S.cards).filter(([id]) => Object.values(S.showing).includes(id)));
+  openLevel(); updateChip(); markNav();
   celebrate('Giornata completata!', `${total} punti. Domani si ricomincia, ma ogni decisione è a tempo.`);
  }
 }
@@ -207,9 +243,9 @@ export function gameInvite() {
  setTimeout(() => celebrate('Ora prova tu', 'Avvia la sfida di Otto da “Sfida” in alto: le decisioni vere passano a te.'), 500);
 }
 function start() {
- S.started = true; updateChip('bump'); play('level');
+ S.started = true; openLevel(); updateChip('bump'); play('level');
  refresh(location.hash.slice(1) || 'home'); markNav();
- celebrate('La sfida è iniziata', 'Le decisioni da prendere hanno un puntino rosso nel menu a sinistra. Apri le fonti prima di approvare.');
+ celebrate('La sfida è iniziata', 'Le decisioni arrivano dal quadrato rosso “!” in alto e dai puntini rossi nel menu. Ognuna ha il suo tempo.');
 }
 
 let ac;
@@ -248,7 +284,7 @@ function menu() {
  else el.innerHTML = `<header><span>${icon(face())}</span><div><b>La sfida di Otto</b><small>Livello ${S.level} di 3${S.round > 1 ? ` · giorno ${S.round}` : ''} · ${S.points} punti</small></div></header>
   <p>Gestisci il lavoro come se fosse tuo. <b>Otto prepara, tu verifichi:</b> apri le fonti, poi approva la scelta giusta.</p>
   <ul class="gp-rules"><li><i class="ok"></i>Giusto e verificato alla fonte <b>pieno + bonus</b></li><li><i class="mid"></i>Giusto ma alla cieca <b>metà</b></li><li><i class="ko"></i>Scelta sbagliata <b>punti in meno</b></li></ul>
-  ${list.length ? `<span class="gp-label">DECISIONI APERTE</span>${list.map(c => `<button class="gp-item" data-game="go:${c.page}"><b>${esc(c.title)}</b><small>${esc(pageName(c.page))} · fino a +${maxPts(c)} pt</small></button>`).join('')}` : ''}
+  ${list.length ? `<span class="gp-label">DECISIONI APERTE</span>${list.map(c => `<button class="gp-item" data-game="go:${c.page}"><b>${esc(c.title)}</b><small>${esc(pageName(c.page))} · ${Math.max(0, Math.ceil(left(c) / 1000))} s · fino a +${maxPts(c)} pt</small></button>`).join('')}` : ''}
   <footer><button data-game="sound">${S.sound ? 'Suoni attivi' : 'Suoni spenti'}</button><button data-game="restart">Ricomincia da zero</button></footer>`;
  el.style.top = `${r.bottom + 10}px`; el.style.right = `${Math.max(12, innerWidth - r.right)}px`;
  document.body.append(el);
@@ -257,14 +293,14 @@ function onClick(e) {
  const b = e.target.closest('[data-game]');
  if (!b) { if (!e.target.closest('.game-pop')) document.querySelector('.game-pop')?.remove(); return; }
  const [k, id, i] = b.dataset.game.split(':');
- if (k !== 'menu' && k !== 'sound') document.querySelector('.game-pop')?.remove();
+ if (k !== 'menu' && k !== 'sound' && k !== 'alert') document.querySelector('.game-pop')?.remove();
  if (k === 'menu') { play('click'); return menu(); }
  if (k === 'start') return start();
+ if (k === 'alert') { play('click'); return chooser(); }
  if (k === 'go') { location.hash = id; return; }
  if (k === 'src') { const c = S.cards[id]; if (c && !c.opened.includes(+i)) c.opened.push(+i); play('open'); return refresh(challenge(id).page); }
  if (k === 'pick') return pick(id, +i, b);
  if (k === 'next') { const c = challenge(id); delete S.showing[c.page]; play('click'); return refresh(c.page); }
- if (k === 'retry') { const c = S.cards[id]; c.expired = false; c.start = 0; play('click'); return refresh(challenge(id).page); }
  if (k === 'sound') { S.sound = !S.sound; try { localStorage.setItem('csd.game.sound', S.sound ? 'on' : 'off'); } catch {} b.textContent = S.sound ? 'Suoni attivi' : 'Suoni spenti'; play('click'); return; }
- if (k === 'restart') { Object.assign(S, {started:false, points:0, level:1, round:1, streak:0, last:null, solved:{}, cards:{}, showing:{}}); updateChip(); refresh(location.hash.slice(1) || 'home'); }
+ if (k === 'restart') { Object.assign(S, {avail:{}, seenOpen:0, started:false, points:0, level:1, round:1, streak:0, last:null, solved:{}, cards:{}, showing:{}}); updateChip(); refresh(location.hash.slice(1) || 'home'); }
 }
