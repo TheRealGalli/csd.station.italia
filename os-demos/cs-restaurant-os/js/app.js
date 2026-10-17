@@ -2,6 +2,8 @@ import {icon, otto} from './icons.js';
 import {modules, groups, groupNotes, moduleById} from './modules.js';
 import * as D from './demo.js';
 import {startTour} from './tour.js';
+import {initGame, gameChip, mountGame, gameInvite} from './game.js';
+import {challenges} from './challenges.js';
 import {restaurantTour} from './tour-steps.js';
 
 const app = document.querySelector('#app'), dialog = document.querySelector('#dialog');
@@ -42,7 +44,7 @@ function shell() {
   <div class="sidebar-bottom"><button class="plan-mini" data-action="otto"><span class="plan-orbit">${icon('otto-happy')}</span><span>Chiedi a Otto<small>Un solo assistente per tutto il locale</small></span>${icon('chevron')}</button>${navItem('settings', 'Impostazioni', 'settings')}<button class="account" data-action="account"><span class="avatar">MR</span><span>Marta Rinaldi<small>Titolare</small></span>${icon('down')}</button></div>
  </aside><div class="mobile-scrim" data-action="sidebar"></div>
  <div class="app-body"><header class="topbar"><div class="breadcrumbs"><button class="icon-btn mobile-toggle" data-action="sidebar" aria-label="Apri navigazione" aria-controls="workspace-navigation" aria-expanded="false">${icon('list')}</button><span>Locale</span>${icon('chevron')}<strong id="crumb"></strong></div>
-  <div class="topbar-actions"><button class="live-toggle ${D.service.live ? 'on' : ''}" data-action="live" aria-pressed="${D.service.live}" title="Servizio live: la cucina avanza e arrivano ordini">${D.service.live ? '<span class="live-dot"></span>' : '<i></i>'}<span>Servizio live</span></button><button class="search-trigger" data-action="search" aria-label="Cerca">${icon('search')}<span>Cerca</span><kbd>⌘ K</kbd></button><button class="ask-otto" data-action="otto">${icon('otto-happy')}<span>Chiedi a Otto</span></button><button class="demo-btn" data-action="tour"><i></i><span>Demo interattiva</span></button></div></header>
+  <div class="topbar-actions">${gameChip()}<button class="live-toggle ${D.service.live ? 'on' : ''}" data-action="live" aria-pressed="${D.service.live}" title="Servizio live: la cucina avanza e arrivano ordini">${D.service.live ? '<span class="live-dot"></span>' : '<i></i>'}<span>Servizio live</span></button><button class="search-trigger" data-action="search" aria-label="Cerca">${icon('search')}<span>Cerca</span><kbd>⌘ K</kbd></button><button class="ask-otto" data-action="otto">${icon('otto-happy')}<span>Chiedi a Otto</span></button><button class="demo-btn" data-action="tour"><i></i><span>Demo interattiva</span></button></div></header>
   <main id="main" tabindex="-1"></main>
   <footer class="app-footer"><span>CSD Station <span class="footer-divider">/</span> Il tuo ristorante, connesso.</span><span>Anteprima dimostrativa · locale, ospiti e numeri inventati · nessun servizio collegato</span></footer></div>
  <aside class="otto-drawer" id="otto-drawer" aria-label="Otto" hidden></aside><div class="live-stack" id="live-stack" aria-live="polite"></div>`;
@@ -56,6 +58,7 @@ function render() {
  const main = document.querySelector('#main');
  main.className = id !== lastRoute ? 'enter' : ''; lastRoute = id;
  main.innerHTML = pages[id] ? pages[id]() : `<div class="empty-state"><h2>Questo spazio non esiste.</h2><a class="btn btn-primary" href="#home">Torna al servizio${icon('arrow')}</a></div>`;
+ mountGame(id, main);
  syncCounts();
 }
 // Aggiorna solo ciò che vive: chiamato a ogni evento del servizio.
@@ -331,7 +334,7 @@ function action(a) {
  if (a === 'sidebar') { document.body.classList.toggle('sidebar-open'); return syncNavigation(); }
  if (a === 'otto') return toggleOtto();
  if (a === 'search') return searchDialog();
- if (a === 'tour') return startTour(restaurantTour({toggleOtto, ui, D}), {otto, name:'Demo interattiva CS Restaurant OS', onEnd:() => toggleOtto(false)});
+ if (a === 'tour') return startTour(restaurantTour({toggleOtto, ui, D}), {otto, name:'Demo interattiva CS Restaurant OS', onEnd:() => { toggleOtto(false); gameInvite(); }});
  if (a === 'live') { D.service.live = !D.service.live; toast(D.service.live ? 'Servizio live: la cucina avanza e arrivano ordini.' : 'Servizio in pausa.'); return shell(); }
  if (k === 'toast') return toast(a.slice(6));
  if (k === 'go') { location.hash = a.slice(3); return; }
@@ -412,4 +415,5 @@ window.addEventListener('message', e => {
  if (e.data === 'csd:resume') wake(true);
  if (e.data === 'csd:pause') wake(false);
 });
+initGame(challenges, {icon, place:'il locale', pageName:id => moduleById(id)?.title || {home:'Il servizio di stasera'}[id] || id});
 shell();

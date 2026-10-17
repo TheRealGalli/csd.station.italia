@@ -1,0 +1,91 @@
+/* Modalità sfida CSD Station — identica in CS Restaurant e CS Notaro (motore in js/game.js). */
+.game-chip{display:inline-flex;align-items:center;gap:6px;height:34px;padding:0 11px 0 6px;border-radius:20px;border:1px solid #d9e6c6;background:#fff;color:#2f4a1d;font-size:12px;font-weight:600;cursor:pointer;transition:border-color .2s,box-shadow .2s,transform .15s;white-space:nowrap}
+.game-chip:hover{border-color:#a9c97c;box-shadow:0 4px 14px #5d7d3522}
+.game-chip.idle{color:#6d7f5c}
+.gch-face{width:24px;height:24px;border-radius:50%;background:#1d2b20;color:#c5f476;display:grid;place-items:center}
+.gch-face .icon{width:15px;height:15px}
+.gch-pts{font-size:14px;font-variant-numeric:tabular-nums;letter-spacing:-.3px;min-width:10px;text-align:right}
+.game-chip small{font-size:10px;color:#8a9a78;font-weight:500;margin-left:-2px}
+.gch-lvl{display:flex;gap:3px;margin-left:3px}
+.gch-lvl i{width:6px;height:6px;border-radius:50%;background:#e1e7d8}
+.gch-lvl i.done{background:#7fb045}.gch-lvl i.on{background:#c5f476;box-shadow:0 0 0 2px #c5f47655}
+.game-chip.bump{animation:game-bump .5s cubic-bezier(.3,1.6,.5,1)}
+.game-chip.bump-bad{animation:game-shake .4s ease}
+@keyframes game-bump{40%{transform:scale(1.14)}}
+@keyframes game-shake{25%{transform:translateX(-3px)}50%{transform:translateX(3px)}75%{transform:translateX(-2px)}}
+.game-float{position:fixed;z-index:120;pointer-events:none;font-weight:800;font-size:22px;letter-spacing:-.5px;color:#4f8a1f;text-shadow:0 2px 0 #fff,0 6px 18px #6f9a3c55}
+.game-float.neg{color:#c4442f;text-shadow:0 2px 0 #fff}
+.game-spark{position:fixed;z-index:119;width:6px;height:6px;border-radius:50%;background:#9fd35a;pointer-events:none}
+
+/* scheda sfida */
+.game-slot{margin:0 0 18px}
+.game-card{position:relative;overflow:hidden;background:linear-gradient(180deg,#fbfdf6,#f3f8ea);border:1px solid #cfe1b5;border-left:4px solid #9fcf5c;border-radius:12px;padding:16px 20px 18px;box-shadow:0 6px 20px #5d7d3514}
+.game-card.l2{border-left-color:#e2b14f}.game-card.l3{border-left-color:#d8432f}
+.game-card.new{animation:game-in .45s cubic-bezier(.2,.8,.3,1) both}
+@keyframes game-in{from{opacity:0;transform:translateY(8px)}}
+.gc-top{display:flex;justify-content:space-between;align-items:center;gap:10px}
+.gc-tag{display:inline-flex;align-items:center;gap:7px;font-size:9.5px;letter-spacing:1.4px;font-weight:700;color:#5d7d35}
+.gc-tag .icon{width:17px;height:17px;color:#3f6a1c}
+.gc-worth{font-size:11px;font-weight:650;color:#5d7d35;background:#e6f2d3;border-radius:10px;padding:3px 9px}
+.gc-timer{height:3px;background:#e6ebde;border-radius:3px;margin:10px 0 0;overflow:hidden}
+.gc-timer i{display:block;height:100%;background:linear-gradient(90deg,#d8432f,#e2b14f);transform-origin:left;animation:game-timer linear forwards}
+@keyframes game-timer{from{transform:scaleX(1)}to{transform:scaleX(0)}}
+.game-card h3{font-size:16px;margin:10px 0 4px;letter-spacing:-.2px}
+.gc-text{font-size:13px;line-height:1.6;color:#46543c;margin:0}
+.gc-sources{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
+.gc-open{display:inline-flex;align-items:center;gap:7px;border:1px dashed #b6cf93;background:#fff;border-radius:9px;padding:8px 11px;font-size:11.5px;color:#4f6b3c;transition:background .15s,border-color .15s}
+.gc-open:hover{background:#f1f8e6;border-color:#7fb045}
+.gc-open .icon{width:14px;height:14px}.gc-open span{color:#7f8f6e}
+.gc-src{flex:1 1 220px;margin:0;background:#fff;border:1px solid #e1e8d6;border-radius:9px;padding:9px 12px}
+.gc-src.row-open{animation:game-in .3s ease both}
+.gc-src small{display:flex;align-items:center;gap:6px;font-size:10px;font-weight:650;letter-spacing:.4px;color:#7f8f6e;text-transform:uppercase}
+.gc-src small .icon{width:12px;height:12px}
+.gc-src p{font-size:12.5px;line-height:1.55;margin:5px 0 0;color:#2f3a29;font-family:ui-monospace,SFMono-Regular,Menlo,monospace}
+.gc-src mark{background:#f6e7a8;color:inherit;border-radius:3px;padding:0 3px}
+.gc-options{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px}
+.gc-options button{border:1px solid #1d2b20;background:#1d2b20;color:#eef6e2;border-radius:9px;padding:10px 14px;font-size:12.5px;font-weight:600;transition:transform .12s,background .15s}
+.gc-options button:nth-child(n+2){background:#fff;color:#1d2b20;border-color:#cfd8c3}
+.gc-options button:hover{transform:translateY(-1px);background:#2c3f2e;color:#fff;border-color:#2c3f2e}
+.gc-result{margin-top:14px;padding:12px 14px;border-radius:10px;background:#e6f5d3;display:grid;gap:4px}
+.is-ko .gc-result{background:#fbe8e3}
+.gc-result b{font-size:14px;color:#3f6a1c}.gc-result b.neg{color:#b2412d}
+.gc-result p{font-size:12.5px;line-height:1.55;margin:0;color:#3d4a35}
+.gc-result button,.gc-wait button{justify-self:start;margin-top:6px;display:inline-flex;align-items:center;gap:6px;border:0;background:#1d2b20;color:#c5f476;border-radius:8px;padding:8px 12px;font-size:12px;font-weight:600}
+.gc-result button .icon{width:13px;height:13px}
+.gc-wait{margin-top:14px;padding:11px 14px;border-radius:10px;background:#f4f1e6;display:flex;align-items:center;justify-content:space-between;gap:12px}
+.gc-wait p{font-size:12.5px;margin:0;color:#5d5a4e}.gc-wait button{margin:0}
+.game-teaser{display:flex;align-items:center;gap:12px;padding:11px 14px;border:1px dashed #c2d8a3;border-radius:12px;background:#f7fbf0}
+.gt-face{width:32px;height:32px;border-radius:50%;background:#1d2b20;color:#c5f476;display:grid;place-items:center;flex:none}
+.gt-face .icon{width:19px;height:19px}
+.game-teaser p{flex:1;font-size:12.5px;line-height:1.5;margin:0;color:#46543c}
+.game-teaser button{display:inline-flex;align-items:center;gap:6px;border:0;background:#1d2b20;color:#c5f476;border-radius:8px;padding:8px 12px;font-size:12px;font-weight:600;flex:none}
+.game-teaser button .icon{width:13px;height:13px}
+
+/* livello e menu */
+.game-level,.game-pop{position:fixed;z-index:110;background:#1d2b20;color:#eef4e4;border-radius:14px;box-shadow:0 18px 50px #0b120d55;border:1px solid #33452e}
+.game-level{display:flex;gap:12px;align-items:center;padding:13px 16px;max-width:320px;animation:game-in .4s cubic-bezier(.2,.8,.3,1) both}
+.game-level.out{opacity:0;transform:translateY(-6px);transition:opacity .3s,transform .3s}
+.game-level>span{width:38px;height:38px;border-radius:50%;background:#c5f476;color:#1d2b20;display:grid;place-items:center;flex:none}
+.game-level>span .icon{width:24px;height:24px}
+.game-level b{font-size:15px;color:#c5f476}.game-level p{font-size:12px;line-height:1.45;margin:3px 0 0;color:#cfdcc3}
+.game-pop{width:310px;padding:16px;animation:game-in .25s ease both}
+.game-pop header{display:flex;gap:10px;align-items:center}
+.game-pop header>span{width:34px;height:34px;border-radius:50%;background:#c5f476;color:#1d2b20;display:grid;place-items:center}
+.game-pop header .icon{width:21px;height:21px}
+.game-pop header b{display:block;font-size:14px}.game-pop header small{font-size:11px;color:#a9bb98}
+.game-pop>p{font-size:12px;line-height:1.55;color:#cfdcc3;margin:12px 0}
+.game-pop>p b{color:#c5f476}
+.gp-rules{list-style:none;margin:0 0 12px;padding:0;display:grid;gap:6px}
+.gp-rules li{display:flex;align-items:center;gap:8px;font-size:11.5px;color:#cfdcc3}
+.gp-rules li b{margin-left:auto;color:#eef4e4;font-weight:600}
+.gp-rules i{width:8px;height:8px;border-radius:50%}.gp-rules i.ok{background:#9fd35a}.gp-rules i.mid{background:#e2b14f}.gp-rules i.ko{background:#e0765f}
+.gp-label{display:block;font-size:9px;letter-spacing:1.4px;color:#8fa385;margin:4px 0 6px}
+.gp-item{display:block;width:100%;text-align:left;background:#26372a;border:1px solid #33452e;border-radius:9px;padding:8px 10px;margin-bottom:6px;color:#eef4e4}
+.gp-item:hover{border-color:#c5f476}
+.gp-item b{display:block;font-size:12px}.gp-item small{font-size:10.5px;color:#a9bb98}
+.game-pop footer{display:flex;gap:6px;margin-top:10px}
+.game-pop footer button{flex:1;background:transparent;border:1px solid #3b4d36;color:#cfdcc3;border-radius:8px;padding:7px;font-size:11px}
+.game-pop footer button:hover{border-color:#c5f476;color:#fff}
+@media(max-width:760px){.game-chip small,.gch-lvl{display:none}.gc-options button{flex:1 1 100%}}
+@media(prefers-reduced-motion:reduce){.game-card,.game-level,.game-pop,.gc-src,.game-chip{animation:none!important}}
+.touring .game-slot{display:none}

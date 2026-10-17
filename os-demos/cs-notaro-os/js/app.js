@@ -5,6 +5,8 @@ import * as D from './demo.js';
 import {studioScenario, studioSuggestions, askOtto, ottoSuggestions, proposeValues} from './agent.js';
 import {inspect, fillNative, formPdf} from './pdf-core.js';
 import {startTour} from './tour.js';
+import {initGame, gameChip, mountGame, gameInvite} from './game.js';
+import {challenges} from './challenges.js';
 import {notaroTour} from './tour-steps.js';
 import {live, subscribe as onLive, startLive} from './live.js';
 
@@ -58,7 +60,7 @@ function shell() {
   <div class="sidebar-bottom"><button class="plan-mini" data-action="otto"><span class="plan-orbit">${icon('otto-happy')}</span><span>Chiedi a Otto<small>Un solo assistente per tutto lo studio</small></span>${icon('chevron')}</button>${navItem('settings', 'Impostazioni', 'settings')}<button class="account" data-action="account"><span class="avatar">AC</span><span>Andrea Conti<small>Notaio titolare</small></span>${icon('down')}</button></div>
  </aside><div class="mobile-scrim" data-action="sidebar"></div>
  <div class="app-body"><header class="topbar"><div class="breadcrumbs"><button class="icon-btn mobile-toggle" data-action="sidebar" aria-label="Apri navigazione" aria-controls="workspace-navigation" aria-expanded="false">${icon('list')}</button><span>Studio</span>${icon('chevron')}<strong id="crumb"></strong></div>
-  <div class="topbar-actions"><button class="search-trigger" data-action="search" aria-label="Cerca nella Station">${icon('search')}<span>Cerca</span><kbd>⌘ K</kbd></button><button class="live-toggle ${live.on ? 'on' : ''}" data-action="live" aria-pressed="${live.on}" title="Studio live: email, chiamate e messaggi arrivano da soli">${live.on ? '<span class="live-dot"></span>' : '<i></i>'}<span>Studio live</span></button><button class="ask-otto" data-action="otto">${icon('otto-happy')}<span>Chiedi a Otto</span></button><button class="demo-btn" data-action="tour"><i></i><span>Demo interattiva</span></button></div></header>
+  <div class="topbar-actions"><button class="search-trigger" data-action="search" aria-label="Cerca nella Station">${icon('search')}<span>Cerca</span><kbd>⌘ K</kbd></button>${gameChip()}<button class="live-toggle ${live.on ? 'on' : ''}" data-action="live" aria-pressed="${live.on}" title="Studio live: email, chiamate e messaggi arrivano da soli">${live.on ? '<span class="live-dot"></span>' : '<i></i>'}<span>Studio live</span></button><button class="ask-otto" data-action="otto">${icon('otto-happy')}<span>Chiedi a Otto</span></button><button class="demo-btn" data-action="tour"><i></i><span>Demo interattiva</span></button></div></header>
   <main id="main" tabindex="-1"></main>
   <footer class="app-footer"><span>CSD Station <span class="footer-divider">/</span> Lo studio notarile, tutto collegato.</span><span>Anteprima dimostrativa · persone, pratiche e documenti inventati · nessun servizio collegato</span></footer></div>
  <aside class="otto-drawer" id="otto-drawer" aria-label="Otto, assistente dello studio" hidden></aside><div class="live-stack" id="live-stack" aria-live="polite"></div>`;
@@ -76,6 +78,7 @@ function render() {
  main.className = (id === 'studio' ? 'main-studio' : '') + (id !== lastRoute ? ' enter' : '');
  lastRoute = id;
  main.innerHTML = pages[id] ? pages[id]() : `<div class="empty-state"><span class="empty-icon">${icon('search')}</span><h2>Questo spazio non esiste.</h2><p>Torna a “Oggi in studio”.</p><a class="btn btn-primary" href="#home">Torna a oggi${icon('arrow')}</a></div>`;
+ mountGame(id, main);
  if (id === 'studio') afterStudioRender();
 }
 
@@ -481,7 +484,7 @@ function action(a) {
  if (a === 'otto') return toggleOtto();
  if (a === 'search') return searchDialog();
  if (a === 'live') { live.on = !live.on; toast(live.on ? 'Studio live: email, chiamate e messaggi arrivano da soli.' : 'Studio in pausa.'); return shell(); }
- if (a === 'tour') return startTour(notaroTour({toggleOtto}), {otto, name:'Demo interattiva CS Notaro OS', onEnd: () => { toggleOtto(false); }});
+ if (a === 'tour') return startTour(notaroTour({toggleOtto}), {otto, name:'Demo interattiva CS Notaro OS', onEnd: () => { toggleOtto(false); gameInvite(); }});
  if (a.startsWith('toast:')) return toast(a.slice(6));
  if (a.startsWith('go:')) { location.hash = a.slice(3); return; }
  if (a.startsWith('studio:')) { const id = a.slice(7); const s = studioSuggestions.find(x => x.id === id); const prompt = s?.prompt || 'Confronta lo statuto Lumen Tech v2 con la v3';
@@ -599,5 +602,6 @@ window.addEventListener('message', e => {
  if (e.data === 'csd:resume') wake(true);
  if (e.data === 'csd:pause') wake(false);
 });
+initGame(challenges, {icon, pageName:id => moduleById(id)?.title || {home:'Oggi in studio'}[id] || id});
 shell();
 startLive();
