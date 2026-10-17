@@ -5,11 +5,12 @@
   "type": "module",
   "main": "server.js",
   "scripts": {
-    "dev": "vite",
-    "build": "vite build && node scripts/build-seo.mjs && npm run check:seo",
+    "dev": "npm run sync:os && vite",
+    "build": "npm run sync:os && vite build && node scripts/build-seo.mjs && npm run check:seo",
     "start": "node server.js",
     "preview": "vite preview",
-    "check:seo": "node scripts/check-seo.mjs"
+    "check:seo": "node scripts/check-seo.mjs",
+    "sync:os": "node scripts/sync-os-demos.mjs"
   },
   "dependencies": {
     "dotenv": "^17.4.2",

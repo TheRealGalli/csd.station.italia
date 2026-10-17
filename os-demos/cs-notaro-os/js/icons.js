@@ -1,0 +1,32 @@
+const paths = {
+ clip:'<path d="m21 11-8.5 8.5a5 5 0 0 1-7-7L14 4a3.3 3.3 0 0 1 4.7 4.7L10 17.4a1.7 1.7 0 0 1-2.4-2.4l8-8"/>',
+ send:'<path d="M22 2 11 13M22 2l-7 20-4-9-9-4z"/>',
+ eye:'<path d="M2 12s4-7 10-7 10 7 10 7-4 7-10 7S2 12 2 12Z"/><circle cx="12" cy="12" r="3"/>',
+ book:'<path d="M4 4h6a3 3 0 0 1 3 3v14a2 2 0 0 0-2-2H4zM20 4h-5a2 2 0 0 0-2 2"/><path d="M20 4v15h-7"/>',
+ alert:'<path d="M12 3 2 21h20zM12 10v5m0 3h.01"/>',
+ mic:'<rect x="9" y="2" width="6" height="12" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v4"/>',
+ flow:'<circle cx="5" cy="6" r="2"/><circle cx="19" cy="6" r="2"/><circle cx="12" cy="18" r="2"/><path d="M7 6h10M6 8l5 8m7-8-5 8"/>',
+ folder:'<path d="M3 7V4h7l2 3h9v13H3z"/><path d="M3 10h18"/>',
+ database:'<ellipse cx="12" cy="5" rx="8" ry="3"/><path d="M4 5v14c0 4 16 4 16 0V5M4 12c0 4 16 4 16 0"/>',
+ scan:'<path d="M8 3H3v5m13-5h5v5M3 16v5h5m8 0h5v-5M7 12l3 3 7-7"/>',
+ network:'<rect x="8" y="2" width="8" height="6" rx="1"/><rect x="2" y="16" width="7" height="6" rx="1"/><rect x="15" y="16" width="7" height="6" rx="1"/><path d="M12 8v4M5 16v-4h14v4"/>',
+ inbox:'<path d="m3 3-1 12v6h20v-6L21 3zM2 15h6l2 3h4l2-3h6M8 7h8m-8 4h6"/>',
+ layers:'<path d="m12 2 10 6-10 6L2 8zM2 12l10 6 10-6M2 16l10 6 10-6"/>',
+ download:'<path d="M12 3v12m-5-5 5 5 5-5M3 15v6h18v-6"/>',
+ shield:'<path d="m12 2 9 4v6c0 5-9 10-9 10S3 17 3 12V6zM8 12l3 3 5-6"/>',
+ home:'<rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/>',
+ arrow:'<path d="M4 12h16m-6-6 6 6-6 6"/>',up:'<path d="M6 18 18 6M6 6h12v12"/>',chevron:'<path d="m9 5 7 7-7 7"/>',down:'<path d="m6 9 6 6 6-6"/>',
+ search:'<circle cx="10.5" cy="10.5" r="6.5"/><path d="m16 16 4 4"/>', bell:'<path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9M10 21h4"/>',
+ table:'<rect x="6" y="6" width="12" height="12" rx="3"/><path d="M9 2h6M9 22h6M2 9v6M22 9v6"/>',chef:'<path d="M7 14a5 5 0 1 1 1-9 5 5 0 0 1 8 0 5 5 0 1 1 1 9v6H7zM7 16h10M10 11v2m4-2v2"/>',
+ menu:'<rect x="5" y="2" width="14" height="20" rx="2"/><path d="M9 6h6M9 10h6M9 14h3M11 18h2"/>', phone:'<path d="m7 3 3 5-3 3a15 15 0 0 0 6 6l3-3 5 3c0 3-2 5-5 4C8 19 5 16 3 8 2 5 4 3 7 3Z"/>',
+ star:'<path d="m12 3 2.8 5.7 6.2.9-4.5 4.4 1.1 6.2-5.6-3-5.6 3 1.1-6.2L3 9.6l6.2-.9Z"/>',message:'<path d="M21 11.5a9 9 0 0 1-9 9 10 10 0 0 1-4-.8L3 21l1.3-5A9 9 0 1 1 21 11.5Z"/><path d="M8 9h8M8 13h5"/>',
+ card:'<rect x="2" y="4" width="20" height="16" rx="3"/><path d="M2 9h20M6 15h3m6-2a3 3 0 0 1 0 4m3-6a6 6 0 0 1 0 8"/>', box:'<path d="m12 2 9 5v10l-9 5-9-5V7zM3 7l9 5 9-5M12 12v10M7 4.8l9 5"/>', receipt:'<path d="M5 3v18l3-2 4 2 4-2 3 2V3l-3 2-4-2-4 2zM9 9h6M9 13h6"/>',radar:'<circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><path d="m12 12 7-7"/><circle cx="12" cy="12" r="1"/>',
+ users:'<circle cx="9" cy="7" r="3"/><path d="M3 21v-3a6 6 0 0 1 12 0v3M16 4a3 3 0 0 1 0 6M18 14a5 5 0 0 1 3 4v3"/>', palette:'<path d="M12 3a9 9 0 0 0 0 18h1a2 2 0 0 0 1-4 2 2 0 0 1 1-3h2a4 4 0 0 0 4-4 9 9 0 0 0-9-7Z"/><path d="M7 9h.01M10 6h.01M15 7h.01M6 13h.01"/>',
+ settings:'<path d="m10 3-1 3-3 1-3-1-1 4 3 2v3l-2 2 3 3 3-1 2 2 4-1v-3l3-1 3 1 1-4-3-2V9l2-2-3-3-3 1-2-2z"/><circle cx="12" cy="12" r="3"/>', help:'<circle cx="12" cy="12" r="9"/><path d="M9.5 9a2.5 2.5 0 1 1 4.3 1.7c-1.3 1-1.8 1.3-1.8 3M12 17h.01"/>',
+ sparkle:'<path d="m12 3 2.5 6.5L21 12l-6.5 2.5L12 21l-2.5-6.5L3 12l6.5-2.5zM20 2v4m-2-2h4"/>', check:'<path d="m5 12 4 4L19 6"/>', plus:'<path d="M12 5v14M5 12h14"/>', close:'<path d="m6 6 12 12M6 18 18 6"/>',
+ store:'<path d="m4 3-2 6a3 3 0 0 0 5 2 3 3 0 0 0 5 0 3 3 0 0 0 5 0 3 3 0 0 0 5-2l-2-6ZM4 12v9h16v-9M9 21v-6h6v6M8 3 7 9m9-6 1 6"/>', calendar:'<rect x="3" y="5" width="18" height="16" rx="2"/><path d="M7 3v4m10-4v4M3 11h18M7 15h2m4 0h2m-8 3h2"/>',
+ clock:'<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>',coins:'<ellipse cx="12" cy="6" rx="8" ry="3"/><path d="M4 6v6c0 4 16 4 16 0V6M4 12v6c0 4 16 4 16 0v-6"/>', lock:'<rect x="5" y="10" width="14" height="11" rx="2"/><path d="M8 10V6a4 4 0 0 1 8 0v4M12 14v3"/>',
+ logout:'<path d="M9 3H4v18h5M10 12h11m-4-4 4 4-4 4"/>', list:'<path d="M9 6h12M9 12h12M9 18h12M3 6h1M3 12h1M3 18h1"/>', info:'<circle cx="12" cy="12" r="9"/><path d="M12 11v6m0-10h.01"/>',filter:'<path d="M4 7h16M7 12h10M10 17h4"/>', file:'<path d="M14 2H5v20h14V7zM14 2v6h5M8 12h8M8 16h5"/>', link:'<path d="m10 13 4-4M8 16l-2 2a4 4 0 0 1-6-6l5-5a4 4 0 0 1 6 0M16 8l2-2a4 4 0 0 1 6 6l-5 5a4 4 0 0 1-6 0" transform="translate(1 0) scale(.9)"/>'
+};
+export const icon = (name, cls='') => `<svg class="icon ${cls}" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${paths[name] || paths.home}</svg>`;
+export const otto = (mood='awake') => `<div class="otto otto-${mood}" aria-hidden="true"><div class="otto-aerial"><i></i></div><div class="otto-ear ear-left"></div><div class="otto-ear ear-right"></div><div class="otto-head"><div class="otto-face"><i class="otto-eye"></i><i class="otto-eye"></i><span class="otto-mouth"></span></div><span class="otto-cheek cheek-left"></span><span class="otto-cheek cheek-right"></span></div><div class="otto-arm arm-left"></div><div class="otto-arm arm-right"></div><div class="otto-body"><span>OTTO</span><i></i><div class="otto-vents">···</div></div><div class="otto-foot foot-left"></div><div class="otto-foot foot-right"></div><div class="otto-shadow"></div></div>`;

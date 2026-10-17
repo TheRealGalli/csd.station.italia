@@ -7,3 +7,9 @@ dist
 
 # Temporary server rendering bundle, removed after the static build
 .seo-build/
+
+# Demo OS generate da os-demos/ (npm run sync:os)
+public/os/
+
+# Configurazione locale di Claude Code
+.claude/

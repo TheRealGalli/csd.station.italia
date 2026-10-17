@@ -1,0 +1,26 @@
+steps:
+  # 1. Build del container Docker
+  - name: 'gcr.io/cloud-builders/docker'
+    args: ['build', '-t', 'gcr.io/$PROJECT_ID/csd-restaurant-os', '.']
+
+  # 2. Push dell'immagine su Google Container / Artifact Registry
+  - name: 'gcr.io/cloud-builders/docker'
+    args: ['push', 'gcr.io/$PROJECT_ID/csd-restaurant-os']
+
+  # 3. Deploy su Google Cloud Run
+  - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
+    entrypoint: gcloud
+    args:
+      - 'run'
+      - 'deploy'
+      - 'csd-restaurant-os'
+      - '--image'
+      - 'gcr.io/$PROJECT_ID/csd-restaurant-os'
+      - '--region'
+      - 'europe-west1'
+      - '--platform'
+      - 'managed'
+      - '--allow-unauthenticated'
+
+images:
+  - 'gcr.io/$PROJECT_ID/csd-restaurant-os'

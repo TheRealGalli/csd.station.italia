@@ -2,6 +2,13 @@ export type ServiceMode = 'automazioni' | 'nfc' | 'training';
 export const servicePaths: Record<ServiceMode, string> = {
   automazioni: '/', nfc: '/card-nfc/', training: '/training-ai/',
 };
+// Demo dei sistemi OS di settore: solo desktop, non ancora rilasciati (noindex).
+export type OsProduct = 'restaurant' | 'notaro';
+export const osPaths: Record<OsProduct, string> = { restaurant: '/restaurant-os/', notaro: '/notaro-os/' };
+export function getOsProduct(pathname: string): OsProduct | null {
+  const path = normalizePath(pathname);
+  return (Object.keys(osPaths) as OsProduct[]).find(key => osPaths[key] === path) ?? null;
+}
 export const legalPaths = ['/privacy-policy/', '/terms-of-service/', '/nfc/privacy-policy/', '/nfc/terms-of-service/', '/cookie-policy/'];
 export function normalizePath(path: string) {
   return path === '/' ? '/' : `${path.replace(/\/+$/, '')}/`;

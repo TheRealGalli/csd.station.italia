@@ -3,7 +3,7 @@ import { Link, useLocation } from 'react-router-dom';
 import { ArrowUpRight, ArrowRight, ArrowDown, Zap, Workflow, ScanLine, Boxes, ShieldCheck, Sparkles, Check, Mail, FileText, Database, Activity, Radio, Play, RotateCcw, Plus, Minus, BarChart3, Nfc, Cpu, GraduationCap } from 'lucide-react';
 import portrait from '@/assets/profile-web.jpg';
 import card from '@/assets/nfc-card.jpg';
-import { getServiceMode, servicePaths } from '@/seo/routes';
+import { getOsProduct, getServiceMode, osPaths, servicePaths } from '@/seo/routes';
 import { consultingIntro, nfcIntro } from '@/seo/content';
 import { ServiceAnswers } from './ServiceAnswers';
 import plate from '@/assets/nfc-plate.png';
@@ -21,14 +21,17 @@ const skills = 'https://www.skills.google/public_profiles/4a3ed6b8-9f55-463f-83a
 export function Brand() { return <span className="station-brand"><span className="brand-symbol"><i/><i/><i/></span><span>CSD<span className="brand-light"> Station</span><small>CONSULENZA · AI · NFC</small></span></span>; }
 export function StationHeader() {
   const location = useLocation();
-  const mode = getServiceMode(location.pathname, location.search);
-  const contactHref = mode === 'training' ? trainingContact : mode === 'nfc' ? whatsapp('Ciao Carlo! Vorrei informazioni sulle card e sui prodotti NFC di CSD Station.') : consultingContact;
+  const os = getOsProduct(location.pathname);
+  const mode = os ? null : getServiceMode(location.pathname, location.search);
+  const contactHref = os ? whatsapp(`Ciao Carlo! Vorrei avere più informazioni su ${os === 'restaurant' ? 'CS Restaurant OS' : 'CS Notaro OS'}.`) : mode === 'training' ? trainingContact : mode === 'nfc' ? whatsapp('Ciao Carlo! Vorrei informazioni sulle card e sui prodotti NFC di CSD Station.') : consultingContact;
   return <header className="station-header"><div className="station-nav wrap">
     <Link to="/" aria-label="CSD Station, homepage" onClick={() => window.scrollTo({top: 0, behavior: 'instant' as ScrollBehavior})}><Brand/></Link>
     <nav className="station-links" id="station-navigation" aria-label="Navigazione principale">
       <Link className={mode === 'automazioni' ? 'active' : ''} aria-current={mode === 'automazioni' ? 'page' : undefined} to={servicePaths.automazioni}>Consulenza AI</Link>
       <Link className={mode === 'training' ? 'active' : ''} aria-current={mode === 'training' ? 'page' : undefined} to={servicePaths.training}>Training</Link>
       <Link className={mode === 'nfc' ? 'active' : ''} aria-current={mode === 'nfc' ? 'page' : undefined} to={servicePaths.nfc}>Card NFC <span className="nav-dot"/></Link>
+      <Link className={`nav-os ${os === 'restaurant' ? 'active' : ''}`} aria-current={os === 'restaurant' ? 'page' : undefined} to={osPaths.restaurant}>Restaurant OS <small>DEMO</small></Link>
+      <Link className={`nav-os ${os === 'notaro' ? 'active' : ''}`} aria-current={os === 'notaro' ? 'page' : undefined} to={osPaths.notaro}>Notaro OS <small>DEMO</small></Link>
     </nav>
     <a className="station-button small nav-contact" href={contactHref} target="_blank" rel="noreferrer">Parliamone <ArrowUpRight size={16}/></a>
   </div></header>;

@@ -1,0 +1,52 @@
+/* Vetrina delle demo OS (CS Restaurant OS, CS Notaro OS). */
+.os-site{background:#101510;color:#f1f5ea}
+.os-stage{position:relative;height:calc(100vh - 88px);height:calc(100dvh - 88px);min-height:620px;overflow:hidden;background:#f6f7f2}
+.os-frame{position:absolute;inset:0;width:100%;height:100%;border:0;display:block;pointer-events:none;filter:saturate(.85) brightness(.82) blur(1.5px);transform:scale(1.01);transition:filter .5s ease,transform .5s ease}
+.os-frame.is-open{pointer-events:auto;filter:none;transform:none}
+.os-veil{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;padding:32px;background:radial-gradient(ellipse at 50% 45%,#0f1a1299,#0b120dd9 70%);animation:os-fade .5s ease both}
+@keyframes os-fade{from{opacity:0}}
+.os-card{position:relative;display:flex;flex-direction:column;width:min(580px,100%);height:min(var(--os-card-h,572px),calc(100% - 8px));overflow:visible;background:#152016f2;border:1px solid #2f4029;border-radius:18px;padding:34px 36px 26px;box-shadow:0 40px 120px #000a;backdrop-filter:blur(8px);animation:os-rise .6s cubic-bezier(.2,.8,.3,1) .1s both}
+@keyframes os-rise{from{opacity:0;transform:translateY(14px)}}
+.os-eyebrow{display:inline-flex;align-items:center;gap:8px;font-size:10px;letter-spacing:1.8px;font-weight:600;color:#c5f476}
+.os-eyebrow i{width:7px;height:7px;border-radius:50%;background:#d8432f;box-shadow:0 0 0 0 #d8432f99;animation:os-ping 1.6s infinite}
+@keyframes os-ping{70%{box-shadow:0 0 0 7px #d8432f00}100%{box-shadow:0 0 0 0 #d8432f00}}
+.os-card h1{white-space:nowrap;font-size:46px;line-height:1.05;letter-spacing:-1.8px;font-weight:600;margin:14px 0 0;color:#f4f8ec}
+.os-tagline{font-size:16px;color:#c5f476;margin-top:10px;line-height:1.5;min-height:3em;text-wrap:balance}
+.os-text{font-size:14px;line-height:1.7;color:#c3cfb8;margin-top:14px}
+.os-card ul{list-style:none;padding:0;margin:18px 0 auto;display:grid;gap:10px}
+.os-card ul+.os-whatsapp{margin-top:22px}
+.os-card li{display:flex;align-items:center;gap:11px;font-size:13px;color:#dfe8d5}
+/* Otto sbuca dall'angolo del cartellino */
+.os-otto{position:absolute;top:-78px;right:22px;width:96px;height:118px;pointer-events:none}
+.os-otto>.otto{position:absolute;top:0;left:0;transform:scale(.62) rotate(6deg);transform-origin:top left;animation:none}
+.os-otto .otto-shadow{display:none}
+/* Faccine di Otto al posto delle stelline */
+.os-face{position:relative;flex:none;width:22px;height:17px;border-radius:7px 7px 6px 6px;background:linear-gradient(135deg,#f5f8e9,#b8c79f);box-shadow:0 2px 0 #6f8458}
+.os-face:before{content:'';position:absolute;inset:3px 3px 3px;border-radius:4px;background:#172f25}
+.os-face i{position:absolute;top:6px;width:2.5px;height:4.5px;border-radius:2px;background:#d6ff9f;box-shadow:0 0 4px #c5f47699;z-index:1}
+.os-face i:first-child{left:7px}.os-face i:nth-child(2){right:7px}
+.os-face b{position:absolute;left:50%;bottom:4.5px;width:4px;height:1.5px;margin-left:-2px;border-radius:0 0 2px 2px;background:#bdda92;z-index:1}
+.os-face-happy i{height:2.5px;top:7px;background:transparent;border-top:1.5px solid #d6ff9f;border-radius:50% 50% 0 0;box-shadow:none;width:4px}
+.os-face-happy i:first-child{left:6px}.os-face-happy i:nth-child(2){right:6px}
+.os-face-happy b{width:6px;height:2.5px;margin-left:-3px;border-radius:0 0 3px 3px}
+.os-face-wink i:nth-child(2){height:1.5px;top:8px;width:4px;right:6px}
+.os-whatsapp{display:flex;align-items:center;justify-content:space-between;gap:14px;width:100%;background:#25d366;color:#08240f;font-weight:650;font-size:14px;border-radius:10px;padding:15px 18px;transition:background .2s,transform .2s;box-shadow:0 10px 30px #25d36640}
+.os-whatsapp:hover{background:#3ae07a;transform:translateY(-1px)}
+.os-secondary{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px}
+.os-secondary button{display:flex;align-items:center;justify-content:center;gap:8px;background:transparent;color:#e6efdc;border:1px solid #3b4d36;border-radius:10px;padding:12px;font-size:13px;font-weight:500;cursor:pointer;transition:border-color .2s,background .2s}
+.os-secondary button:hover{border-color:#c5f476;background:#1d2b1b}
+.os-card small{display:flex;align-items:center;gap:6px;justify-content:center;font-size:11px;color:#8fa385;margin-top:16px}
+.os-bar{position:absolute;right:18px;bottom:18px;display:flex;align-items:center;gap:14px;background:#152016f2;border:1px solid #2f4029;border-radius:30px;padding:8px 8px 8px 16px;box-shadow:0 14px 40px #0007;font-size:12px;color:#d7e3cc;z-index:5;white-space:nowrap;animation:os-rise .4s ease both}
+.os-bar>span{display:flex;align-items:center;gap:8px}
+.os-bar>span i{width:7px;height:7px;border-radius:50%;background:#7fbf3a}
+.os-bar a{display:flex;align-items:center;gap:6px;background:#25d366;color:#08240f;font-weight:650;border-radius:20px;padding:8px 13px}
+.os-bar button{background:transparent;color:#b9c8ad;border:1px solid #3b4d36;border-radius:20px;padding:7px 12px;cursor:pointer;font-size:12px}
+.os-bar button:hover{color:#fff;border-color:#c5f476}
+.os-mobile{height:100%;display:flex;flex-direction:column;align-items:flex-start;justify-content:center;gap:12px;padding:40px 24px;background:#152016;color:#e8f0df}
+.os-mobile>svg{color:#c5f476}
+.os-mobile h1{font-size:38px;letter-spacing:-1.2px;font-weight:600;margin:0}
+.os-mobile p{font-size:14px;line-height:1.6;color:#c3cfb8;margin:0}
+.station-links .nav-os{display:inline-flex;align-items:center;gap:6px}
+.station-links .nav-os small{font-size:8px;letter-spacing:.8px;font-weight:700;color:#14200a;background:#c5f476;border-radius:4px;padding:2px 5px}
+@media(max-width:1023px){.station-links .nav-os{display:none!important}}
+@media(prefers-reduced-motion:reduce){.os-frame,.os-veil,.os-card,.os-bar{animation:none!important;transition:none!important}}

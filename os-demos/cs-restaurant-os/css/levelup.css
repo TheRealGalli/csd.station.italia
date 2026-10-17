@@ -1,0 +1,89 @@
+/* Level up visivo CSD Station — condiviso da CS Restaurant e CS Notaro (vedi docs/studio-visivo.md).
+   Leggibilità, profondità leggera, segnali di vita. Si carica dopo style.css. */
+:root{--muted:#5f6a5a;--line:#dfe4d7;--shadow-s:0 1px 2px #1b2a120d,0 4px 14px #1b2a120a;--shadow-m:0 2px 4px #1b2a120f,0 14px 34px #1b2a1214}
+body{background:var(--paper)}
+p{color:inherit}
+.eyebrow{color:#64755a;letter-spacing:1.5px}
+h1{font-size:34px;letter-spacing:-1.2px}
+.page-heading p{color:var(--muted);font-size:13.5px}
+
+/* barra in alto sempre visibile */
+.topbar{position:sticky;top:0;z-index:25;background:#fbfcf8d9;backdrop-filter:saturate(1.4) blur(10px);-webkit-backdrop-filter:saturate(1.4) blur(10px)}
+.topbar-actions{gap:12px}
+
+/* sidebar più leggibile */
+.nav-item{color:#b2bdab}
+.nav-item>.icon{color:#8fa287}
+.nav-label{color:#7f9278;font-weight:600}
+.nav-item.active{box-shadow:0 4px 14px #c5f47630}
+
+/* card con profondità */
+.metric,.module-card,.workspace-panel,.list-pane,.detail-pane,.eco-col,.update,.registry,.decision,.setup-panel,.settings-card,.plan-card{box-shadow:var(--shadow-s)}
+.metric{transition:transform .18s,box-shadow .18s,border-color .18s}
+a.metric:hover,.module-card:hover,.registry:hover{transform:translateY(-2px);box-shadow:var(--shadow-m)}
+.metric>div{color:#56634d;font-weight:500}
+.metric>strong{font-size:34px;color:var(--ink)}
+.metric>small{color:#6d7966}
+.module-card p{color:#66725e}
+.module-card-footer{color:#7b8771}
+.panel-title h2{font-size:14.5px}
+.badge{font-weight:500}
+.notice{color:#5f7052}
+.btn{font-weight:600}
+
+/* entrata della pagina */
+#main.enter>*{animation:lu-rise .38s cubic-bezier(.2,.8,.3,1) both}
+#main.enter>*:nth-child(2){animation-delay:.04s}#main.enter>*:nth-child(3){animation-delay:.08s}#main.enter>*:nth-child(4){animation-delay:.12s}#main.enter>*:nth-child(5){animation-delay:.16s}#main.enter>*:nth-child(n+6){animation-delay:.2s}
+@keyframes lu-rise{from{opacity:0;transform:translateY(8px)}}
+
+/* segnali di vita */
+.live-dot{display:inline-block;width:8px;height:8px;border-radius:50%;background:#6fbf3a;box-shadow:0 0 0 0 #6fbf3a80;animation:lu-live 1.8s infinite;vertical-align:middle}
+@keyframes lu-live{0%{box-shadow:0 0 0 0 #6fbf3a90}70%{box-shadow:0 0 0 7px #6fbf3a00}100%{box-shadow:0 0 0 0 #6fbf3a00}}
+.bump{animation:lu-bump .5s ease-out}
+@keyframes lu-bump{30%{transform:scale(1.08);color:#3d7a14}}
+.row-in{animation:lu-row .45s ease-out}
+@keyframes lu-row{from{opacity:0;transform:translateX(-8px);background:#eef8df}}
+
+/* anatomia del modulo: pannello Otto */
+.otto-panel{background:#1d2b20;color:#e8f0df;border-radius:12px;padding:18px;border:1px solid #2f4029;box-shadow:var(--shadow-m)}
+.otto-panel .eyebrow{color:#c5f476;display:flex;gap:7px;align-items:center}
+.otto-panel .eyebrow .icon{width:13px}
+.otto-panel p{font-size:12.5px;line-height:1.6;margin-top:8px;color:#d8e3cd}
+.otto-panel b{color:#c5f476;font-weight:600}
+.otto-panel .btn{margin-top:12px;width:100%;justify-content:space-between}
+
+@media(prefers-reduced-motion:reduce){#main>*,.bump,.row-in,.live-dot{animation:none!important}}
+
+/* ——— sistema live condiviso: interruttore, notifiche in arrivo, stati "Otto sta lavorando" ——— */
+.live-toggle{display:inline-flex;align-items:center;gap:8px;font-size:11.5px;font-weight:500;color:#5d6b52;background:#fff;border:1px solid var(--line);border-radius:20px;padding:7px 12px}
+.live-toggle i{width:8px;height:8px;border-radius:50%;background:#c6cdbf}
+.live-toggle.on{color:#3f6a1c;border-color:#cde5ad;background:#f1f9e6}
+.live-dot.red{background:#d8432f;box-shadow:0 0 0 0 #d8432f80;animation:lu-live-red 1.4s infinite}
+@keyframes lu-live-red{0%{box-shadow:0 0 0 0 #d8432f90}70%{box-shadow:0 0 0 6px #d8432f00}100%{box-shadow:0 0 0 0 #d8432f00}}
+.live-stack{position:fixed;top:86px;right:20px;z-index:45;display:grid;gap:8px;width:min(340px,calc(100vw - 32px));pointer-events:none}
+.live-card{pointer-events:auto;display:flex;gap:11px;align-items:flex-start;text-align:left;background:#fff;border:1px solid #dfe6d4;border-left:3px solid #8fc251;border-radius:11px;padding:11px 13px;box-shadow:0 14px 34px #1b2a1222;animation:lc-in .35s cubic-bezier(.2,.9,.3,1.15)}
+.live-card.out{opacity:0;transform:translateX(16px);transition:opacity .3s,transform .3s}
+.live-card b{display:block;font-size:12px;font-weight:600;color:var(--ink)}
+.live-card small{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;font-size:11px;color:#66725e;margin-top:3px;line-height:1.45}
+.lc-icon{width:30px;height:30px;border-radius:8px;display:grid;place-items:center;background:#eef6e2;color:#5d8a2c;flex:none}
+.lc-icon .icon{width:15px;height:15px}
+.lc-call .lc-icon,.lc-booking .lc-icon{background:#fbefec;color:#c2452f}.lc-call{border-left-color:#d8432f}
+.lc-wa .lc-icon{background:#e3f6e7;color:#2f9a4c}.lc-wa{border-left-color:#3cb35c}
+.lc-review .lc-icon{background:#fdf4dc;color:#c08a12}.lc-review{border-left-color:#e0a526}
+@keyframes lc-in{from{opacity:0;transform:translateY(-8px) scale(.97)}}
+body.touring .live-stack{display:none}
+.new-tag{display:inline-block;font-size:8.5px;letter-spacing:.8px;font-weight:700;color:#fff;background:#d8432f;border-radius:4px;padding:2px 5px;margin-right:6px;vertical-align:1px}
+.otto-reading{display:flex;gap:12px;align-items:flex-start;background:#f4f8ec;border:1px dashed #c9dcae;border-radius:9px;padding:14px 15px}
+.otto-reading>div{flex:1;display:grid;gap:8px}
+.otto-reading b{font-size:12px;font-weight:550;color:#4d6a2b}
+.skeleton{display:block;height:9px;border-radius:5px;background:linear-gradient(90deg,#e6eedb,#f4f8ee,#e6eedb);background-size:200% 100%;animation:lu-shimmer 1.2s linear infinite}
+.skeleton.short{width:60%}
+@keyframes lu-shimmer{to{background-position:-200% 0}}
+.bubble.typing{display:inline-flex;gap:4px;align-items:center;background:#eaf5da;justify-self:end;padding:12px 14px;width:max-content}
+.bubble.typing i{width:6px;height:6px;border-radius:50%;background:#7aa143;animation:lu-typing 1s infinite}
+.bubble.typing i:nth-child(2){animation-delay:.15s}.bubble.typing i:nth-child(3){animation-delay:.3s}
+@keyframes lu-typing{0%,60%,100%{opacity:.3;transform:translateY(0)}30%{opacity:1;transform:translateY(-3px)}}
+@media(max-width:760px){.live-toggle span:not(.live-dot){display:none}.live-stack{top:72px;right:12px}}
+
+/* Demo dentro il sito, non ancora aperta dal visitatore: tutto fermo, niente consumo in background. */
+.csd-paused *,.csd-paused *::before,.csd-paused *::after{animation:none!important;transition:none!important}

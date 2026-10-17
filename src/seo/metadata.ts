@@ -1,5 +1,5 @@
 import { consultingIntro, nfcIntro, trainingIntro } from './content';
-import { getServiceMode, legalPaths, normalizePath, servicePaths, type ServiceMode } from './routes';
+import { getOsProduct, getServiceMode, legalPaths, normalizePath, osPaths, servicePaths, type ServiceMode } from './routes';
 
 export const origin = 'https://csd-station.it';
 const titles: Record<ServiceMode, string> = {
@@ -9,10 +9,20 @@ const titles: Record<ServiceMode, string> = {
 };
 const descriptions = { automazioni: consultingIntro, nfc: nfcIntro, training: trainingIntro };
 const legalNames = ['Privacy consulenza', 'Termini consulenza', 'Privacy NFC', 'Termini NFC', 'Cookie policy'];
-export const buildPaths = [...Object.values(servicePaths), ...legalPaths, '/privacy-policy-nfc/', '/terms-of-service-nfc/'];
+export const buildPaths = [...Object.values(servicePaths), ...legalPaths, '/privacy-policy-nfc/', '/terms-of-service-nfc/', ...Object.values(osPaths)];
+const osPages = {
+  restaurant: { name: 'CS Restaurant OS · demo | CSD Station', description: 'Demo dimostrativa di CS Restaurant OS: sala, cucina, cassa e magazzino collegati in tempo reale, con un assistente AI e WhatsApp. Sistema non ancora rilasciato.' },
+  notaro: { name: 'CS Notaro OS · demo | CSD Station', description: 'Demo dimostrativa di CS Notaro OS: posta, pratiche, documenti compilati dall’AI e scadenze dello studio notarile, collegati con WhatsApp. Sistema non ancora rilasciato.' },
+};
 
 export function getPageMeta(pathname: string, search = '') {
   const path = normalizePath(pathname);
+  const os = getOsProduct(path);
+  if (os) {
+    const url = origin + path;
+    return { name: osPages[os].name, description: osPages[os].description, url, found: true, demo: true, service: false, mode: 'automazioni' as ServiceMode, markdown: null,
+      graph: { '@context': 'https://schema.org', '@graph': [{ '@type': 'WebPage', '@id': `${url}#webpage`, url, name: osPages[os].name, description: osPages[os].description, inLanguage: 'it-IT' }] } };
+  }
   const mode = getServiceMode(path, search);
   const service = Object.values(servicePaths).includes(path);
   const canonicalPath = service ? servicePaths[mode] : path === '/privacy-policy-nfc/' ? '/nfc/privacy-policy/' : path === '/terms-of-service-nfc/' ? '/nfc/terms-of-service/' : path;
@@ -42,7 +52,7 @@ export function getPageMeta(pathname: string, search = '') {
       { '@type': 'ListItem', position: 2, name: mode === 'training' ? 'Training AI' : 'Card NFC', item: url },
     ],
   });
-  return { name, description, url, found, service, mode, markdown: service ? `${url}index.md` : null, graph: { '@context': 'https://schema.org', '@graph': graph } };
+  return { name, description, url, found, demo: false, service, mode, markdown: service ? `${url}index.md` : null, graph: { '@context': 'https://schema.org', '@graph': graph } };
 }
 export function escapeHtml(value: string) {
   return value.replace(/[&<>"']/g, character => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[character]!));
@@ -52,7 +62,7 @@ export function renderSeoHead(page: ReturnType<typeof getPageMeta>) {
   return [
     // The browser title deliberately remains CSD Station, as requested by the owner.
     meta('description', page.description), meta('author', 'Carlo Galli — CSD Station'),
-    meta('robots', page.found ? 'index, follow, max-image-preview:large' : 'noindex, follow'),
+    meta('robots', page.found && !page.demo ? 'index, follow, max-image-preview:large' : 'noindex, follow'),
     ...(page.found ? [`<link data-seo rel="canonical" href="${escapeHtml(page.url)}">`] : []),
     meta('og:type', 'website', true), meta('og:site_name', 'CSD Station', true), meta('og:locale', 'it_IT', true),
     meta('og:title', page.name, true), meta('og:description', page.description, true), meta('og:url', page.url, true),

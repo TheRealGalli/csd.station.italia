@@ -1,6 +1,7 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
+import OsDemo from "./components/station/OsDemo";
 import PrivacyPolicy from "./pages/PrivacyPolicy";
 import TermsOfService from "./pages/TermsOfService";
 import NfcPrivacyPolicy from "./pages/NfcPrivacyPolicy";
@@ -18,6 +19,8 @@ export const AppContent = () => (
         <Route path="/" element={<Index />} />
         <Route path="/card-nfc/" element={<Index />} />
         <Route path="/training-ai/" element={<Index />} />
+        <Route path="/restaurant-os/" element={<OsDemo product="restaurant" />} />
+        <Route path="/notaro-os/" element={<OsDemo product="notaro" />} />
         <Route path="/privacy-policy" element={<PrivacyPolicy />} />
         <Route path="/terms-of-service" element={<TermsOfService />} />
         <Route path="/nfc/privacy-policy" element={<NfcPrivacyPolicy />} />
