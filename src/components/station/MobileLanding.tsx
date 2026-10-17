@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { ArrowDown, ArrowRight, ArrowUpRight, Check, FileText, Mail, Package, Sparkles } from 'lucide-react';
+import { ArrowDown, ArrowRight, ArrowUpRight, Check, FileText, Mail, Package } from 'lucide-react';
 import portrait from '@/assets/profile-web.jpg';
 import { OttoHero } from './StationExperiences';
 import NfcTapDemo from './NfcTapDemo';
@@ -8,6 +8,7 @@ import './mobile-landing.css';
 import { servicePaths } from '@/seo/routes';
 import { nfcIntro } from '@/seo/content';
 import { ServiceAnswers } from './ServiceAnswers';
+import { OttoIcon } from './OttoIcon';
 
 const examples = [
   { label: 'Richieste', icon: Mail, source: 'Martina · Richiesta di preventivo', message: '«Mi servono 12 sedie, da consegnare a Siena venerdì.»',
@@ -38,7 +39,7 @@ function CompactExamples() {
       <div className="mobile-example-body" aria-live="polite" aria-atomic="true">
         {result ? <><span className="mobile-example-icon"><Check size={25}/></span><h3>{example.result}</h3><dl>{example.fields.map(([label, value]) => <div key={label}><dt>{label}</dt><dd>{value}</dd></div>)}</dl><p>{example.note}</p></> : <><span className="mobile-example-icon"><Icon size={25}/></span><span className="mobile-source">{example.source}</span><h3>{example.message}</h3><p>{example.manual}</p></>}
       </div>
-      <button className="mobile-example-next" onClick={() => setResult(!result)}>{result ? 'Rivedi il punto di partenza' : 'Vedi cosa cambia'}{result ? <ArrowRight size={18}/> : <Sparkles size={18}/>}</button>
+      <button className="mobile-example-next" onClick={() => setResult(!result)}>{result ? 'Rivedi il punto di partenza' : 'Vedi cosa cambia'}{result ? <ArrowRight size={18}/> : <OttoIcon mood="happy" size={18}/>}</button>
     </div>
     <p className="mobile-demo-note">Esempio simulato. Sei tu a verificare e confermare.</p>
   </div>;

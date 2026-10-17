@@ -1,5 +1,5 @@
 // Passaggi della Demo interattiva di CS Restaurant OS (motore in tour.js).
-export function restaurantTour({toggleOtto, ui}) {
+export function restaurantTour({toggleOtto, ui, D}) {
  return [
   {route:'home', target:'.live-kpis', otto:'wave', say:'Ciao! Sono Otto 👋', title:'Benvenuto in CS Restaurant OS',
    text:'Sabato sera, servizio in corso. Questi numeri sono **vivi**: incasso, tavoli, comande in cucina si aggiornano mentre il locale lavora.'},
@@ -7,8 +7,6 @@ export function restaurantTour({toggleOtto, ui}) {
    text:'Ogni tavolo con il suo colore: **verde** in servizio, **giallo** conto richiesto, **bianco** libero. Il puntino rosso indica piatti pronti al pass.'},
   {route:'home', target:'.feed-panel', title:'Tutto quello che succede',
    text:'Comande, piatti pronti, conti chiusi, ingredienti sotto scorta: un unico flusso, **in tempo reale**.'},
-  {route:'home', target:'.eco-flow', title:'12 moduli collegati',
-   text:'I moduli che i ristoranti usano già ogni giorno, ma **collegati tra loro** e con un solo assistente. I moduli con il puntino verde sono live.'},
   {before:[{click:'.sidebar a[href="#sala"]'}], target:'.floor-panel', title:'01 · La pianta live',
    text:'Questa è la sala vera e propria. Ogni tavolo mostra ospiti, **minuti dall’arrivo** e conto attuale.'},
   {before:[{call:() => { ui.adding = false; }}, {click:'.ftable[data-table="T3"]'}], target:'#table-panel', title:'Dentro il tavolo 3',
@@ -27,14 +25,21 @@ export function restaurantTour({toggleOtto, ui}) {
    text:'Conto pronto, voce per voce. Chiudiamolo.'},
   {before:[{click:'#table-panel [data-action^="close:"]'}, {wait:400}], target:'.kpi-revenue', otto:'happy', title:'Incasso aggiornato',
    text:'Il conto è chiuso: l’**incasso della serata** è salito e il tavolo è di nuovo libero per i prossimi ospiti.'},
-  {before:[{click:'.sidebar a[href="#menu_pos"]'}], target:'.cassa', title:'03 · Cassa e margini',
-   text:'Ogni conto chiuso è in cassa. A sinistra il menu con il **food cost reale** di ogni piatto, calcolato dalle ricette.'},
+  {before:[{click:'.sidebar a[href="#menu_pos"]'}], target:'.qr-card', title:'03 · Un QR per ogni tavolo', text:'Ogni tavolo ha il suo QR. Sopra c’è l’**editor del menu**: prezzi, piatti, disponibilità. Ogni modifica arriva subito su tutti i tavoli.'},
+  {route:'menu_pos', before:[{call:() => { ui.qr = {table:'T7', cart:{}, step:'menu', cat:'Antipasti', receipt:null}; }}, {click:'[data-qr-cat="Antipasti"]'}, {click:'[data-qr-add="bruschetta"]'}, {click:'[data-qr-cat="Primi"]'}, {click:'[data-qr-add="carbonara"]'}, {wait:300}], target:'.guest-phone', otto:'happy', say:'Ordina il tavolo 7!', title:'L’ospite ordina dal telefono',
+   text:'Il tavolo 7 inquadra il QR e sceglie **bruschetta e carbonara**. Vede allergeni, prezzi e solo i piatti che ci sono davvero. Niente app da scaricare.'},
+  {before:[{click:'[data-qr="checkout"]'}, {wait:500}, {click:'[data-qr="pay"]'}, {wait:500}], target:'.guest-phone', title:'Paga prima, con Stripe',
+   text:'Apple Pay, Google Pay o carta: l’ospite **paga subito** e a fine cena non passa dalla cassa. La comanda è già in cucina e il documento commerciale è pronto per l’**Agenzia delle Entrate**.'},
+  {target:'.smart-menu', title:'Un menu che non manda in crash la cucina',
+   text:'Otto conta le **porzioni rimaste** in magazzino: “ultime 3”, poi esaurito e il piatto sparisce. Se le comande aperte superano il limite, i piatti più lenti vanno **in pausa** sui QR e tornano da soli.'},
+  {before:[{type:['#menu-otto-input', 'Togli la tagliata stasera']}, {wait:300}, {call:() => document.querySelector('#menu-otto-form')?.requestSubmit()}, {wait:500}, {click:'[data-qr="again"]'}, {click:'[data-qr-cat="Secondi"]'}], target:'.menu-otto', otto:'happy', say:'Fatto!', title:'Cambi il menu a parole',
+   text:'Basta scriverlo a Otto, presto anche **da WhatsApp**: “togli la tagliata”, “metti il risotto a 18 €”, “aggiungi un piatto del giorno”. Il menu cambia su tutti i QR **in tempo reale**: la tagliata è già sparita dal telefono.'},
+  {before:[{call:() => D.menuCommand('rimetti tutto com’era')}, {click:'.sidebar a[href="#fatture"]'}], target:'.ade-panel', title:'09 · Cassa e Agenzia delle Entrate',
+   text:'Ogni incasso, dal POS o dal QR, diventa **documento commerciale** e arriva all’Agenzia. Il POS è collegato al registratore come chiede la legge dal 2026 e dal 2027 la cassa potrà essere **direttamente software**.'},
   {before:[{click:'.sidebar a[href="#centralino_ai"]'}], target:'.call-grid', title:'04 · Otto risponde al telefono',
    text:'Mentre siete in servizio Otto prende le prenotazioni, **segnala le allergie alla cucina** e gestisce la lista d’attesa.'},
   {before:[{click:'.sidebar a[href="#recensioni_ai"]'}], target:'.review .otto-note', title:'05 · Recensioni con risposta pronta',
    text:'Ogni recensione ha una bozza nel tuo tono. Per quelle negative, Otto propone come **rimediare**.'},
-  {before:[{click:'.sidebar a[href="#whatsapp"]'}], target:'.otto-panel', title:'06 · Gli ospiti tornano',
-   text:'Promemoria automatici e campagne mirate: Otto sa chi ha amato i piatti ai funghi e prepara il messaggio giusto.'},
   {before:[{call:() => toggleOtto(true)}, {wait:300}, {click:'.drawer-suggest [data-otto]'}], target:'#otto-drawer', otto:'happy', say:'Ci sono sempre io!', title:'Un solo assistente, ovunque',
    text:'Da qualsiasi pagina, e presto **da WhatsApp**, chiedi a Otto com’è andata la serata, cosa manca, quali tavoli aspettano. **Buon servizio!**'}
  ];

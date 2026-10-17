@@ -28,7 +28,7 @@ const avatar = (id, cls='') => `<span class="mini-avatar ${cls}" title="${esc(D.
 const pchip = id => id ? `<span class="practice-chip">${icon('folder')}${esc(D.practice(id)?.name || id)}</span>` : '';
 const euro = n => new Intl.NumberFormat('it-IT', {style:'currency', currency:'EUR', maximumFractionDigits:0}).format(n);
 const today = () => new Intl.DateTimeFormat('it-IT', {weekday:'long', day:'numeric', month:'long', timeZone:'Europe/Rome'}).format(new Date());
-const ottoNote = (text, cls='') => `<div class="otto-note ${cls}"><span class="otto-dot">${icon('sparkle')}</span><div><span class="eyebrow">OTTO HA CAPITO</span><p>${rich(text)}</p></div></div>`;
+const ottoNote = (text, cls='') => `<div class="otto-note ${cls}"><span class="otto-dot">${icon('otto-read')}</span><div><span class="eyebrow">OTTO HA CAPITO</span><p>${rich(text)}</p></div></div>`;
 const wait = ms => new Promise(r => setTimeout(r, calm.matches ? Math.min(ms, 60) : ms));
 const brand = () => `<span class="brand-symbol"><i></i><i></i><i></i></span><span class="brand-type">CSD <span>Station</span><small>CS NOTARO OS</small></span>`;
 
@@ -55,10 +55,10 @@ function shell() {
   <a href="#home" class="brand" aria-label="CSD Station, oggi in studio">${brand()}</a>
   <div class="workspace-switch static"><span class="workspace-icon">${icon('book')}</span><span><strong>${esc(D.studio.name)}</strong><small>${esc(D.studio.city)} · studio dimostrativo</small></span></div>
   <nav><div class="nav-group">${navItem('home', 'Oggi in studio', 'home')}${navItem('modules', 'L’ecosistema', 'flow')}</div>${navGroups}</nav>
-  <div class="sidebar-bottom"><button class="plan-mini" data-action="otto"><span class="plan-orbit">${icon('sparkle')}</span><span>Chiedi a Otto<small>Un solo assistente per tutto lo studio</small></span>${icon('chevron')}</button>${navItem('settings', 'Impostazioni', 'settings')}<button class="account" data-action="account"><span class="avatar">AC</span><span>Andrea Conti<small>Notaio titolare</small></span>${icon('down')}</button></div>
+  <div class="sidebar-bottom"><button class="plan-mini" data-action="otto"><span class="plan-orbit">${icon('otto-happy')}</span><span>Chiedi a Otto<small>Un solo assistente per tutto lo studio</small></span>${icon('chevron')}</button>${navItem('settings', 'Impostazioni', 'settings')}<button class="account" data-action="account"><span class="avatar">AC</span><span>Andrea Conti<small>Notaio titolare</small></span>${icon('down')}</button></div>
  </aside><div class="mobile-scrim" data-action="sidebar"></div>
  <div class="app-body"><header class="topbar"><div class="breadcrumbs"><button class="icon-btn mobile-toggle" data-action="sidebar" aria-label="Apri navigazione" aria-controls="workspace-navigation" aria-expanded="false">${icon('list')}</button><span>Studio</span>${icon('chevron')}<strong id="crumb"></strong></div>
-  <div class="topbar-actions"><button class="search-trigger" data-action="search" aria-label="Cerca nella Station">${icon('search')}<span>Cerca</span><kbd>⌘ K</kbd></button><button class="live-toggle ${live.on ? 'on' : ''}" data-action="live" aria-pressed="${live.on}" title="Studio live: email, chiamate e messaggi arrivano da soli">${live.on ? '<span class="live-dot"></span>' : '<i></i>'}<span>Studio live</span></button><button class="ask-otto" data-action="otto">${icon('sparkle')}<span>Chiedi a Otto</span></button><button class="demo-btn" data-action="tour"><i></i><span>Demo interattiva</span></button></div></header>
+  <div class="topbar-actions"><button class="search-trigger" data-action="search" aria-label="Cerca nella Station">${icon('search')}<span>Cerca</span><kbd>⌘ K</kbd></button><button class="live-toggle ${live.on ? 'on' : ''}" data-action="live" aria-pressed="${live.on}" title="Studio live: email, chiamate e messaggi arrivano da soli">${live.on ? '<span class="live-dot"></span>' : '<i></i>'}<span>Studio live</span></button><button class="ask-otto" data-action="otto">${icon('otto-happy')}<span>Chiedi a Otto</span></button><button class="demo-btn" data-action="tour"><i></i><span>Demo interattiva</span></button></div></header>
   <main id="main" tabindex="-1"></main>
   <footer class="app-footer"><span>CSD Station <span class="footer-divider">/</span> Lo studio notarile, tutto collegato.</span><span>Anteprima dimostrativa · persone, pratiche e documenti inventati · nessun servizio collegato</span></footer></div>
  <aside class="otto-drawer" id="otto-drawer" aria-label="Otto, assistente dello studio" hidden></aside><div class="live-stack" id="live-stack" aria-live="polite"></div>`;
@@ -92,7 +92,7 @@ function home() {
   <div class="briefing-copy"><span class="eyebrow"><span class="live-dot"></span> IL PUNTO DI OTTO · AGGIORNATO ALLE ${new Intl.DateTimeFormat('it-IT', {hour:'2-digit', minute:'2-digit', timeZone:'Europe/Rome'}).format(new Date())}</span>
    <h2>Stamattina ho letto <b>${D.mails.length} email</b> e gestito <b>${D.calls.length} chiamate</b>.<br>Ho preparato <b>${D.mails.filter(m => m.draft).length} bozze</b> e distribuito <b>${D.tasks.length} attività</b> nel team.</h2>
    <p>Due decisioni spettano a te. Tutto il resto è pronto da approvare.</p>
-   <div class="welcome-actions"><a class="btn btn-primary" href="#posta">Apri la coda di oggi${icon('arrow')}</a><button class="hero-secondary" data-action="otto">Chiedi a Otto ${icon('sparkle')}</button></div></div>
+   <div class="welcome-actions"><a class="btn btn-primary" href="#posta">Apri la coda di oggi${icon('arrow')}</a><button class="hero-secondary" data-action="otto">Chiedi a Otto ${icon('otto-happy')}</button></div></div>
   <div class="otto-scene small"><div class="scene-orbit orbit-1"></div><div class="scene-floor"></div><div class="hero-otto">${otto('happy')}</div></div>
  </section>
  <section class="decisions"><div class="section-title"><h2>Servono le tue decisioni</h2><span class="subtle-label">Otto non decide al posto tuo</span></div>
@@ -185,8 +185,8 @@ function whatsapp() {
   <section class="detail-pane phone-pane">
    <div class="detail-head"><div><span class="eyebrow">${esc(c.channel.toUpperCase())}</span><h2>${esc(c.who)}</h2></div>${pchip(c.practice)}</div>
    <div class="wa-thread">${c.messages.map(msg => `<div class="wa ${msg.from}">${esc(msg.text)}</div>`).join('')}${sent ? `<div class="wa bot">${esc(c.draft)}</div>` : ''}</div>
-   ${c.thinking ? `<div class="wa-draft"><span class="eyebrow">${icon('sparkle')} OTTO STA SCRIVENDO</span><div class="bubble typing"><i></i><i></i><i></i></div></div>` : ''}
-   ${c.draft && !sent ? `<div class="wa-draft"><span class="eyebrow">${icon('sparkle')} RISPOSTA PROPOSTA DA OTTO</span><p>${esc(c.draft)}</p><div class="detail-actions">${btn('Invia', `send:${c.id}`, 'btn-primary', 'send')}${btn('Modifica', 'toast:Modifica della bozza disponibile con il backend', 'btn-secondary', '')}</div></div>` : ''}
+   ${c.thinking ? `<div class="wa-draft"><span class="eyebrow">${icon('otto-think')} OTTO STA SCRIVENDO</span><div class="bubble typing"><i></i><i></i><i></i></div></div>` : ''}
+   ${c.draft && !sent ? `<div class="wa-draft"><span class="eyebrow">${icon('otto-wink')} RISPOSTA PROPOSTA DA OTTO</span><p>${esc(c.draft)}</p><div class="detail-actions">${btn('Invia', `send:${c.id}`, 'btn-primary', 'send')}${btn('Modifica', 'toast:Modifica della bozza disponibile con il backend', 'btn-secondary', '')}</div></div>` : ''}
   </section>
  </div>
  <section class="workspace-panel rules"><div class="panel-title"><h2>Notifiche automatiche</h2>${badge('Inviate solo a contatti con consenso')}</div>
@@ -198,7 +198,7 @@ function studioPage() {
  const s = ui.studio;
  return `<div class="studio ${s.showDoc ? 'with-doc' : 'no-doc'}">
   <section class="studio-chat">
-   <header class="studio-bar"><div class="studio-title"><span class="studio-mark">${icon('sparkle')}</span><div><h1>Lo Studio</h1><small>Otto lavora con tutto l’archivio dello studio</small></div></div>
+   <header class="studio-bar"><div class="studio-title"><span class="studio-mark">${icon('otto-read')}</span><div><h1>Lo Studio</h1><small>Otto lavora con tutto l’archivio dello studio</small></div></div>
     <div class="studio-tools"><label class="practice-select">${icon('folder')}<select id="studio-practice" aria-label="Pratica">${D.practices.map(p => `<option value="${p.id}">${esc(p.name)} · ${esc(p.type)}</option>`).join('')}</select></label>
     <button class="icon-btn doc-toggle" data-action="toggle-doc" aria-pressed="${s.showDoc}" title="${s.showDoc ? 'Nascondi il documento' : 'Mostra il documento'}">${icon('eye')}</button>
     <button class="icon-btn" data-action="studio-new" title="Nuova conversazione">${icon('plus')}</button></div></header>
@@ -333,7 +333,7 @@ function memoria() {
  return `${heading('IL LAVORO · 05', 'Memoria dello studio', 'Domande veloci su tutto l’archivio, senza aprire una pratica. Ogni risposta indica da dove arriva.')}
  <section class="memory-hero"><form id="memory-form" class="memory-ask">${icon('search')}<input id="memory-input" placeholder="Chiedi all’archivio dello studio…" aria-label="Domanda all’archivio" autocomplete="off" value="${esc(r?.q || '')}"><button class="btn btn-primary" type="submit">Chiedi${icon('arrow')}</button></form>
   <div class="suggestions">${D.memoryQA.map(x => `<button data-memory="${esc(x.q)}">${esc(x.q)}</button>`).join('')}</div></section>
- ${r ? `<section class="workspace-panel answer">${r.a ? `<span class="agent-name">${icon('sparkle')} Otto · dall’archivio</span><p class="answer-text">${esc(r.a)}</p><div class="citations">${r.sources.map(([s, where]) => `<button class="citation-chip" data-action="toast:In produzione si apre il documento al punto citato">${icon('file')}<b>${esc(s)}</b><small>${esc(where)}</small></button>`).join('')}</div>` : `<p class="answer-text">Non ho trovato nulla di pertinente nell’archivio dimostrativo. Prova una delle domande suggerite.</p>`}</section>` : ''}
+ ${r ? `<section class="workspace-panel answer">${r.a ? `<span class="agent-name">${icon('otto-read')} Otto · dall’archivio</span><p class="answer-text">${esc(r.a)}</p><div class="citations">${r.sources.map(([s, where]) => `<button class="citation-chip" data-action="toast:In produzione si apre il documento al punto citato">${icon('file')}<b>${esc(s)}</b><small>${esc(where)}</small></button>`).join('')}</div>` : `<p class="answer-text">Non ho trovato nulla di pertinente nell’archivio dimostrativo. Prova una delle domande suggerite.</p>`}</section>` : ''}
  <div class="metrics-grid">${D.memoryIndex.map(([t, n]) => `<article class="metric"><div><span>${t}</span>${icon('database')}</div><strong class="has-value">${n}</strong><small>Indicizzati · archivio dimostrativo</small></article>`).join('')}</div>
  <div class="notice">${icon('info')}<p>La Memoria risponde in pochi secondi su domande puntuali. Per lavorare su un documento usa <a href="#studio">Lo Studio</a>, dove Otto può anche scrivere.</p></div>`;
 }

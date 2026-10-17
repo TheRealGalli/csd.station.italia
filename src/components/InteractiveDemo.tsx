@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { useScrollReveal } from "@/hooks/useScrollReveal";
-import { Mail, Calendar, FileSpreadsheet, MessageSquare, BrainCircuit, Play, RefreshCw, Sparkles, CheckCircle2, Database } from "lucide-react";
+import { Mail, Calendar, FileSpreadsheet, MessageSquare, BrainCircuit, Play, RefreshCw, CheckCircle2, Database } from "lucide-react";
+import { OttoIcon } from '@/components/station/OttoIcon';
 
 interface Step {
   type: string;
@@ -241,7 +242,7 @@ export const InteractiveDemo = () => {
                       </span>
                       <h3 className="text-base font-bold text-gray-900 mb-1 flex items-center gap-1.5">
                         {tab.title}
-                        {isActive && <Sparkles className="w-3.5 h-3.5 animate-pulse" />}
+                        {isActive && <OttoIcon mood="think" size={14} className="animate-pulse" />}
                       </h3>
                       <p className="text-xs text-gray-600 leading-relaxed">
                         {tab.description}

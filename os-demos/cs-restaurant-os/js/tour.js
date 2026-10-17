@@ -34,6 +34,8 @@ export function startTour(steps, {otto, onEnd, name = 'Demo interattiva'} = {}) 
   <div class="tour-working" hidden><i></i>Otto ti sta mostrando…</div>`;
  document.body.append(root);
  document.body.classList.add('touring');
+ // dentro il sito avvisa la pagina che ospita la demo (nasconde la sua barra in basso)
+ if (window.parent !== window) window.parent.postMessage('csd:tour-start', location.origin);
  const $ = s => root.querySelector(s);
  const cursor = $('.tour-cursor'), spot = $('.tour-spot'), bubble = $('.tour-bubble'), ottoBox = $('.tour-otto'), working = $('.tour-working');
  const pos = {x: 90, y: innerHeight - 140};
@@ -149,7 +151,7 @@ export function startTour(steps, {otto, onEnd, name = 'Demo interattiva'} = {}) 
  function end() {
   token++; cancelAnimationFrame(raf);
   removeEventListener('keydown', onKey, true); removeEventListener('resize', onResize);
-  root.classList.add('leaving'); document.body.classList.remove('touring');
+  root.classList.add('leaving'); document.body.classList.remove('touring'); if (window.parent !== window) window.parent.postMessage('csd:tour-end', location.origin);
   setTimeout(() => root.remove(), 250);
   active = null; onEnd?.();
  }

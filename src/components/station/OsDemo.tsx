@@ -35,7 +35,7 @@ export default function OsDemo({ product }: { product: OsProduct }) {
   const frame = useRef<HTMLIFrameElement>(null);
   const contact = whatsapp(`Ciao Carlo! Vorrei avere più informazioni su ${p.name}.`);
 
-  useEffect(() => { setOpen(false); }, [product]);
+  useEffect(() => { setOpen(false); setTouring(false); }, [product]);
   useEffect(() => {
     document.documentElement.style.backgroundColor = '#101510';
     document.body.style.backgroundColor = '#101510';
@@ -44,6 +44,12 @@ export default function OsDemo({ product }: { product: OsProduct }) {
   // La demo nell'iframe parte ferma: si accende solo mentre il visitatore la esplora e si rispegne quando la chiude.
   const tell = (message: string) => frame.current?.contentWindow?.postMessage(message, window.location.origin);
   useEffect(() => { tell(open ? 'csd:resume' : 'csd:pause'); }, [open]);
+  // durante la demo guidata la barra in basso sparisce, così non copre mai le nuvolette di Otto
+  const [touring, setTouring] = useState(false);
+  useEffect(() => {
+    const listen = (e: MessageEvent) => { if (e.origin === window.location.origin && (e.data === 'csd:tour-start' || e.data === 'csd:tour-end')) setTouring(e.data === 'csd:tour-start'); };
+    window.addEventListener('message', listen); return () => window.removeEventListener('message', listen);
+  }, []);
   const startTour = () => {
     setOpen(true);
     setTimeout(() => tell('csd:start-tour'), 250);
@@ -62,15 +68,15 @@ export default function OsDemo({ product }: { product: OsProduct }) {
             <p className="os-tagline">{p.tagline}</p>
             <p className="os-text">Questa è una demo dimostrativa di come funzionano i nostri sistemi OS per {p.sector} a 360°, ancora non rilasciati e direttamente collegati con WhatsApp.</p>
             <ul>{p.points.map((point, i) => <li key={point}><OttoFace mood={faces[i % faces.length]}/>{point}</li>)}</ul>
-            <a className="os-whatsapp" href={contact} target="_blank" rel="noreferrer">Vorrei più informazioni su {p.name} <ArrowUpRight size={18}/></a>
+            <button type="button" className="os-tour" onClick={startTour}><span><Play size={17}/> Guarda la demo guidata</span><small>Otto ti accompagna passo per passo</small></button>
             <div className="os-secondary">
-              <button type="button" onClick={startTour}><Play size={15}/> Guarda la demo guidata</button>
               <button type="button" onClick={() => setOpen(true)}><MousePointer2 size={15}/> Esplora da solo</button>
+              <a href={contact} target="_blank" rel="noreferrer">Più informazioni su WhatsApp <ArrowUpRight size={15}/></a>
             </div>
             <small><Lock size={12}/> Dati, persone e numeri sono inventati. Il sistema dietro sta già girando.</small>
           </div>
         </div>}
-        {open && <div className="os-bar">
+        {open && !touring && <div className="os-bar">
           <span><i/> {p.name} · demo con dati inventati</span>
           <a href={contact} target="_blank" rel="noreferrer">Vorrei più informazioni <ArrowUpRight size={15}/></a>
           <button type="button" onClick={() => setOpen(false)}>Chiudi</button>

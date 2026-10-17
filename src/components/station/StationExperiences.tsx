@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
-import { ArrowRight, ArrowUpRight, Check, Clock3, FileText, FolderOpen, Mail, Package, RotateCcw, ScanLine, ShieldCheck, Sparkles, Workflow } from 'lucide-react';
+import { ArrowRight, ArrowUpRight, Check, Clock3, FileText, FolderOpen, Mail, Package, RotateCcw, ScanLine, ShieldCheck, Workflow } from 'lucide-react';
 import './experiences.css';
+import { OttoIcon } from './OttoIcon';
 
 /** A shared, code-native mascot: the same Otto in the hero and the guided examples. */
 export function Otto({ mood = 'awake', small = false }: { mood?: 'sleep' | 'awake' | 'busy' | 'happy'; small?: boolean }) {
@@ -76,13 +77,13 @@ export function GuidedDemo() {
       return <button key={key} className={selected === key ? 'active' : ''} aria-pressed={selected === key} onClick={() => choose(key)}><Icon size={19}/><span>{scenarios[key].label}</span><ArrowUpRight size={15}/></button>;
     })}</div>
     <div className="guided-layout">
-      <aside className="guided-story"><span className="micro-label">IL PROBLEMA</span><h3>{scenario.problem}</h3><p>{scenario.before}</p><div className="guided-outcome"><span><Check size={14}/> COSA CAMBIA</span><p>{scenario.after}</p></div><div className="guided-legend"><span><Sparkles size={15}/> AI: interpreta le informazioni</span><span><Workflow size={15}/> Automazione: esegue le regole</span><span><ShieldCheck size={15}/> Tu: verifichi e decidi</span></div></aside>
+      <aside className="guided-story"><span className="micro-label">IL PROBLEMA</span><h3>{scenario.problem}</h3><p>{scenario.before}</p><div className="guided-outcome"><span><Check size={14}/> COSA CAMBIA</span><p>{scenario.after}</p></div><div className="guided-legend"><span><OttoIcon mood="wink" size={15}/> AI: interpreta le informazioni</span><span><Workflow size={15}/> Automazione: esegue le regole</span><span><ShieldCheck size={15}/> Tu: verifichi e decidi</span></div></aside>
       <div className="walkthrough">
         <div className="walkthrough-toolbar"><span><i/><i/><i/> IL TUO LAVORO, VISTO DA DENTRO</span><small>ESEMPIO SIMULATO</small></div>
         <div className="walkthrough-steps" role="group" aria-label="Passaggi della dimostrazione">{scenario.steps.map((label,i) => <button key={label} aria-pressed={step === i} className={i === step ? 'current' : i < step ? 'past' : ''} onClick={() => goTo(i)}><span>{i < step ? <Check size={11}/> : i + 1}</span><b>{label}</b></button>)}</div>
         <div className="walkthrough-workspace">
           <div className="source-pane"><div className="pane-title">{selected === 'email' ? <Mail size={14}/> : selected === 'document' ? <FileText size={14}/> : <ScanLine size={14}/>} {selected === 'email' ? 'La richiesta originale' : selected === 'document' ? 'Il documento originale' : 'L’oggetto da tracciare'}</div><SourceDocument type={selected} extracted={step > 0}/></div>
-          <div className="result-pane" key={`${selected}-${step}`}><div className="pane-title">{step === 0 ? <Clock3 size={14}/> : step === 1 ? <Sparkles size={14}/> : <Workflow size={14}/>} {step === 0 ? 'Tutto ancora da fare' : step === 1 ? selected === 'inventory' ? 'Identificazione NFC' : 'Lettura intelligente' : confirmed ? 'Operazione completata' : 'Il risultato prende forma'}</div>
+          <div className="result-pane" key={`${selected}-${step}`}><div className="pane-title">{step === 0 ? <Clock3 size={14}/> : step === 1 ? <OttoIcon mood="read" size={14}/> : <Workflow size={14}/>} {step === 0 ? 'Tutto ancora da fare' : step === 1 ? selected === 'inventory' ? 'Identificazione NFC' : 'Lettura intelligente' : confirmed ? 'Operazione completata' : 'Il risultato prende forma'}</div>
             {step === 0 ? <div className="manual-checklist"><span>LA TUA LISTA, A MANO</span>{(selected === 'email' ? ['Leggi la richiesta','Ricopia i dati','Prepara una risposta','Avvisa il referente'] : selected === 'document' ? ['Leggi il PDF','Ricopia i campi','Archivia il file','Segna la scadenza'] : ['Cerca la scheda','Identifica l’oggetto','Segna la destinazione','Aggiorna la quantità']).map(t => <div key={t}><i/>{t}</div>)}<p>Passaggi piccoli. Ripetuti ogni giorno.</p></div> : step === 1 ? <Extraction type={selected}/> : <PreparedOutput type={selected} confirmed={confirmed}/>}
           </div>
         </div>

@@ -24,7 +24,7 @@ export const modules = [
  {id:'whatsapp', title:'WhatsApp & notifiche', short:'Notifiche', icon:'message', group:'entrata',
   description:'Clienti e banche aggiornati sulle pratiche già in corso, senza telefonate.',
   features:['Aggiornamenti automatici di stato','Risposte su pratiche aperte','Canale dedicato alle banche']},
- {id:'studio', title:'Lo Studio', short:'Studio', icon:'sparkle', group:'lavoro', core:true,
+ {id:'studio', title:'Lo Studio', short:'Studio', icon:'otto-read', group:'lavoro', core:true,
   description:'Il centro dello studio: l’AI compila moduli, confronta atti e redige bozze.',
   features:['Compilazione automatica di PDF','Confronto tra atti e bozze','Redazione dal clausolario dello studio']},
  {id:'memoria', title:'Memoria dello studio', short:'Memoria', icon:'network', group:'lavoro',

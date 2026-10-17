@@ -1,5 +1,6 @@
 import { useScrollReveal } from "@/hooks/useScrollReveal";
-import { BarChart3, CheckCircle2, Zap, Building2, Mail, Sparkles, ShieldCheck } from "lucide-react";
+import { BarChart3, CheckCircle2, Zap, Building2, Mail, ShieldCheck } from "lucide-react";
+import { OttoIcon } from '@/components/station/OttoIcon';
 
 export const NfcValueAddSection = () => {
   const { ref: sectionRef, isVisible } = useScrollReveal({ threshold: 0.1 });
@@ -22,7 +23,7 @@ export const NfcValueAddSection = () => {
           }`}
         >
           <span className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-xs font-bold uppercase tracking-wider bg-white/15 text-white border border-white/20 backdrop-blur-md shadow-sm">
-            <Sparkles className="w-3.5 h-3.5 text-google-yellow" />
+            <OttoIcon mood="happy" size={14} className="text-google-yellow" />
             Il Servizio Esclusivo CSD Station
           </span>
           <h2 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-white tracking-tight mt-5">
