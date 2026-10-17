@@ -88,5 +88,11 @@ export default function Station() {
    if (location.hash) { const timer = setTimeout(() => document.getElementById(location.hash.slice(1))?.scrollIntoView({behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'instant' as ScrollBehavior : 'smooth'}), 50); return () => clearTimeout(timer); }
    window.scrollTo({top:0, behavior:'instant' as ScrollBehavior});
  }, [mode, location.pathname, location.hash, location.key]);
+ useEffect(() => {
+   const isDark = compact || mode === 'training';
+   const bg = isDark ? '#152016' : mode === 'nfc' ? '#131b13' : '#f6f7f2';
+   document.documentElement.style.backgroundColor = bg;
+   document.body.style.backgroundColor = bg;
+ }, [compact, mode]);
  return <div className={`station-site ${mode === 'nfc' ? 'nfc-site' : mode === 'training' ? 'training-site' : ''} ${compact ? 'compact-site' : ''}`}><a className="station-skip" href="#main-content">Vai al contenuto</a><StationHeader/><main id="main-content">{mode === 'training' ? <Training/> : compact ? mode === 'nfc' ? <MobileNfc products={products} whatsapp={whatsapp}/> : <MobileConsulting contact={processContact} skills={skills}/> : mode === 'nfc' ? <NfcPage/> : <Home/>}</main><StationFooter/></div>;
 }

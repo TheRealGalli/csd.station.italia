@@ -1,7 +1,7 @@
 /* A single mobile composition. Desktop sections are not mounted behind it. */
-.compact-site{background:#152016;color:#f0f4e9}
+.compact-site{background:#152016;color:#f0f4e9;width:100%;max-width:100%;overflow-x:clip}
 .compact-site .station-header{background:#152016;border-bottom-color:#d1e3ba15;backdrop-filter:none}
-.mobile-landing{max-width:580px;margin-inline:auto;background:radial-gradient(ellipse 90% 23% at 100% 10%,#9dca6d12,transparent 100%);color:#f0f4e9}
+.mobile-landing{width:100%;max-width:580px;margin-inline:auto;background:radial-gradient(ellipse 90% 23% at 100% 10%,#9dca6d12,transparent 100%);color:#f0f4e9;overflow-x:clip}
 .mobile-section{padding:38px 24px 44px;scroll-margin-top:88px}
 .mobile-section+.mobile-section{padding-top:40px}
 .mobile-eyebrow{display:flex;gap:8px;align-items:center;font:10px ui-monospace,monospace;letter-spacing:1px;color:#a8bd94;margin-bottom:22px;line-height:1.6}
@@ -13,9 +13,9 @@
 .mobile-hero-story{display:grid;grid-template-columns:minmax(0,1fr) 135px;align-items:center;gap:8px;min-height:185px;margin:12px 0 8px}
 .mobile-hero-story p{font-size:14px;max-width:230px}
 .mobile-hero-story strong{display:block;color:#dce8d0;font-weight:400;margin-top:10px}
-.mobile-hero-story .otto-hero{min-height:180px;width:135px;height:180px}
+.mobile-hero-story .otto-hero{min-height:180px;width:135px;height:180px;position:relative;overflow:clip}
 .mobile-hero-story .otto-hero>.otto{scale:.82;flex-shrink:0;animation:none}
-.mobile-hero-story .otto-hero:before{width:180px;height:180px;max-width:none}
+.mobile-hero-story .otto-hero:before{width:180px;height:180px;max-width:100%}
 .mobile-primary{display:flex;align-items:center;justify-content:space-between;gap:12px;min-height:54px;border-radius:10px;background:#c5f476;color:#203017;font-size:14px;font-weight:550;padding:15px 18px;width:100%}
 .mobile-primary svg,.mobile-crosslink>svg{flex-shrink:0}
 .mobile-scroll-link{display:flex;align-items:center;justify-content:center;gap:9px;min-height:48px;color:#b4c69f;font-size:12px;margin-top:8px}
@@ -59,7 +59,7 @@
 .compact-site [id]{scroll-margin-top:92px}
 /* NFC follows the same three-section rhythm, with compact product rows. */
 .mobile-nfc-hero>p{margin-top:22px;font-size:14px}
-.mobile-nfc .tap-demo{background:radial-gradient(ellipse,#95b97412,transparent 72%);padding:12px 0 0;margin-inline:-12px}
+.mobile-nfc .tap-demo{background:radial-gradient(ellipse,#95b97412,transparent 72%);padding:12px 0 0;margin-inline:0;width:100%;overflow-x:clip}
 .mobile-nfc .nfc-tap-stage{height:365px}
 .mobile-nfc .nfc-tap-stage .phone{transform:scale(.86);transform-origin:center;box-shadow:0 18px 34px #0003}
 .mobile-nfc .nfc-demo-card{top:106px}

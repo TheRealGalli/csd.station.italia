@@ -8,7 +8,7 @@ type TapPhase = 'idle' | 'approaching' | 'reading' | 'leaving' | 'done';
 export default function NfcTapDemo() {
   const [phase, setPhase] = useState<TapPhase>('idle');
   const stageRef = useRef<HTMLDivElement>(null);
-  const [cardStartX, setCardStartX] = useState<number>(520);
+  const [cardStartX, setCardStartX] = useState<number>(300);
   const { prepareAudio, playChime } = useNfcChime();
   const tapped = ['reading', 'leaving', 'done'].includes(phase);
   const busy = phase !== 'idle' && phase !== 'done';
@@ -17,11 +17,10 @@ export default function NfcTapDemo() {
     const updateCardStart = () => {
       if (stageRef.current) {
         const rect = stageRef.current.getBoundingClientRect();
-        // The card base position is left: calc(50% - 78px) inside stage
-        const cardBaseLeft = rect.left + rect.width / 2 - 78;
-        // Distance from card base to window right edge + 180px buffer ensures it enters from off-screen
-        const dist = window.innerWidth - cardBaseLeft + 180;
-        setCardStartX(Math.max(dist, 400));
+        const cardHalfWidth = rect.width <= 420 ? 68 : 78;
+        const cardBaseLeft = rect.width / 2 - cardHalfWidth;
+        const dist = rect.width - cardBaseLeft + 24;
+        setCardStartX(Math.round(dist));
       }
     };
 

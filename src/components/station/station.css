@@ -1,6 +1,6 @@
 /* CSD Station: local frontend redesign. All selectors are scoped to the new UI. */
 .station-site,.station-header,.station-footer{--ink:#121712;--muted:#747c73;--lime:#c5f476;--paper:#f6f7f2;--line:rgba(255,255,255,.12);font-family:Inter,-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif}
-.station-site{background:var(--paper);color:var(--ink)}
+.station-site{background:var(--paper);color:var(--ink);width:100%;max-width:100%;overflow-x:clip}
 .station-site h1,.station-site h2,.station-site h3,.station-site h4{color:inherit;font-weight:500;letter-spacing:-.055em;line-height:1.08}
 .station-site h2{font-size:clamp(34px,3.7vw,53px)}
 .station-site h3{font-size:27px;letter-spacing:-.035em}
@@ -10,7 +10,7 @@
 .station-site a,.station-site button,.station-header a,.station-header button{ -webkit-tap-highlight-color:transparent}
 .station-site :focus-visible,.station-header :focus-visible,.station-footer :focus-visible{outline:3px solid #8daa54;outline-offset:5px}
 .station-site section[id]{scroll-margin-top:104px}
-.wrap{width:min(1240px,calc(100% - 100px));margin-inline:auto}
+.wrap{width:min(1240px,calc(100% - 100px));max-width:100%;margin-inline:auto;box-sizing:border-box}
 .station-header{height:88px;background:#101510f2;color:#f5f7ee;position:sticky;top:0;z-index:60;backdrop-filter:blur(20px);border-bottom:1px solid #ffffff14}
 .station-nav{height:100%;display:flex;align-items:center;justify-content:space-between;gap:30px}
 .station-brand{display:flex;align-items:center;gap:11px;font-size:25px;letter-spacing:-1.2px;color:#f2f5ed;font-weight:650;line-height:1.1;white-space:nowrap}
@@ -72,6 +72,7 @@
  .station-nav .station-brand{font-size:20px;gap:10px;min-height:32px}
  .station-nav .brand-symbol{width:23px;height:27px}
  .station-nav .brand-symbol i{height:5px}.station-nav .brand-symbol i:nth-child(2){width:20px}.station-nav .brand-symbol i:nth-child(3){width:15px}
+ .footer-bottom>span{white-space:normal}
 }
 
 /* Useful answers shared across viewport sizes; no extra mobile section. */
