@@ -231,3 +231,21 @@
 .tk-go{display:flex;align-items:center;justify-content:center;gap:6px;border:0;border-radius:7px;background:#1d2b20;color:#c5f476;font-size:11.5px;font-weight:650;padding:8px 10px;margin-top:2px}
 .tk-go .icon{width:13px;height:13px}
 .tk-next{color:#8a9a78!important;font-weight:500!important}
+
+/* ——— Celle frigorifere ——— */
+.fridges{margin-bottom:18px}
+.fridge-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;padding:16px}
+.fridge{display:grid;gap:5px;align-content:start;background:#f6faf9;border:1px solid #d9e7e6;border-radius:12px;padding:14px;transition:background .3s,border-color .3s}
+.fridge .fr-name{font-size:12px;font-weight:600;color:#3d5753}
+.fridge strong{font-size:34px;font-weight:450;letter-spacing:-1.2px;color:#1d4a45;font-variant-numeric:tabular-nums;line-height:1.05}
+.fridge strong small{font-size:14px;letter-spacing:0;color:#6c8784}
+.fr-max{font-size:10.5px;color:#7d928f}
+.fr-note{display:flex;align-items:center;gap:5px;font-size:11.5px;color:#4d7a3a}
+.fr-note .icon{width:13px;height:13px}
+.fridge:not(.st-ok) .fr-note{color:#b2533f;font-weight:600}
+.fr-act{min-height:34px;padding:7px 10px;font-size:11.5px;margin-top:4px}
+.fr-wait{display:flex;align-items:center;gap:5px;font-size:11.5px;color:#7a5fa0;font-weight:600}
+.fr-wait .icon{width:13px}
+.fridge.red{background:#fdeeea;border-color:#efb3a5;animation:kds-hot 1.2s ease-in-out infinite}
+.fridge.red strong{color:#b2412d}
+@media(max-width:1100px){.fridge-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}

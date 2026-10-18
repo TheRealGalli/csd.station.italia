@@ -16,7 +16,7 @@
 //  Brand & app      · Gli allergeni del piatto del giorno
 import * as G from './gen.js';
 import {mechanics as M} from './mg.js';
-import {addMission, gameLevel, canSpawnMission} from './game.js';
+import {addMission, gameLevel, canSpawnMission, storyBias} from './game.js';
 import * as D from './demo.js';
 
 let testLevel = 0;
@@ -190,7 +190,9 @@ function spawn(force) {
  if (force || canSpawnMission()) {
   const busy = new Set(open.filter(x => x.open).map(x => x.page));
   const order = rotation.slice(turn % rotation.length).concat(rotation.slice(0, turn % rotation.length));
-  const page = force || order.find(p => !busy.has(p)) || order[0]; turn = rotation.indexOf(page) + 1;
+  // nella storia, l'antagonista del capitolo porta più spesso missioni dalle sue sezioni
+  const bias = storyBias()?.filter(p => pages[p] && !busy.has(p)), fromStory = !force && bias?.length && Math.random() < .6 ? bias[Math.floor(Math.random() * bias.length)] : null;
+  const page = force || fromStory || order.find(p => !busy.has(p)) || order[0]; turn = rotation.indexOf(page) + 1;
   // la Sala usa un tavolo vero: chiede il conto, il "!" compare sulla pianta e si risolve nel suo pannello
   const tb = page === 'sala' ? D.tables.find(x => ['seated', 'ordered'].includes(x.status) && !['T3', 'T8'].includes(x.id) && !x.mission && x.lines.length) : null;
   const made = page === 'sala' ? salaMission(tb) : pages[page](), ttl = Math.round(made.m.ttl * by(1, .85, .7)), rec = {open:true, page};

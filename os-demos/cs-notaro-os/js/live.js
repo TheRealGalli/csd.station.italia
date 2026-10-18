@@ -81,7 +81,7 @@ export function spawnMail(t) {
  return m;
 }
 export function spawnChat(t) {
- const c = {id:uid('w'), who:t.who, practice:t.practice, channel:'WhatsApp', last:clock(), unread:1, messages:[{from:'client', text:t.text}], draft:'', live:true};
+ const c = {id:uid('w'), who:t.who, practice:t.practice, channel:'WhatsApp', last:clock(), unread:1, messages:[{from:'client', text:t.text}], draft:'', live:true, at:Date.now()};
  D.chats.unshift(c);
  emit({type:'wa', title:`WhatsApp · ${c.who}`, text:t.text, go:'whatsapp', icon:'message', ref:c.id});
  return c;
@@ -108,7 +108,7 @@ function newCall() {
 function newWhatsapp() {
  const t = pick(waPool, 'wa');
  const chat = D.chats.find(c => c.id === t.chat); if (!chat) return;
- chat.messages.push({from:'client', text:t.text}); chat.unread = (chat.unread || 0) + 1; chat.last = clock(); chat.draft = ''; chat.thinking = true;
+ chat.messages.push({from:'client', text:t.text}); chat.unread = (chat.unread || 0) + 1; chat.at = Date.now(); chat.last = clock(); chat.draft = ''; chat.thinking = true;
  D.chats.splice(D.chats.indexOf(chat), 1); D.chats.unshift(chat);
  emit({type:'wa', title:`WhatsApp · ${chat.who}`, text:t.text, go:'whatsapp', icon:'message', ref:chat.id});
  setTimeout(() => { chat.thinking = false; chat.draft = t.draft; emit({type:'wa-draft', quiet:true, ref:chat.id}); }, 2400);

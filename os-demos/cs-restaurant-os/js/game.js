@@ -14,7 +14,7 @@ const base = {1:10, 2:20, 3:30};
 const levelNotes = {1:'Si comincia: scelte chiare per prendere la mano.', 2:'Arrivano le prime trappole. Prima di approvare, apri le fonti.', 3:'Ultimo livello: errori sottili e un po’ di fretta.'};
 
 let C = [], icon = () => '', pageName = id => id, place = 'lo studio', timer = 0, hooks = {};
-const S = {paused:0, coached:{}, tasksDone:0, tasks:{}, tseq:0, fx:{shield:0, double:0, freeHints:0, freezeUntil:0}, gifts:[], gift:null, offers:[], missions:{}, mseq:0, avail:{}, seenOpen:0, started:false, points:0, level:1, round:1, streak:0, last:null, solved:{}, cards:{}, showing:{}, sound:true};
+const S = {chapter:-1, chProgress:0, chStart:0, bought:{}, paused:0, coached:{}, tasksDone:0, tasks:{}, tseq:0, fx:{shield:0, double:0, freeHints:0, freezeUntil:0}, gifts:[], gift:null, offers:[], missions:{}, mseq:0, avail:{}, seenOpen:0, started:false, points:0, level:1, round:1, streak:0, last:null, solved:{}, cards:{}, showing:{}, sound:true};
 try { S.sound = localStorage.getItem('csd.game.sound') !== 'off'; } catch {}
 
 export function initGame(challenges, opts) {
@@ -45,6 +45,7 @@ const open = () => hooks.missionsOnly ? [] : list().filter(c => c.level === S.le
 export const gameLevel = () => S.level;
 // In modalità solo missioni il livello sale con i punti: più missioni insieme e meno tempo.
 function syncLevel() {
+ storyProgress('points');
  if (!hooks.missionsOnly) return;
  const l = S.points >= 400 ? 3 : S.points >= 150 ? 2 : 1;
  if (l > S.level) { S.level = l; updateChip(); setTimeout(() => coach(`level${l}`, '.game-chip', `Livello ${l}`, l === 2 ? 'Bravo. Da adesso possono arrivare **due cose insieme**, con un po’ meno tempo.' : 'Servizio pieno: fino a **tre cose insieme**. Le fonti restano la tua arma migliore.', 'otto-happy'), 900); }
@@ -100,7 +101,7 @@ function markTargets() {
  }
 }
 function completeTask(t) {
- t.done = true; S.tasksDone++;
+ t.done = true; S.tasksDone++; storyProgress('tasks', t.page);
  const fast = Date.now() - t.created < 30000;
  let pts = t.pts + (fast ? 5 : 0);
  if (S.fx.double) { S.fx.double--; pts *= 2; }
@@ -165,19 +166,41 @@ function closeAndNext(id) {
   setTimeout(() => { const el = document.querySelector('#main'); el?.classList.remove('game-fadeout'); el?.classList.add('game-fadein'); setTimeout(() => el?.classList.remove('game-fadein'), 300); }, 60);
  }, 170);
 }
-// Azioni normali dell'ecosistema (rifornire, chiudere un conto, approvare un'email…): pochi punti, con una pausa
-// di 20 secondi per la stessa azione, così cliccare a ripetizione non conviene.
-const ecoLast = {};
+// Azioni normali dell'ecosistema (rifornire, chiudere un conto, approvare un'email…): pochi punti, ma sempre.
+// Ogni oggetto vero conta una volta sola (niente spam); i punti sono pieni se lo fai subito e scendono
+// se aspetti, fino a 1. Le azioni senza oggetto hanno una pausa di 20 secondi.
+const ecoLast = {}, ecoDone = {};
+function fresh(pts, born) {
+ if (!born) return pts;
+ const age = (Date.now() - born) / 1000;
+ return age <= 30 ? pts : age >= 180 ? 1 : Math.max(1, Math.round(pts * (1 - (age - 30) / 150)));
+}
 export function ecoPoints(key, pts, label, ref, payload) {
  if (!S.started || touring()) return;
  const t = openTasks().find(x => x.key === key && (x.ref == null || ref == null || String(x.ref) === String(ref)));
  // compiti con verifica: il risultato deve essere quello chiesto (piatti, tavolo, pagamento, lavoro giusto…)
  if (t?.check) { const r = t.check(payload || {}); if (!r.ok) { const pen = Math.min(5, S.points); S.points -= pen; play('bad'); float(-pen || 0, document.querySelector('.game-chip'), r.why); return; } }
  if (t) return completeTask(t);
- const now = Date.now(); if (now - (ecoLast[key] || 0) < 20000) return;
- ecoLast[key] = now; S.points += pts; syncLevel(); checkGifts(); play('coin');
- float(pts, document.querySelector('.game-chip'), label);
+ const now = Date.now();
+ if (ref != null) { const id = `${key}:${ref}`; if (ecoDone[id]) return; ecoDone[id] = true; }
+ else { if (now - (ecoLast[key] || 0) < 20000) return; ecoLast[key] = now; }
+ const p = fresh(pts, payload?.born), late = p < pts;
+ S.points += p; syncLevel(); checkGifts(); play('coin');
+ float(p, document.querySelector('.game-chip'), late ? `${label} · in ritardo` : label);
 }
+// Penalità continua (una colonna della cucina in rosso, un lavoro dimenticato): pochi punti al secondo, a tempo fermo no.
+let penBuf = 0, penTimer = 0;
+export function penalty(n, label) {
+ if (!S.started || S.paused || touring() || document.hidden || !n) return;
+ const take = Math.min(n, S.points); if (!take) return;
+ S.points -= take; penBuf += take; updateChip();
+ // i punti scendono subito; il "−N" volante si mostra ogni 3 secondi, per non riempire lo schermo
+ if (!penTimer) penTimer = setTimeout(() => { if (penBuf) float(-penBuf, document.querySelector('.game-chip'), label); penBuf = 0; penTimer = 0; }, 3000);
+}
+// Bottega: oltre ai potenziamenti comuni, ogni app aggiunge i suoi (hooks.shop).
+const allItems = () => [...catalog, ...(hooks.shop || [])];
+// La Bottega costa davvero: prezzi base ×2, e ogni acquisto dello stesso potenziamento lo rincara del 2%.
+const price = c => Math.round(c.cost * 2 * Math.pow(1.02, S.bought[c.id] || 0));
 function refreshMission(id) {
  const el = document.querySelector(`[data-mission="${id}"]`);
  if (el) el.outerHTML = missionPanel(id);
@@ -191,6 +214,7 @@ function resolveMission(m, r, from) {
  if (pts > 0 && S.fx.double && !r.delegated) { S.fx.double--; pts *= 2; r = {...r, why:`${r.why} **Punti doppi!**`}; }
  if (pts > 0 && !r.delegated) { S.streak++; S.last = 'ok'; if (S.streak % 3 === 0) { pts += 15; r.why += ` **Serie di ${S.streak}: +15 bonus.**`; } } else { S.streak = 0; S.last = 'ko'; }
  S.points += pts; m.result = {...r, pts}; syncLevel(); checkGifts();
+ if (pts > 0 && !r.delegated) storyProgress('missions', m.page);
  play(pts > 0 ? (pts >= 30 ? 'great' : 'good') : 'bad');
  refreshMission(m.id);
  if (pts < 0) setTimeout(() => coach('first-ko', `[data-mission="${m.id}"] .gc-result`, 'Capita', 'Sotto trovi **perché** non andava: è così che il sistema ti insegna il lavoro. Si va avanti.', 'otto-think'), 900);
@@ -209,10 +233,11 @@ const challenge = id => list().find(c => c.id === id);
 // ————— barra in alto —————
 export function gameChip() {
  if (!S.started) return `<button class="game-chip idle" data-game="menu" aria-label="La sfida di Otto: avviala" title="La sfida di Otto"><span class="gch-face">${icon('otto-happy')}</span><b class="gch-play">Sfida</b></button>`;
- return `<button class="game-chip ${S.points ? '' : 'idle'}" data-game="menu" aria-label="La sfida di Otto: ${S.points} punti, livello ${S.level}" title="La sfida di Otto"><span class="gch-face">${icon(face())}</span><b class="gch-pts">${S.points}</b><small>pt</small><span class="gch-lvl">${[1, 2, 3].map(l => `<i class="${l < S.level ? 'done' : l === S.level ? 'on' : ''}"></i>`).join('')}</span>${S.gift ? '<i class="gch-gift" title="Otto ha un regalo per te"></i>' : ''}</button>${alertBtn()}`;
+ const ch = chapterInfo();
+ return `<button class="game-chip ${S.points ? '' : 'idle'}" data-game="menu" aria-label="La sfida di Otto: ${S.points} punti, livello ${S.level}" title="${ch ? esc(`Capitolo ${ch.n} · ${ch.title} — ${ch.goal}`) : 'La sfida di Otto'}"><span class="gch-face">${icon(face())}</span><b class="gch-pts">${S.points}</b><small>pt</small><span class="gch-lvl">${[1, 2, 3].map(l => `<i class="${l < S.level ? 'done' : l === S.level ? 'on' : ''}"></i>`).join('')}</span>${S.gift ? '<i class="gch-gift" title="Otto ha un regalo per te"></i>' : ''}</button>${ch ? `<button class="game-chapter" data-game="menu" title="${esc(ch.goal)}"><small>CAP. ${ch.n}/${ch.of}</small><b>${esc(ch.title)}</b><i>${esc(ch.goal.split(' · ').pop())}</i></button>` : ''}${alertBtn()}`;
 }
 function updateChip(bump) {
- document.querySelectorAll('.game-alert').forEach(el => el.remove());
+ document.querySelectorAll('.game-alert, .game-chapter').forEach(el => el.remove());
  document.querySelectorAll('.game-chip').forEach(el => {
   el.outerHTML = gameChip();
  });
@@ -491,6 +516,7 @@ export function gameIntro() {
 function start() {
  S.started = true; openLevel(); nextTaskAt = Date.now() + 12000; hooks.onStart?.(); updateChip('bump'); play('level');
  refresh(location.hash.slice(1) || 'home'); markNav();
+ setTimeout(() => startChapter(0), 1400);
  setTimeout(() => coach('welcome', '.game-chip', 'Si comincia', `Questi sono i tuoi punti. Guardati intorno con calma: ${place} lavora da solo e **ti chiamo io** quando serve.`, 'otto-happy'), 600);
 }
 
@@ -584,6 +610,65 @@ function storyChat(m, sel) {
   close();
  });
 }
+// ————— la storia: capitoli con un antagonista —————
+// Ogni partita è una giornata in capitoli (hooks.story). Ogni capitolo si apre e si chiude con la chat di un Otto,
+// ha un obiettivo (compiti, missioni vinte in certe sezioni, punti) e cambia il gioco: sposta le missioni verso
+// le sezioni dell'antagonista (bias) e stringe qualche regola (apply).
+const chapters = () => hooks.story?.chapters || [];
+export const storyBias = () => chapters()[S.chapter]?.bias || null;
+export const chapterInfo = () => { const c = chapters()[S.chapter]; return c ? {n:S.chapter + 1, of:chapters().length, title:c.title, goal:goalText(c), progress:S.chProgress} : null; };
+function goalText(c) {
+ const g = c.goal, left = g.type === 'points' ? `${Math.min(g.n, S.points - S.chStart)}/${g.n} punti` : `${Math.min(g.n, S.chProgress)}/${g.n}`;
+ return `${g.label} · ${left}`;
+}
+function startChapter(i) {
+ const c = chapters()[i]; if (!c || !S.started) return;
+ S.chapter = i; S.chProgress = 0; S.chStart = S.points;
+ try { c.apply?.(true); } catch {}
+ updateChip();
+ ottoChat({name:c.narrator, role:c.role, title:`Capitolo ${i + 1} · ${c.title}`, lines:[...c.intro, `**Obiettivo:** ${c.goal.label}.`], button:'Iniziamo'});
+}
+function storyProgress(kind, page) {
+ const c = chapters()[S.chapter]; if (!c || c.done) return;
+ const g = c.goal;
+ if (g.type === kind && kind !== 'points' && (!g.pages || g.pages.includes(page))) S.chProgress++;
+ const ok = g.type === 'points' ? S.points - S.chStart >= g.n : S.chProgress >= g.n;
+ updateChip();
+ if (!ok) return;
+ c.done = true;
+ setTimeout(() => {
+  try { c.apply?.(false); } catch {}
+  S.points += 50; updateChip('bump'); play('level');
+  const last = S.chapter >= chapters().length - 1;
+  ottoChat({name:c.narrator, role:c.role, title:`Capitolo ${S.chapter + 1} completato`, lines:[...c.outro, '**+50 punti** per il capitolo.', last ? (hooks.story.ending || 'La giornata è finita. Puoi continuare a giocare quanto vuoi.') : 'Ma la giornata non è finita…'], button:last ? 'Continua a giocare' : 'Avanti', onClose:() => { if (!last) setTimeout(() => startChapter(S.chapter + 1), 1200); else { S.chapter = chapters().length; updateChip(); } }});
+ }, 1600);
+}
+// Chat di Otto senza un elemento da indicare (capitoli): pannello in basso a destra, tempo fermo.
+function ottoChat({name, role, title, lines, button = 'Ho capito', onClose}) {
+ if (coachOpen || touring()) { setTimeout(() => ottoChat({name, role, title, lines, button, onClose}), 1500); return; }
+ S.paused++; document.body.classList.add('game-paused');
+ const box = document.createElement('div');
+ box.className = 'game-coach game-story no-spot'; box.setAttribute('role', 'dialog'); box.setAttribute('aria-label', title);
+ box.innerHTML = `<div class="gst-panel"><header><span class="gco-face">${icon(role)}</span><div><b>${esc(name)}</b><small>${esc(title)}</small></div></header><div class="gst-msgs" aria-live="polite"></div><footer><button data-story="skip" class="gst-skip">Salta</button><button data-story="go" class="gst-go" disabled>${esc(button)}</button></footer></div>`;
+ document.body.append(box); play('level'); coachOpen = box;
+ const msgs = box.querySelector('.gst-msgs'), goBtn = box.querySelector('.gst-go');
+ let k = 0, timer = 0;
+ const add = () => { const d = document.createElement('div'); d.className = 'gst-msg'; d.innerHTML = rich(lines[k++]); msgs.append(d); msgs.scrollTop = msgs.scrollHeight; };
+ const next = () => {
+  if (k >= lines.length) { goBtn.disabled = false; goBtn.focus({preventScroll:true}); return; }
+  const typing = document.createElement('div'); typing.className = 'gst-msg typing'; typing.innerHTML = '<i></i><i></i><i></i>'; msgs.append(typing); msgs.scrollTop = msgs.scrollHeight;
+  timer = setTimeout(() => { typing.remove(); add(); play('click'); timer = setTimeout(next, calm.matches ? 50 : 380); }, calm.matches ? 50 : Math.min(1300, 400 + lines[k].length * 11));
+ };
+ next();
+ box.addEventListener('click', e => {
+  const t = e.target.closest('[data-story]'); if (!t) return;
+  if (t.dataset.story === 'skip') { clearTimeout(timer); msgs.querySelector('.typing')?.remove(); while (k < lines.length) add(); goBtn.disabled = false; t.remove(); goBtn.focus({preventScroll:true}); return; }
+  clearTimeout(timer); box.classList.add('out'); setTimeout(() => box.remove(), 200); coachOpen = null;
+  S.paused = Math.max(0, S.paused - 1); if (!S.paused) document.body.classList.remove('game-paused');
+  onClose?.();
+  const n = coachQueue.shift(); if (n) setTimeout(() => coach(...n), 450);
+ });
+}
 export const gamePaused = () => S.paused > 0;
 export const isReserved = ref => ref != null && (openTasks().some(t => t.ref != null && String(t.ref) === String(ref)) || openMissions().some(m => m.ref != null && String(m.ref) === String(ref)));
 // Le missioni arrivano solo dopo due compiti fatti, e mai oltre il numero di cose aperte del livello.
@@ -624,7 +709,7 @@ function menu() {
   <button class="gp-start" data-game="start">Inizia la sfida</button>
   <footer><button data-game="sound">${S.sound ? 'Suoni attivi' : 'Suoni spenti'}</button></footer>`;
  else el.innerHTML = `<header><span>${icon(face())}</span><div><b>La sfida di Otto</b><small>Livello ${S.level} di 3${S.round > 1 ? ` · giorno ${S.round}` : ''} · ${S.points} punti</small></div></header>
-  <p>Gestisci il lavoro come se fosse tuo. <b>Otto prepara, tu verifichi:</b> apri le fonti, poi approva la scelta giusta.</p>
+  ${chapterInfo() ? `<p class="gp-chapter"><b>Capitolo ${chapterInfo().n} di ${chapterInfo().of} · ${esc(chapterInfo().title)}</b><br>${esc(chapterInfo().goal)}</p>` : '<p>Gestisci il lavoro come se fosse tuo. <b>Otto prepara, tu verifichi.</b></p>'}
   <ul class="gp-rules"><li><i class="ok"></i>Giusto e verificato alla fonte <b>pieno + bonus</b></li><li><i class="mid"></i>Giusto ma alla cieca <b>metà</b></li><li><i class="ko"></i>Scelta sbagliata <b>punti in meno</b></li></ul>
   ${list.length ? `<span class="gp-label">DECISIONI APERTE</span>${list.map(c => `<button class="gp-item" data-game="go:${c.page}"><b>${esc(c.title)}</b><small>${esc(pageName(c.page))} · ${Math.max(0, Math.ceil(left(c) / 1000))} s · fino a +${maxPts(c)} pt</small></button>`).join('')}` : ''}
   <button class="gp-start shop" data-game="shop">${S.gift ? 'Apri il regalo di Otto' : 'Bottega di Otto'}</button>
@@ -680,7 +765,7 @@ function halfWork(m) {
  st.hintMsg = `Metà lavoro fatto da Otto. ${msg}`;
  refreshMission(m.id);
 }
-const sample = (n, not = []) => [...catalog].filter(c => !not.includes(c.id)).sort(() => Math.random() - .5).slice(0, n);
+const sample = (n, not = []) => allItems().filter(c => !not.includes(c.id)).sort(() => Math.random() - .5).slice(0, n);
 function checkGifts() {
  for (const t of [100, 250, 450, 700, 1000]) if (S.points >= t && !S.gifts.includes(t)) {
   S.gifts.push(t); S.gift = sample(3);
@@ -699,16 +784,16 @@ export function openShop() {
  el.innerHTML = `<header><span class="shop-otto">${icon('otto-happy')}</span><div><b>Bottega di Otto</b><small>Hai <strong>${S.points}</strong> punti da spendere</small></div><button class="icon-btn" data-game="shopclose" aria-label="Chiudi la bottega">×</button></header>
   ${S.gift ? `<section class="shop-gift"><span class="gp-label">REGALO · SCEGLINE UNO</span>${S.gift.map(c => `<button class="shop-item gift" data-game="gift:${c.id}">${icon(c.mood)}<span><b>${esc(c.name)}</b><small>${esc(c.desc)}</small></span><em>gratis</em></button>`).join('')}</section>` : ''}
   <span class="gp-label">IN VENDITA OGGI</span>
-  <div class="shop-list">${S.offers.map(id => catalog.find(c => c.id === id)).map(c => `<button class="shop-item" data-game="buy:${c.id}" ${S.points < c.cost ? 'disabled' : ''}>${icon(c.mood)}<span><b>${esc(c.name)}</b><small>${esc(c.desc)}</small></span><em>${c.cost} pt</em></button>`).join('')}</div>
+  <div class="shop-list">${S.offers.map(id => allItems().find(c => c.id === id)).filter(Boolean).map(c => `<button class="shop-item" data-game="buy:${c.id}" ${S.points < price(c) ? 'disabled' : ''}>${icon(c.mood)}<span><b>${esc(c.name)}</b><small>${esc(c.desc)}${S.bought[c.id] ? ` · comprato ${S.bought[c.id]} ${S.bought[c.id] === 1 ? 'volta' : 'volte'}` : ''}</small></span><em>${price(c)} pt</em></button>`).join('')}</div>
   ${active.length ? `<div class="shop-active"><span class="gp-label">ATTIVI ORA</span>${active.map(a => `<i>${a}</i>`).join('')}</div>` : ''}
   <p class="shop-note">${S.shopNote ? esc(S.shopNote) : 'Le offerte cambiano ogni volta che compri. A 100, 250, 450, 700 e 1.000 punti Otto ti fa un regalo.'}</p>`;
 }
 function buy(id, free) {
- const c = catalog.find(x => x.id === id); if (!c) return;
- if (!free && S.points < c.cost) { play('bad'); return; }
+ const c = allItems().find(x => x.id === id); if (!c) return;
+ if (!free && S.points < price(c)) { play('bad'); return; }
  const res = c.use();
  if (res === false) { S.shopNote = 'Non ci sono missioni aperte su cui usarlo: tienilo per dopo.'; play('bad'); return openShop(); }
- if (!free) { S.points -= c.cost; S.offers = S.offers.filter(x => x !== id); S.offers.push(sample(1, S.offers.concat(id))[0]?.id || id); }
+ if (!free) { S.points -= price(c); S.bought[c.id] = (S.bought[c.id] || 0) + 1; S.offers = S.offers.filter(x => x !== id); S.offers.push(sample(1, S.offers.concat(id))[0]?.id || id); }
  else S.gift = null;
  S.shopNote = `${free ? 'Regalo usato' : `Comprato: ${c.name}`}. ${res}`;
  play('level'); updateChip(free ? 'bump' : 'bump-bad'); markNav(); openShop();
@@ -735,5 +820,5 @@ function onClick(e) {
  if (k === 'pick') return pick(id, +i, b);
  if (k === 'next') { const c = challenge(id); delete S.showing[c.page]; play('click'); return refresh(c.page); }
  if (k === 'sound') { S.sound = !S.sound; try { localStorage.setItem('csd.game.sound', S.sound ? 'on' : 'off'); } catch {} b.textContent = S.sound ? 'Suoni attivi' : 'Suoni spenti'; play('click'); return; }
- if (k === 'restart') { hooks.onReset?.(); Object.assign(S, {paused:0, coached:{}, tasksDone:0, tasks:{}, fx:{shield:0, double:0, freeHints:0, freezeUntil:0}, gifts:[], gift:null, offers:[], missions:{}, avail:{}, seenOpen:0, started:false, points:0, level:1, round:1, streak:0, last:null, solved:{}, cards:{}, showing:{}}); updateChip(); refresh(location.hash.slice(1) || 'home'); }
+ if (k === 'restart') { hooks.onReset?.(); Object.assign(S, {chapter:-1, chProgress:0, chStart:0, bought:{}, paused:0, coached:{}, tasksDone:0, tasks:{}, fx:{shield:0, double:0, freeHints:0, freezeUntil:0}, gifts:[], gift:null, offers:[], missions:{}, avail:{}, seenOpen:0, started:false, points:0, level:1, round:1, streak:0, last:null, solved:{}, cards:{}, showing:{}}); updateChip(); refresh(location.hash.slice(1) || 'home'); }
 }

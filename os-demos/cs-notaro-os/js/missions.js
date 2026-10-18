@@ -16,7 +16,7 @@
 //  Compliance       · Consenti o rifiuta
 import * as G from './gen.js';
 import {mechanics as M} from './mg.js';
-import {addMission, gameLevel, canSpawnMission} from './game.js';
+import {addMission, gameLevel, canSpawnMission, storyBias} from './game.js';
 import {spawnMail, spawnChat, spawnCall, live} from './live.js';
 
 let testLevel = 0;
@@ -282,7 +282,9 @@ function spawn(force) {
  if (force || canSpawnMission()) {
   const busy = new Set(open.filter(x => x.open).map(x => x.page));
   const order = rotation.slice(turn % rotation.length).concat(rotation.slice(0, turn % rotation.length));
-  const page = force || order.find(p => !busy.has(p)) || order[0]; turn = rotation.indexOf(page) + 1;
+  // nella storia, l'antagonista del capitolo porta più spesso missioni dalle sue sezioni
+  const bias = storyBias()?.filter(p => pages[p] && !busy.has(p)), fromStory = !force && bias?.length && Math.random() < .6 ? bias[Math.floor(Math.random() * bias.length)] : null;
+  const page = force || fromStory || order.find(p => !busy.has(p)) || order[0]; turn = rotation.indexOf(page) + 1;
   const made = pages[page](), mission = made.mission || made, ttl = Math.round(mission.ttl * by(1, .85, .7)), rec = {open:true, page};
   let item = null;
   if (made.anchor === 'mail') item = spawnMail({...made.mail, priority:'alta', assignee:'GM', prepared:[], draft:''});

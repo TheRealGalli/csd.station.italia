@@ -5,7 +5,9 @@ import * as D from './demo.js';
 import {studioScenario, studioSuggestions, askOtto, ottoSuggestions, proposeValues} from './agent.js';
 import {inspect, fillNative, formPdf} from './pdf-core.js';
 import {startTour} from './tour.js';
-import {initGame, gameChip, mountGame, gameInvite, missionPanel, gameOn, openShop, gameIntro, ecoPoints, gamePaused} from './game.js';
+import {initGame, gameChip, mountGame, gameInvite, missionPanel, gameOn, openShop, gameIntro, ecoPoints, gamePaused, penalty, gameLevel} from './game.js';
+import {story} from './story.js';
+import * as P from './pressure.js';
 import {startMissions, stopMissions} from './missions.js';
 import {challenges} from './challenges.js';
 import {notaroTour} from './tour-steps.js';
@@ -142,10 +144,11 @@ function posta() {
  const m = D.mails.find(x => x.id === ui.mail) || D.mails[0];
  const queue = D.team.filter(p => p.id !== 'AC').map(p => ({p, n:D.mails.filter(x => x.assignee === p.id && !state.handled.includes(x.id)).length}));
  return `${heading('CIÒ CHE ENTRA · 01', 'Posta & coda pratiche', 'Email e PEC arrivano già lette, collegate alla pratica, con il lavoro pronto da approvare.', `<button class="btn btn-secondary" data-action="toast:In produzione: collegamento IMAP/PEC e Microsoft 365">${icon('link')}Caselle collegate · 2</button>`)}
+ ${gameOn() && ui.pressure?.late?.length ? `<div class="alert-banner hot-banner">${icon('alert')}<p><b>${ui.pressure.late.length} ${ui.pressure.late.length === 1 ? 'email aspetta' : 'email aspettano'} risposta da più di ${Math.round(P.studioCfg.mailSla / 60)} minuti</b> · −1 punto al secondo finché restano in ritardo.</p></div>` : ''}
  <div class="queue-strip"><span class="eyebrow">CODA DI OGGI</span>${queue.map(({p, n}) => `<span class="queue-person">${avatar(p.id)}<b>${n}</b> ${esc(p.name.split(' ')[0])}</span>`).join('')}</div>
  <div class="split">
   <section class="list-pane"><div class="filter-tabs small">${[['all', 'Tutte'], ['todo', 'Da approvare'], ['done', 'Gestite']].map(([k, v]) => `<button data-mail-filter="${k}" class="${ui.mailFilter === k ? 'selected' : ''}" aria-pressed="${ui.mailFilter === k}">${v}</button>`).join('')}</div>
-   ${filtered.map(x => `<button class="list-item ${x.missionOpen && !x.reading ? 'has-mission' : ''} ${x.id === m.id ? 'active' : ''} ${state.handled.includes(x.id) ? 'handled' : ''}" data-mail="${x.id}"><span class="li-top"><b>${x.missionOpen && !x.reading ? '<span class="mission-flag" title="Serve il tuo controllo">!</span>' : ''}${x.live && Date.now() - x.at < 90000 ? '<span class="new-tag">NUOVA</span>' : ''}${esc(x.from)}</b><small>${x.time}</small></span><span class="li-subject">${esc(x.subject)}</span><span class="li-ai">${x.reading ? '<i class="spinner"></i>Otto la sta leggendo…' : icon('sparkle') + esc(x.understood)}</span><span class="li-meta">${pchip(x.practice)}<span class="prio prio-${x.priority}">${x.priority}</span>${avatar(x.assignee)}</span></button>`).join('') || '<p class="muted pad">Nessuna email in questa vista.</p>'}
+   ${filtered.map(x => `<button class="list-item ${x.missionOpen && !x.reading ? 'has-mission' : ''} ${x.id === m.id ? 'active' : ''} ${state.handled.includes(x.id) ? 'handled' : ''}" data-mail="${x.id}"><span class="li-top"><b>${x.missionOpen && !x.reading ? '<span class="mission-flag" title="Serve il tuo controllo">!</span>' : ''}${x.live && Date.now() - x.at < 90000 ? '<span class="new-tag">NUOVA</span>' : ''}${P.mailLate(x, state.handled.includes(x.id)) ? '<span class="new-tag late-tag">IN RITARDO</span>' : ''}${esc(x.from)}</b><small>${x.time}</small></span><span class="li-subject">${esc(x.subject)}</span><span class="li-ai">${x.reading ? '<i class="spinner"></i>Otto la sta leggendo…' : icon('sparkle') + esc(x.understood)}</span><span class="li-meta">${pchip(x.practice)}<span class="prio prio-${x.priority}">${x.priority}</span>${avatar(x.assignee)}</span></button>`).join('') || '<p class="muted pad">Nessuna email in questa vista.</p>'}
   </section>
   <section class="detail-pane">
    <div class="detail-head"><div><span class="eyebrow">${esc(m.kind.toUpperCase())} · ${m.time}</span><h2>${esc(m.subject)}</h2><p class="muted">${esc(m.from)} · ${esc(m.address)}</p></div>${state.handled.includes(m.id) ? badge('Gestita', 'badge-green') : badge('Da approvare', 'badge-amber')}</div>
@@ -415,9 +418,18 @@ function staff() {
 }
 
 // ————— 10 SCADENZE —————
+// Il "fornello" dello studio: adempimenti con capienza, tempo di lavoro e scadenza di legge.
+function filingsPanel() {
+ if (!gameOn()) return '';
+ const now = Date.now(), doing = P.doingNow().length, cap = P.studioCfg.cap;
+ const bar = (start, total, cls) => `<span class="tk-bar ${cls}"><i style="animation-duration:${total}s;animation-delay:-${Math.min(total, (now - start) / 1000).toFixed(1)}s"></i></span>`;
+ return `<section class="workspace-panel filings game-kds"><div class="panel-title"><h2>${icon('clock')} Adempimenti da lavorare</h2><span class="live-pill"><span class="live-dot"></span>Paolo · ${doing}/${cap} in lavorazione</span></div>
+  <div class="filing-list">${P.filings.map(f => { const left = Math.max(0, Math.ceil(P.filingLeft(f))), red = P.filingRed(f); return `<article class="filing ${red ? 'red' : ''} fs-${f.state}"><span class="fl-body"><b>${esc(f.what)}</b><small>${esc(f.act)} · ${esc(f.office)}</small>${f.state === 'todo' ? bar(f.created, f.due, 'pass') : f.state === 'doing' ? bar(f.doneAt - P.studioCfg.work * 1000, P.studioCfg.work, 'cook') : ''}</span>${f.state === 'todo' ? (doing >= cap ? `<span class="tk-full">Addetto occupato · ${doing}/${cap}</span>` : `<button class="btn btn-secondary" data-filing-act="${f.id}">Avvia ${icon('arrow')}</button>`) : f.state === 'doing' ? `<span class="fr-wait">${icon('clock')} In lavorazione</span>` : f.state === 'done' ? badge(`Fatto alle ${f.doneTime}`, 'badge-green') : badge('Scaduto · sanzione', 'badge-red')}${f.state === 'todo' ? `<span class="fl-left ${red ? 'hot' : ''}">${left} s</span>` : ''}</article>`; }).join('') || '<p class="muted pad-s">Nessun adempimento aperto.</p>'}</div></section>`;
+}
 function scadenze() {
  const sorted = [...D.deadlines].sort((a, b) => (a.days ?? 9999) - (b.days ?? 9999));
  return `${heading('IL CONTROLLO · 10', 'Scadenziario & post-stipula', 'Dopo la firma ogni atto genera i suoi adempimenti. Otto calcola i termini e avvisa chi se ne occupa.')}
+ ${filingsPanel()}
  <div class="alert-banner">${icon('alert')}<p><b>Paolo Donati è in ferie fino a lunedì</b> e ha 2 termini entro 5 giorni.</p>${btn('Riassegna a Giulia', 'toast:Termini riassegnati a Giulia Marchi (demo)', 'btn-secondary', 'users')}</div>
  <section class="workspace-panel"><div data-anchor="scadenze" class="anchor-pad"></div><div class="timeline">${sorted.map(d => `<div class="tl-row ${d.state}"><span class="tl-days">${d.days === null ? icon('check') : `<b>${d.days}</b><small>giorni</small>`}</span><span class="tl-body"><b>${esc(d.what)}</b><small>${esc(d.act)}</small></span><span class="tl-due">${esc(d.due)}</span>${avatar(d.owner)}${badge(d.state === 'done' ? 'Completato' : d.state === 'urgent' ? 'Urgente' : 'Programmato', d.state === 'done' ? 'badge-green' : d.state === 'urgent' ? 'badge-red' : '')}</div>`).join('')}</div></section>
  <div class="notice">${icon('info')}<p>Termini di esempio. Nel servizio reale vengono calcolati dalla data dell’atto e dalle regole configurate dallo studio.</p></div>`;
@@ -501,8 +513,8 @@ function action(a) {
  if (a === 'toggle-doc') { ui.studio.showDoc = !ui.studio.showDoc; const st = document.querySelector('.studio'); st?.classList.toggle('with-doc', ui.studio.showDoc); st?.classList.toggle('no-doc', !ui.studio.showDoc); document.querySelector('.doc-toggle')?.setAttribute('aria-pressed', ui.studio.showDoc); return refreshStudio(false); }
  if (a === 'studio-new') { stopRun(); ui.studio.messages = []; ui.studio.artifact = null; ui.studio.uploaded = null; return render(); }
  if (a === 'download-form') { ecoPoints('form', 3, 'Modulo scaricato'); return downloadForm(); }
- if (a.startsWith('handle:')) { const on = toggle('handled', a.slice(7)); if (on) ecoPoints('handle', 4, 'Email gestita', a.slice(7)); toast(on ? 'Approvata. In anteprima nessuna email viene inviata.' : 'Email riaperta.'); return shell(); }
- if (a.startsWith('send:')) { toggle('sent', a.slice(5)); ecoPoints('send', 4, 'Messaggio inviato', a.slice(5)); toast('Messaggio segnato come inviato. In anteprima non parte nulla.'); return shell(); }
+ if (a.startsWith('handle:')) { const on = toggle('handled', a.slice(7)); if (on) ecoPoints('handle', 4, 'Email gestita', a.slice(7), {born:D.mails.find(m => m.id === a.slice(7))?.at}); toast(on ? 'Approvata. In anteprima nessuna email viene inviata.' : 'Email riaperta.'); return shell(); }
+ if (a.startsWith('send:')) { toggle('sent', a.slice(5)); ecoPoints('send', 4, 'Messaggio inviato', a.slice(5), {born:D.chats.find(c => c.id === a.slice(5))?.at}); toast('Messaggio segnato come inviato. In anteprima non parte nulla.'); return shell(); }
  if (a === 'account') return show(`<span class="dialog-kicker">IL TUO STUDIO</span><h2 id="dialog-title">Andrea Conti</h2><p class="dialog-description">Notaio titolare · ${esc(D.studio.name)}. L’accesso CSD Station sarà collegato al servizio.</p>`);
  if (a === 'reset') { stopRun(); reset(); ui.studio.messages = []; ui.studio.artifact = null; ui.otto = []; toast('Demo ripristinata.'); return shell(); }
 }
@@ -529,6 +541,7 @@ document.addEventListener('click', e => {
  if ((x = el('[data-call]'))) { ui.call = x.dataset.call; return render(); }
  if ((x = el('[data-chat]'))) { ui.chat = x.dataset.chat; return render(); }
  if ((x = el('[data-category]'))) { ui.category = x.dataset.category; return render(); }
+ if ((x = el('[data-filing-act]'))) { if (!P.startFiling(x.dataset.filingAct)) toast(`L’addetto lavora ${P.studioCfg.cap} adempimenti alla volta: aspetta che uno finisca.`); return render(); }
  if ((x = el('[data-studio]'))) { ecoPoints('studio', 3, 'Lavoro con Otto', null, {id:x.dataset.studio}); const s = studioSuggestions.find(s => s.id === x.dataset.studio); return runStudio(s.prompt, s.id); }
  if ((x = el('[data-memory]'))) { ask(x.dataset.memory); return; }
  if ((x = el('[data-otto]'))) return askGlobal(x.dataset.otto);
@@ -608,6 +621,22 @@ onLive(ev => {
  if (!ev.quiet) liveToast(ev);
  liveRefresh();
 });
+// Le sezioni vive dello studio nella sfida: un battito al secondo.
+setInterval(() => {
+ if (!gameOn() || gamePaused() || document.hidden || document.body.classList.contains('touring')) return;
+ const r = P.studioTick(gameLevel(), state.handled);
+ // ogni cosa in rosso costa 1 punto al secondo, ma al massimo 2 in tutto
+ const reds = r.late.length + r.red.length;
+ if (reds) penalty(Math.min(2, reds), r.late.length ? 'Email in ritardo' : 'Adempimento in scadenza');
+ r.expired.forEach(f => { penalty(15, 'Termine scaduto'); toast(`${f.what} (${f.act}): termine scaduto, sanzione per lo studio.`); });
+ r.done.forEach(f => ecoPoints('filing', 6, 'Adempimento chiuso', f.id, {born:f.created}));
+ const sig = `${r.late.length}|${r.red.length}`, was = ui.pressure?.sig;
+ ui.pressure = {...r, sig};
+ // nello Scadenziario i secondi scorrono a vista; in Posta si ridisegna solo quando cambia qualcosa
+ if (route() === 'scadenze' || ((r.changed || was !== sig) && route() === 'posta')) liveRefresh();
+ document.querySelector('.sidebar a[href="#posta"]')?.classList.toggle('kds-alarm', r.late.length > 0);
+ document.querySelector('.sidebar a[href="#scadenze"]')?.classList.toggle('kds-alarm', r.red.length > 0);
+}, 1000);
 // Dentro il sito la demo parte ferma (niente cicli né animazioni): si accende solo quando il visitatore la apre.
 const wake = on => { live.awake = on; document.documentElement.classList.toggle('csd-paused', !on); };
 wake(live.awake);
@@ -618,10 +647,11 @@ window.addEventListener('message', e => {
  if (e.data === 'csd:resume') wake(true);
  if (e.data === 'csd:pause') wake(false);
 });
-initGame(challenges, {icon, missionsOnly:true,
+initGame(challenges, {story,icon, missionsOnly:true,
  // compiti veri: nascono dallo stato dello studio e si fanno con i tasti delle sezioni
  tasks:() => {
   const c = [];
+  P.filings.filter(f => f.state === 'todo' && P.filingLeft(f) < 100).forEach(f => c.push({key:'filing', ref:f.id, page:'scadenze', title:`${f.what} in scadenza`, text:`Nello Scadenziario **avvia ${f.what.toLowerCase()}** (${f.act}) prima che scada il termine.`, target:`[data-filing-act="${f.id}"]`, valid:() => f.state === 'todo', auto:() => P.startFiling(f.id)}));
   D.mails.filter(m => !m.reading && !m.missionOpen && !state.handled.includes(m.id)).slice(0, 4).forEach(m => c.push({key:'handle', ref:m.id, page:'posta', title:`Email · ${m.from}`, text:`Apri **“${m.subject}”**, leggi cosa ha capito Otto e premi **${m.draft ? 'Approva e invia' : 'Approva e archivia'}**.`, target:`[data-action="handle:${m.id}"]`, valid:() => !state.handled.includes(m.id), auto:() => { if (!state.handled.includes(m.id)) state.handled.push(m.id); }}));
   D.chats.filter(ch => ch.draft && !ch.mission && !ch.thinking && !state.sent.includes(ch.id)).forEach(ch => c.push({key:'send', ref:ch.id, page:'whatsapp', title:`WhatsApp · ${ch.who}`, text:'Controlla la risposta proposta da Otto e premi **Invia**.', target:`[data-action="send:${ch.id}"]`, valid:() => !state.sent.includes(ch.id), auto:() => { if (!state.sent.includes(ch.id)) state.sent.push(ch.id); }}));
   D.tasks.filter(t => !t.done && !state.done.includes(t.id)).slice(0, 3).forEach(t => c.push({key:'task', ref:t.id, page:'staff', title:`Attività · ${t.text}`, text:'In Staff & task **spunta l’attività** quando è completata.', target:`input[data-task="${t.id}"]`, valid:() => !state.done.includes(t.id), auto:() => { if (!state.done.includes(t.id)) state.done.push(t.id); }}));
@@ -633,8 +663,14 @@ initGame(challenges, {icon, missionsOnly:true,
   return c;
  }, missionTypes:12, sections:12, placeOf:'dello studio', startNote:'Email, messaggi e chiamate da gestire arrivano dal quadrato rosso “!” in alto, e ogni sezione dello studio ha la sua missione.', menuNote:'Le missioni arrivano dallo studio vivo: email da controllare, messaggi da correggere, chiamate in diretta. Sempre nuove.',
  focus:(page, ref) => { if (page === 'posta') { ui.mail = ref; ui.mailFilter = 'all'; } if (page === 'whatsapp') ui.chat = ref; if (page === 'centralino') ui.call = ref; if (route() === page) { render(); } else location.hash = page; setTimeout(() => document.querySelector('[data-mission]')?.scrollIntoView({block:'center', behavior:'smooth'}), 120); },
- onStart:() => startMissions((id, page) => { if (page === 'posta' && !state.handled.includes(id)) state.handled.push(id); if (route() === page) { const y = scrollY; render(); scrollTo(0, y); } }),
- onReset:() => stopMissions(),
+ onStart:() => { P.studioGameStart(state.handled); ui.pressure = {}; startMissions((id, page) => { if (page === 'posta' && !state.handled.includes(id)) state.handled.push(id); if (route() === page) { const y = scrollY; render(); scrollTo(0, y); } }); },
+ onReset:() => { stopMissions(); P.studioGameStop(); },
+ // potenziamenti dello studio, da comprare nella Bottega di Otto
+ shop:[
+  {id:'segretaria', name:'Segretaria in più', desc:'+60 secondi prima che un’email vada in ritardo.', cost:25, mood:'otto-cap', use:() => { P.studioCfg.mailSla += 60; return `Ora le email possono aspettare ${Math.round(P.studioCfg.mailSla / 60)} minuti.`; }},
+  {id:'addetto', name:'Secondo addetto agli adempimenti', desc:'+1 adempimento in lavorazione insieme (fino a 4).', cost:35, mood:'otto-notary', use:() => { if (P.studioCfg.cap >= 4) return false; P.studioCfg.cap++; render(); return `Ora si lavorano ${P.studioCfg.cap} adempimenti insieme.`; }},
+  {id:'firma', name:'Firma digitale remota', desc:'Ogni adempimento richiede 15 secondi invece di 25.', cost:30, mood:'otto-notary', use:() => { if (P.studioCfg.work <= 15) return false; P.studioCfg.work = 15; return 'Adempimenti più veloci: 15 secondi l’uno.'; }}
+ ],
  pageName:id => moduleById(id)?.title || {home:'Oggi in studio'}[id] || id});
 shell();
 startLive();

@@ -374,3 +374,40 @@ body.game-paused .gc-timer i,body.game-paused .gtk-time i{animation-play-state:p
 .gst-go:not(:disabled){animation:gst-ready 1.6s ease-in-out infinite}
 @keyframes gst-ready{50%{box-shadow:0 0 0 6px #c5f47633}}
 @media(prefers-reduced-motion:reduce){.gst-panel,.gst-msg,.gst-go{animation:none!important}}
+/* ——— Cucina in modalità sfida ——— */
+.game-kds .tk-bar{display:block;height:5px;border-radius:3px;background:#eef1e8;overflow:hidden;margin-top:2px}
+.game-kds .tk-bar i{display:block;height:100%;width:100%;transform-origin:left;animation:kds-fill linear forwards}
+.game-kds .tk-bar.cook i{background:linear-gradient(90deg,#b49bd6,#8fc251)}
+.game-kds .tk-bar.wait i,.game-kds .tk-bar.pass i{background:linear-gradient(90deg,#8fc251,#e2b14f 70%,#d8432f)}
+@keyframes kds-fill{from{transform:scaleX(0)}to{transform:scaleX(1)}}
+body.game-paused .game-kds .tk-bar i{animation-play-state:paused}
+.tk-full{font-size:11px;font-weight:650;color:#b2533f}
+.kds-col.hot{background:#fdeeea;border-color:#efb3a5;box-shadow:inset 0 0 0 2px #d8432f55;animation:kds-hot 1.2s ease-in-out infinite}
+@keyframes kds-hot{50%{box-shadow:inset 0 0 0 2px #d8432fcc}}
+.kds-col.hot header b{color:#b2412d}
+.kds-hot{display:flex;align-items:center;gap:6px;margin:0 2px;font-size:11.5px;font-weight:650;color:#b2412d}
+.kds-hot .icon{width:14px;height:14px}
+.sidebar a.kds-alarm{box-shadow:inset 3px 0 0 #d8432f}
+@media(prefers-reduced-motion:reduce){.kds-col.hot{animation:none}}
+/* ——— Notaro: posta in ritardo e adempimenti ——— */
+.new-tag.late-tag{background:#b2412d}
+.hot-banner{background:#fdeeea;border-color:#efb3a5;color:#8a2f1f;animation:kds-hot 1.2s ease-in-out infinite}
+.filings{margin-bottom:16px}
+.filing-list{display:grid;gap:8px;padding:14px 16px}
+.filing{display:flex;align-items:center;gap:14px;background:#fff;border:1px solid #e3e8da;border-left:4px solid #e2c27e;border-radius:10px;padding:10px 14px}
+.filing.fs-doing{border-left-color:#b49bd6}.filing.fs-done{border-left-color:#8fc251;opacity:.7}.filing.fs-expired{border-left-color:#d8432f;opacity:.7}
+.filing.red{background:#fdeeea;border-color:#efb3a5;border-left-color:#d8432f;animation:kds-hot 1.2s ease-in-out infinite}
+.fl-body{flex:1;min-width:0;display:grid;gap:3px}
+.fl-body b{font-size:13px}.fl-body small{font-size:11px;color:#7f8a75}
+.fl-left{font-size:13px;font-weight:650;color:#5d6b52;min-width:44px;text-align:right;font-variant-numeric:tabular-nums}
+.fl-left.hot{color:#b2412d}
+.filing .btn{min-height:34px;padding:7px 12px;font-size:12px}
+/* ——— La storia: capitolo in corso e chat dei capitoli ——— */
+.game-chapter{display:inline-flex;flex-direction:column;align-items:flex-start;gap:0;background:#1d2b20;color:#e8f0df;border:1px solid #2f4029;border-radius:10px;padding:4px 10px;line-height:1.2;max-width:220px;cursor:pointer;text-align:left}
+.game-chapter small{font-size:8.5px;letter-spacing:1px;color:#c5f476;font-weight:700}
+.game-chapter b{font-size:11.5px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:200px}
+.game-chapter i{font-style:normal;font-size:10px;color:#a9bb98}
+.game-chapter:hover{border-color:#c5f476}
+.game-story.no-spot{background:#0b140e8c}
+.gp-chapter{background:#f4f8ec;border:1px solid #dfeacb;border-radius:8px;padding:9px 11px;font-size:12px;line-height:1.5}
+@media(max-width:1180px){.game-chapter i{display:none}}

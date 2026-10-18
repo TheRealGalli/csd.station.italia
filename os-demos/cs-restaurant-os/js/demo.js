@@ -173,6 +173,8 @@ seed();
 // Servizio live: la cucina avanza e arrivano nuovi ordini.
 export function tick() {
  if (!service.live) return;
+ // nella sfida la cucina la guida il giocatore: la simulazione fa solo girare i tavoli
+ if (service.game) { if (Math.random() < .3) turnover(); return; }
  tidy();
  if (Math.random() < .25 && turnover()) return;
  const r = Math.random();
@@ -298,3 +300,118 @@ function inboundSupplier() {
 const inboundScript = [inboundCall, inboundWhatsapp, inboundReview, inboundCall, inboundSupplier, inboundWhatsapp];
 // con la sfida avviata (service.game) gli avvisi arrivano dalle missioni
 export function inboundTick() { if (!service.live || service.game) return; inboundScript[phase++ % inboundScript.length](); }
+
+// ————— La cucina in modalità sfida —————
+// Fuori dalla sfida la cucina va da sola. Nella sfida la guida il giocatore, con limiti veri:
+// fornelli con un massimo di piatti insieme, tempi di cottura per piatto, un tempo per servire dal pass.
+// Se le comande aspettano troppo o i piatti restano fermi al pass, la colonna va in rosso e si perdono punti.
+export const kitchen = {cap:4, passTime:45, waitLimit:70, speed:1};
+export const cookTime = d => Math.max(8, Math.round(d.prep * 2 * kitchen.speed)); // secondi
+const findLine = id => { for (const t of tables) { const l = t.lines.find(x => x.id === id); if (l) return [t, l]; } return []; };
+export const cookingNow = () => kitchenLines().filter(l => l.state === 'cooking');
+export function startCooking(id) {
+ const [t, l] = findLine(id);
+ if (!l || l.state !== 'waiting' || cookingNow().length >= kitchen.cap) return false;
+ l.state = 'cooking'; l.cookAt = Date.now();
+ log(`${t.id} · ${dish(l.dish).name} sui fornelli`, 'cucina'); emit(); return true;
+}
+export function serveLine(id) {
+ const [t, l] = findLine(id);
+ if (!l || l.state !== 'ready') return false;
+ l.state = 'served'; log(`${t.id} · ${dish(l.dish).name} servito`, 'sala'); emit(); return true;
+}
+// All'inizio della sfida la cucina parte leggera: poche comande, che poi arrivano con il tempo.
+export function kitchenGameStart() {
+ service.game = true; Object.assign(kitchen, {cap:4, passTime:45, waitLimit:70, speed:1});
+ const now = Date.now(), keep = {waiting:2, cooking:2, ready:1};
+ for (const l of kitchenLines().sort((a, b) => a.at - b.at)) {
+  const [, line] = findLine(l.id);
+  if (keep[line.state] > 0) {
+   keep[line.state]--;
+   if (line.state === 'waiting') line.at = now;
+   if (line.state === 'cooking') line.cookAt = now - cookTime(dish(line.dish)) * 500;
+   if (line.state === 'ready') line.readyAt = now;
+  } else line.state = 'served';
+ }
+ nextOrderAt = now + 20000; emit();
+}
+export function kitchenGameStop() { service.game = false; }
+let nextOrderAt = 0;
+// Un battito al secondo: la cottura finisce, le comande nuove arrivano, si controlla cosa è in rosso.
+export function kitchenGameTick(level = 1) {
+ if (!service.game) return {waiting:false, pass:false};
+ const now = Date.now(); let changed = false;
+ for (const l of kitchenLines()) {
+  const [t, line] = findLine(l.id);
+  if (line.state === 'cooking' && now - (line.cookAt || now) >= cookTime(dish(line.dish)) * 1000) { line.state = 'ready'; line.readyAt = now; log(`${t.id} · ${dish(line.dish).name} pronto al pass`, 'cucina'); changed = true; }
+ }
+ const waiting = kitchenLines().filter(l => l.state === 'waiting');
+ if (now >= nextOrderAt && waiting.length < 3 + level * 2) {
+  const gap = [[35, 55], [25, 40], [18, 30]][level - 1] || [35, 55];
+  nextOrderAt = now + (gap[0] + Math.random() * (gap[1] - gap[0])) * 1000;
+  const t = tables.filter(x => ['seated', 'ordered'].includes(x.status) && !x.mission && x.lines.length < 7)[Math.floor(Math.random() * 3)];
+  const ds = menu.filter(d => d.course > 0 && available(d)).sort(() => Math.random() - .5).slice(0, 1 + (Math.random() < .35 ? 1 : 0));
+  if (t) { ds.forEach(d => addDish(t.id, d.id, 1, true)); changed = true; }
+ }
+ if (changed) emit();
+ const lines = kitchenLines();
+ return {
+  waiting:lines.some(l => l.state === 'waiting' && now - l.at > kitchen.waitLimit * 1000),
+  pass:lines.some(l => l.state === 'ready' && now - (l.readyAt || now) > kitchen.passTime * 1000)
+ };
+}
+
+// ————— Le celle frigorifere (HACCP) —————
+// Quattro celle con la sonda di temperatura. Nella sfida possono succedere guasti veri:
+// porta rimasta aperta (sale in fretta), compressore guasto (sale piano: serve il tecnico),
+// sonda scollegata (il valore non si muove più). Oltre la soglia la cella è fuori norma;
+// molto oltre, la merce va buttata.
+export const fridges = [
+ {id:'F1', name:'Cella carni', base:2.2, max:4, holds:['manzo', 'guanciale']},
+ {id:'F2', name:'Frigo latticini', base:3, max:4, holds:['burrata', 'mascarpone', 'pecorino', 'uova']},
+ {id:'F3', name:'Frigo verdure', base:3.4, max:4, holds:['funghi', 'pomodoro']},
+ {id:'F4', name:'Congelatore', base:-19.5, max:-18, holds:['pasta']}
+].map(f => ({...f, temp:f.base, shown:f.base, state:'ok', since:0, faults:0, lost:false}));
+export const fridgeCfg = {gap:[90, 150], repair:45, autoDoor:0, rate:1};
+let nextFaultAt = 0;
+export const fridge = id => fridges.find(f => f.id === id);
+export const fridgeRed = f => f.state === 'sensor' ? Date.now() - f.since > 30000 : f.temp > f.max;
+export function fridgeAction(id) {
+ const f = fridge(id); if (!f) return null;
+ const now = Date.now();
+ if (f.state === 'door') { f.state = 'ok'; log(`${f.name}: porta chiusa`, 'magazzino'); }
+ else if (f.state === 'fault') { f.state = 'repair'; f.repairUntil = now + fridgeCfg.repair * 1000; log(`${f.name}: tecnico chiamato, arriva in ${fridgeCfg.repair} s`, 'magazzino'); }
+ else if (f.state === 'sensor') { f.state = 'ok'; f.shown = f.temp; log(`${f.name}: sonda ricollegata`, 'magazzino'); }
+ else return null;
+ emit(); return f;
+}
+export function fridgeGameStart() { fridges.forEach(f => Object.assign(f, {temp:f.base, shown:f.base, state:'ok', lost:false})); nextFaultAt = Date.now() + 75000; }
+// Un battito al secondo, solo nella sfida.
+export function fridgeTick() {
+ if (!service.game) return {red:[], lost:[]};
+ const now = Date.now(), lost = []; let changed = false;
+ for (const f of fridges) {
+  const rise = {door:.12, fault:.035, repair:.015}[f.state];
+  if (rise) f.temp += rise * (f.max < 0 ? 1.5 : 1);
+  else f.temp += (f.base - f.temp) * .06 + (Math.random() - .5) * .04;
+  if (f.state === 'repair' && now >= f.repairUntil) { f.state = 'ok'; log(`${f.name}: riparato dal tecnico`, 'magazzino'); changed = true; }
+  if (f.state === 'door' && fridgeCfg.autoDoor && now - f.since > fridgeCfg.autoDoor * 1000) { f.state = 'ok'; log(`${f.name}: l’allarme ha richiuso la porta`, 'magazzino'); changed = true; }
+  if (f.state !== 'sensor') f.shown = f.temp;
+  if (!f.lost && f.temp > f.max + 4) {
+   f.lost = true; lost.push(f);
+   f.holds.forEach(k => { const i = ingredient(k); if (i) { i.qty = +(i.qty * .5).toFixed(2); i.changed = now; } });
+   log(`${f.name}: merce oltre i ${f.max + 4} °C, buttata metà`, 'magazzino'); changed = true;
+  }
+  if (f.lost && f.temp <= f.max) f.lost = false;
+ }
+ if (now >= nextFaultAt) {
+  const [a, b] = fridgeCfg.gap; nextFaultAt = now + (a + Math.random() * (b - a)) * 1000 / fridgeCfg.rate;
+  const f = fridges.filter(x => x.state === 'ok')[Math.floor(Math.random() * 4)];
+  if (f) {
+   f.state = ['door', 'door', 'fault', 'sensor'][Math.floor(Math.random() * 4)]; f.since = now; f.faults++;
+   log(`${f.name}: ${f.state === 'door' ? 'porta rimasta aperta' : f.state === 'fault' ? 'il compressore non parte' : 'la sonda non risponde'}`, 'magazzino'); changed = true;
+  }
+ }
+ if (changed) emit();
+ return {red:fridges.filter(fridgeRed), lost};
+}
