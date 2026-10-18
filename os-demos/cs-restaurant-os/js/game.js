@@ -317,12 +317,30 @@ function inner(page) {
 function arm() {}
 // Un solo orologio per tutte le decisioni aperte: quando una scade toglie un po' di punti, meno di una scelta sbagliata.
 function openLevel() { const t = Date.now(); open().forEach(c => { S.avail[c.id] ||= t; }); }
+// Il tempo del gioco si misura con l'orologio vero, non a "un secondo per battito": il browser rallenta i timer
+// delle schede in background (anche a uno al minuto), e così al ritorno niente scade tutto insieme.
+// Tutto il tempo passato a gioco fermo (chat di Otto, scheda nascosta, demo chiusa nel sito, demo guidata,
+// pausa caffè) si restituisce a compiti, missioni e alle sezioni vive delle app (hooks.freeze).
+let lastTick = Date.now(), wasFrozen = true;
+const frozenNow = () => touring() || document.hidden || S.paused > 0 || document.documentElement.classList.contains('csd-paused');
+// un inizio spostato in avanti non va mai oltre "adesso" (una cosa arrivata a metà battito non riceve tempo che non ha vissuto)
+export const later = (t, ms) => Math.min(t + ms, Date.now());
+function giveBack(ms, live = true) {
+ if (!ms) return;
+ for (const id in S.avail) S.avail[id] = later(S.avail[id], ms);
+ openMissions().forEach(m => { m.created = later(m.created, ms); }); openTasks().forEach(t => { t.created = later(t.created, ms); });
+ if (live) try { hooks.freeze?.(ms); } catch (err) { console.warn('Sfida di Otto · tempo fermo', err); }
+}
 function tick() {
- if (!S.started || touring() || document.hidden || S.paused) { for (const id in S.avail) S.avail[id] += 1000; openMissions().forEach(m => { m.created += 1000; }); openTasks().forEach(t => { t.created += 1000; }); return; }
- if (Date.now() < S.fx.freezeUntil) openTasks().forEach(t => { t.created += 1000; });
+ const now = Date.now(), dt = Math.max(0, Math.min(now - lastTick, 6 * 3600e3)); lastTick = now;
+ if (!S.started) { wasFrozen = true; return; }
+ const frozen = frozenNow(), held = frozen || wasFrozen; wasFrozen = frozen;
+ if (held) giveBack(dt);
+ if (frozen) return;
+ // pausa caffè della Bottega: si ferma tutto, sezioni vive comprese
+ if (!held && now < S.fx.freezeUntil) giveBack(dt);
  taskDirector();
- if (Date.now() < S.fx.freezeUntil) { openMissions().forEach(m => { m.created += 1000; }); for (const id in S.avail) S.avail[id] += 1000; }
- openMissions().forEach(m => { if (!m.armed) m.created += 1000; });
+ openMissions().forEach(m => { if (!m.armed) m.created = later(m.created, dt); });
  for (const m of openMissions()) if (missionLeft(m) <= 0) resolveMission(m, {pts:-8, label:'Tempo scaduto', why:'Nessuno ha deciso in tempo: Otto ha scelto da solo seguendo le regole e ti segnala il caso da ricontrollare. Una decisione lasciata a metà costa meno di una sbagliata, ma costa.'});
  for (const c of open()) {
   if (left(c) > 0) continue;
@@ -338,6 +356,8 @@ function tick() {
 // i battiti del gioco non devono mai fermare la pagina: un errore si registra e si va avanti
 const safe = (fn, name) => () => { try { fn(); } catch (err) { console.warn(`Sfida di Otto · ${name}`, err); } };
 setInterval(safe(tick, 'tempo'), 1000);
+// tornando sulla scheda il conto del tempo fermo si fa subito, prima che le app controllino cosa è in rosso
+document.addEventListener('visibilitychange', () => { if (!document.hidden) safe(tick, 'tempo')(); });
 // Consigli casuali di Otto, a tempo fermo, solo quando non c'è niente di urgente.
 const tips = [
  ['tip-sources', '.game-chip', 'Un consiglio', 'Nei documenti **i numeri in arancione** sono quelli da confrontare: guardali prima di decidere.'],
@@ -697,7 +717,7 @@ function stageClear(c, last, onClose) {
  box.innerHTML = `<div class="gf-card">
   <div class="gf-screen"><small>CAPITOLO ${n}/${of} · COMPLETATO</small><b>${esc(c.title.toUpperCase())}</b><span class="gf-bar">${chapters().map((_, i) => `<i class="${i < n ? 'on' : ''}"></i>`).join('')}</span></div>
   <div class="gf-tale"><span class="gf-face">${icon(c.role)}</span><div><b>${esc(c.narrator)}</b>${c.outro.map(l => `<p>${rich(l)}</p>`).join('')}</div></div>
-  <div class="gf-stats">${stat(`+${gained}`, 'punti nel capitolo')}${stat(won, won === 1 ? 'missione vinta' : 'missioni vinte')}${stat(tasks, tasks === 1 ? 'compito fatto' : 'compiti fatti')}${stat(lost ? `−${lost}` : '0', 'punti persi in rosso')}</div>
+  <div class="gf-stats">${stat(`+${gained}`, 'punti nel capitolo')}${stat(won, won === 1 ? 'missione vinta' : 'missioni vinte')}${stat(tasks, tasks === 1 ? 'compito fatto' : 'compiti fatti')}${stat(lost ? `−${lost}` : '0', 'punti persi')}</div>
   <p class="gf-bonus">${icon('otto-happy')} <b>+50 punti</b> di bonus capitolo · ${mins}′ di gioco</p>
   ${!last && next ? `<p class="gf-next"><small>PROSSIMO CAPITOLO</small><b>${esc(next.title)}</b></p>` : ''}
   <div class="gf-actions"><button class="gf-go" data-stage="go">${last ? 'Vedi com’è andata' : `Avanti · capitolo ${n + 1}`} ${icon('arrow')}</button></div>
@@ -864,6 +884,15 @@ const catalog = [
 ];
 function halfWork(m) {
  const st = m.st, n = Math.max(1, Math.ceil((m.data.items?.length || m.data.chips?.filter(c => c.ok).length || 2) / 2));
+ // caccia agli errori e procedure: Otto fa davvero metà del lavoro (trova metà dei problemi, mette in fila metà dei passaggi)
+ if (m.kind === 'hunt') {
+  const left = m.data.rows.map((r, i) => r[2] && !(st.found || []).includes(i) ? i : -1).filter(i => i >= 0), k = Math.max(1, Math.floor(left.length / 2));
+  if (left.length > 1) { (st.found ||= []).push(...left.slice(0, k)); st.hintMsg = `Metà lavoro fatto da Otto: ho trovato ${k === 1 ? 'un problema' : `${k} problemi`}, gli altri tocca a te.`; refreshMission(m.id); return; }
+ }
+ if (m.kind === 'order') {
+  const seq = st.seq ||= [], left = m.data.steps.length - seq.length, k = Math.max(1, Math.floor(left / 2));
+  if (left > 1) { for (let i = 0; i < k; i++) seq.push(seq.length); st.note = ''; st.hintMsg = `Metà lavoro fatto da Otto: ho messo in fila i primi ${seq.length} passaggi.`; refreshMission(m.id); return; }
+ }
  let msg = '';
  for (let k = 0; k < (['triage', 'classify', 'multi'].includes(m.kind) ? n : 1); k++) msg = m.hint?.(m.data, st) || msg;
  st.hintMsg = `Metà lavoro fatto da Otto. ${msg}`;

@@ -2,7 +2,7 @@ import {icon, otto} from './icons.js';
 import {modules, groups, groupNotes, moduleById} from './modules.js';
 import * as D from './demo.js';
 import {startTour} from './tour.js';
-import {initGame, gameChip, mountGame, gameInvite, gameOn, openShop, gameIntro, ecoPoints, missionPanel, gamePaused, isReserved, penalty, gameLevel, ottoMessage, setPressure} from './game.js';
+import {initGame, gameChip, mountGame, gameInvite, gameOn, openShop, gameIntro, ecoPoints, missionPanel, gamePaused, isReserved, penalty, gameLevel, ottoMessage, setPressure, later} from './game.js';
 import {story} from './story.js';
 import {challenges} from './challenges.js';
 import {startMissions, stopMissions} from './missions.js';
@@ -532,14 +532,6 @@ setInterval(() => {
   setPressure(pr);
  } catch (err) { console.warn('CS Restaurant OS · errore nel battito', err); }
 }, 1000);
-// "Il tempo è fermo" vale per tutto: mentre Otto parla, le attese vive (porta, cucina, frigo, pass) non avanzano.
-setInterval(() => {
- if (!gameOn() || !gamePaused() || !D.service.game) return;
- D.door.forEach(p => { p.at += 1000; });
- D.tables.forEach(t => t.lines.forEach(l => { ['at', 'cookAt', 'cookedAt', 'readyAt'].forEach(k => { if (l[k]) l[k] += 1000; }); }));
- D.fridges.forEach(f => { if (f.since) f.since += 1000; if (f.repairUntil) f.repairUntil += 1000; });
- if (D.kitchen.autoUntil > Date.now()) D.kitchen.autoUntil += 1000;
-}, 1000);
 (function inbound() { setTimeout(() => { if (!busy()) D.inboundTick(); inbound(); }, 14000 + Math.random() * 10000); })();
 window.addEventListener('message', e => {
  if (e.origin !== location.origin) return;
@@ -549,6 +541,15 @@ window.addEventListener('message', e => {
  if (e.data === 'csd:pause') wake(false);
 });
 initGame(challenges, {story,icon, place:'il locale', missionsOnly:true,
+ // "il tempo è fermo" vale per tutto: il motore restituisce qui il tempo passato a gioco fermo
+ freeze:ms => {
+  if (!D.service.game) return;
+  D.door.forEach(p => { p.at = later(p.at, ms); });
+  D.tables.forEach(t => t.lines.forEach(l => { ['at', 'cookAt', 'cookedAt', 'readyAt'].forEach(k => { if (l[k]) l[k] = later(l[k], ms); }); }));
+  D.fridges.forEach(f => { if (f.since) f.since = later(f.since, ms); if (f.repairUntil) f.repairUntil += ms; });
+  if (D.kitchen.autoUntil > Date.now() - ms) D.kitchen.autoUntil += ms;
+  D.shiftClocks(ms);
+ },
  // compiti veri: nascono dallo stato del locale e si fanno con i tasti delle sezioni
  tasks:() => {
   const c = [], low = D.lowStock();

@@ -9,6 +9,8 @@ import {gameMail} from './live.js';
 // slaBonus: secondi comprati nella Bottega (i capitoli cambiano mailSla, mai il bonus)
 export const studioCfg = {mailSla:120, slaBonus:0, cap:2, work:25, rate:1};
 export const slaMax = () => studioCfg.mailSla + studioCfg.slaBonus;
+// il tempo di risposta scritto per le persone: "90 secondi", "1 minuto", "3 minuti"
+export const slaText = () => { const t = Math.round(slaMax()); return t % 60 ? `${t} secondi` : t === 60 ? '1 minuto' : `${t / 60} minuti`; };
 export const filings = [];
 let seq = 0, nextFilingAt = 0, nextMailAt = 0, on = false;
 const clock = () => new Intl.DateTimeFormat('it-IT', {hour:'2-digit', minute:'2-digit', timeZone:'Europe/Rome'}).format(new Date());
@@ -117,3 +119,6 @@ export function seatClient(pid, rid) {
 }
 // Per le prove a mano: fa arrivare subito qualcuno in sala d'attesa.
 export const lobbyArrive = n => on ? guestArrive(n) : null;
+
+// Il tempo passato a gioco fermo sposta anche i prossimi arrivi (adempimenti, email, parti in sala d'attesa).
+export function shiftClocks(ms) { nextFilingAt += ms; nextMailAt += ms; nextGuestAt += ms; }

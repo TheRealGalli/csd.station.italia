@@ -482,3 +482,6 @@ export function doorTick(level = 1) {
 }
 // Per le prove a mano: fa arrivare subito qualcuno all'ingresso.
 export const doorArrive = n => doorOn ? arrive(n) : null;
+
+// Il tempo passato a gioco fermo sposta anche i prossimi arrivi (comande, guasti, ospiti): al ritorno non arriva tutto insieme.
+export function shiftClocks(ms) { nextOrderAt += ms; nextFaultAt += ms; nextDoorAt += ms; }

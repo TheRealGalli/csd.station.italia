@@ -5,7 +5,7 @@ import * as D from './demo.js';
 import {studioScenario, studioSuggestions, askOtto, ottoSuggestions, proposeValues} from './agent.js';
 import {inspect, fillNative, formPdf} from './pdf-core.js';
 import {startTour} from './tour.js';
-import {initGame, gameChip, mountGame, gameInvite, missionPanel, gameOn, openShop, gameIntro, ecoPoints, gamePaused, penalty, gameLevel, setPressure} from './game.js';
+import {initGame, gameChip, mountGame, gameInvite, missionPanel, gameOn, openShop, gameIntro, ecoPoints, gamePaused, penalty, gameLevel, setPressure, later} from './game.js';
 import {story} from './story.js';
 import * as P from './pressure.js';
 import {startMissions, stopMissions} from './missions.js';
@@ -150,7 +150,7 @@ function posta() {
  const m = D.mails.find(x => x.id === ui.mail) || D.mails[0];
  const queue = D.team.filter(p => p.id !== 'AC').map(p => ({p, n:D.mails.filter(x => x.assignee === p.id && !state.handled.includes(x.id)).length}));
  return `${heading('CIÒ CHE ENTRA · 01', 'Posta & coda pratiche', 'Email e PEC arrivano già lette, collegate alla pratica, con il lavoro pronto da approvare.', `<button class="btn btn-secondary" data-action="toast:In produzione: collegamento IMAP/PEC e Microsoft 365">${icon('link')}Caselle collegate · 2</button>`)}
- ${gameOn() && ui.pressure?.late?.length ? `<div class="alert-banner hot-banner">${icon('alert')}<p><b>${ui.pressure.late.length} ${ui.pressure.late.length === 1 ? 'email aspetta' : 'email aspettano'} risposta da più di ${Math.round(P.studioCfg.mailSla / 60)} minuti</b> · −1 punto al secondo finché restano in ritardo.</p></div>` : ''}
+ ${gameOn() && ui.pressure?.late?.length ? `<div class="alert-banner hot-banner">${icon('alert')}<p><b>${ui.pressure.late.length} ${ui.pressure.late.length === 1 ? 'email aspetta' : 'email aspettano'} risposta da più di ${P.slaText()}</b> · −1 punto al secondo finché restano in ritardo.</p></div>` : ''}
  <div class="queue-strip"><span class="eyebrow">CODA DI OGGI</span>${queue.map(({p, n}) => `<span class="queue-person">${avatar(p.id)}<b>${n}</b> ${esc(p.name.split(' ')[0])}</span>`).join('')}</div>
  <div class="split">
   <section class="list-pane"><div class="filter-tabs small">${[['all', 'Tutte'], ['todo', 'Da approvare'], ['done', 'Gestite']].map(([k, v]) => `<button data-mail-filter="${k}" class="${ui.mailFilter === k ? 'selected' : ''}" aria-pressed="${ui.mailFilter === k}">${v}</button>`).join('')}</div>
@@ -670,18 +670,10 @@ setInterval(() => {
   if (route() === 'scadenze' || ((r.changed || was !== sig) && route() === 'posta')) liveRefresh();
   // cosa sta facendo perdere punti, e dove andare a sistemarlo
   const n = r.late.length;
-  setPressure([...(n ? [{page:'posta', label:`${n === 1 ? 'Un’email aspetta' : `${n} email aspettano`} risposta da più di ${Math.round(P.slaMax() / 60)} minuti`}] : []),
+  setPressure([...(n ? [{page:'posta', label:`${n === 1 ? 'Un’email aspetta' : `${n} email aspettano`} risposta da più di ${P.slaText()}`}] : []),
    ...r.red.map(f => ({page:'scadenze', label:`${f.what} quasi scaduta`})),
    ...(r.lobbyRed.length ? [{page:'centralino', label:r.lobbyRed.length === 1 ? `In sala d’attesa: ${r.lobbyRed[0].who}` : `${r.lobbyRed.length} appuntamenti aspettano in sala d’attesa`}] : [])]);
  } catch (err) { console.warn('CS Notaro OS · errore nel battito', err); }
-}, 1000);
-// "Il tempo è fermo" vale per tutto: mentre Otto parla, email, adempimenti, sala d'attesa e sale non avanzano.
-setInterval(() => {
- if (!gameOn() || !gamePaused()) return;
- D.mails.forEach(m => { if (m.slaFrom) m.slaFrom += 1000; else if (m.at) m.at += 1000; });
- P.filings.forEach(f => { f.created += 1000; if (f.doneAt) f.doneAt += 1000; });
- P.lobby.forEach(p => { p.at += 1000; });
- P.rooms.forEach(r => { if (r.until) r.until += 1000; });
 }, 1000);
 // Dentro il sito la demo parte ferma (niente cicli né animazioni): si accende solo quando il visitatore la apre.
 const wake = on => { live.awake = on; document.documentElement.classList.toggle('csd-paused', !on); };
@@ -694,6 +686,14 @@ window.addEventListener('message', e => {
  if (e.data === 'csd:pause') wake(false);
 });
 initGame(challenges, {story,icon, missionsOnly:true,
+ // "il tempo è fermo" vale per tutto: il motore restituisce qui il tempo passato a gioco fermo
+ freeze:ms => {
+  D.mails.forEach(m => { if (m.slaFrom) m.slaFrom = later(m.slaFrom, ms); else if (m.at) m.at = later(m.at, ms); });
+  P.filings.forEach(f => { f.created = later(f.created, ms); if (f.doneAt) f.doneAt += ms; });
+  P.lobby.forEach(p => { p.at = later(p.at, ms); });
+  P.rooms.forEach(r => { if (r.until) r.until += ms; });
+  P.shiftClocks(ms);
+ },
  // compiti veri: nascono dallo stato dello studio e si fanno con i tasti delle sezioni
  tasks:() => {
   const c = [];
@@ -714,7 +714,7 @@ initGame(challenges, {story,icon, missionsOnly:true,
  onReset:() => { stopMissions(); P.studioGameStop(); setPressure([]); },
  // potenziamenti dello studio, da comprare nella Bottega di Otto
  shop:[
-  {id:'segretaria', name:'Segretaria in più', desc:'+60 secondi prima che un’email vada in ritardo.', cost:25, mood:'otto-cap', use:() => { P.studioCfg.slaBonus += 60; return `Ora le email possono aspettare ${Math.round(P.slaMax() / 60)} minuti.`; }},
+  {id:'segretaria', name:'Segretaria in più', desc:'+60 secondi prima che un’email vada in ritardo.', cost:25, mood:'otto-cap', use:() => { P.studioCfg.slaBonus += 60; return `Ora le email possono aspettare ${P.slaText()}.`; }},
   {id:'addetto', name:'Secondo addetto agli adempimenti', desc:'+1 adempimento in lavorazione insieme (fino a 4).', cost:35, mood:'otto-notary', use:() => { if (P.studioCfg.cap >= 4) return false; P.studioCfg.cap++; render(); return `Ora si lavorano ${P.studioCfg.cap} adempimenti insieme.`; }},
   {id:'firma', name:'Firma digitale remota', desc:'Ogni adempimento richiede 15 secondi invece di 25.', cost:30, mood:'otto-notary', use:() => { if (P.studioCfg.work <= 15) return false; P.studioCfg.work = 15; return 'Adempimenti più veloci: 15 secondi l’uno.'; }},
   {id:'reception', name:'Receptionist', desc:'In sala d’attesa le parti hanno 30 secondi di pazienza in più.', cost:25, mood:'otto-phone', use:() => { if (P.lobbyCfg.bonus >= 90) return false; P.lobbyCfg.bonus += 30; render(); return 'C’è chi accoglie le parti e offre un caffè: aspettano più volentieri.'; }},
