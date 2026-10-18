@@ -310,3 +310,43 @@ input.game-target{outline:3px solid #d8432f;outline-offset:2px}
 .mg-paper .mg-doc-t{font-family:ui-monospace,Menlo,monospace;color:#b2412d;border-bottom:1px solid #eee;padding-bottom:6px;margin-bottom:6px}
 .mg-paper .mg-doc-t:before{content:'PDF ';background:#b2412d;color:#fff;border-radius:2px;padding:0 4px;margin-right:6px}
 .mg-paper .mg-doc.official{background:#fff;border-color:#d9dccf}
+
+/* ——— Nuvolette di Otto: spiegano la prima volta, a tempo fermo ——— */
+.game-coach{position:fixed;inset:0;z-index:990;animation:gco-in .25s ease-out}
+.game-coach.out{opacity:0;transition:opacity .2s}
+@keyframes gco-in{from{opacity:0}}
+.gco-spot{position:fixed;border-radius:12px;box-shadow:0 0 0 9999px #0b140e8c,0 0 0 2px #c5f476,0 0 22px 4px #c5f47660;pointer-events:none;transition:left .25s,top .25s,width .25s,height .25s}
+.gco-bubble{position:fixed;display:flex;gap:12px;align-items:flex-start;background:#173022;color:#fff;border:1px solid #2f4a35;border-radius:14px;padding:15px 16px 13px;box-shadow:0 24px 60px #000a;font-family:Inter,-apple-system,sans-serif;animation:gco-pop .3s cubic-bezier(.2,.9,.3,1.2)}
+@keyframes gco-pop{from{opacity:0;transform:translateY(6px) scale(.96)}}
+.gco-bubble:after{content:'';position:absolute;left:calc(var(--ax,50%) - 7px);width:14px;height:14px;background:#173022;border:1px solid #2f4a35;transform:rotate(45deg)}
+.gco-bubble[data-arrow="top"]:after{top:-8px;border-right:0;border-bottom:0}
+.gco-bubble[data-arrow="bottom"]:after{bottom:-8px;border-left:0;border-top:0}
+.gco-face{width:40px;height:40px;border-radius:12px;background:#c5f476;color:#173022;display:grid;place-items:center;flex:none;animation:gco-hop 1.2s ease-in-out 2}
+.gco-face .icon{width:28px;height:28px}
+@keyframes gco-hop{0%,100%{transform:translateY(0)}35%{transform:translateY(-6px) rotate(-6deg)}}
+.gco-bubble b{display:block;font-size:15px;font-weight:650;letter-spacing:-.2px}
+.gco-bubble p{font-size:13.5px;line-height:1.55;color:#e3ecdb;margin:5px 0 0}
+.gco-bubble p b{display:inline;font-size:inherit;color:#c5f476;font-weight:600}
+.gco-foot{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-top:12px}
+.gco-foot small{display:flex;align-items:center;gap:5px;font-size:11px;color:#9fb593}
+.gco-foot small .icon{width:12px;height:12px}
+.gco-foot button{background:#c5f476;color:#1d2f14;border:0;border-radius:8px;padding:9px 16px;font-size:13px;font-weight:650;cursor:pointer}
+.gco-foot button:hover{background:#d6ff9a}
+.gco-foot button:focus-visible{outline:2px solid #fff;outline-offset:2px}
+/* a tempo fermo le barre del tempo si fermano davvero */
+body.game-paused .gc-timer i,body.game-paused .gtk-time i{animation-play-state:paused}
+/* meno testo: niente etichette di sistema */
+.game-card .gc-tag{font-size:12px;letter-spacing:0;font-weight:650;color:#2f4a1c;text-transform:none}
+.gc-top .gc-hint{margin-left:auto;padding:5px 11px;font-size:11.5px}
+.game-task .gtk-body b{font-size:13.5px}
+@media(prefers-reduced-motion:reduce){.game-coach,.gco-bubble,.gco-face{animation:none!important}}
+/* ——— la cosa arrivata, al suo posto nella sezione ——— */
+[data-anchor]:empty{display:none}
+[data-anchor]>.game-slot{margin:0 0 16px}
+.anchor-pad>.game-slot{margin:14px 16px 4px}
+.review-list>[data-anchor]>.game-slot,.feed>[data-anchor]>.game-slot{margin:0}
+.tp-mission{padding:12px 16px 16px;border-top:1px solid #edf0e6}
+.tp-mission .game-card{box-shadow:none;margin:0}
+.table-bang{position:absolute;top:-9px;left:-9px;width:22px;height:22px;border-radius:7px;background:#d8432f;color:#fff;font:800 13px/22px Inter,sans-serif;text-align:center;font-style:normal;box-shadow:0 4px 10px #d8432f66;animation:game-ring 1.4s ease-in-out infinite}
+.studio-anchor>.game-slot{margin:0 24px 10px;max-height:52vh;overflow:auto}
+.tp-mission .mg-split{grid-template-columns:minmax(0,1fr)}.tp-mission .mg-ask{font-size:13px}

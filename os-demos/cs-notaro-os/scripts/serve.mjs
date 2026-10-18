@@ -1,7 +1,8 @@
 import http from 'node:http';
 import {readFile,stat} from 'node:fs/promises';
 import path from 'node:path';
-const root=process.cwd(),port=Number(process.env.PORT||3080);
+import {fileURLToPath} from 'node:url';
+const root=path.resolve(path.dirname(fileURLToPath(import.meta.url)),'..'),port=Number(process.env.PORT||3080);
 const allowed=new Set(['index.html','manifest.json','css','js','vendor','assets','docs']);
 const mime={'.html':'text/html; charset=utf-8','.js':'text/javascript; charset=utf-8','.mjs':'text/javascript; charset=utf-8','.css':'text/css; charset=utf-8','.svg':'image/svg+xml','.json':'application/json; charset=utf-8','.md':'text/plain; charset=utf-8','.pdf':'application/pdf','.png':'image/png','.jpg':'image/jpeg','.ttf':'font/ttf'};
 const server=http.createServer(async(req,res)=>{

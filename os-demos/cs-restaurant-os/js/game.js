@@ -14,7 +14,7 @@ const base = {1:10, 2:20, 3:30};
 const levelNotes = {1:'Si comincia: scelte chiare per prendere la mano.', 2:'Arrivano le prime trappole. Prima di approvare, apri le fonti.', 3:'Ultimo livello: errori sottili e un po’ di fretta.'};
 
 let C = [], icon = () => '', pageName = id => id, place = 'lo studio', timer = 0, hooks = {};
-const S = {tasks:{}, tseq:0, fx:{shield:0, double:0, freeHints:0, freezeUntil:0}, gifts:[], gift:null, offers:[], missions:{}, mseq:0, avail:{}, seenOpen:0, started:false, points:0, level:1, round:1, streak:0, last:null, solved:{}, cards:{}, showing:{}, sound:true};
+const S = {paused:0, coached:{}, tasksDone:0, tasks:{}, tseq:0, fx:{shield:0, double:0, freeHints:0, freezeUntil:0}, gifts:[], gift:null, offers:[], missions:{}, mseq:0, avail:{}, seenOpen:0, started:false, points:0, level:1, round:1, streak:0, last:null, solved:{}, cards:{}, showing:{}, sound:true};
 try { S.sound = localStorage.getItem('csd.game.sound') !== 'off'; } catch {}
 
 export function initGame(challenges, opts) {
@@ -46,8 +46,8 @@ export const gameLevel = () => S.level;
 // In modalità solo missioni il livello sale con i punti: più missioni insieme e meno tempo.
 function syncLevel() {
  if (!hooks.missionsOnly) return;
- const l = S.points >= 300 ? 3 : S.points >= 120 ? 2 : 1;
- if (l > S.level) { S.level = l; updateChip(); setTimeout(() => celebrate(`Livello ${l}`, l === 2 ? 'Ora possono arrivare tre missioni insieme, con un po’ meno tempo.' : 'Ultimo livello: missioni più veloci. Le fonti restano la tua arma.'), 900); }
+ const l = S.points >= 400 ? 3 : S.points >= 150 ? 2 : 1;
+ if (l > S.level) { S.level = l; updateChip(); setTimeout(() => coach(`level${l}`, '.game-chip', `Livello ${l}`, l === 2 ? 'Bravo. Da adesso possono arrivare **due cose insieme**, con un po’ meno tempo.' : 'Servizio pieno: fino a **tre cose insieme**. Le fonti restano la tua arma migliore.', 'otto-happy'), 900); }
 }
 // Missioni: decisioni legate a un elemento preciso (un'email), con il loro minigioco. Le crea il regista dell'app.
 const missionLeft = m => m.ttl - (Date.now() - m.created);
@@ -57,7 +57,10 @@ const openMissions = () => Object.values(S.missions).filter(m => !m.result);
 // (scorte sotto il minimo, un conto da chiudere, un'email da approvare…). Si completa usando la sezione
 // vera: il tasto dell'app chiama ecoPoints con la stessa chiave. Se scade, Otto lo fa da solo.
 // Le app forniscono i candidati con hooks.tasks(): [{key, ref, page, title, text, valid(), auto()}].
-const taskTtl = () => ({1:90000, 2:70000, 3:55000})[S.level];
+const taskTtl = () => ({1:120000, 2:100000, 3:80000})[S.level];
+// Quante cose possono essere aperte insieme (compiti + missioni): al livello 1 una sola, così si impara.
+const maxOpen = () => ({1:1, 2:2, 3:3})[S.level];
+const gap = () => ({1:[40, 70], 2:[30, 55], 3:[25, 45]})[S.level];
 const taskPts = () => ({1:15, 2:20, 3:25})[S.level];
 const openTasks = () => Object.values(S.tasks).filter(t => !t.done);
 const taskLeft = t => t.ttl - (Date.now() - t.created);
@@ -71,9 +74,10 @@ function taskDirector() {
   const pen = Math.min(5, S.points); S.points -= pen; S.streak = 0;
   play('bad'); if (pen) float(-pen, document.querySelector('.game-chip'), 'Otto l’ha fatto da solo'); else updateChip();
   refresh(t.page); markNav(); updateAlert();
+  coach('auto', '.game-chip', 'Ci ho pensato io', 'Il tempo era finito e **l’ho fatto io**, seguendo le regole. Costa qualche punto, ma niente panico: la prossima volta tocca a te.', 'otto-think');
  }
- if (now < nextTaskAt || openTasks().length >= {1:2, 2:3, 3:4}[S.level]) return;
- nextTaskAt = now + (15 + Math.random() * 15) * 1000;
+ if (now < nextTaskAt || openAll().length >= maxOpen()) return;
+ const [g1, g2] = gap(); nextTaskAt = now + (g1 + Math.random() * (g2 - g1)) * 1000;
  const busy = new Set(openTasks().map(t => `${t.key}:${t.ref ?? ''}`));
  const list = (hooks.tasks() || []).filter(c => !busy.has(`${c.key}:${c.ref ?? ''}`));
  if (!list.length) return;
@@ -81,47 +85,60 @@ function taskDirector() {
  S.tasks[id] = {...c, id, created:now, ttl:taskTtl(), pts:taskPts()};
  refresh(c.page); markNav(); updateAlert();
  const a = document.querySelector('.game-alert'); if (a) { a.classList.remove('ring'); void a.offsetWidth; a.classList.add('ring'); }
+ setTimeout(() => coach('first-task', '.game-alert', 'Ho bisogno di te', `**${c.title}**: qui serve una persona. Il quadrato rosso ti porta dove fare il lavoro.`, 'otto-wink'), 400);
 }
 // Il tasto vero da premere pulsa, così si vede subito dove agire nella sezione.
 function markTargets() {
  document.querySelectorAll('.game-target').forEach(e => e.classList.remove('game-target'));
  if (!S.started) return;
  const page = location.hash.slice(1) || 'home';
- for (const t of openTasks()) if (t.page === page && t.target) { try { document.querySelector(t.target)?.classList.add('game-target'); } catch {} }
+ for (const t of openTasks()) if (t.page === page && t.target) {
+  let el = null; try { el = document.querySelector(t.target); } catch {}
+  if (!el) continue;
+  el.classList.add('game-target');
+  coach('target', t.target, 'Il tasto che lampeggia', 'Fai come faresti davvero, con i tasti di questa sezione: **quello che lampeggia** è il prossimo passo.', 'otto-read');
+ }
 }
 function completeTask(t) {
- t.done = true;
+ t.done = true; S.tasksDone++;
  const fast = Date.now() - t.created < 30000;
  let pts = t.pts + (fast ? 5 : 0);
  if (S.fx.double) { S.fx.double--; pts *= 2; }
  S.points += pts; S.streak++; S.last = 'ok'; syncLevel(); checkGifts(); play(fast ? 'great' : 'good');
- float(pts, document.querySelector('.game-chip'), fast ? 'Compito fatto · veloce!' : 'Compito fatto');
+ float(pts, document.querySelector('.game-chip'), fast ? 'Fatto · veloce!' : 'Fatto');
  setTimeout(() => { refresh(t.page); markNav(); updateAlert(); }, 50);
+ setTimeout(() => coach('first-done', '.game-chip', `+${pts} punti`, 'Ogni lavoro fatto vale punti, e **più sei veloce più ne prendi**. Se lasci scadere il tempo lo faccio io, e perdi qualche punto.', 'otto-happy'), 1300);
 }
 function taskBanner(t) {
  const el = (t.ttl - taskLeft(t)) / 1000;
- return `<div class="game-task" data-task="${t.id}"><span class="gtk-ico">${icon('otto-wink')}</span><div class="gtk-body"><small>COMPITO · +${t.pts} pt${Date.now() - t.created < 30000 ? ' · +5 se lo fai subito' : ''}</small><b>${esc(t.title)}</b><span>${rich(t.text)}</span></div><span class="gtk-time"><i style="animation-duration:${t.ttl / 1000}s;animation-delay:-${el.toFixed(1)}s"></i></span></div>`;
+ return `<div class="game-task" data-task="${t.id}"><span class="gtk-ico">${icon('otto-wink')}</span><div class="gtk-body"><b>${esc(t.title)}</b><span>${rich(t.text)}</span></div><span class="gtk-time"><i style="animation-duration:${t.ttl / 1000}s;animation-delay:-${el.toFixed(1)}s"></i></span></div>`;
 }
 const openAll = () => [...openTasks().map(t => ({id:t.id, title:t.title, page:t.page, ref:t.ref, left:taskLeft(t), pts:t.pts, task:true})), ...open().map(c => ({id:c.id, title:c.title, page:c.page, left:left(c), pts:maxPts(c)})), ...openMissions().map(m => ({id:m.id, title:m.title, page:m.page, ref:m.ref, left:missionLeft(m), pts:45}))];
 export function addMission(m) {
  const id = `ms${++S.mseq}`;
  S.missions[id] = {...m, id, created:Date.now(), st:{id}, result:null};
  markNav(); updateAlert();
+ setTimeout(() => coach('first-mission', '.game-alert', 'Tocca a te', `È arrivato: **${m.title}**. Questa volta la decisione è tua, non mia. Premi il quadrato rosso.`, 'otto-think'), 500);
  return id;
 }
 export function missionPanel(id) {
  const m = S.missions[id]; if (!m || m.closed) return '';
  const r = m.result, elapsed = (m.ttl - missionLeft(m)) / 1000;
  return `<section class="game-card mission l2 ${r ? (r.pts < 0 ? 'is-ko' : 'is-ok') : ''}" data-mission="${id}">
-  <div class="gc-top"><span class="gc-tag">${icon(r ? (r.pts < 0 ? 'otto-think' : 'otto-happy') : 'otto-read')} MISSIONE · ${esc(m.label)}</span>${r ? '' : '<span class="gc-worth">fino a +45 pt</span>'}</div>
+  <div class="gc-top"><span class="gc-tag">${icon(r ? (r.pts < 0 ? 'otto-think' : 'otto-happy') : m.brief?.role || 'otto-read')} ${esc(m.title)}</span>${!r && m.hint ? hintBtn(id) : ''}</div>
   ${r ? '' : `<div class="gc-timer"><i style="animation-duration:${m.ttl / 1000}s;animation-delay:-${elapsed.toFixed(1)}s"></i></div>`}
-  ${!r && m.hint ? `<div class="gc-hintbar">${m.st.hintMsg ? `<p class="gc-hintmsg">${icon('otto-wink')}<span>${esc(m.st.hintMsg)}</span></p>` : `<button class="gc-hint" data-game="hint:${id}" ${!S.fx.freeHints && S.points < hintCost() ? 'disabled title="Servono più punti"' : ''}>${icon('otto-wink')} Indizio di Otto <b>${S.fx.freeHints ? 'gratis' : `−${hintCost()} pt`}</b></button>${!S.fx.freeHints && S.points < hintCost() ? `<small>servono ${hintCost()} punti</small>` : ''}`}</div>` : ''}
+  ${!r && m.st.hintMsg ? `<p class="gc-hintmsg">${icon('otto-wink')}<span>${esc(m.st.hintMsg)}</span></p>` : ''}
   <div class="mg">${m.render(m.data, m.st)}</div>
   ${r ? `<div class="gc-result"><b class="${r.pts < 0 ? 'neg' : ''}">${r.pts > 0 ? '+' : ''}${r.pts} pt · ${esc(r.label)}</b><p>${rich(r.why)}</p>${nextAfter(id) ? `<button class="gc-nextm" data-game="mclose:${id}">Prossima missione ${icon('arrow')}<i class="gc-auto"></i></button>` : `<button data-game="mclose:${id}">Fatto ${icon('check')}</button>`}</div>` : ''}
  </section>`;
 }
 // L'indizio di Otto costa punti, una volta per missione: più il livello è alto, più costa.
 const hintCost = () => ({1:10, 2:15, 3:20})[S.level];
+function hintBtn(id) {
+ const m = S.missions[id]; if (!m || m.st.hintMsg) return '';
+ const free = S.fx.freeHints, ok = free || S.points >= hintCost();
+ return `<button class="gc-hint" data-game="hint:${id}" ${ok ? '' : 'disabled'} title="${ok ? 'Un aiuto di Otto' : `Servono ${hintCost()} punti`}">${icon('otto-wink')} Indizio <b>${free ? 'gratis' : `${hintCost()} pt`}</b></button>`;
+}
 function useHint(id, from) {
  const m = S.missions[id]; if (!m || m.result || m.st.hintMsg) return;
  const cost = S.fx.freeHints ? 0 : hintCost();
@@ -164,6 +181,8 @@ function refreshMission(id) {
  const el = document.querySelector(`[data-mission="${id}"]`);
  if (el) el.outerHTML = missionPanel(id);
 }
+// le app che disegnano la missione dentro un oggetto (email, chiamata, tavolo…) lo segnalano qui
+export const missionShown = () => setTimeout(coachMission, 500);
 function resolveMission(m, r, from) {
  m.st.done = true;
  let pts = Math.max(r.pts, -S.points);
@@ -173,6 +192,7 @@ function resolveMission(m, r, from) {
  S.points += pts; m.result = {...r, pts}; syncLevel(); checkGifts();
  play(pts > 0 ? (pts >= 30 ? 'great' : 'good') : 'bad');
  refreshMission(m.id);
+ if (pts < 0) setTimeout(() => coach('first-ko', `[data-mission="${m.id}"] .gc-result`, 'Capita', 'Sotto trovi **perché** non andava: è così che il sistema ti insegna il lavoro. Si va avanti.', 'otto-think'), 900);
  float(pts, document.querySelector(`[data-mission="${m.id}"] .gc-result b`) || from);
  markNav(); updateAlert();
  m.onDone?.();
@@ -219,11 +239,12 @@ function card(c) {
  </section>`;
 }
 function teaser() {
+ if (S.started) return '';
  if (S.started && hooks.missionsOnly) {
   const n = openAll().length;
   return `<div class="game-teaser"><span class="gt-face">${icon(face())}</span><p><b>La sfida di Otto · livello ${S.level}, ${S.points} punti.</b> ${n ? `${n} ${n === 1 ? 'missione aspetta' : 'missioni aspettano'}: aprile dal quadrato rosso <b class="gt-bang">!</b> in alto.` : 'Le missioni arrivano da sole dal lavoro di ogni giorno. Tieni d’occhio il quadrato rosso <b class="gt-bang">!</b> in alto.'}</p></div>`;
  }
- if (!S.started) return `<div class="game-teaser"><span class="gt-face">${icon('otto-happy')}</span><p><b>Vuoi provare a gestire ${place}?</b> Con la sfida di Otto prendi tu le decisioni vere: Otto prepara, tu verifichi le fonti e approvi. Ogni scelta giusta vale punti.</p><button data-game="start">Inizia la sfida ${icon('arrow')}</button></div>`;
+ if (!S.started) return `<div class="game-teaser"><span class="gt-face">${icon('otto-happy')}</span><p><b>Vuoi provare a gestire ${place}?</b> Otto lavora, tu intervieni quando ti chiama.</p><button data-game="start">Gioca ${icon('arrow')}</button></div>`;
  const next = open()[0];
  if (!next) return '';
  return `<div class="game-teaser"><span class="gt-face">${icon(S.points ? face() : 'otto-happy')}</span><p>${S.points
@@ -246,7 +267,7 @@ function arm() {}
 // Un solo orologio per tutte le decisioni aperte: quando una scade toglie un po' di punti, meno di una scelta sbagliata.
 function openLevel() { const t = Date.now(); open().forEach(c => { S.avail[c.id] ||= t; }); }
 function tick() {
- if (!S.started || touring() || document.hidden) { for (const id in S.avail) S.avail[id] += 1000; openMissions().forEach(m => { m.created += 1000; }); openTasks().forEach(t => { t.created += 1000; }); return; }
+ if (!S.started || touring() || document.hidden || S.paused) { for (const id in S.avail) S.avail[id] += 1000; openMissions().forEach(m => { m.created += 1000; }); openTasks().forEach(t => { t.created += 1000; }); return; }
  if (Date.now() < S.fx.freezeUntil) openTasks().forEach(t => { t.created += 1000; });
  taskDirector();
  if (Date.now() < S.fx.freezeUntil) { openMissions().forEach(m => { m.created += 1000; }); for (const id in S.avail) S.avail[id] += 1000; }
@@ -263,6 +284,23 @@ function tick() {
  updateAlert();
 }
 setInterval(tick, 1000);
+// Consigli casuali di Otto, a tempo fermo, solo quando non c'è niente di urgente.
+const tips = [
+ ['tip-sources', '.game-chip', 'Un consiglio', 'Nei documenti **i numeri in arancione** sono quelli da confrontare: guardali prima di decidere.'],
+ ['tip-hint', '.game-chip', 'Se ti blocchi', 'Dentro ogni problema c’è il tasto **Indizio**: costa qualche punto, ma ti mostro dove guardare.'],
+ ['tip-shop', '.ask-otto', 'La Bottega di Otto', 'Con i punti compri **tempo extra, pause e scudi** contro gli errori. La trovi qui.'],
+ ['tip-calm', '.game-chip', 'Con calma', 'Non serve correre: **una cosa alla volta**. Quando hai preso il ritmo, il lavoro aumenta.']
+];
+let idleSince = 0;
+function tipDirector() {
+ if (!S.started || S.paused || touring() || document.hidden) return;
+ if (openAll().length) { idleSince = 0; return; }
+ idleSince ||= Date.now();
+ if (Date.now() - idleSince < 25000) return;
+ const t = tips.find(x => !S.coached[x[0]]); if (!t) return;
+ idleSince = Date.now(); coach(t[0], t[1], t[2], t[3], 'otto-wink');
+}
+setInterval(tipDirector, 5000);
 // Il quadrato rosso con il punto esclamativo: quante decisioni aspettano, e ci porta lì.
 function alertBtn() {
  const n = S.started ? openAll().length : 0;
@@ -311,12 +349,25 @@ function syncShopLabels() {
 }
 // Chiamata dall'app dopo ogni render: inserisce la sfida sotto il titolo della pagina.
 export function mountGame(page, main) {
- clearTimeout(timer); markNav(); syncShopLabels(); setTimeout(markTargets, 30);
+ clearTimeout(timer); markNav(); syncShopLabels(); setTimeout(markTargets, 30); setTimeout(coachMission, 600);
  const html = inner(page); if (!html) return;
  const box = `<div class="game-slot" data-gslot="${page}">${html}</div>`;
+ // la cosa arrivata va dove arriverebbe davvero: ogni sezione indica il suo posto con data-anchor
+ const anchor = main.querySelector('[data-anchor]');
  const head = main.querySelector(':scope > .page-heading');
- head ? head.insertAdjacentHTML('afterend', box) : main.insertAdjacentHTML('afterbegin', box);
+ if (anchor) anchor.insertAdjacentHTML('afterbegin', box);
+ else head ? head.insertAdjacentHTML('afterend', box) : main.insertAdjacentHTML('afterbegin', box);
  arm(page);
+}
+function coachMission() {
+ const m = document.querySelector('[data-mission]:not(.is-ok):not(.is-ko)');
+ if (!m) return;
+ const base = `[data-mission="${m.dataset.mission}"]`;
+ // la prima missione di ogni settore la spiega un Otto di quel settore: cosa fare e perché
+ const ms = S.missions[m.dataset.mission], b = ms?.brief;
+ if (b && !S.coached[`brief-${ms.page}`]) return coach(`brief-${ms.page}`, base, b.name, `${b.what} **Perché?** ${b.why}`, b.role);
+ const sel = m.querySelector('.mg-docs') ? `${base} .mg-docs` : m.querySelector('.mg-sources') ? `${base} .mg-sources` : `${base} .mg`;
+ coach('inside', sel, 'Guarda i documenti', 'Qui ci sono le fonti vere. **I numeri in arancione** sono quelli da confrontare. Leggi con calma, poi decidi.', 'otto-read');
 }
 // Aggiorna solo il contenuto della scheda, senza ridisegnare la pagina (e senza rifarne l'animazione d'ingresso).
 function refresh(page) {
@@ -414,9 +465,9 @@ export function gameIntro() {
  document.querySelector('.game-pop')?.remove();
  const types = hooks.missionTypes || 18, sections = hooks.sections || 12;
  const slides = [
-  [icon('otto-happy'), 'Questa demo si gioca', `Il sistema lavora da solo: Otto legge, risponde, compila e smista. Quando trova un’incongruenza o serve una decisione, <b>ti chiama</b>. Quella chiamata è il minigioco: <b>è così che funzionerà davvero</b>.`],
-  [icon('otto-read'), 'Compiti veri, e missioni bonus', `Quando serve una persona arriva un <b>compito</b>, da fare nella sezione vera, con i suoi tasti: così impari a usare lo strumento. Ogni tanto arriva anche una <b>missione bonus</b>: ${types} tipi di minigioco, uno per sezione, con nomi e numeri generati a caso.`],
-  [icon('otto-wink'), 'Come si gioca', `Compiti e missioni aperti sono nel quadrato rosso <b class="gt-bang">!</b> in alto: ti porta nel punto giusto. Ognuno ha il suo tempo: <b>se non lo fai tu, Otto lo fa da solo</b> seguendo le regole e perdi qualche punto. Più sei veloce, più punti. Con i punti compri indizi e potenziamenti nella <b>Bottega di Otto</b>.`]
+  [icon('otto-happy'), 'Questa demo si gioca', `Il sistema lavora da solo. Quando serve una persona, <b>Otto ti chiama</b>: è così che funzionerà davvero.`],
+  [icon('otto-read'), 'Fai il lavoro vero', `Usi le sezioni vere, con i loro tasti. Ogni tanto arriva qualcosa che non torna, e <b>la decisione è tua</b>.`],
+  [icon('otto-wink'), 'Si impara giocando', `Si comincia piano, <b>una cosa alla volta</b>. Ti spiego tutto io quando serve, e intanto <b>il tempo si ferma</b>.`]
  ];
  let k = 0;
  const el = document.createElement('div'); el.className = 'game-intro'; el.setAttribute('role', 'dialog'); el.setAttribute('aria-label', 'Come funziona il gioco');
@@ -436,10 +487,59 @@ export function gameIntro() {
  document.body.append(el); draw(); play('open');
 }
 function start() {
- S.started = true; openLevel(); nextTaskAt = Date.now() + 4000; hooks.onStart?.(); updateChip('bump'); play('level');
+ S.started = true; openLevel(); nextTaskAt = Date.now() + 12000; hooks.onStart?.(); updateChip('bump'); play('level');
  refresh(location.hash.slice(1) || 'home'); markNav();
- celebrate('La sfida è iniziata', hooks.missionsOnly ? (hooks.startNote || 'Le missioni arrivano dal quadrato rosso “!” in alto. Ognuna ha il suo tempo.') : 'Le decisioni arrivano dal quadrato rosso “!” in alto e dai puntini rossi nel menu. Ognuna ha il suo tempo.');
+ setTimeout(() => coach('welcome', '.game-chip', 'Si comincia', `Questi sono i tuoi punti. Guardati intorno con calma: ${place} lavora da solo e **ti chiamo io** quando serve.`, 'otto-happy'), 600);
 }
+
+// ————— le nuvolette di Otto —————
+// Spiegano il gioco la prima volta che una cosa succede, attaccate all'elemento di cui parlano.
+// Finché sono aperte il tempo è fermo: chi legge con calma non perde niente.
+const coachQueue = [];
+let coachOpen = null;
+export function coach(key, target, title, text, mood = 'otto-wink') {
+ if (!S.started || S.coached[key] || touring()) return;
+ if (coachOpen) { if (!coachQueue.some(q => q[0] === key)) coachQueue.push([key, target, title, text, mood]); return; }
+ let el = target;
+ if (typeof target === 'string') { try { el = document.querySelector(target); } catch { el = null; } }
+ if (!el || !el.isConnected || !el.getClientRects().length) return; // non è a schermo: ci riproveremo la prossima volta
+ S.coached[key] = true; S.paused++; document.body.classList.add('game-paused');
+ const box = document.createElement('div');
+ box.className = 'game-coach'; box.setAttribute('role', 'dialog'); box.setAttribute('aria-label', title);
+ box.innerHTML = `<div class="gco-spot"></div><div class="gco-bubble"><span class="gco-face">${icon(mood)}</span><div><b>${esc(title)}</b><p>${rich(text)}</p><div class="gco-foot"><small>${icon('pause')} Il tempo è fermo</small><button data-coach="ok">Ho capito</button></div></div></div>`;
+ document.body.append(box); play('open');
+ const spot = box.querySelector('.gco-spot'), bubble = box.querySelector('.gco-bubble');
+ let raf = 0;
+ const sel = typeof target === 'string' ? target : null;
+ const follow = () => {
+  if (!el.isConnected && sel) { try { el = document.querySelector(sel) || el; } catch {} }
+  const r = el.getBoundingClientRect(), p = 6;
+  Object.assign(spot.style, {left:`${r.left - p}px`, top:`${r.top - p}px`, width:`${r.width + p * 2}px`, height:`${r.height + p * 2}px`});
+  const bw = Math.min(340, innerWidth - 24), bh = bubble.offsetHeight;
+  const below = innerHeight - r.bottom > bh + 24 || r.top < bh + 24;
+  let x = r.left + r.width / 2 - bw / 2; x = Math.max(12, Math.min(innerWidth - bw - 12, x));
+  const y = below ? Math.min(innerHeight - bh - 12, r.bottom + 14) : r.top - bh - 14;
+  Object.assign(bubble.style, {width:`${bw}px`, left:`${x}px`, top:`${y}px`});
+  bubble.dataset.arrow = below ? 'top' : 'bottom';
+  bubble.style.setProperty('--ax', `${Math.max(20, Math.min(bw - 20, r.left + r.width / 2 - x))}px`);
+  raf = requestAnimationFrame(follow);
+ };
+ const r0 = el.getBoundingClientRect();
+ if (r0.bottom > innerHeight - 40 || r0.top < 80) el.scrollIntoView({block:'center', behavior:calm.matches ? 'auto' : 'smooth'});
+ follow();
+ coachOpen = box;
+ const close = () => {
+  cancelAnimationFrame(raf); box.classList.add('out'); setTimeout(() => box.remove(), 200); coachOpen = null;
+  S.paused = Math.max(0, S.paused - 1); if (!S.paused) document.body.classList.remove('game-paused');
+  const next = coachQueue.shift(); if (next) setTimeout(() => coach(...next), 450);
+ };
+ box.addEventListener('click', e => { if (e.target.closest('[data-coach]')) { play('click'); close(); } });
+ box.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === 'Escape') { e.preventDefault(); close(); } });
+ box.querySelector('[data-coach]').focus({preventScroll:true});
+}
+export const gamePaused = () => S.paused > 0;
+// Le missioni arrivano solo dopo due compiti fatti, e mai oltre il numero di cose aperte del livello.
+export const canSpawnMission = () => S.started && !S.paused && S.tasksDone >= 2 && openAll().length < maxOpen();
 
 let ac;
 function tone(f, t0, dur, type = 'sine', vol = .06, f2) {
@@ -536,7 +636,7 @@ const sample = (n, not = []) => [...catalog].filter(c => !not.includes(c.id)).so
 function checkGifts() {
  for (const t of [100, 250, 450, 700, 1000]) if (S.points >= t && !S.gifts.includes(t)) {
   S.gifts.push(t); S.gift = sample(3);
-  setTimeout(() => celebrate('Otto ha un regalo per te', `Hai superato ${t} punti: apri la Bottega di Otto e scegli un potenziamento gratis.`), 1400);
+  setTimeout(() => S.coached.gift ? celebrate('Un regalo per te', 'Aprilo nella Bottega di Otto.') : coach('gift', '.ask-otto', 'Un regalo per te', `Hai superato ${t} punti: nella **Bottega di Otto** scegli un potenziamento gratis.`, 'otto-happy'), 1400);
   updateChip();
   break;
  }
@@ -587,5 +687,5 @@ function onClick(e) {
  if (k === 'pick') return pick(id, +i, b);
  if (k === 'next') { const c = challenge(id); delete S.showing[c.page]; play('click'); return refresh(c.page); }
  if (k === 'sound') { S.sound = !S.sound; try { localStorage.setItem('csd.game.sound', S.sound ? 'on' : 'off'); } catch {} b.textContent = S.sound ? 'Suoni attivi' : 'Suoni spenti'; play('click'); return; }
- if (k === 'restart') { hooks.onReset?.(); Object.assign(S, {tasks:{}, fx:{shield:0, double:0, freeHints:0, freezeUntil:0}, gifts:[], gift:null, offers:[], missions:{}, avail:{}, seenOpen:0, started:false, points:0, level:1, round:1, streak:0, last:null, solved:{}, cards:{}, showing:{}}); updateChip(); refresh(location.hash.slice(1) || 'home'); }
+ if (k === 'restart') { hooks.onReset?.(); Object.assign(S, {paused:0, coached:{}, tasksDone:0, tasks:{}, fx:{shield:0, double:0, freeHints:0, freezeUntil:0}, gifts:[], gift:null, offers:[], missions:{}, avail:{}, seenOpen:0, started:false, points:0, level:1, round:1, streak:0, last:null, solved:{}, cards:{}, showing:{}}); updateChip(); refresh(location.hash.slice(1) || 'home'); }
 }

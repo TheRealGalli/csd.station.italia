@@ -189,7 +189,7 @@ export function tick() {
 // T3, T7 e T8 restano come sono perché la demo guidata ci passa sopra.
 const guided = ['T3', 'T7', 'T8'];
 function turnover() {
- const paying = tables.find(t => t.status === 'bill' && !guided.includes(t.id) && Date.now() - (t.billAt || 0) > 25000);
+ const paying = tables.find(t => t.status === 'bill' && !t.mission && !guided.includes(t.id) && Date.now() - (t.billAt || 0) > 25000); // un conto con la sua missione aspetta il giocatore
  if (paying) { closeBill(paying.id, Math.random() < .7 ? 'Carta' : 'Contanti'); return true; }
  const finished = tables.find(t => t.status === 'ordered' && !guided.includes(t.id) && t.lines.length >= 4 && t.lines.every(l => l.state === 'served'));
  if (finished) { requestBill(finished.id); return true; }

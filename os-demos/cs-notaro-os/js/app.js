@@ -5,7 +5,7 @@ import * as D from './demo.js';
 import {studioScenario, studioSuggestions, askOtto, ottoSuggestions, proposeValues} from './agent.js';
 import {inspect, fillNative, formPdf} from './pdf-core.js';
 import {startTour} from './tour.js';
-import {initGame, gameChip, mountGame, gameInvite, missionPanel, gameOn, openShop, gameIntro, ecoPoints} from './game.js';
+import {initGame, gameChip, mountGame, gameInvite, missionPanel, gameOn, openShop, gameIntro, ecoPoints, gamePaused} from './game.js';
 import {startMissions, stopMissions} from './missions.js';
 import {challenges} from './challenges.js';
 import {notaroTour} from './tour-steps.js';
@@ -211,6 +211,7 @@ function studioPage() {
     <button class="icon-btn" data-action="studio-new" title="Nuova conversazione">${icon('plus')}</button></div></header>
    <div class="studio-context">${['Email della pratica · 9', 'Atti in archivio · 12.480', 'Visure · 3', 'Clausolario · 1.240', 'Agenda'].map(x => `<span>${icon('check')}${x}</span>`).join('')}</div>
    <div class="studio-messages" id="studio-messages">${studioMessages()}</div>
+   <div data-anchor="studio" class="studio-anchor"></div>
    <form class="studio-composer" id="studio-form">
     <div class="suggestion-row" ${s.messages.length ? '' : 'hidden'}>${studioSuggestions.map(x => `<button type="button" data-studio="${x.id}">${esc(x.label)}</button>`).join('')}</div>
     <div class="composer-box"><label class="attach" title="Carica un PDF">${icon('clip')}<input type="file" id="studio-file" accept="application/pdf" hidden><span class="sr-only">Carica un documento</span></label>
@@ -341,6 +342,7 @@ function memoria() {
  <section class="memory-hero"><form id="memory-form" class="memory-ask">${icon('search')}<input id="memory-input" placeholder="Chiedi all’archivio dello studio…" aria-label="Domanda all’archivio" autocomplete="off" value="${esc(r?.q || '')}"><button class="btn btn-primary" type="submit">Chiedi${icon('arrow')}</button></form>
   <div class="suggestions">${D.memoryQA.map(x => `<button data-memory="${esc(x.q)}">${esc(x.q)}</button>`).join('')}</div></section>
  ${r ? `<section class="workspace-panel answer">${r.a ? `<span class="agent-name">${icon('otto-read')} Otto · dall’archivio</span><p class="answer-text">${esc(r.a)}</p><div class="citations">${r.sources.map(([s, where]) => `<button class="citation-chip" data-action="toast:In produzione si apre il documento al punto citato">${icon('file')}<b>${esc(s)}</b><small>${esc(where)}</small></button>`).join('')}</div>` : `<p class="answer-text">Non ho trovato nulla di pertinente nell’archivio dimostrativo. Prova una delle domande suggerite.</p>`}</section>` : ''}
+ <div data-anchor="memoria"></div>
  <div class="metrics-grid">${D.memoryIndex.map(([t, n]) => `<article class="metric"><div><span>${t}</span>${icon('database')}</div><strong class="has-value">${n}</strong><small>Indicizzati · archivio dimostrativo</small></article>`).join('')}</div>
  <div class="notice">${icon('info')}<p>La Memoria risponde in pochi secondi su domande puntuali. Per lavorare su un documento usa <a href="#studio">Lo Studio</a>, dove Otto può anche scrivere.</p></div>`;
 }
@@ -349,7 +351,7 @@ function memoria() {
 function visure() {
  return `${heading('IL LAVORO · 06', 'Visure & Public Gateway', 'Le richieste partono dai dati della pratica. Otto legge gli esiti e segnala ciò che non torna.', btn('Nuova richiesta', 'toast:Seleziona un registro qui sotto', 'btn-primary', 'plus'))}
  <div class="registry-grid">${D.registries.map(r => `<button class="registry" data-action="toast:Richiesta a ${esc(r.name)} preparata dai dati della pratica (demo)"><span class="soft-icon">${icon(r.icon)}</span><span><b>${esc(r.name)}</b><small>${esc(r.note)}</small></span>${icon('plus')}</button>`).join('')}</div>
- <section class="workspace-panel"><div class="panel-title"><h2>Richieste recenti</h2>${badge(`${D.visure.filter(v => v.status !== 'Completata').length} in lavorazione`)}</div>
+ <section class="workspace-panel"><div class="panel-title"><h2>Richieste recenti</h2>${badge(`${D.visure.filter(v => v.status !== 'Completata').length} in lavorazione`)}</div><div data-anchor="visure" class="anchor-pad"></div>
   <div class="visura-list">${D.visure.map(v => `<article class="visura"><div class="visura-head"><span><small>${esc(v.registry)} · ${v.time}</small><b>${esc(v.what)}</b></span>${pchip(v.practice)}${badge(v.status, v.status === 'Completata' ? 'badge-green' : 'badge-amber')}</div>${v.finding ? ottoNote(v.finding, v.level) : `<p class="muted pad-s">${icon('clock')} In attesa dell’esito dal registro.</p>`}</article>`).join('')}</div></section>
  <div class="notice">${icon('info')}<p>Interfaccia di anteprima. I collegamenti ai registri pubblici richiedono i canali e le credenziali dello studio e saranno attivati nel backend.</p></div>`;
 }
@@ -378,7 +380,7 @@ function preventivi() {
  const q = ui.quote;
  return `${heading('LO STUDIO · 07', 'Preventivi & imposte', 'Una stima chiara in pochi secondi, dagli stessi dati che arrivano da posta e centralino.')}
  <div class="quote-layout">
-  <section class="workspace-panel"><div class="panel-title"><h2>Compravendita di abitazione</h2>${badge('Laura Bianchi · dalla chiamata delle 09:12')}</div>
+  <section class="workspace-panel"><div data-anchor="preventivi" class="anchor-pad"></div><div class="panel-title"><h2>Compravendita di abitazione</h2>${badge('Laura Bianchi · dalla chiamata delle 09:12')}</div>
    <form class="quote-form" id="quote-form">
     <label class="field"><span>Tipo di acquisto</span><select name="type"><option value="prima" ${q.type === 'prima' ? 'selected' : ''}>Prima casa da privato</option><option value="seconda" ${q.type === 'seconda' ? 'selected' : ''}>Seconda casa da privato</option><option value="impresa" ${q.type === 'impresa' ? 'selected' : ''}>Prima casa da impresa (con IVA)</option></select></label>
     <label class="field"><span>Prezzo (€)</span><input name="price" type="number" min="0" step="1000" value="${q.price}"></label>
@@ -397,7 +399,7 @@ function preventivi() {
 function osservatorio() {
  return `${heading('LO STUDIO · 08', 'Osservatorio normativo & bandi', 'Otto legge le fonti pubbliche ogni giorno e ti dice cosa cambia per le pratiche aperte.')}
  <div class="quote-layout">
-  <section class="feed">${D.updates.map(u => `<article class="update"><div class="update-top">${badge(esc(u.tag), u.tag === 'Bando' ? 'badge-lime' : '')}<small>${esc(u.source)} · ${esc(u.kind)} · ${esc(u.date)}</small>${u.deadline ? badge('Scadenza ' + u.deadline, 'badge-amber') : ''}</div><h3>${esc(u.title)}</h3>${ottoNote(u.impact)}<div class="update-foot">${u.practices.map(pchip).join('')}<span class="spacer"></span>${btn('Avvisa il team', 'toast:Nota inviata ai responsabili delle pratiche coinvolte', 'btn-secondary', 'users')}</div></article>`).join('')}</section>
+  <section class="feed"><div data-anchor="osservatorio"></div>${D.updates.map(u => `<article class="update"><div class="update-top">${badge(esc(u.tag), u.tag === 'Bando' ? 'badge-lime' : '')}<small>${esc(u.source)} · ${esc(u.kind)} · ${esc(u.date)}</small>${u.deadline ? badge('Scadenza ' + u.deadline, 'badge-amber') : ''}</div><h3>${esc(u.title)}</h3>${ottoNote(u.impact)}<div class="update-foot">${u.practices.map(pchip).join('')}<span class="spacer"></span>${btn('Avvisa il team', 'toast:Nota inviata ai responsabili delle pratiche coinvolte', 'btn-secondary', 'users')}</div></article>`).join('')}</section>
   <aside class="module-side"><div class="workspace-panel"><div class="panel-title"><h2>Fonti monitorate</h2></div>${['Gazzetta Ufficiale', 'Agenzia delle Entrate · prassi', 'Consiglio Nazionale del Notariato', 'Corte di Cassazione', 'Bandi regionali e nazionali', 'Registro Imprese'].map(s => `<div class="mini-row"><span>${esc(s)}</span>${icon('check')}</div>`).join('')}</div>
    <div class="notice">${icon('info')}<p>Gli elementi mostrati sono <b>esempi illustrativi</b>, non provvedimenti reali.</p></div></aside>
  </div>`;
@@ -407,6 +409,7 @@ function osservatorio() {
 function staff() {
  const isDone = t => t.done ? !state.done.includes(t.id) : state.done.includes(t.id);
  return `${heading('LO STUDIO · 09', 'Staff & task', 'Otto assegna il lavoro in base a pratica, competenze e carico. Tu decidi le priorità.')}
+ <div data-anchor="staff"></div>
  <div class="board">${D.team.map(p => {const list = D.tasks.filter(t => t.who === p.id); return `<section class="board-col ${p.present ? '' : 'away'}"><header>${avatar(p.id)}<span><b>${esc(p.name)}</b><small>${esc(p.present ? p.role : p.away)}</small></span></header><div class="load"><i style="width:${p.load}%"></i></div>${list.map(t => `<label class="task ${isDone(t) ? 'done' : ''}"><input type="checkbox" data-task="${t.id}" ${isDone(t) ? 'checked' : ''}><span><b>${esc(t.text)}</b><small>${t.practice ? esc(D.practice(t.practice).name) + ' · ' : ''}${esc(t.due)}${t.by === 'Otto' ? ` · ${icon('sparkle')} ${esc(t.reason)}` : ` · da ${esc(t.by)}`}</small></span></label>`).join('') || '<p class="muted pad-s">Nessuna attività.</p>'}${!p.present ? `<button class="btn btn-secondary small-btn" data-action="toast:Attività di Paolo riassegnate a Giulia e Sara (demo)">Riassegna${icon('arrow')}</button>` : ''}</section>`;}).join('')}</div>
  <section class="workspace-panel"><div class="panel-title"><h2>Workflow dello studio</h2>${badge('Ogni pratica segue il suo')}</div><div class="table-scroll"><table class="data-table"><thead><tr><th>Tipo di pratica</th><th>Passaggi</th><th>Durata media</th><th>Pratiche attive</th></tr></thead><tbody>${D.workflows.map(w => `<tr><td><b>${esc(w.name)}</b></td><td>${w.steps}</td><td>${esc(w.avg)}</td><td>${w.active}</td></tr>`).join('')}</tbody></table></div></section>`;
 }
@@ -416,7 +419,7 @@ function scadenze() {
  const sorted = [...D.deadlines].sort((a, b) => (a.days ?? 9999) - (b.days ?? 9999));
  return `${heading('IL CONTROLLO · 10', 'Scadenziario & post-stipula', 'Dopo la firma ogni atto genera i suoi adempimenti. Otto calcola i termini e avvisa chi se ne occupa.')}
  <div class="alert-banner">${icon('alert')}<p><b>Paolo Donati è in ferie fino a lunedì</b> e ha 2 termini entro 5 giorni.</p>${btn('Riassegna a Giulia', 'toast:Termini riassegnati a Giulia Marchi (demo)', 'btn-secondary', 'users')}</div>
- <section class="workspace-panel"><div class="timeline">${sorted.map(d => `<div class="tl-row ${d.state}"><span class="tl-days">${d.days === null ? icon('check') : `<b>${d.days}</b><small>giorni</small>`}</span><span class="tl-body"><b>${esc(d.what)}</b><small>${esc(d.act)}</small></span><span class="tl-due">${esc(d.due)}</span>${avatar(d.owner)}${badge(d.state === 'done' ? 'Completato' : d.state === 'urgent' ? 'Urgente' : 'Programmato', d.state === 'done' ? 'badge-green' : d.state === 'urgent' ? 'badge-red' : '')}</div>`).join('')}</div></section>
+ <section class="workspace-panel"><div data-anchor="scadenze" class="anchor-pad"></div><div class="timeline">${sorted.map(d => `<div class="tl-row ${d.state}"><span class="tl-days">${d.days === null ? icon('check') : `<b>${d.days}</b><small>giorni</small>`}</span><span class="tl-body"><b>${esc(d.what)}</b><small>${esc(d.act)}</small></span><span class="tl-due">${esc(d.due)}</span>${avatar(d.owner)}${badge(d.state === 'done' ? 'Completato' : d.state === 'urgent' ? 'Urgente' : 'Programmato', d.state === 'done' ? 'badge-green' : d.state === 'urgent' ? 'badge-red' : '')}</div>`).join('')}</div></section>
  <div class="notice">${icon('info')}<p>Termini di esempio. Nel servizio reale vengono calcolati dalla data dell’atto e dalle regole configurate dallo studio.</p></div>`;
 }
 
@@ -426,6 +429,7 @@ function antiriciclaggio() {
  return `${heading('IL CONTROLLO · 11', 'Antiriciclaggio & clienti', 'L’adeguata verifica si prepara mentre la pratica avanza, con i documenti già arrivati in studio.')}
  <section class="workspace-panel"><div class="table-scroll"><table class="data-table aml"><thead><tr><th>Cliente</th><th>Rischio</th>${steps.map(s => `<th>${s[1]}</th>`).join('')}</tr></thead><tbody>${D.clients.map(c => `<tr><td><b>${esc(c.name)}</b><small>${esc(D.practice(c.practice).name)}</small></td><td>${badge(c.risk, c.risk === 'Basso' ? 'badge-green' : c.risk === 'Medio' ? 'badge-amber' : '')}</td>${steps.map(s => `<td><span class="dot ${c.steps[s[0]] ? 'ok' : 'no'}">${c.steps[s[0]] ? icon('check') : ''}</span></td>`).join('')}</tr>`).join('')}</tbody></table></div></section>
  <div class="section-title"><h2>Da valutare</h2><span class="subtle-label">Otto segnala, il notaio valuta</span></div>
+ <div data-anchor="antiriciclaggio"></div>
  <div class="flag-grid">${D.clients.filter(c => c.flag).map(c => `<article class="workspace-panel">${ottoNote(c.flag, c.risk === 'Medio' ? 'warn' : '')}<div class="detail-actions">${pchip(c.practice)}${btn('Richiedi documenti', 'toast:Richiesta preparata, in attesa di approvazione', 'btn-secondary', '')}</div></article>`).join('')}</div>`;
 }
 
@@ -433,7 +437,7 @@ function antiriciclaggio() {
 function compliance() {
  return `${heading('IL CONTROLLO · 12', 'Privacy, audit & compliance', 'Ogni azione di Otto è registrata con chi l’ha approvata. L’AI prepara, il professionista decide.')}
  <div class="metrics-grid">${[['sparkle', 'Azioni di Otto oggi', D.audit.filter(a => a.actor === 'Otto').length], ['check', 'Approvate da una persona', 1], ['settings', 'Da regole automatiche', 2], ['lock', 'Richieste bloccate dalla policy', 1]].map(([i, t, n]) => `<article class="metric"><div><span>${t}</span>${icon(i)}</div><strong class="has-value">${n}</strong></article>`).join('')}</div>
- <section class="workspace-panel"><div class="panel-title"><h2>Registro delle azioni</h2>${badge('Append-only nel servizio reale')}</div><div class="table-scroll"><table class="data-table"><thead><tr><th>Ora</th><th>Chi</th><th>Azione</th><th>Approvazione</th><th>Modulo</th></tr></thead><tbody>${D.audit.map(a => `<tr><td>${a.time}</td><td>${a.actor === 'Otto' ? `<span class="otto-tag">${icon('sparkle')}Otto</span>` : esc(a.actor)}</td><td>${esc(a.action)}</td><td>${esc(a.approved)}</td><td>${badge(esc(a.area))}</td></tr>`).join('')}</tbody></table></div></section>
+ <section class="workspace-panel"><div class="panel-title"><h2>Registro delle azioni</h2>${badge('Append-only nel servizio reale')}</div><div data-anchor="compliance" class="anchor-pad"></div><div class="table-scroll"><table class="data-table"><thead><tr><th>Ora</th><th>Chi</th><th>Azione</th><th>Approvazione</th><th>Modulo</th></tr></thead><tbody>${D.audit.map(a => `<tr><td>${a.time}</td><td>${a.actor === 'Otto' ? `<span class="otto-tag">${icon('sparkle')}Otto</span>` : esc(a.actor)}</td><td>${esc(a.action)}</td><td>${esc(a.approved)}</td><td>${badge(esc(a.area))}</td></tr>`).join('')}</tbody></table></div></section>
  <div class="rule-grid four">${[
   ['lock', 'Accessi per ruolo', 'Notai, collaboratori e segreteria vedono solo le pratiche di competenza.'],
   ['message', 'Informativa sull’uso dell’AI', 'Testo pronto per informare i clienti dell’uso di strumenti di intelligenza artificiale.'],
@@ -569,7 +573,7 @@ function liveRefresh() {
  if (refreshQueued) return; refreshQueued = true;
  requestAnimationFrame(() => {
   refreshQueued = false;
-  const busy = document.activeElement?.matches?.('input,textarea,select') || dialog.open || ui.studio.running;
+  const busy = document.activeElement?.matches?.('input,textarea,select') || dialog.open || ui.studio.running || gamePaused();
   if (livePages.includes(route()) && !busy) { const y = scrollY; render(); scrollTo(0, y); }
   syncNavCounts();
  });

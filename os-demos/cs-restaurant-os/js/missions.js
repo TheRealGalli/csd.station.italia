@@ -16,20 +16,22 @@
 //  Brand & app      · Gli allergeni del piatto del giorno
 import * as G from './gen.js';
 import {mechanics as M} from './mg.js';
-import {addMission, gameLevel} from './game.js';
+import {addMission, gameLevel, canSpawnMission} from './game.js';
 import * as D from './demo.js';
 
 let testLevel = 0;
 const lvl = () => testLevel || gameLevel();
 const by = (l1, l2, l3) => [l1, l2, l3][lvl() - 1];
 const days = ['lunedì', 'martedì', 'mercoledì', 'giovedì', 'venerdì', 'sabato'];
-const mk = (kind, label, title, data, ttl = 160000) => ({kind, label, title, ttl, data, render:M[kind].render, handle:M[kind].handle, hint:M[kind].hint});
+const mk = (kind, label, title, data, ttl = 240000) => ({kind, label, title, ttl, data, render:M[kind].render, handle:M[kind].handle, hint:M[kind].hint});
 const euro2 = n => `€ ${n.toFixed(2).replace('.', ',')}`;
 let timer = 0, running = false, turn = 0;
 
 // ————— Sala · Il conto torna —————
-function salaMission() {
- const t = G.int(1, 12), people = G.int(2, 6), total = people * G.int(22, 41), paid = G.int(1, people - 1) * G.int(14, 30);
+function salaMission(tb) {
+ // se c'è un tavolo vero che può chiedere il conto, il conto è il suo
+ const t = tb ? +tb.id.slice(1) : G.int(1, 12), people = tb ? Math.max(2, tb.guests) : G.int(2, 6), real = tb ? D.tableTotal(tb) : 0;
+ const total = real >= 30 ? real : people * G.int(22, 41), paid = G.int(1, people - 1) * G.int(Math.min(14, Math.floor(total / people / 2)), Math.max(15, Math.floor(total / people)));
  const k = G.pick(by(['qr', 'coperto'], ['qr', 'romana', 'sconto', 'coperto'], ['romana', 'sconto', 'scontoqr', 'coperto']));
  const base = {unit:'€', winWhy:'Il conto torna: Otto emette un solo documento commerciale con la cifra giusta.'};
  if (k === 'qr') return {event:[`Tavolo ${t} chiede il conto`, 'Una parte è già pagata dal QR'], m:mk('calc', 'IL CONTO TORNA?', `Sala · conto del tavolo ${t}`, {...base, ask:`Quanto incassi adesso al <b>tavolo ${t}</b>?`, answer:total - paid, sources:[{t:`Conto tavolo ${t}`, rows:[['Totale', G.euro(total)]]}, {t:'Pagamenti Stripe', rows:[[`Ordine QR tavolo ${t}`, `${G.euro(paid)} · pagato`]]}], hint:'Totale meno quello già pagato dal QR.'})};
@@ -164,25 +166,50 @@ function appMission() {
 // Le missioni sono un bonus raro (una ogni un paio di minuti): il cuore della sfida sono i compiti veri.
 const pages = {sala:salaMission, kds:kdsMission, menu_pos:menuMission, centralino_ai:centralinoMission, recensioni_ai:recensioniMission, whatsapp:whatsappMission, fidelity_nfc:fidelityMission, magazzino:magazzinoMission, fatture:fattureMission, bandi:bandiMission, staff:staffMission, app_builder:appMission};
 const rotation = ['kds', 'sala', 'centralino_ai', 'magazzino', 'menu_pos', 'whatsapp', 'fatture', 'recensioni_ai', 'staff', 'app_builder', 'fidelity_nfc', 'bandi'];
+// Il primo arrivo di ogni settore lo spiega un Otto di quel settore: cosa fai e perché, a tempo fermo.
+const briefs = {
+ sala:{role:'otto-bow', name:'Otto cameriere', what:'Il tavolo chiede il conto, ma c’è qualcosa da calcolare: una parte già pagata dal QR, il coperto, uno sconto o la divisione alla romana. Fai il conto con la calcolatrice, guardando i documenti.', why:'Se il conto non torna, l’ospite paga due volte o il locale perde soldi, e il documento fiscale va rifatto.'},
+ kds:{role:'otto-chef', name:'Otto cuoco', what:'È arrivata una comanda grande dal QR: manda ogni piatto alla sua partita (antipasti, primi, secondi, dolci).', why:'Ogni partita prepara solo i suoi piatti: se uno finisce nel posto sbagliato, il tavolo mangia a pezzi e freddo.'},
+ menu_pos:{role:'otto-bow', name:'Otto di sala', what:'Dopo l’inventario decidi cosa mostra il menu QR: disponibile, ultime porzioni o esaurito.', why:'Così nessun ospite ordina un piatto che in cucina è già finito.'},
+ centralino_ai:{role:'otto-phone', name:'Otto centralinista', what:'Una chiamata che Otto non può chiudere da solo: scegli tu le risposte, guardando sala e menu.', why:'Al telefono si promette quello che il locale può mantenere: tavolo vero, allergeni veri.'},
+ recensioni_ai:{role:'otto-star', name:'Otto social', what:'Una recensione negativa: tra le risposte preparate da Otto, scegli quella da pubblicare.', why:'Chi legge le recensioni guarda soprattutto come rispondi: riconoscere il problema convince più di difendersi.'},
+ whatsapp:{role:'otto-phone', name:'Otto messaggi', what:'Otto ha scritto la conferma della prenotazione, ma un dato non coincide con il registro: trovalo e correggilo.', why:'Un orario o un tavolo sbagliato in un messaggio diventa un ospite arrabbiato all’ingresso.'},
+ fidelity_nfc:{role:'otto-star', name:'Otto fidelity', what:'Gli ospiti appoggiano la card: per ognuno decidi se il premio spetta.', why:'Premi giusti a chi li ha raggiunti: è così che un cliente torna, e il programma non costa più di quanto rende.'},
+ magazzino:{role:'otto-cap', name:'Otto magazziniere', what:'È arrivata la fattura del fornitore: confrontala con la bolla firmata alla consegna e trova la riga che non torna.', why:'Vale la bolla firmata: se paghi la fattura sbagliata, paghi merce che non hai mai ricevuto.'},
+ fatture:{role:'otto-bow', name:'Otto cassiere', what:'Per emettere la fattura elettronica copi un codice dalla fonte giusta, una casella alla volta.', why:'Con un codice o una partita IVA sbagliati la fattura non arriva al cliente e va rifatta.'},
+ bandi:{role:'otto-inspector', name:'Otto consulente', what:'Il bando chiede quali spese inserire: per ognuna decidi se è ammissibile.', why:'Una sola spesa non ammessa può far perdere tutto il contributo.'},
+ staff:{role:'otto-inspector', name:'Otto ispettore', what:'Valida la checklist HACCP: ogni controllo è conforme o no, secondo la procedura.', why:'In un controllo dell’ASL conta quello che è scritto: una non conformità registrata con l’azione giusta protegge il locale.'},
+ app_builder:{role:'otto-chef', name:'Otto cuoco', what:'Il piatto del giorno va pubblicato sul menu QR: scegli tutti gli allergeni, e nessuno in più.', why:'Per chi è allergico è una questione di salute, e per il locale un obbligo di legge.'}
+};
 const icons = {sala:'coins', kds:'chef', menu_pos:'menu', centralino_ai:'phone', recensioni_ai:'star', whatsapp:'message', fidelity_nfc:'card', magazzino:'box', fatture:'receipt', bandi:'radar', staff:'users', app_builder:'palette'};
 let open = [];
-function spawn() {
- if (!running) return;
- if (document.body.classList.contains('touring') || document.hidden) return schedule(3);
- const max = lvl() === 3 ? 2 : 1, nOpen = open.filter(x => x.open).length;
- if (nOpen < max) {
+function spawn(force) {
+ if (!running && !force) return;
+ if (!force && (document.body.classList.contains('touring') || document.hidden)) return schedule(3);
+ // una missione arriva solo quando il giocatore ha preso la mano (due compiti fatti) e c'è spazio nel livello
+ if (force || canSpawnMission()) {
   const busy = new Set(open.filter(x => x.open).map(x => x.page));
   const order = rotation.slice(turn % rotation.length).concat(rotation.slice(0, turn % rotation.length));
-  const page = order.find(p => !busy.has(p)) || order[0]; turn = rotation.indexOf(page) + 1;
-  const made = pages[page](), ttl = Math.round(made.m.ttl * by(1, .85, .7)), rec = {open:true, page};
-  addMission({...made.m, ttl, page, onDone:() => { rec.open = false; schedule(G.int(80, 120)); }});
+  const page = force || order.find(p => !busy.has(p)) || order[0]; turn = rotation.indexOf(page) + 1;
+  // la Sala usa un tavolo vero: chiede il conto, il "!" compare sulla pianta e si risolve nel suo pannello
+  const tb = page === 'sala' ? D.tables.find(x => ['seated', 'ordered'].includes(x.status) && !['T3', 'T8'].includes(x.id) && !x.mission && x.lines.length) : null;
+  const made = page === 'sala' ? salaMission(tb) : pages[page](), ttl = Math.round(made.m.ttl * by(1, .85, .7)), rec = {open:true, page};
+  if (tb) tb.status = 'bill';
+  const id = addMission({...made.m, ttl, page, ref:tb?.id, brief:briefs[page], onDone:() => {
+   rec.open = false; schedule(G.int(120, 180));
+   if (tb) { tb.mission = null; if (tb.status === 'bill') D.closeBill(tb.id); }
+  }});
+  if (tb) tb.mission = id;
   open.push(rec);
   D.notify({type:'mission', title:made.event[0], text:made.event[1], icon:icons[page], go:page}, `${made.event[0]}: ${made.event[1].toLowerCase()}`, made.log || 'sala');
  }
- schedule(G.int(90, 140));
+ // se la missione non è potuta arrivare (troppo presto o troppe cose aperte), si riprova tra poco
+ if (!force) schedule(open.some(x => x.open) ? G.int(90, 140) : 15);
 }
+// Per i test e le prove a mano: fa arrivare subito la missione di una sezione.
+export const spawnNow = page => spawn(page);
 function schedule(s) { clearTimeout(timer); timer = setTimeout(spawn, s * 1000); }
-export function startMissions() { running = true;  turn = 0; open = []; schedule(45); }
+export function startMissions() { running = true;  turn = 0; open = []; schedule(30); }
 export function stopMissions() { running = false; D.service.game = false; clearTimeout(timer); }
 // Per i test: i generatori di ogni modulo, con un livello forzato.
 export const generators = Object.fromEntries(Object.entries(pages).map(([k, f]) => [k, () => f().m]));

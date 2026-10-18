@@ -16,14 +16,14 @@
 //  Compliance       · Consenti o rifiuta
 import * as G from './gen.js';
 import {mechanics as M} from './mg.js';
-import {addMission, gameLevel} from './game.js';
+import {addMission, gameLevel, canSpawnMission} from './game.js';
 import {spawnMail, spawnChat, spawnCall, live} from './live.js';
 
 let testLevel = 0;
 const lvl = () => testLevel || gameLevel();
 const by = (l1, l2, l3) => [l1, l2, l3][lvl() - 1];
 const days = ['lunedì', 'martedì', 'mercoledì', 'giovedì', 'venerdì'];
-const mk = (kind, label, title, data, ttl = 160000) => ({kind, label, title, ttl, data, render:M[kind].render, handle:M[kind].handle, hint:M[kind].hint});
+const mk = (kind, label, title, data, ttl = 240000) => ({kind, label, title, ttl, data, render:M[kind].render, handle:M[kind].handle, hint:M[kind].hint});
 const srl = () => `${G.pick(['Arcadia', 'Lumen', 'Orione', 'Vela', 'Trama', 'Nodo', 'Tessera', 'Ginepro'])} S.r.l.`;
 const date = d => d.toLocaleDateString('it-IT', {day:'numeric', month:'long', year:'numeric'});
 const dm = d => d.toLocaleDateString('it-IT', {day:'numeric', month:'long'});
@@ -253,31 +253,50 @@ function complianceMission() {
 
 
 
+// Il primo arrivo di ogni settore lo spiega un Otto di quel settore: cosa fai e perché, a tempo fermo.
+const briefs = {
+ posta:{role:'otto-cap', name:'Otto postino', what:'Nella posta è arrivato qualcosa che Otto non può smistare da solo: leggi bene e decidi tu.', why:'Ogni email sbagliata di posto è una pratica che si ferma, e un dato sbagliato in un allegato finisce dritto nell’atto.'},
+ centralino:{role:'otto-phone', name:'Otto centralinista', what:'Una chiamata che Otto non può chiudere da solo: scegli tu le risposte, guardando agenda e regole dello studio.', why:'Al telefono si dà solo quello che si può dare: date vere, e mai informazioni su altri clienti.'},
+ whatsapp:{role:'otto-phone', name:'Otto messaggi', what:'Otto ha scritto la risposta al cliente, ma un dato non coincide con la pratica: trovalo e correggilo.', why:'Un orario o un importo sbagliato in un messaggio diventa una firma saltata o una banca che aspetta.'},
+ studio:{role:'otto-notary', name:'Otto del notaio', what:'Nel modulo manca un dato: copialo dalla fonte giusta, una casella alla volta.', why:'Un IBAN, un codice fiscale o un subalterno sbagliati bloccano il mutuo o rendono l’atto da correggere.'},
+ memoria:{role:'otto-read', name:'Otto archivista', what:'Tra i precedenti dello studio, scegli quello che risponde davvero alla domanda.', why:'Riusare il precedente giusto fa risparmiare ore; quello sbagliato porta nell’atto una clausola che non c’entra.'},
+ visure:{role:'otto-inspector', name:'Otto delle visure', what:'È arrivato l’esito della visura: confrontalo con il documento della pratica e trova la riga che non torna.', why:'Vale il registro pubblico: se nell’atto finisce un dato diverso, la trascrizione può essere rifiutata.'},
+ preventivi:{role:'otto-bow', name:'Otto contabile', what:'Il cliente aspetta la cifra: fai il conto con la calcolatrice, guardando le regole accanto.', why:'Un preventivo sbagliato si paga due volte: in fiducia del cliente e in differenza da coprire.'},
+ osservatorio:{role:'otto-inspector', name:'Otto osservatore', what:'È uscita una novità: per ogni pratica decidi se si applica o no.', why:'Una regola nuova applicata alla pratica sbagliata, o dimenticata in quella giusta, cambia imposte e tempi.'},
+ staff:{role:'otto-star', name:'Otto organizzatore', what:'Qualcuno è assente: riassegna ogni attività alla persona giusta.', why:'Un termine che resta sulla scrivania di chi è in ferie è un termine perso.'},
+ scadenze:{role:'otto-read', name:'Otto dello scadenziario', what:'Dalla data dell’atto, trova sul calendario il giorno giusto della scadenza.', why:'Registrazione e trascrizione hanno termini di legge: un giorno di ritardo costa sanzioni allo studio.'},
+ antiriciclaggio:{role:'otto-inspector', name:'Otto antiriciclaggio', what:'Calcola quanto possiede davvero la persona dietro le società: è lei il titolare effettivo?', why:'Il notaio deve sapere chi c’è dietro una società: è un obbligo di legge, e la soglia è il 25%.'},
+ compliance:{role:'otto-notary', name:'Otto della privacy', what:'Sono arrivate richieste di accesso ai dati: per ognuna decidi se consentirla o rifiutarla.', why:'I dati dei clienti si danno solo a chi ne ha diritto: un accesso sbagliato è una violazione della privacy.'}
+};
+
 // ————— regista —————
 // Le missioni sono un bonus raro (una ogni un paio di minuti): il cuore della sfida sono i compiti veri.
 // Gira su tutti i moduli, così ogni sezione dello studio prima o poi ha la sua missione.
 const pages = {posta:() => (Math.random() < .5 ? allegatiMission : postaMission)(), centralino:centralinoMission, whatsapp:whatsappMission, studio:studioMission, memoria:memoriaMission, visure:visureMission, preventivi:preventiviMission, osservatorio:osservatorioMission, staff:staffMission, scadenze:scadenzeMission, antiriciclaggio:antiriciclaggioMission, compliance:complianceMission};
 const rotation = ['posta', 'visure', 'centralino', 'preventivi', 'whatsapp', 'studio', 'scadenze', 'memoria', 'antiriciclaggio', 'staff', 'compliance', 'osservatorio'];
 let open = [];
-function spawn() {
- if (!running) return;
- if (document.body.classList.contains('touring') || document.hidden) return schedule(3);
- const max = lvl() === 3 ? 2 : 1, nOpen = open.filter(x => x.open).length;
- if (nOpen < max) {
+function spawn(force) {
+ if (!running && !force) return;
+ if (!force && (document.body.classList.contains('touring') || document.hidden)) return schedule(3);
+ // una missione arriva solo quando il giocatore ha preso la mano (due compiti fatti) e c'è spazio nel livello
+ if (force || canSpawnMission()) {
   const busy = new Set(open.filter(x => x.open).map(x => x.page));
   const order = rotation.slice(turn % rotation.length).concat(rotation.slice(0, turn % rotation.length));
-  const page = order.find(p => !busy.has(p)) || order[0]; turn = rotation.indexOf(page) + 1;
+  const page = force || order.find(p => !busy.has(p)) || order[0]; turn = rotation.indexOf(page) + 1;
   const made = pages[page](), mission = made.mission || made, ttl = Math.round(mission.ttl * by(1, .85, .7)), rec = {open:true, page};
   let item = null;
   if (made.anchor === 'mail') item = spawnMail({...made.mail, priority:'alta', assignee:'GM', prepared:[], draft:''});
   if (made.anchor === 'chat') item = spawnChat(made.chat);
   if (made.anchor === 'call') item = spawnCall(made.call);
-  const id = addMission({...mission, ttl, page, ref:item?.id, onDone:() => { rec.open = false; if (item) { item.missionOpen = false; if (made.anchor === 'call') Object.assign(item, {duration:'2:40', outcome:'Gestita con te'}); } onHandled(item?.id, page); schedule(G.int(80, 120)); }});
+  const id = addMission({...mission, ttl, page, ref:item?.id, brief:briefs[page], onDone:() => { rec.open = false; if (item) { item.missionOpen = false; if (made.anchor === 'call') Object.assign(item, {duration:'2:40', outcome:'Gestita con te'}); } onHandled(item?.id, page); schedule(G.int(120, 180)); }});
   if (item) { item.mission = id; item.missionOpen = true; live.missions.push(item); }
   open.push(rec);
  }
- schedule(G.int(90, 140));
+ // se la missione non è potuta arrivare (troppo presto o troppe cose aperte), si riprova tra poco
+ if (!force) schedule(open.some(x => x.open) ? G.int(90, 140) : 15);
 }
+// Per i test e le prove a mano: fa arrivare subito la missione di una sezione.
+export const spawnNow = page => spawn(page);
 function schedule(s) { clearTimeout(timer); timer = setTimeout(spawn, s * 1000); }
 export function startMissions(handled) { onHandled = handled || onHandled; running = true;  turn = 0; open = []; schedule(45); }
 export function stopMissions() { running = false; live.game = false; clearTimeout(timer); }
