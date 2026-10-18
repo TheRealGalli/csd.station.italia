@@ -301,3 +301,8 @@
 .mg-chips button.st-ok,.mg-chips button.st-yes,.mg-chips button.st-si{color:#3f7a1c}
 .mg-chips button.st-few{color:#a06b0c}
 .mg-chips button.st-out,.mg-chips button.st-no,.mg-chips button.st-ko,.mg-chips button.st-flag{color:#b2412d}
+/* Chiedi a Otto diventa la Bottega di Otto in modalità gioco */
+.ask-otto.is-shop{background:#2c4a1f!important;color:#c5f476!important;box-shadow:0 0 0 1px #c5f47666 inset}
+.ask-otto.is-shop .icon{color:#c5f476}
+.ask-otto.has-gift{position:relative}
+.ask-otto.has-gift:after{content:'';position:absolute;top:-3px;right:-3px;width:10px;height:10px;border-radius:50%;background:#e2b14f;box-shadow:0 0 0 2px #fff}

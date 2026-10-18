@@ -141,7 +141,7 @@ function updateChip(bump) {
  document.querySelectorAll('.game-chip').forEach(el => {
   el.outerHTML = gameChip();
  });
- updateAlert();
+ updateAlert(); syncShopLabels();
  const chip = document.querySelector('.game-chip');
  if (bump && chip && !calm.matches) { chip.classList.add(bump); burst(chip, bump === 'bump-bad'); }
 }
@@ -240,9 +240,21 @@ function markNav() {
   a?.insertAdjacentHTML('beforeend', '<i class="game-dot" title="Decisione da prendere"></i>');
  }
 }
+// In modalità gioco i tasti "Chiedi a Otto" diventano "Bottega di Otto" (in alto e nella barra laterale).
+function syncShopLabels() {
+ const on = S.started;
+ document.querySelectorAll('.ask-otto').forEach(b => {
+  const sp = b.querySelector('span'); if (sp) sp.textContent = on ? 'Bottega di Otto' : 'Chiedi a Otto';
+  b.classList.toggle('is-shop', on); b.classList.toggle('has-gift', on && !!S.gift);
+ });
+ document.querySelectorAll('.plan-mini > span:not(.plan-orbit)').forEach(sp => {
+  const t = [...sp.childNodes].find(n => n.nodeType === 3); if (t) t.textContent = on ? 'Bottega di Otto' : 'Chiedi a Otto';
+  const sm = sp.querySelector('small'); if (sm) { sm.dataset.orig ||= sm.textContent; sm.textContent = on ? 'Spendi i punti in potenziamenti' : sm.dataset.orig; }
+ });
+}
 // Chiamata dall'app dopo ogni render: inserisce la sfida sotto il titolo della pagina.
 export function mountGame(page, main) {
- clearTimeout(timer); markNav();
+ clearTimeout(timer); markNav(); syncShopLabels();
  const html = inner(page); if (!html) return;
  const box = `<div class="game-slot" data-gslot="${page}">${html}</div>`;
  const head = main.querySelector(':scope > .page-heading');
