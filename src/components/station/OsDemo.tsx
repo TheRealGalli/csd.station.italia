@@ -115,9 +115,9 @@ export default function OsDemo({ product }: { product: OsProduct }) {
             <ul>{p.points.map((point, i) => <li key={point}><OttoFace mood={faces[i % faces.length]}/>{point}</li>)}</ul>
             <OttoTerminal name={p.name} choices={[
               { key: 'tour', icon: Play, label: 'Guarda la demo guidata', note: 'Otto ti accompagna passo per passo.', run: startTour },
-              { key: 'play', icon: Gamepad2, label: 'Gioca la demo', note: 'Missioni vere, generate a caso. Si impara giocando.', run: startGame },
               { key: 'free', icon: MousePointer2, label: 'Esplora da solo', note: 'Il sistema è acceso: tocca tutto quello che vuoi.', run: () => setOpen(true) },
               { key: 'wa', icon: MessageCircle, label: 'Più informazioni su WhatsApp', note: 'Scrivi a Carlo: risponde lui, direttamente.', href: contact },
+              { key: 'play', icon: Gamepad2, label: 'Gioca', note: 'Missioni vere, generate a caso. Si impara giocando.', run: startGame },
             ]}/>
             <small><Lock size={12}/> Dati, persone e numeri sono inventati. Il sistema dietro sta già girando.</small>
           </div>
