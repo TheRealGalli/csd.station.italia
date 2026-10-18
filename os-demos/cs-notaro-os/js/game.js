@@ -97,6 +97,15 @@ function closeAndNext(id) {
   setTimeout(() => { const el = document.querySelector('#main'); el?.classList.remove('game-fadeout'); el?.classList.add('game-fadein'); setTimeout(() => el?.classList.remove('game-fadein'), 300); }, 60);
  }, 170);
 }
+// Azioni normali dell'ecosistema (rifornire, chiudere un conto, approvare un'email…): pochi punti, con una pausa
+// di 20 secondi per la stessa azione, così cliccare a ripetizione non conviene.
+const ecoLast = {};
+export function ecoPoints(key, pts, label) {
+ if (!S.started || touring()) return;
+ const now = Date.now(); if (now - (ecoLast[key] || 0) < 20000) return;
+ ecoLast[key] = now; S.points += pts; syncLevel(); checkGifts(); play('coin');
+ float(pts, document.querySelector('.game-chip'), label);
+}
 function refreshMission(id) {
  const el = document.querySelector(`[data-mission="${id}"]`);
  if (el) el.outerHTML = missionPanel(id);
@@ -284,11 +293,11 @@ function levelUp() {
 }
 
 // ————— animazioni e suoni —————
-function float(pts, from) {
+function float(pts, from, label) {
  if (!from || !pts) return updateChip();
  const chip = document.querySelector('.game-chip'), r = from.getBoundingClientRect();
  const el = document.createElement('div');
- el.className = `game-float ${pts < 0 ? 'neg' : ''}`; el.textContent = `${pts > 0 ? '+' : ''}${pts}`;
+ el.className = `game-float ${pts < 0 ? 'neg' : ''} ${label ? 'eco' : ''}`; el.textContent = `${pts > 0 ? '+' : ''}${pts}${label ? ` · ${label}` : ''}`;
  el.style.left = `${r.left + 30}px`; el.style.top = `${r.top}px`;
  document.body.append(el);
  let ended = false;

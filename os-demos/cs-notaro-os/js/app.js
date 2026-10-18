@@ -5,7 +5,7 @@ import * as D from './demo.js';
 import {studioScenario, studioSuggestions, askOtto, ottoSuggestions, proposeValues} from './agent.js';
 import {inspect, fillNative, formPdf} from './pdf-core.js';
 import {startTour} from './tour.js';
-import {initGame, gameChip, mountGame, gameInvite, missionPanel, gameOn, openShop, gameIntro} from './game.js';
+import {initGame, gameChip, mountGame, gameInvite, missionPanel, gameOn, openShop, gameIntro, ecoPoints} from './game.js';
 import {startMissions, stopMissions} from './missions.js';
 import {challenges} from './challenges.js';
 import {notaroTour} from './tour-steps.js';
@@ -496,9 +496,9 @@ function action(a) {
   if (route() !== 'studio') { ui.studio.pending = {prompt, id}; location.hash = 'studio'; } else runStudio(prompt, id); return; }
  if (a === 'toggle-doc') { ui.studio.showDoc = !ui.studio.showDoc; const st = document.querySelector('.studio'); st?.classList.toggle('with-doc', ui.studio.showDoc); st?.classList.toggle('no-doc', !ui.studio.showDoc); document.querySelector('.doc-toggle')?.setAttribute('aria-pressed', ui.studio.showDoc); return refreshStudio(false); }
  if (a === 'studio-new') { stopRun(); ui.studio.messages = []; ui.studio.artifact = null; ui.studio.uploaded = null; return render(); }
- if (a === 'download-form') return downloadForm();
- if (a.startsWith('handle:')) { const on = toggle('handled', a.slice(7)); toast(on ? 'Approvata. In anteprima nessuna email viene inviata.' : 'Email riaperta.'); return shell(); }
- if (a.startsWith('send:')) { toggle('sent', a.slice(5)); toast('Messaggio segnato come inviato. In anteprima non parte nulla.'); return shell(); }
+ if (a === 'download-form') { ecoPoints('form', 3, 'Modulo scaricato'); return downloadForm(); }
+ if (a.startsWith('handle:')) { const on = toggle('handled', a.slice(7)); if (on) ecoPoints('handle', 4, 'Email gestita'); toast(on ? 'Approvata. In anteprima nessuna email viene inviata.' : 'Email riaperta.'); return shell(); }
+ if (a.startsWith('send:')) { toggle('sent', a.slice(5)); ecoPoints('send', 4, 'Messaggio inviato'); toast('Messaggio segnato come inviato. In anteprima non parte nulla.'); return shell(); }
  if (a === 'account') return show(`<span class="dialog-kicker">IL TUO STUDIO</span><h2 id="dialog-title">Andrea Conti</h2><p class="dialog-description">Notaio titolare · ${esc(D.studio.name)}. L’accesso CSD Station sarà collegato al servizio.</p>`);
  if (a === 'reset') { stopRun(); reset(); ui.studio.messages = []; ui.studio.artifact = null; ui.otto = []; toast('Demo ripristinata.'); return shell(); }
 }
@@ -525,7 +525,7 @@ document.addEventListener('click', e => {
  if ((x = el('[data-call]'))) { ui.call = x.dataset.call; return render(); }
  if ((x = el('[data-chat]'))) { ui.chat = x.dataset.chat; return render(); }
  if ((x = el('[data-category]'))) { ui.category = x.dataset.category; return render(); }
- if ((x = el('[data-studio]'))) { const s = studioSuggestions.find(s => s.id === x.dataset.studio); return runStudio(s.prompt, s.id); }
+ if ((x = el('[data-studio]'))) { ecoPoints('studio', 3, 'Lavoro con Otto'); const s = studioSuggestions.find(s => s.id === x.dataset.studio); return runStudio(s.prompt, s.id); }
  if ((x = el('[data-memory]'))) { ask(x.dataset.memory); return; }
  if ((x = el('[data-otto]'))) return askGlobal(x.dataset.otto);
 });

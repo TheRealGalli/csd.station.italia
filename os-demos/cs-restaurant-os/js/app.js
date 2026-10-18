@@ -2,7 +2,7 @@ import {icon, otto} from './icons.js';
 import {modules, groups, groupNotes, moduleById} from './modules.js';
 import * as D from './demo.js';
 import {startTour} from './tour.js';
-import {initGame, gameChip, mountGame, gameInvite, gameOn, openShop, gameIntro} from './game.js';
+import {initGame, gameChip, mountGame, gameInvite, gameOn, openShop, gameIntro, ecoPoints} from './game.js';
 import {challenges} from './challenges.js';
 import {startMissions, stopMissions} from './missions.js';
 import {restaurantTour} from './tour-steps.js';
@@ -215,7 +215,7 @@ function qrAction(a) {
  if (a === 'back' || a === 'again') { q.step = 'menu'; if (a === 'again') { q.cart = {}; q.receipt = null; } }
  if (a === 'pay' || a === 'order') {
   const items = Object.entries(q.cart).filter(([, n]) => n > 0);
-  const r = D.qrOrder(q.table, items, a === 'pay', 'Apple Pay');
+  const r = D.qrOrder(q.table, items, a === 'pay', 'Apple Pay'); if (r) ecoPoints('qr', 3, 'Ordine dal QR');
   q.receipt = r ? {prepaid:a === 'pay', amount:r.amount, method:'Apple Pay', doc:r.receipt?.id} : null;
   q.cart = {}; q.step = 'paid';
   toast(a === 'pay' ? `Tavolo ${q.table.slice(1)}: ordine in cucina e pagato con Stripe · ${euro(r?.amount || 0)}` : `Tavolo ${q.table.slice(1)}: ordine in cucina, paga a fine cena`);
@@ -342,13 +342,13 @@ function action(a) {
  if (k === 'toast') return toast(a.slice(6));
  if (k === 'go') { location.hash = a.slice(3); return; }
  if (a === 'adding') { ui.adding = !ui.adding; return render(); }
- if (k === 'seat') { D.openTable(x, +y); return; }
- if (k === 'bill') { D.requestBill(x); return; }
- if (k === 'close') { const total = D.closeBill(x); ui.adding = false; toast(`Tavolo ${x.slice(1)} chiuso: ${euro(total)} in cassa.`); return; }
+ if (k === 'seat') { D.openTable(x, +y); ecoPoints('seat', 2, 'Tavolo accomodato'); return; }
+ if (k === 'bill') { D.requestBill(x); ecoPoints('bill', 2, 'Conto richiesto'); return; }
+ if (k === 'close') { const total = D.closeBill(x); ui.adding = false; ecoPoints('close', 5, 'Conto chiuso'); toast(`Tavolo ${x.slice(1)} chiuso: ${euro(total)} in cassa.`); return; }
  if (a === 'menu-editor') return menuEditor();
  if (a === 'reset') { location.hash = 'home'; location.reload(); return; }
- if (a === 'reorder') { D.reorder(D.lowStock().map(i => i.id)); toast('Ordine inviato ai fornitori (demo).'); return; }
- if (k === 'review') { ui.done.reviews.push(a.slice(7)); toast('Risposta pubblicata (demo).'); return shell(); }
+ if (a === 'reorder') { D.reorder(D.lowStock().map(i => i.id)); ecoPoints('reorder', 8, 'Magazzino rifornito'); toast('Ordine inviato ai fornitori (demo).'); return; }
+ if (k === 'review') { ui.done.reviews.push(a.slice(7)); ecoPoints('review', 4, 'Recensione pubblicata'); toast('Risposta pubblicata (demo).'); return shell(); }
  if (a === 'account') return show(`<span class="dialog-kicker">IL TUO LOCALE</span><h2 id="dialog-title">Marta Rinaldi</h2><p class="dialog-description">Titolare · ${esc(D.restaurant.name)}. L’accesso CSD Station sarà collegato al servizio.</p>`);
 }
 function syncNavigation() {
@@ -364,8 +364,8 @@ document.addEventListener('click', e => {
  if (el('[data-close]')) dialog.close();
  if ((x = el('[data-action]'))) return action(x.dataset.action);
  if ((x = el('[data-table]'))) { if (route() !== 'sala') { ui.table = x.dataset.table; location.hash = 'sala'; return; } ui.table = x.dataset.table; ui.adding = false; return render(); }
- if ((x = el('[data-add]'))) { const ok = D.addDish(ui.table, x.dataset.add); toast(ok ? `${D.dish(x.dataset.add).name} → cucina · conto e magazzino aggiornati` : 'Piatto esaurito: ingredienti insufficienti.'); return; }
- if ((x = el('[data-advance]'))) { D.advance(x.dataset.advance); ui.ticket = null; return; }
+ if ((x = el('[data-add]'))) { const ok = D.addDish(ui.table, x.dataset.add); if (ok) ecoPoints('add', 2, 'Comanda in cucina'); toast(ok ? `${D.dish(x.dataset.add).name} → cucina · conto e magazzino aggiornati` : 'Piatto esaurito: ingredienti insufficienti.'); return; }
+ if ((x = el('[data-advance]'))) { D.advance(x.dataset.advance); ecoPoints('advance', 2, 'Comanda avanti'); ui.ticket = null; return; }
  if ((x = el('[data-ticket]'))) { ui.ticket = ui.ticket === x.dataset.ticket ? null : x.dataset.ticket; return render(); }
  if ((x = el('[data-category]'))) { ui.category = x.dataset.category; return render(); }
  if ((x = el('[data-otto]'))) return askGlobal(x.dataset.otto);
@@ -373,11 +373,11 @@ document.addEventListener('click', e => {
  if ((x = el('[data-qr-cat]'))) { ui.qr.cat = x.dataset.qrCat; return render(); }
  if ((x = el('[data-qr-table]'))) { ui.qr = {table:x.dataset.qrTable, cart:{}, step:'menu', cat:ui.qr.cat, receipt:null}; return render(); }
  if ((x = el('[data-qr]'))) return qrAction(x.dataset.qr);
- if ((x = el('[data-menu-otto]'))) { ui.menuReply = D.menuCommand(x.dataset.menuOtto); return render(); }
+ if ((x = el('[data-menu-otto]'))) { ui.menuReply = D.menuCommand(x.dataset.menuOtto); ecoPoints('menu', 2, 'Menu aggiornato'); return render(); }
 });
 document.addEventListener('change', e => {
  const d = e.target.dataset;
- if (d.haccp) { ui.done.haccp.push(+d.haccp); render(); }
+ if (d.haccp) { ui.done.haccp.push(+d.haccp); ecoPoints('haccp', 3, 'Controllo HACCP'); render(); }
  if (d.editPrice && +e.target.value > 0) { D.editDish(d.editPrice, {price:+e.target.value}); toast('Prezzo aggiornato su tutti i QR.'); }
  if (d.editVisible) { D.editDish(d.editVisible, {visible:e.target.checked}); toast(e.target.checked ? 'Di nuovo nel menu.' : 'Tolto dal menu di stasera.'); }
 });

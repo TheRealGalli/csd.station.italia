@@ -286,3 +286,18 @@
 #main.game-fadeout{opacity:0;transition:opacity .16s ease}
 #main.game-fadein{animation:game-fade-in .28s ease both}
 @keyframes game-fade-in{from{opacity:0;transform:translateY(4px)}}
+.game-float.eco{font-size:13px;font-weight:700;white-space:nowrap;background:#1d2b20;color:#c5f476;border-radius:12px;padding:3px 9px;text-shadow:none}
+/* dati da confrontare in arancione, scelte colorate */
+.mg .mg-n{color:#c2570c;font-weight:750;background:#fff1e3;border-radius:4px;padding:0 3px}
+.mg .mg-doc.official .mg-n{color:#9a3f06}
+.mg .mg-qtext small .mg-n{font-size:11.5px}
+.mg .mg-row.hit .mg-n,.mg .mg-row.miss .mg-n{background:transparent}
+.mg .mg-qtext{font-size:13px}
+.mg .mg-qtext small{font-size:11.5px;color:#5d6b52}
+.mg-chips button.on{background:#1d2b20;color:#c5f476;border-color:#1d2b20}
+.mg-chips button.st-ok.on,.mg-chips button.st-yes.on,.mg-chips button.st-si.on{background:#3f7a1c;border-color:#3f7a1c;color:#fff}
+.mg-chips button.st-few.on{background:#c98a17;border-color:#c98a17;color:#fff}
+.mg-chips button.st-out.on,.mg-chips button.st-no.on,.mg-chips button.st-ko.on,.mg-chips button.st-flag.on,.mg-chips button.st-phish.on{background:#b2412d;border-color:#b2412d;color:#fff}
+.mg-chips button.st-ok,.mg-chips button.st-yes,.mg-chips button.st-si{color:#3f7a1c}
+.mg-chips button.st-few{color:#a06b0c}
+.mg-chips button.st-out,.mg-chips button.st-no,.mg-chips button.st-ko,.mg-chips button.st-flag{color:#b2412d}

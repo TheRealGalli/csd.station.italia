@@ -14,7 +14,10 @@
 //  stack    · la coda di Otto, stile Game Boy: un clic per carta (A approva, B corregge)
 const esc = v => String(v ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const rich = v => esc(v).replace(/\*\*(.+?)\*\*/g, '<b>$1</b>');
-export const sources = (list, hint = -1) => list?.length ? `<div class="mg-sources">${list.map((s, i) => `<div class="mg-doc ${s.official ? 'official' : ''} ${i === hint ? 'hinted' : ''}"><span class="mg-doc-t">${esc(s.t)}</span>${s.rows.map(r => `<div class="mg-row"><span class="mg-k">${esc(r[0])}</span><span class="mg-v ${r[2] ? 'mono' : ''}">${esc(r[1])}</span></div>`).join('')}</div>`).join('')}</div>` : '';
+// I dati da confrontare (importi, quantità, date, orari, percentuali, codici) in arancione: l'occhio li trova subito.
+const NUM = /(€\s?[\d.,]+|(?<![&#\w])\d+(?:[.,]\d+)?\s?(?:%|kg|g|pz|bt|°C|persone|posti|punti|minuti|giorni|mesi)(?![\w])|(?<![&#\w])\d{1,2}:\d{2}|(?<![&#\w])\d{1,2}\/\d{1,2}\/\d{2,4}|(?<![&#\w])[A-Z0-9]{5,}(?![\w])|(?<![&#\w])[A-Z]{2}\d{2}(?: [A-Z0-9]{1,4})+|(?<![&#\w])\d+(?:[.,]\d+)*(?![\w;]))/g;
+export const hl = v => esc(v).replace(NUM, '<b class="mg-n">$1</b>');
+export const sources = (list, hint = -1) => list?.length ? `<div class="mg-sources">${list.map((s, i) => `<div class="mg-doc ${s.official ? 'official' : ''} ${i === hint ? 'hinted' : ''}"><span class="mg-doc-t">${esc(s.t)}</span>${s.rows.map(r => `<div class="mg-row"><span class="mg-k">${esc(r[0])}</span><span class="mg-v ${r[2] ? 'mono' : ''}">${hl(r[1])}</span></div>`).join('')}</div>`).join('')}</div>` : '';
 const ask = (d, st, extra = '') => `<p class="mg-ask">${d.ask}${st.tries ? ` <span class="mg-tries">Tentativi sbagliati: ${st.tries}/${d.maxTries || 2}</span>` : ''}${extra}</p>`;
 const score = (m, base = 30) => Math.max(10, base + (m ? 0 : 15) - m * 5);
 const win = (d, m, perfect, ok) => ({done:true, pts:score(m), label:m ? (d.winLabel2 || 'Giusto, con qualche tentativo') : (d.winLabel || perfect), why:ok || d.winWhy});
@@ -26,7 +29,7 @@ const diff = {
   const step = st.step || 'find';
   const row = (r, i, left) => {
    const cls = [left && step === 'find' ? 'pick' : '', st.misses?.includes(i) ? 'miss' : '', step !== 'find' && i === d.wrongRow ? 'hit' : '', left && st.hintRow === i && step === 'find' ? 'hinted' : ''].join(' ');
-   const cell = `<span class="mg-k">${esc(r[0])}</span><span class="mg-v">${esc(left ? r[1] : r[2])}</span>`;
+   const cell = `<span class="mg-k">${esc(r[0])}</span><span class="mg-v">${hl(left ? r[1] : r[2])}</span>`;
    return left && step === 'find' ? `<button class="mg-row ${cls}" data-game="mg:${st.id}:row:${i}">${cell}</button>` : `<div class="mg-row ${cls}">${cell}</div>`;
   };
   return `<p class="mg-ask">${step === 'find' ? d.ask : `Trovata: <b>${esc(d.rows[d.wrongRow][0].toLowerCase())}</b>. ${d.chooseAsk || 'Quale valore è quello giusto?'}`}</p>
@@ -68,7 +71,7 @@ const triage = {
   return `<p class="mg-ask">${d.ask}</p>
    <div class="mg-lanes" style="grid-template-columns:repeat(${d.lanes.length},minmax(0,1fr))">${d.lanes.map(l => `<span><b>${esc(l[1])}</b>${esc(l[2] || '')}</span>`).join('')}</div>
    ${sources(d.sources)}
-   <div class="mg-queue">${d.items.map((it, i) => `<div class="mg-qrow ${st.done ? (a[i] === it.lane ? 'right' : 'wrong') : ''}"><span class="mg-qtext">${esc(it.text)}${it.sub ? `<small>${esc(it.sub)}</small>` : ''}</span><span class="mg-chips">${d.lanes.map(l => `<button class="${a[i] === l[0] ? 'on' : ''} ${st.done && it.lane === l[0] ? 'sol' : ''}" data-game="mg:${st.id}:set:${i}.${l[0]}" ${st.done ? 'disabled' : ''}>${esc(l[1])}</button>`).join('')}</span></div>`).join('')}</div>
+   <div class="mg-queue">${d.items.map((it, i) => `<div class="mg-qrow ${st.done ? (a[i] === it.lane ? 'right' : 'wrong') : ''}"><span class="mg-qtext">${hl(it.text)}${it.sub ? `<small>${hl(it.sub)}</small>` : ''}</span><span class="mg-chips">${d.lanes.map(l => `<button class="${a[i] === l[0] ? 'on' : ''} ${st.done && it.lane === l[0] ? 'sol' : ''}" data-game="mg:${st.id}:set:${i}.${l[0]}" ${st.done ? 'disabled' : ''}>${esc(l[1])}</button>`).join('')}</span></div>`).join('')}</div>
    ${st.done ? '' : `<div class="gc-options"><button data-game="mg:${st.id}:confirm:0" ${all ? '' : 'disabled'}>${esc(d.confirm || 'Conferma')}</button></div>`}`;
  },
  handle(d, st, a, v) {
@@ -184,7 +187,7 @@ const classify = {
  render(d, st) {
   const a = st.set || {}, all = d.items.every((_, i) => a[i]);
   return `<p class="mg-ask">${d.ask}</p>${sources(d.sources)}
-   <div class="mg-queue">${d.items.map((it, i) => `<div class="mg-qrow ${st.done ? (a[i] === it.ans ? 'right' : 'wrong') : ''}"><span class="mg-qtext">${esc(it.text)}${it.sub ? `<small>${esc(it.sub)}</small>` : ''}</span><span class="mg-chips">${d.states.map(s => `<button class="${a[i] === s[0] ? 'on' : ''} ${st.done && it.ans === s[0] ? 'sol' : ''} st-${s[0]}" data-game="mg:${st.id}:set:${i}.${s[0]}" ${st.done ? 'disabled' : ''}>${esc(s[1])}</button>`).join('')}</span></div>`).join('')}</div>
+   <div class="mg-queue">${d.items.map((it, i) => `<div class="mg-qrow ${st.done ? (a[i] === it.ans ? 'right' : 'wrong') : ''}"><span class="mg-qtext">${hl(it.text)}${it.sub ? `<small>${hl(it.sub)}</small>` : ''}</span><span class="mg-chips">${d.states.map(s => `<button class="${a[i] === s[0] ? 'on' : ''} ${st.done && it.ans === s[0] ? 'sol' : ''} st-${s[0]}" data-game="mg:${st.id}:set:${i}.${s[0]}" ${st.done ? 'disabled' : ''}>${esc(s[1])}</button>`).join('')}</span></div>`).join('')}</div>
    ${st.done ? '' : `<div class="gc-options"><button data-game="mg:${st.id}:confirm:0" ${all ? '' : 'disabled'}>${esc(d.confirm || 'Conferma')}</button></div>`}`;
  },
  handle(d, st, a, v) {
@@ -201,7 +204,7 @@ const classify = {
 const pick = {
  render(d, st) {
   return `<p class="mg-ask">${d.ask}</p>${sources(d.sources)}
-   <div class="mg-cards">${d.cards.map((c, i) => `<button class="mg-card ${st.misses?.includes(i) ? 'miss' : ''} ${st.elim === i ? 'elim' : ''} ${st.done && c.ok ? 'sol' : ''}" data-game="mg:${st.id}:card:${i}" ${st.done || st.misses?.includes(i) || st.elim === i ? 'disabled' : ''}>${c.meta ? `<small>${esc(c.meta)}</small>` : ''}<b>${esc(c.title)}</b>${c.body ? `<span>${rich(c.body)}</span>` : ''}</button>`).join('')}</div>
+   <div class="mg-cards">${d.cards.map((c, i) => `<button class="mg-card ${st.misses?.includes(i) ? 'miss' : ''} ${st.elim === i ? 'elim' : ''} ${st.done && c.ok ? 'sol' : ''}" data-game="mg:${st.id}:card:${i}" ${st.done || st.misses?.includes(i) || st.elim === i ? 'disabled' : ''}>${c.meta ? `<small>${hl(c.meta)}</small>` : ''}<b>${hl(c.title)}</b>${c.body ? `<span>${rich(c.body)}</span>` : ''}</button>`).join('')}</div>
    ${st.note ? `<div class="mg-oops">${esc(st.note)}</div>` : ''}`;
  },
  handle(d, st, a, v) {
