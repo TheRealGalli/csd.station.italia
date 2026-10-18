@@ -87,7 +87,7 @@ export default function OsDemo({ product }: { product: OsProduct }) {
   const [ready, setReady] = useState(false);
   const contact = whatsapp(`Ciao Carlo! Vorrei avere più informazioni su ${p.name}.`);
 
-  useEffect(() => { setOpen(false); setTouring(false); setBarClosed(false); setReady(false); }, [product]);
+  useEffect(() => { setOpen(false); setTouring(false); setBarClosed(false); setReady(false); pending.current = null; }, [product]);
   useEffect(() => {
     document.documentElement.style.backgroundColor = '#101510';
     document.body.style.backgroundColor = '#101510';
@@ -102,21 +102,22 @@ export default function OsDemo({ product }: { product: OsProduct }) {
     const listen = (e: MessageEvent) => { if (e.origin === window.location.origin && (e.data === 'csd:tour-start' || e.data === 'csd:tour-end')) setTouring(e.data === 'csd:tour-start'); };
     window.addEventListener('message', listen); return () => window.removeEventListener('message', listen);
   }, []);
-  const startTour = () => {
+  // Se il visitatore sceglie prima che il sistema dietro abbia finito di caricare, il comando aspetta il caricamento:
+  // un messaggio mandato a una pagina non ancora pronta andrebbe perso, e la demo si aprirebbe senza partire.
+  const pending = useRef<string | null>(null);
+  const launch = (message: string) => {
     setOpen(true);
-    setTimeout(() => tell('csd:start-tour'), 250);
+    if (ready) setTimeout(() => tell(message), 250); else pending.current = message;
   };
+  const startTour = () => launch('csd:start-tour');
   // la demo da giocare: Otto spiega in tre passaggi e poi parte la sfida con le missioni
-  const startGame = () => {
-    setOpen(true);
-    setTimeout(() => tell('csd:start-game'), 250);
-  };
+  const startGame = () => launch('csd:start-game');
 
   return <div className="station-site os-site">
     <StationHeader/>
     <main id="main-content" className="os-stage">
       {desktop ? <>
-        <iframe ref={frame} className={`os-frame ${open ? 'is-open' : ''}`} src={`${p.src}?v=${__OS_VERSION__}`} title={`${p.name}, demo dimostrativa`} onLoad={() => { tell(open ? 'csd:resume' : 'csd:pause'); setTimeout(() => setReady(true), 400); }} tabIndex={open ? 0 : -1} aria-hidden={!open}/>
+        <iframe ref={frame} className={`os-frame ${open ? 'is-open' : ''}`} src={`${p.src}?v=${__OS_VERSION__}`} title={`${p.name}, demo dimostrativa`} onLoad={() => { tell(open ? 'csd:resume' : 'csd:pause'); setTimeout(() => { setReady(true); if (pending.current) { tell('csd:resume'); tell(pending.current); pending.current = null; } }, 400); }} tabIndex={open ? 0 : -1} aria-hidden={!open}/>
         <img className={`os-shot ${open && ready ? 'is-gone' : ''}`} src={p.shot} alt="" aria-hidden="true" fetchPriority="high" decoding="async"/>
         {!open && <div className="os-veil">
           <div className="os-card">

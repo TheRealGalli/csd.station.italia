@@ -536,3 +536,13 @@ body:has(.game-finale) .game-pressure{display:none}
 @keyframes lu-live{0%{box-shadow:0 0 0 0 #6fbf3a90;animation-timing-function:steps(6)}70%{box-shadow:0 0 0 7px #6fbf3a00;animation-timing-function:steps(2)}100%{box-shadow:0 0 0 0 #6fbf3a00}}
 @keyframes lu-live-red{0%{box-shadow:0 0 0 0 #d8432f90;animation-timing-function:steps(6)}70%{box-shadow:0 0 0 6px #d8432f00;animation-timing-function:steps(2)}100%{box-shadow:0 0 0 0 #d8432f00}}
 @keyframes pulse{0%,100%{box-shadow:0 0 0 3px #7fbf3a33;animation-timing-function:steps(4)}50%{box-shadow:0 0 0 6px #7fbf3a00;animation-timing-function:steps(4)}}
+/* barra in alto in sfida su schermi stretti (fino a 1180px): la Demo interattiva resta, ma solo con il suo puntino rosso */
+@media(max-width:1180px){.topbar-actions:has(.game-chapter) .demo-btn span{display:none}.topbar-actions:has(.game-chapter) .demo-btn{padding-inline:11px}.topbar-actions:has(.game-chapter){gap:8px}}
+/* la striscia rossa si centra sull'area dei contenuti, non sulla finestra intera (non deve coprire il menu a sinistra) */
+.game-pressure{left:calc(var(--sidebar, 0px) + (100vw - var(--sidebar, 0px)) / 2);max-width:min(760px, calc(100vw - var(--sidebar, 0px) - 48px))}
+@media(max-width:760px){.game-pressure{left:50%;max-width:calc(100vw - 24px)}}
+/* con la striscia rossa visibile, gli avvisi in alto a destra scendono sotto di lei invece di coprirla */
+body:has(.game-pressure) .live-stack{top:136px}
+/* schermi bassi: la scheda finale e di fine capitolo si può scorrere, e resta centrata quando ci sta */
+.game-finale{place-items:normal;overflow-y:auto;overscroll-behavior:contain}
+.game-finale .gf-card{margin:auto}
