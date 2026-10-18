@@ -8,14 +8,14 @@ import './os-demo.css';
 // Vetrina delle demo OS: l'interfaccia vera gira dietro (in /os/<prodotto>/, sorgenti in os-demos/),
 // oscurata e non interagibile finché il visitatore non sceglie di esplorarla. Solo desktop.
 const whatsapp = (message: string) => `https://wa.me/393518628203?text=${encodeURIComponent(message)}`;
-const products: Record<OsProduct, { name: string; sector: string; tagline: string; src: string; points: string[] }> = {
+const products: Record<OsProduct, { name: string; sector: string; tagline: string; src: string; shot: string; points: string[] }> = {
   restaurant: {
-    name: 'CS Restaurant OS', sector: 'ristoranti', src: '/os/restaurant/index.html',
+    name: 'CS Restaurant OS', sector: 'ristoranti', src: '/os/restaurant/index.html', shot: '/os-shots/restaurant.webp',
     tagline: 'Sala, cucina, cassa e magazzino. Tutto collegato, in tempo reale.',
     points: ['Il tavolo ordina, la cucina riceve, il magazzino si scala', 'Otto risponde al telefono e alle recensioni', 'Prenotazioni e ospiti su WhatsApp'],
   },
   notaro: {
-    name: 'CS Notaro OS', sector: 'studi notarili', src: '/os/notaro/index.html',
+    name: 'CS Notaro OS', sector: 'studi notarili', src: '/os/notaro/index.html', shot: '/os-shots/notaro.webp',
     tagline: 'Posta, pratiche, documenti e scadenze. Con l’AI al centro dello studio.',
     points: ['Email e PEC lette e smistate nel team', 'L’AI compila moduli e confronta atti con le fonti', 'Clienti e banche aggiornati su WhatsApp'],
   },
@@ -73,9 +73,12 @@ export default function OsDemo({ product }: { product: OsProduct }) {
   // la X chiude solo la barra in basso, non la demo né il gioco
   const [barClosed, setBarClosed] = useState(false);
   const frame = useRef<HTMLIFrameElement>(null);
+  // Sotto il menu si vede una foto del sistema: il sistema vero intanto si carica dietro, nascosto.
+  // La foto sparisce solo quando il visitatore entra e l'iframe è pronto, così non si vede mai il bianco.
+  const [ready, setReady] = useState(false);
   const contact = whatsapp(`Ciao Carlo! Vorrei avere più informazioni su ${p.name}.`);
 
-  useEffect(() => { setOpen(false); setTouring(false); setBarClosed(false); }, [product]);
+  useEffect(() => { setOpen(false); setTouring(false); setBarClosed(false); setReady(false); }, [product]);
   useEffect(() => {
     document.documentElement.style.backgroundColor = '#101510';
     document.body.style.backgroundColor = '#101510';
@@ -104,7 +107,8 @@ export default function OsDemo({ product }: { product: OsProduct }) {
     <StationHeader/>
     <main id="main-content" className="os-stage">
       {desktop ? <>
-        <iframe ref={frame} className={`os-frame ${open ? 'is-open' : ''}`} src={`${p.src}?v=${__OS_VERSION__}`} title={`${p.name}, demo dimostrativa`} onLoad={() => tell(open ? 'csd:resume' : 'csd:pause')} tabIndex={open ? 0 : -1} aria-hidden={!open}/>
+        <iframe ref={frame} className={`os-frame ${open ? 'is-open' : ''}`} src={`${p.src}?v=${__OS_VERSION__}`} title={`${p.name}, demo dimostrativa`} onLoad={() => { tell(open ? 'csd:resume' : 'csd:pause'); setTimeout(() => setReady(true), 400); }} tabIndex={open ? 0 : -1} aria-hidden={!open}/>
+        <img className={`os-shot ${open && ready ? 'is-gone' : ''}`} src={p.shot} alt="" aria-hidden="true" fetchPriority="high" decoding="async"/>
         {!open && <div className="os-veil">
           <div className="os-card">
             <div className={`os-otto os-otto-${product}`}><Otto mood="happy"/>{product === 'restaurant' ? <span className="os-prop os-plate" aria-hidden="true"><i/></span> : <><span className="os-prop os-glasses" aria-hidden="true"/><span className="os-prop os-book" aria-hidden="true"/></>}</div>
