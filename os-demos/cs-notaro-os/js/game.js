@@ -41,7 +41,14 @@ function resolve(c) {
  return {...c, title:f(c.title), text:f(c.text), sources:(c.sources || []).map(s => ({...s, label:f(s.label), text:f(s.text)})), options};
 }
 const list = () => { if (cache.round !== S.round) cache = {round:S.round, list:C.map(resolve)}; return cache.list; };
-const open = () => list().filter(c => c.level === S.level && !S.solved[c.id]);
+const open = () => hooks.missionsOnly ? [] : list().filter(c => c.level === S.level && !S.solved[c.id]);
+export const gameLevel = () => S.level;
+// In modalità solo missioni il livello sale con i punti: più missioni insieme e meno tempo.
+function syncLevel() {
+ if (!hooks.missionsOnly) return;
+ const l = S.points >= 300 ? 3 : S.points >= 120 ? 2 : 1;
+ if (l > S.level) { S.level = l; updateChip(); setTimeout(() => celebrate(`Livello ${l}`, l === 2 ? 'Ora possono arrivare tre missioni insieme, con un po’ meno tempo.' : 'Ultimo livello: missioni più veloci. Le fonti restano la tua arma.'), 900); }
+}
 // Missioni: decisioni legate a un elemento preciso (un'email), con il loro minigioco. Le crea il regista dell'app.
 const missionLeft = m => m.ttl - (Date.now() - m.created);
 const openMissions = () => Object.values(S.missions).filter(m => !m.result);
@@ -70,7 +77,7 @@ function resolveMission(m, r, from) {
  m.st.done = true;
  let pts = Math.max(r.pts, -S.points);
  if (pts > 0) { S.streak++; S.last = 'ok'; if (S.streak % 3 === 0) { pts += 15; r.why += ` **Serie di ${S.streak}: +15 bonus.**`; } } else { S.streak = 0; S.last = 'ko'; }
- S.points += pts; m.result = {...r, pts};
+ S.points += pts; m.result = {...r, pts}; syncLevel();
  play(pts > 0 ? (pts >= 30 ? 'great' : 'good') : 'bad');
  refreshMission(m.id);
  float(pts, document.querySelector(`[data-mission="${m.id}"] .gc-result b`) || from);
@@ -117,6 +124,10 @@ function card(c) {
  </section>`;
 }
 function teaser() {
+ if (S.started && hooks.missionsOnly) {
+  const n = openAll().length;
+  return `<div class="game-teaser"><span class="gt-face">${icon(face())}</span><p><b>La sfida di Otto · livello ${S.level}, ${S.points} punti.</b> ${n ? `${n} ${n === 1 ? 'missione aspetta' : 'missioni aspettano'}: aprile dal quadrato rosso <b class="gt-bang">!</b> in alto.` : 'Le missioni arrivano da sole: email, messaggi e chiamate. Tieni d’occhio il quadrato rosso <b class="gt-bang">!</b> in alto.'}</p></div>`;
+ }
  if (!S.started) return `<div class="game-teaser"><span class="gt-face">${icon('otto-happy')}</span><p><b>Vuoi provare a gestire ${place}?</b> Con la sfida di Otto prendi tu le decisioni vere: Otto prepara, tu verifichi le fonti e approvi. Ogni scelta giusta vale punti.</p><button data-game="start">Inizia la sfida ${icon('arrow')}</button></div>`;
  const next = open()[0];
  if (!next) return '';
@@ -285,7 +296,7 @@ export function gameInvite() {
 function start() {
  S.started = true; openLevel(); hooks.onStart?.(); updateChip('bump'); play('level');
  refresh(location.hash.slice(1) || 'home'); markNav();
- celebrate('La sfida è iniziata', 'Le decisioni arrivano dal quadrato rosso “!” in alto e dai puntini rossi nel menu. Ognuna ha il suo tempo.');
+ celebrate('La sfida è iniziata', hooks.missionsOnly ? 'Email, messaggi e chiamate da gestire arrivano dal quadrato rosso “!” in alto. Ognuna ha il suo tempo.' : 'Le decisioni arrivano dal quadrato rosso “!” in alto e dai puntini rossi nel menu. Ognuna ha il suo tempo.');
 }
 
 let ac;

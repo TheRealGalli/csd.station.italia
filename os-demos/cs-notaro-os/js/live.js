@@ -80,6 +80,18 @@ export function spawnMail(t) {
  setTimeout(() => { m.reading = false; emit({type:'mail-read', title:'Serve il tuo controllo', text:m.subject, go:'posta', icon:'alert', ref:m.id}); }, 2600);
  return m;
 }
+export function spawnChat(t) {
+ const c = {id:uid('w'), who:t.who, practice:t.practice, channel:'WhatsApp', last:clock(), unread:1, messages:[{from:'client', text:t.text}], draft:'', live:true};
+ D.chats.unshift(c);
+ emit({type:'wa', title:`WhatsApp · ${c.who}`, text:t.text, go:'whatsapp', icon:'message', ref:c.id});
+ return c;
+}
+export function spawnCall(t) {
+ const c = {id:uid('c'), time:clock(), caller:t.caller, number:'+39 3•• •••• ' + (100 + seq * 7 % 900), kind:t.kind, duration:'in corso', outcome:'Serve il tuo aiuto', intent:t.intent, summary:t.first, reply:'', actions:[], lines:[['caller', t.first]], shown:1, live:false};
+ D.calls.unshift(c);
+ emit({type:'call', title:`Chiamata in arrivo · ${c.caller}`, text:'Otto ha bisogno di te per rispondere', go:'centralino', icon:'phone', ref:c.id});
+ return c;
+}
 function newCall() {
  const t = pick(callPool, 'call');
  const c = {id:uid('c'), time:clock(), caller:t.caller, number:'+39 3•• •••• ' + (100 + seq * 7 % 900), kind:t.kind, duration:'in corso', outcome:'In corso', intent:t.intent, summary:t.lines[0][1], reply:'', actions:[], lines:t.lines, shown:1, live:true};
@@ -133,7 +145,7 @@ function trim(list, keep, done) {
 }
 function tidy() {
  trim(D.mails, 6, m => !m.reading && !m.missionOpen);
- trim(D.calls, 4, c => !c.live);
+ trim(D.calls, 4, c => !c.live && !c.missionOpen);
  trim(D.visure, 3, v => v.status === 'Completata');
  D.audit.length = Math.min(D.audit.length, 40);
  D.chats.forEach(c => { if (c.messages.length > 14) c.messages.splice(0, c.messages.length - 14); });

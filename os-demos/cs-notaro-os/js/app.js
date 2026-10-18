@@ -166,10 +166,10 @@ function centralino() {
  return `${heading('CIÒ CHE ENTRA · 02', 'Centralino & segreteria', 'Otto risponde al telefono, raccoglie le richieste dei nuovi clienti e dà le prime informazioni.', `<span class="live-pill"><i></i>Assistente attivo · 24/7</span>`)}
  <div class="metrics-grid three-up">${[['phone', 'Chiamate oggi', D.calls.length], ['users', 'Nuovi clienti', 1], ['calendar', 'Appuntamenti proposti', 2], ['lock', 'Richieste rifiutate per privacy', 1]].map(([i, t, n]) => `<article class="metric"><div><span>${t}</span>${icon(i)}</div><strong class="has-value">${n}</strong></article>`).join('')}</div>
  <div class="split">
-  <section class="list-pane">${D.calls.map(x => `<button class="list-item ${x.id === c.id ? 'active' : ''}" data-call="${x.id}"><span class="li-top"><b>${esc(x.caller)}</b><small>${x.time} · ${x.duration}</small></span><span class="li-subject">${esc(x.intent)}</span><span class="li-meta">${badge(esc(x.kind))}${x.live ? '<span class="badge badge-red"><span class="live-dot red"></span> In corso</span>' : badge(esc(x.outcome), x.outcome === 'Rifiutata' ? 'badge-red' : x.outcome.includes('attesa') ? 'badge-amber' : 'badge-green')}</span></button>`).join('')}</section>
+  <section class="list-pane">${D.calls.map(x => `<button class="list-item ${x.missionOpen ? 'has-mission' : ''} ${x.id === c.id ? 'active' : ''}" data-call="${x.id}"><span class="li-top"><b>${x.missionOpen ? '<span class="mission-flag" title="Serve il tuo aiuto">!</span>' : ''}${esc(x.caller)}</b><small>${x.time} · ${x.duration}</small></span><span class="li-subject">${esc(x.intent)}</span><span class="li-meta">${badge(esc(x.kind))}${x.live ? '<span class="badge badge-red"><span class="live-dot red"></span> In corso</span>' : badge(esc(x.outcome), x.outcome === 'Rifiutata' ? 'badge-red' : x.outcome.includes('attesa') ? 'badge-amber' : 'badge-green')}</span></button>`).join('')}</section>
   <section class="detail-pane">
    <div class="detail-head"><div><span class="eyebrow">CHIAMATA · ${c.time} · ${c.duration}</span><h2>${esc(c.caller)}</h2><p class="muted">${esc(c.number)} · ${esc(c.kind)}</p></div>${badge(esc(c.outcome))}</div>
-   <div class="transcript">${c.lines ? c.lines.slice(0, c.shown ?? c.lines.length).map(([who, text]) => `<div class="bubble ${who === 'agent' ? 'agent' : 'caller'} row-in"><small>${who === 'agent' ? icon('sparkle') + ' Otto' : esc(c.caller)}</small>${esc(text)}</div>`).join('') + (c.live ? '<div class="bubble typing"><i></i><i></i><i></i></div>' : '') : `<div class="bubble caller"><small>${esc(c.caller)}</small>${esc(c.summary)}</div><div class="bubble agent"><small>${icon('sparkle')} Otto</small>${esc(c.reply)}</div>`}</div>
+   ${c.mission ? missionPanel(c.mission) : `<div class="transcript">${c.lines ? c.lines.slice(0, c.shown ?? c.lines.length).map(([who, text]) => `<div class="bubble ${who === 'agent' ? 'agent' : 'caller'} row-in"><small>${who === 'agent' ? icon('sparkle') + ' Otto' : esc(c.caller)}</small>${esc(text)}</div>`).join('') + (c.live ? '<div class="bubble typing"><i></i><i></i><i></i></div>' : '') : `<div class="bubble caller"><small>${esc(c.caller)}</small>${esc(c.summary)}</div><div class="bubble agent"><small>${icon('sparkle')} Otto</small>${esc(c.reply)}</div>`}</div>`}
    ${c.actions.length ? `<div class="prepared"><span class="eyebrow">DOPO LA CHIAMATA</span>${c.actions.map(a => `<div class="prepared-item">${icon('check')}<span>${esc(a)}</span></div>`).join('')}</div>` : ''}
    <div class="detail-actions">${btn('Richiama', 'toast:In produzione: chiamata dal centralino VoIP', 'btn-secondary', 'phone')}${c.id === 'c1' ? btn('Apri il preventivo', 'go:preventivi') : ''}</div>
   </section>
@@ -187,12 +187,13 @@ function whatsapp() {
  const sent = state.sent.includes(c.id);
  return `${heading('CIÒ CHE ENTRA · 03', 'WhatsApp & notifiche', 'Le pratiche già in corso: clienti e banche ricevono aggiornamenti senza telefonare allo studio.')}
  <div class="split chat-split">
-  <section class="list-pane">${D.chats.map(x => `<button class="list-item ${x.id === c.id ? 'active' : ''}" data-chat="${x.id}"><span class="li-top"><b>${esc(x.who)}</b><small>${x.last}</small></span><span class="li-subject">${esc(x.messages.at(-1).text)}</span><span class="li-meta">${pchip(x.practice)}${badge(x.channel)}${x.unread && !state.sent.includes(x.id) ? `<span class="unread">${x.unread}</span>` : ''}</span></button>`).join('')}</section>
+  <section class="list-pane">${D.chats.map(x => `<button class="list-item ${x.missionOpen ? 'has-mission' : ''} ${x.id === c.id ? 'active' : ''}" data-chat="${x.id}"><span class="li-top"><b>${x.missionOpen ? '<span class="mission-flag" title="Serve il tuo aiuto">!</span>' : ''}${esc(x.who)}</b><small>${x.last}</small></span><span class="li-subject">${esc(x.messages.at(-1).text)}</span><span class="li-meta">${pchip(x.practice)}${badge(x.channel)}${x.unread && !state.sent.includes(x.id) ? `<span class="unread">${x.unread}</span>` : ''}</span></button>`).join('')}</section>
   <section class="detail-pane phone-pane">
    <div class="detail-head"><div><span class="eyebrow">${esc(c.channel.toUpperCase())}</span><h2>${esc(c.who)}</h2></div>${pchip(c.practice)}</div>
    <div class="wa-thread">${c.messages.map(msg => `<div class="wa ${msg.from}">${esc(msg.text)}</div>`).join('')}${sent ? `<div class="wa bot">${esc(c.draft)}</div>` : ''}</div>
+   ${c.mission ? missionPanel(c.mission) : ''}
    ${c.thinking ? `<div class="wa-draft"><span class="eyebrow">${icon('otto-think')} OTTO STA SCRIVENDO</span><div class="bubble typing"><i></i><i></i><i></i></div></div>` : ''}
-   ${c.draft && !sent ? `<div class="wa-draft"><span class="eyebrow">${icon('otto-wink')} RISPOSTA PROPOSTA DA OTTO</span><p>${esc(c.draft)}</p><div class="detail-actions">${btn('Invia', `send:${c.id}`, 'btn-primary', 'send')}${btn('Modifica', 'toast:Modifica della bozza disponibile con il backend', 'btn-secondary', '')}</div></div>` : ''}
+   ${c.draft && !sent && !c.mission ? `<div class="wa-draft"><span class="eyebrow">${icon('otto-wink')} RISPOSTA PROPOSTA DA OTTO</span><p>${esc(c.draft)}</p><div class="detail-actions">${btn('Invia', `send:${c.id}`, 'btn-primary', 'send')}${btn('Modifica', 'toast:Modifica della bozza disponibile con il backend', 'btn-secondary', '')}</div></div>` : ''}
   </section>
  </div>
  <section class="workspace-panel rules"><div class="panel-title"><h2>Notifiche automatiche</h2>${badge('Inviate solo a contatti con consenso')}</div>
@@ -605,9 +606,9 @@ window.addEventListener('message', e => {
  if (e.data === 'csd:resume') wake(true);
  if (e.data === 'csd:pause') wake(false);
 });
-initGame(challenges, {icon, menuNote:'E nella Posta arrivano missioni sempre nuove, dentro le email.',
- focus:(page, ref) => { if (page === 'posta') { ui.mail = ref; ui.mailFilter = 'all'; } if (route() === page) { render(); } else location.hash = page; setTimeout(() => document.querySelector('[data-mission]')?.scrollIntoView({block:'center', behavior:'smooth'}), 120); },
- onStart:() => startMissions(id => { if (!state.handled.includes(id)) state.handled.push(id); if (route() === 'posta') { const y = scrollY; render(); scrollTo(0, y); } }),
+initGame(challenges, {icon, missionsOnly:true, menuNote:'Le missioni arrivano dallo studio vivo: email da controllare, messaggi da correggere, chiamate in diretta. Sempre nuove.',
+ focus:(page, ref) => { if (page === 'posta') { ui.mail = ref; ui.mailFilter = 'all'; } if (page === 'whatsapp') ui.chat = ref; if (page === 'centralino') ui.call = ref; if (route() === page) { render(); } else location.hash = page; setTimeout(() => document.querySelector('[data-mission]')?.scrollIntoView({block:'center', behavior:'smooth'}), 120); },
+ onStart:() => startMissions((id, page) => { if (page === 'posta' && !state.handled.includes(id)) state.handled.push(id); if (route() === page) { const y = scrollY; render(); scrollTo(0, y); } }),
  onReset:() => stopMissions(),
  pageName:id => moduleById(id)?.title || {home:'Oggi in studio'}[id] || id});
 shell();
