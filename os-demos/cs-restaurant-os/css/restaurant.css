@@ -269,3 +269,9 @@
 .floor.seating .ftable.fit{box-shadow:0 0 0 3px #9cc46a,0 6px 18px #9cc46a55;animation:kds-hot 1.4s ease-in-out infinite}
 .floor.seating .ftable.nofit{opacity:.45}
 .dq-hint.full{color:#a5402c}
+/* tavoli sotto il QR: sei per pagina, frecce rosse se il tavolo da servire è nell'altra pagina */
+.qr-tables{flex-wrap:nowrap;align-items:center}
+.qr-tables button:disabled{opacity:.4;cursor:default}
+.qr-tables button.wanted:not(.on){border-color:#d8432f;color:#b2412d}
+.qr-tables .qr-arrow{font-size:15px;line-height:1;padding:4px 9px;color:#2f4a1d}
+.qr-tables .qr-arrow.hot{background:#d8432f;border-color:#d8432f;color:#fff;animation:game-target 1.4s infinite}

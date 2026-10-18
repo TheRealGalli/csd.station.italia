@@ -2,7 +2,7 @@ import {icon, otto} from './icons.js';
 import {modules, groups, groupNotes, moduleById} from './modules.js';
 import * as D from './demo.js';
 import {startTour} from './tour.js';
-import {initGame, gameChip, mountGame, gameInvite, gameOn, openShop, gameIntro, ecoPoints, missionPanel, gamePaused, isReserved, penalty, gameLevel, ottoMessage, setPressure, later} from './game.js';
+import {initGame, gameChip, mountGame, gameInvite, gameOn, openShop, gameIntro, ecoPoints, missionPanel, gamePaused, isReserved, penalty, gameLevel, ottoMessage, setPressure, later, gameState} from './game.js';
 import {story} from './story.js';
 import {challenges} from './challenges.js';
 import {startMissions, stopMissions} from './missions.js';
@@ -238,15 +238,24 @@ function menuOtto() {
   <div class="mo-suggest">${['Togli la tagliata stasera', 'Metti il risotto a 18 €', 'Aggiungi un piatto del giorno a 22 €', 'Rimetti tutto com’era'].map(x => `<button data-menu-otto="${x}">${x}</button>`).join('')}</div>
   <form id="menu-otto-form" class="mo-form"><input id="menu-otto-input" placeholder="Es. “il tiramisù è finito”" aria-label="Chiedi a Otto di cambiare il menu" autocomplete="off"><button class="send-btn" type="submit" aria-label="Invia">${icon('send')}</button></form></div>`;
 }
+// I tavoli sotto il QR: tutti e dodici, sempre negli stessi posti, sei per pagina con le frecce.
+// Se il tavolo di un ordine da fare è nell'altra pagina, la freccia verso di lui si accende di rosso.
+const QR_PAGE = 6;
+function qrTables() {
+ const pages = Math.ceil(D.tables.length / QR_PAGE), page = Math.min(pages - 1, ui.qrPage ?? Math.floor((+ui.qr.table.slice(1) - 1) / QR_PAGE));
+ const wanted = gameOn() ? Object.values(gameState().tasks).filter(t => t.key === 'qr' && !t.done).map(t => t.ref) : [];
+ const hot = dir => D.tables.some((t, i) => wanted.includes(t.id) && (dir < 0 ? i < page * QR_PAGE : i >= (page + 1) * QR_PAGE));
+ const arrow = (dir, to) => `<button class="qr-arrow ${hot(dir) ? 'hot' : ''}" data-qr-page="${to}" aria-label="${dir < 0 ? 'Tavoli precedenti' : 'Tavoli successivi'}">${dir < 0 ? '‹' : '›'}</button>`;
+ return `<div class="qr-tables">${page > 0 ? arrow(-1, page - 1) : ''}${D.tables.slice(page * QR_PAGE, (page + 1) * QR_PAGE).map(t => `<button data-qr-table="${t.id}" class="${ui.qr.table === t.id ? 'on' : ''} ${wanted.includes(t.id) ? 'wanted' : ''}" ${t.status === 'free' ? 'disabled title="Tavolo libero: nessuno da servire"' : ''}>T${t.id.slice(1)}</button>`).join('')}${page < pages - 1 ? arrow(1, page + 1) : ''}</div>`;
+}
 function menuPos() {
- const seated = D.tables.filter(t => t.status !== 'free').slice(0, 8);
  return `${heading('SALA & CUCINA · 03', 'Menu digitale QR', 'Ogni tavolo ha il suo QR: l’ospite ordina dal telefono e, se vuole, paga subito. La comanda arriva in cucina e il menu cambia da solo quando un piatto finisce.', `<span class="live-pill"><span class="live-dot"></span>${D.service.qrOrders} ordini dal QR stasera</span>`)}
  <div data-anchor="menu"></div>
  <div class="qr-layout">
   <section class="workspace-panel qr-card"><div class="panel-title"><h2>Il QR del tavolo</h2></div>
    <div class="qr-body"><button class="btn btn-dark qr-editor" data-action="menu-editor">${icon('menu')} Apri l’editor del menu</button>
    <div class="qr-code">${qrSvg(ui.qr.table)}<span>${ui.qr.table.slice(1)}</span></div><small class="qr-url">menu.osteriadelborgo.it/t/${ui.qr.table.slice(1)}</small>
-   <div class="qr-tables">${seated.map(t => `<button data-qr-table="${t.id}" class="${ui.qr.table === t.id ? 'on' : ''}">T${t.id.slice(1)}</button>`).join('')}</div>
+   ${qrTables()}
    <ul class="qr-points"><li>${icon('check')}Ordine con il numero del tavolo, dritto in cucina</li><li>${icon('check')}Pagamento anticipato con Stripe, niente coda alla cassa</li><li>${icon('check')}Allergeni sempre visibili, piatti esauriti nascosti</li></ul></div></section>
   <section class="guest-wrap"><span class="eyebrow">COSÌ LO VEDE L’OSPITE</span><div class="guest-phone">${guestPhone()}</div></section>
   <aside class="module-side">${menuOtto()}${smartPanel()}</aside>
@@ -461,6 +470,7 @@ document.addEventListener('click', e => {
  if ((x = el('[data-otto]'))) return askGlobal(x.dataset.otto);
  if ((x = el('[data-qr-add]'))) { ui.qr.cart[x.dataset.qrAdd] = (ui.qr.cart[x.dataset.qrAdd] || 0) + 1; return render(); }
  if ((x = el('[data-qr-cat]'))) { ui.qr.cat = x.dataset.qrCat; return render(); }
+ if ((x = el('[data-qr-page]'))) { ui.qrPage = +x.dataset.qrPage; return render(); }
  if ((x = el('[data-qr-table]'))) { ui.qr = {table:x.dataset.qrTable, cart:{}, step:'menu', cat:ui.qr.cat, receipt:null}; return render(); }
  if ((x = el('[data-qr]'))) return qrAction(x.dataset.qr);
  if ((x = el('[data-menu-otto]'))) { ui.menuReply = D.menuCommand(x.dataset.menuOtto); ecoPoints('menu', 2, 'Menu aggiornato'); checkChef(); return render(); }
@@ -572,12 +582,12 @@ initGame(challenges, {story,icon, place:'il locale', missionsOnly:true,
    const t = seated[Math.floor(Math.random() * seated.length)], dishes = D.menu.filter(D.available).sort(() => Math.random() - .5).slice(0, 1 + Math.floor(Math.random() * 2));
    const want = dishes.map(d => [d.id, 1 + Math.floor(Math.random() * 2)]), prepaid = Math.random() < .5;
    const list = want.map(([id, n]) => `${n}× ${D.dish(id).name}`).join(', ');
-   c.push({key:'qr', ref:t.id, page:'menu_pos', title:`Ordine al tavolo ${t.id.slice(1)}`, text:`Il tavolo ${t.id.slice(1)} ordina **${list}**. ${prepaid ? 'Il cliente **paga subito con Stripe**: premi Paga ora.' : 'Il cliente **paga dopo, in cassa**: premi Ordina e paga a fine cena.'} Scegli il tavolo sotto il QR e componi l’ordine sul telefono.`, target:`[data-qr-table="${t.id}"]`,
+   c.push({key:'qr', ref:t.id, page:'menu_pos', title:`Ordine al tavolo ${t.id.slice(1)}`, text:`Il tavolo ${t.id.slice(1)} ordina **${list}**. ${prepaid ? 'Il cliente **paga subito con Stripe**: premi Paga ora.' : 'Il cliente **paga dopo, in cassa**: premi Ordina e paga a fine cena.'} Scegli il tavolo sotto il QR e componi l’ordine sul telefono.`, target:`[data-qr-table="${t.id}"], .qr-arrow.hot`,
     check:p => { const got = Object.fromEntries((p.items || []).map(([id, n]) => [id, +n])); const same = want.every(([id, n]) => got[id] === n) && Object.keys(got).length === want.length; return !same ? {ok:false, why:'Piatti o quantità diversi'} : p.prepaid !== prepaid ? {ok:false, why:prepaid ? 'Doveva pagare subito' : 'Doveva pagare in cassa'} : {ok:true}; }});
   }
   return c;
  },
- focus:(page, ref) => { if (page === 'menu_pos' && ref && D.table(ref)) ui.qr = {table:ref, cart:{}, step:'menu', cat:ui.qr.cat, receipt:null}; if (page === 'sala') { ui.table = ref; ui.adding = false; } if (route() === page) render(); else location.hash = page; }, missionTypes:12, sections:12, placeOf:'del locale', startNote:'Fatture, comande, conti, chiamate e prenotazioni arrivano dal quadrato rosso “!” in alto, e ogni sezione del locale ha la sua missione.', onStart:() => { startMissions(); D.kitchenGameStart(); D.fridgeGameStart(); D.doorGameStart(); ui.door = null; ui.chefOrder = null; nextChefAt = Date.now() + 90000; }, onReset:() => { stopMissions(); D.kitchenGameStop(); D.doorGameStop(); ui.door = null; setPressure([]); },
+ focus:(page, ref) => { if (page === 'menu_pos' && ref && D.table(ref)) { ui.qr = {table:ref, cart:{}, step:'menu', cat:ui.qr.cat, receipt:null}; ui.qrPage = undefined; } if (page === 'sala') { ui.table = ref; ui.adding = false; } if (route() === page) render(); else location.hash = page; }, missionTypes:12, sections:12, placeOf:'del locale', startNote:'Fatture, comande, conti, chiamate e prenotazioni arrivano dal quadrato rosso “!” in alto, e ogni sezione del locale ha la sua missione.', onStart:() => { startMissions(); D.kitchenGameStart(); D.fridgeGameStart(); D.doorGameStart(); ui.door = null; ui.chefOrder = null; nextChefAt = Date.now() + 90000; }, onReset:() => { stopMissions(); D.kitchenGameStop(); D.doorGameStop(); ui.door = null; setPressure([]); },
  // potenziamenti del locale, da comprare nella Bottega di Otto
  shop:[
   {id:'auto-cook', name:'Automatismo in cucina', desc:'Le comande in attesa vanno sui fornelli da sole, appena c’è posto.', cost:60, mood:'otto-chef', use:() => { if (D.kitchen.auto.cook) return false; D.kitchen.auto.cook = true; render(); return 'Le comande vanno sui fornelli da sole.'; }},

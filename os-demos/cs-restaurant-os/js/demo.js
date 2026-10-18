@@ -148,7 +148,8 @@ export function menuCommand(text) {
  if (!d) return 'Dimmi quale piatto: per esempio “togli la tagliata”, “metti il risotto a 18 €” o “aggiungi un piatto del giorno”.';
  if (/(togli|nascondi|leva|finit|non c.è|esaurit)/.test(t)) { d.visible = false; log(`Otto ha tolto dal menu: ${d.name}`, 'menu'); emit(); return `Tolto dal menu ${SV.of === 'del pranzo' ? 'del pranzo' : 'di stasera'}: **${d.name}**. Sparisce dai QR dei tavoli e nessuno può più ordinarlo. Domani torna in carta.`; }
  if (/(rimetti|riattiva|mostra)/.test(t)) { d.visible = true; d.paused = false; log(`Otto ha rimesso in menu: ${d.name}`, 'menu'); emit(); return `**${d.name}** di nuovo in menu, su tutti i QR.`; }
- if (price && /(prezzo|metti|porta|a \d)/.test(t)) { d.base ??= d.price; d.price = +price[1].replace(',', '.'); log(`Otto ha cambiato il prezzo di ${d.name}: € ${d.price}`, 'menu'); emit(); return `Nuovo prezzo per **${d.name}**: **€ ${d.price}**, già su tutti i QR. Il margine passa al ${Math.round((1 - foodCost(d) / d.price) * 100)}%.`; }
+ // un prezzo scritto accanto al piatto basta: "risotto a 14", "risotto ai porcini a € 14", "risotto 14 euro"
+ if (price) { d.base ??= d.price; d.price = +price[1].replace(',', '.'); log(`Otto ha cambiato il prezzo di ${d.name}: € ${d.price}`, 'menu'); emit(); return `Nuovo prezzo per **${d.name}**: **€ ${d.price}**, già su tutti i QR. Il margine passa al ${Math.round((1 - foodCost(d) / d.price) * 100)}%.`; }
  return `Per **${d.name}** posso toglierlo dal menu, rimetterlo o cambiare il prezzo. Cosa preferisci?`;
 }
 export function editDish(id, changes) { const d = dish(id); if (!d) return; if ('price' in changes) d.base ??= d.price; Object.assign(d, changes); log(`Menu aggiornato: ${d.name}`, 'menu'); emit(); }
