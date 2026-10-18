@@ -32,8 +32,8 @@ const diff = {
    return left && step === 'find' ? `<button class="mg-row ${cls}" data-game="mg:${st.id}:row:${i}">${cell}</button>` : `<div class="mg-row ${cls}">${cell}</div>`;
   };
   return `<p class="mg-ask">${step === 'find' ? d.ask : `Trovata: <b>${esc(d.rows[d.wrongRow][0].toLowerCase())}</b>. ${d.chooseAsk || 'Quale valore è quello giusto?'}`}</p>
-   <div class="mg-docs"><div class="mg-doc"><span class="mg-doc-t">${esc(d.left)}</span>${d.rows.map((r, i) => row(r, i, true)).join('')}</div>
-   <div class="mg-doc official"><span class="mg-doc-t">${esc(d.right)} · fonte</span>${d.rows.map((r, i) => row(r, i, false)).join('')}</div></div>
+   <div class="mg-docs ${d.paper ? 'mg-paper' : ''}"><div class="mg-doc"><span class="mg-doc-t">${esc(d.left)}</span>${d.rows.map((r, i) => row(r, i, true)).join('')}</div>
+   <div class="mg-doc official"><span class="mg-doc-t">${esc(d.right)}${d.paper ? '' : ' · fonte'}</span>${d.rows.map((r, i) => row(r, i, false)).join('')}</div></div>
    ${step === 'choose' && !st.done ? `<div class="gc-options">${d.options.map((o, i) => `<button data-game="mg:${st.id}:pick:${i}">${esc(o.v)}</button>`).join('')}</div>` : ''}`;
  },
  handle(d, st, a, v) {

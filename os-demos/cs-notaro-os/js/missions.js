@@ -64,6 +64,27 @@ function postaMission() {
   mission:mk('triage', 'SMISTA LA CODA', `Smista la coda · ${subject}`, {ask, lanes, items, confirm:'Conferma', winWhy:why}, 200000)};
 }
 
+// ————— Posta · Controlla gli allegati —————
+// Un'email con due allegati PDF che dovrebbero dire la stessa cosa: trovi il dato che non torna
+// e rimandi al mittente un'email di avvertimento con la correzione.
+const docKinds = [['Visura catastale', 'Perizia della banca'], ['Preliminare', 'Contabile del bonifico'], ['Carta d’identità', 'Modulo della banca'], ['Delibera del mutuo', 'Modulo di erogazione'], ['Planimetria', 'Visura catastale'], ['Certificato di agibilità', 'Bozza d’atto'], ['Tessera sanitaria', 'Anagrafica cliente'], ['APE', 'Annuncio dell’agenzia'], ['Contratto di locazione', 'Visura catastale'], ['Visura camerale', 'Statuto'], ['Fattura del geometra', 'Preventivo'], ['Certificato di residenza', 'Dichiarazione prima casa']];
+function allegatiMission() {
+ const who = G.person(), [a, b] = G.pick(docKinds), c = G.catasto(), amt = G.amount(), city = G.pick(G.cities);
+ const rows = G.pick([
+  [['Intestatario', who.name, who.name], ['Comune', city, city], ['Foglio', String(c.fg), String(c.fg)], ['Particella', String(c.part), String(c.part)], ['Subalterno', String(c.sub), String(c.sub)]],
+  [['Nome', who.name, who.name], ['Nato il', who.born, who.born], ['Codice fiscale', who.cf, who.cf], ['Residenza', city, city]],
+  [['Parte', who.name, who.name], ['Importo', G.euro(amt), G.euro(amt)], ['Data', '12/09/2026', '12/09/2026'], ['Immobile', `${G.pick(G.streets)} ${G.int(2, 60)}`, '']]
+ ]);
+ rows.forEach(r => { if (!r[2]) r[2] = r[1]; });
+ const w = G.int(1, rows.length - 1), k = rows[w][0];
+ rows[w][2] = /Importo/.test(k) ? G.euro(G.roundUp(amt)) : /Nato|Data/.test(k) ? G.typoDate(rows[w][1]) : /^\d+$/.test(rows[w][1]) ? String(G.typoNumber(+rows[w][1])) : G.typoText(rows[w][1]);
+ const [law, dom] = G.pick(G.lawyers), fa = `${a.replace(/[’ ]/g, '_')}.pdf`, fb = `${b.replace(/[’ ]/g, '_')}.pdf`;
+ return {anchor:'mail', mail:{from:law, address:`studio@${dom}.example`, kind:'Legale', subject:`${who.last} – documenti per la pratica`, attachments:[fa, fb], body:`Le trasmetto ${a.toLowerCase()} e ${b.toLowerCase()} per la pratica ${who.last}.`, understood:'Otto ha letto i due allegati: c’è un dato che non coincide. Controlla tu prima di andare avanti.'},
+  mission:mk('diff', 'CONTROLLA GLI ALLEGATI', `Controlla gli allegati · ${who.last}`, {paper:true, ask:`Apri i due allegati: <b>tocca nel primo la riga che non coincide</b> con il secondo.`, chooseAsk:'Cosa fai?', left:fa, right:fb, rows, wrongRow:w,
+   options:G.shuffle([{v:`Rispondo a ${law}: “Il dato ${k.toLowerCase()} non coincide, ci mandate il documento corretto?”`, ok:true}, {v:'Approvo: la differenza non conta'}, {v:`Correggo io il dato in ${fb} senza dire niente`}]),
+   winWhy:'Email di avvertimento partita: il mittente corregge alla fonte e la pratica resta pulita. È così che lavora lo studio.', loseWhy:'Un dato che non coincide tra due allegati va segnalato al mittente: non si approva e non si corregge di nascosto.'}, 200000)};
+}
+
 // ————— Centralino · Al telefono —————
 function centralinoMission() {
  const who = G.person(), kind = G.pick(['sposta', 'privacy', 'urgenza', 'banca']), d1 = G.pick(days), busy = G.pick(['10:00', '11:30']), free = G.pick(['15:00', '16:30']);
@@ -235,7 +256,7 @@ function complianceMission() {
 // ————— regista —————
 // Le missioni sono un bonus raro (una ogni un paio di minuti): il cuore della sfida sono i compiti veri.
 // Gira su tutti i moduli, così ogni sezione dello studio prima o poi ha la sua missione.
-const pages = {posta:postaMission, centralino:centralinoMission, whatsapp:whatsappMission, studio:studioMission, memoria:memoriaMission, visure:visureMission, preventivi:preventiviMission, osservatorio:osservatorioMission, staff:staffMission, scadenze:scadenzeMission, antiriciclaggio:antiriciclaggioMission, compliance:complianceMission};
+const pages = {posta:() => (Math.random() < .5 ? allegatiMission : postaMission)(), centralino:centralinoMission, whatsapp:whatsappMission, studio:studioMission, memoria:memoriaMission, visure:visureMission, preventivi:preventiviMission, osservatorio:osservatorioMission, staff:staffMission, scadenze:scadenzeMission, antiriciclaggio:antiriciclaggioMission, compliance:complianceMission};
 const rotation = ['posta', 'visure', 'centralino', 'preventivi', 'whatsapp', 'studio', 'scadenze', 'memoria', 'antiriciclaggio', 'staff', 'compliance', 'osservatorio'];
 let open = [];
 function spawn() {

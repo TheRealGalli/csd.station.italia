@@ -305,3 +305,8 @@
 .game-target{position:relative;animation:game-target 1.4s ease-in-out infinite!important;z-index:1}
 @keyframes game-target{0%,100%{box-shadow:0 0 0 0 #d8432f00}50%{box-shadow:0 0 0 4px #d8432f88}}
 input.game-target{outline:3px solid #d8432f;outline-offset:2px}
+/* allegati PDF: fogli bianchi */
+.mg-paper .mg-doc{background:#fff;border:1px solid #d9dccf;border-radius:3px;box-shadow:0 2px 0 #e9ebe2,0 6px 14px #1b2a1214;font-family:Georgia,'Times New Roman',serif;padding:10px 12px 14px}
+.mg-paper .mg-doc-t{font-family:ui-monospace,Menlo,monospace;color:#b2412d;border-bottom:1px solid #eee;padding-bottom:6px;margin-bottom:6px}
+.mg-paper .mg-doc-t:before{content:'PDF ';background:#b2412d;color:#fff;border-radius:2px;padding:0 4px;margin-right:6px}
+.mg-paper .mg-doc.official{background:#fff;border-color:#d9dccf}
