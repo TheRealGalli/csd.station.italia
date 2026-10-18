@@ -6,6 +6,8 @@ import * as D from './demo.js';
 const keep = {};
 const save = (k, v) => { keep[k] = v; };
 export const story = {
+ // la schermata finale, quando tutti i capitoli sono chiusi
+ finale:{kicker:'SERVIZIO CHIUSO', title:'Hai completato la cena di oggi', text:'Ultimo tavolo servito, cucina spenta, conti chiusi. Il fornitore furbo, il critico e l’ispettrice ASL: il locale ha retto a tutto, **con te alle decisioni e Otto a fare il resto**.', wa:'https://wa.me/393518628203?text=Ciao%20Carlo%21%20Ho%20finito%20la%20cena%20di%20CS%20Restaurant%20OS.%20Vorrei%20avere%20pi%C3%B9%20informazioni.', waLabel:'Vorrei più informazioni'},
  ending:'La serata è andata. Il locale ha retto: cucina, sala, frigo e conti. **Puoi continuare a giocare quanto vuoi.**',
  chapters:[
   {title:'Si apre la sala', narrator:'Otto cameriere', role:'otto-bow',

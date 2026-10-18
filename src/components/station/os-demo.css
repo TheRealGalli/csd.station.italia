@@ -1,11 +1,13 @@
 /* Vetrina delle demo OS (CS Restaurant OS, CS Notaro OS). */
 .os-site{background:#101510;color:#f1f5ea}
 .os-stage{position:relative;height:calc(100vh - 88px);height:calc(100dvh - 88px);min-height:620px;overflow:hidden;background:#f6f7f2}
-.os-frame{position:absolute;inset:0;width:100%;height:100%;border:0;display:block;pointer-events:none;filter:saturate(.85) brightness(.82) blur(1.5px);transform:scale(1.01);transition:filter .5s ease,transform .5s ease}
-.os-frame.is-open{pointer-events:auto;filter:none;transform:none}
-.os-veil{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;padding:28px 32px;background:radial-gradient(ellipse at 50% 45%,#0f1a1299,#0b120dd9 70%);animation:os-fade .5s ease both}
+/* Dietro la vetrina la demo è ferma e già caricata: niente filtri sull'iframe (blur e scala ricalcolano
+   l'intera pagina a ogni fotogramma e fanno scattare lo sfondo). Lo oscura solo il velo, che è statico. */
+.os-frame{position:absolute;inset:0;width:100%;height:100%;border:0;display:block;pointer-events:none}
+.os-frame.is-open{pointer-events:auto}
+.os-veil{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;padding:28px 32px;background:radial-gradient(ellipse at 50% 45%,#0f1a12b8,#0b120de6 70%);animation:os-fade .5s ease both}
 @keyframes os-fade{from{opacity:0}}
-.os-card{position:relative;display:flex;flex-direction:column;width:min(580px,100%);max-height:calc(100% - 8px);overflow:visible;background:#152016f2;border:1px solid #2f4029;border-radius:18px;padding:26px 34px 20px;box-shadow:0 40px 120px #000a;backdrop-filter:blur(8px);animation:os-rise .6s cubic-bezier(.2,.8,.3,1) .1s both}
+.os-card{position:relative;display:flex;flex-direction:column;width:min(580px,100%);max-height:calc(100% - 8px);overflow:visible;background:#152016f2;border:1px solid #2f4029;border-radius:18px;padding:26px 34px 20px;box-shadow:0 40px 120px #000a;animation:os-rise .6s cubic-bezier(.2,.8,.3,1) .1s both}
 @keyframes os-rise{from{opacity:0;transform:translateY(14px)}}
 .os-eyebrow{display:inline-flex;align-items:center;gap:8px;font-size:10px;letter-spacing:1.8px;font-weight:600;color:#c5f476}
 .os-eyebrow i{width:7px;height:7px;border-radius:50%;background:#d8432f;box-shadow:0 0 0 0 #d8432f99;animation:os-ping 1.6s infinite}

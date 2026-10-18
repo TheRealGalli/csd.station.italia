@@ -104,7 +104,7 @@ export default function OsDemo({ product }: { product: OsProduct }) {
     <StationHeader/>
     <main id="main-content" className="os-stage">
       {desktop ? <>
-        <iframe ref={frame} className={`os-frame ${open ? 'is-open' : ''}`} src={p.src} title={`${p.name}, demo dimostrativa`} onLoad={() => tell(open ? 'csd:resume' : 'csd:pause')} tabIndex={open ? 0 : -1} aria-hidden={!open}/>
+        <iframe ref={frame} className={`os-frame ${open ? 'is-open' : ''}`} src={`${p.src}?v=${__OS_VERSION__}`} title={`${p.name}, demo dimostrativa`} onLoad={() => tell(open ? 'csd:resume' : 'csd:pause')} tabIndex={open ? 0 : -1} aria-hidden={!open}/>
         {!open && <div className="os-veil">
           <div className="os-card">
             <div className={`os-otto os-otto-${product}`}><Otto mood="happy"/>{product === 'restaurant' ? <span className="os-prop os-plate" aria-hidden="true"><i/></span> : <><span className="os-prop os-glasses" aria-hidden="true"/><span className="os-prop os-book" aria-hidden="true"/></>}</div>

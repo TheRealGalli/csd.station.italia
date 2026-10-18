@@ -72,6 +72,8 @@ function newMail() {
  }, 2600);
  return m;
 }
+// Nella sfida la casella non si ferma: ogni tanto arriva un'email normale da approvare (vedi pressure.js).
+export const gameMail = () => newMail();
 // Un'email preparata dal regista delle missioni: arriva come le altre, Otto la legge e poi tocca a te.
 export function spawnMail(t) {
  const m = {...t, id:uid('m'), time:clock(), live:true, reading:true, at:Date.now()};

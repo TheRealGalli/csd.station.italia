@@ -68,7 +68,7 @@ Ogni partita è una giornata in **cinque capitoli**. Ogni capitolo si apre con l
 | 1 · Si apre la sala | — | si impara | 3 compiti fatti |
 | 2 · Il fornitore furbo | Bartolini, che "arrotonda" le fatture | missioni di Magazzino e Cassa più frequenti | vinci 2 missioni di Magazzino o Cassa |
 | 3 · Il critico in incognito | un ospite che cronometra tutto | le comande possono aspettare il 25% in meno | vinci 2 missioni di Sala, Cucina o Recensioni |
-| 4 · L'ispettore ASL | l'ispezione a sorpresa | i frigoriferi si guastano più spesso | vinci 1 missione HACCP e tieni i frigo a posto |
+| 4 · L'ispettore ASL | l'ispezione a sorpresa | i frigoriferi si guastano più spesso | vinci 2 missioni di HACCP o Allergeni |
 | 5 · Il sabato sera | tutti insieme | tutto più veloce | fai 150 punti nel capitolo |
 
 ### CS Notaro OS · "Una settimana in studio"
@@ -86,11 +86,13 @@ La storia è sempre **il lavoro vero raccontato**: un fornitore che sbaglia le f
 1. **Bottega**: prezzi ×2, e ogni acquisto dello stesso potenziamento costa il 2% in più. Potenziamenti di settore: secondo cuoco, cameriere al pass, forno nuovo, commis, contratto di assistenza frigo, allarme porta (Restaurant); segretaria in più, secondo addetto, firma digitale remota (Notaro).
 2. **Azioni**: ogni oggetto vero dà punti una volta sola, pieni entro 30 secondi e poi a scalare fino a 1. Niente spam.
 3. **Restaurant**: cucina con fornelli (4), cottura per piatto, pass a tempo, colonne rosse; celle frigorifere con sonda, porta aperta, compressore guasto, sonda scollegata, tecnico, merce persa oltre i 4 °C di troppo; ordini dello chef sul menu in servizio (togliere un piatto o cambiargli il prezzo).
-4. **Notaro**: posta con tempo di risposta (2 minuti); adempimenti post-stipula con capienza (2), tempo di lavoro (25 s), scadenza e sanzione.
-5. **Rosso**: ogni cosa in rosso costa 1 punto al secondo, al massimo 2 in totale; il tempo si ferma con le nuvolette e le chat di Otto.
+4. **Notaro**: posta con tempo di risposta (2 minuti), che vale solo per le email arrivate durante la sfida (una nuova ogni minuto e mezzo circa; quelle già in casella all'inizio non fanno perdere punti); adempimenti post-stipula con capienza (2), tempo di lavoro (25 s), scadenza e sanzione.
+5. **Rosso**: ogni cosa in rosso costa 1 punto al secondo, al massimo 2 in totale; il tempo si ferma con le nuvolette e le chat di Otto. Quando si perdono punti lo si vede sempre: una **striscia rossa** sotto la barra in alto dice quanti punti al secondo e perché (“Comande ferme in cucina”, “Cella carni fuori temperatura”, “2 email aspettano risposta…”), e la voce del menu a sinistra si colora di rosso con un puntino che pulsa. Un clic sulla striscia porta alla sezione.
+7. **Barra in alto**, su una riga: il quadrato rosso “!” delle cose da fare, poi lo schermino del capitolo, poi i punti; la Bottega di Otto ha lo stesso schermino a fosfori verdi.
+8. **Fine partita**: chiuso il quinto capitolo arriva la schermata finale (“Hai completato la cena di oggi” / “Hai completato la settimana in studio”) con punti, missioni vinte, compiti fatti e minuti di gioco; si può continuare, ricominciare da capo o scrivere su WhatsApp.
 6. **Storia**: cinque capitoli per gioco con chat di apertura e chiusura, obiettivo visibile in alto, missioni spostate verso l'antagonista e regole che si stringono; +50 punti a capitolo.
 
 ## 7. Prossimi passi possibili
-- Un riepilogo di fine giornata (punti per sezione, cosa è andato in rosso, capitoli completati).
+- Nel riepilogo finale: punti per sezione e cosa è andato in rosso.
 - Una classifica locale delle partite.
 - La demo guidata del gioco, quando le meccaniche sono stabili.

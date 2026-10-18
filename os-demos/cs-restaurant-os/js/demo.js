@@ -341,9 +341,18 @@ export function kitchenGameStart() {
    if (line.state === 'ready') line.readyAt = now;
   } else line.state = 'served';
  }
- nextOrderAt = now + 20000; emit();
+ // la cucina parte con un po' di lavoro, anche se il servizio di prima l'aveva svuotata
+ for (let n = kitchenLines().filter(l => l.state === 'waiting').length; n < 2; n++) { const t = gameTable(); const d = menu.filter(x => x.course > 0 && available(x))[Math.floor(Math.random() * 6)]; if (t && d) addDish(t.id, d.id, 1, true); }
+ nextOrderAt = now + 8000; emit();
 }
 export function kitchenGameStop() { service.game = false; }
+// Un tavolo che ordina: uno già seduto, oppure nuovi ospiti a un tavolo libero, così la cucina non resta mai a secco.
+function gameTable() {
+ const seated = tables.filter(x => ['seated', 'ordered'].includes(x.status) && !x.mission && x.lines.length < 7);
+ const free = tables.filter(x => x.status === 'free');
+ if (free.length && (seated.length < 4 || Math.random() < .3)) { const f = free[Math.floor(Math.random() * free.length)]; openTable(f.id, Math.min(f.seats, 2 + Math.floor(Math.random() * 3))); return f; }
+ return seated[Math.floor(Math.random() * seated.length)] || null;
+}
 let nextOrderAt = 0;
 // Un battito al secondo: la cottura finisce, le comande nuove arrivano, si controlla cosa è in rosso.
 export function kitchenGameTick(level = 1) {
@@ -362,9 +371,9 @@ export function kitchenGameTick(level = 1) {
  if (!kitchen.handedOver && now >= kitchen.autoUntil) { kitchen.handedOver = true; handover = true; changed = true; }
  const waiting = kitchenLines().filter(l => l.state === 'waiting');
  if (now >= nextOrderAt && waiting.length < 3 + level * 2) {
-  const gap = [[35, 55], [25, 40], [18, 30]][level - 1] || [35, 55];
+  const gap = [[25, 40], [20, 32], [15, 25]][level - 1] || [25, 40];
   nextOrderAt = now + (gap[0] + Math.random() * (gap[1] - gap[0])) * 1000;
-  const t = tables.filter(x => ['seated', 'ordered'].includes(x.status) && !x.mission && x.lines.length < 7)[Math.floor(Math.random() * 3)];
+  const t = gameTable();
   const ds = menu.filter(d => d.course > 0 && available(d)).sort(() => Math.random() - .5).slice(0, 1 + (Math.random() < .35 ? 1 : 0));
   if (t) { ds.forEach(d => addDish(t.id, d.id, 1, true)); changed = true; }
  }

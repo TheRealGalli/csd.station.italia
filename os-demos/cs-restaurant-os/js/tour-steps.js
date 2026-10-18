@@ -41,6 +41,12 @@ export function restaurantTour({toggleOtto, ui, D}) {
    text:'Mentre siete in servizio Otto prende le prenotazioni, **segnala le allergie alla cucina** e gestisce la lista d’attesa.'},
   {before:[{click:'.sidebar a[href="#recensioni_ai"]'}], target:'.review .otto-note', title:'05 · Recensioni con risposta pronta',
    text:'Ogni recensione ha una bozza nel tuo tono. Per quelle negative, Otto propone come **rimediare**.'},
+  {before:[{click:'.sidebar a[href="#whatsapp"]'}], target:'.phone-mock', title:'06 · WhatsApp, senza telefonate',
+   text:'Conferme di prenotazione, promemoria e auguri partono **da soli**, solo a chi ha dato il consenso. Otto controlla che orario, coperti e tavolo coincidano con il registro.'},
+  {before:[{click:'.sidebar a[href="#fidelity_nfc"]'}], target:'.data-table', title:'07 · Fidelity con la card NFC',
+   text:'L’ospite appoggia la card al tavolo: Otto lo riconosce, somma i punti e **propone il premio** quando l’ha raggiunto.'},
+  {before:[{click:'.sidebar a[href="#staff"]'}], target:'.fridges', title:'11 · HACCP, con le sonde nelle celle',
+   text:'Ogni cella frigorifera ha la sua **sonda**: la temperatura si aggiorna da sola. Se una porta resta aperta o un compressore si ferma, Otto avvisa subito e registra l’azione correttiva per il controllo ASL.'},
   {before:[{call:() => toggleOtto(true)}, {wait:300}, {click:'.drawer-suggest [data-otto]'}], target:'#otto-drawer', otto:'happy', say:'Ci sono sempre io!', title:'Un solo assistente, ovunque',
    text:'Da qualsiasi pagina, e presto **da WhatsApp**, chiedi a Otto com’è andato il servizio, cosa manca, quali tavoli aspettano. **Buon servizio!**'}
  ];

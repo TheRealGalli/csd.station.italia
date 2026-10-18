@@ -5,7 +5,7 @@ import * as D from './demo.js';
 import {studioScenario, studioSuggestions, askOtto, ottoSuggestions, proposeValues} from './agent.js';
 import {inspect, fillNative, formPdf} from './pdf-core.js';
 import {startTour} from './tour.js';
-import {initGame, gameChip, mountGame, gameInvite, missionPanel, gameOn, openShop, gameIntro, ecoPoints, gamePaused, penalty, gameLevel} from './game.js';
+import {initGame, gameChip, mountGame, gameInvite, missionPanel, gameOn, openShop, gameIntro, ecoPoints, gamePaused, penalty, gameLevel, setPressure} from './game.js';
 import {story} from './story.js';
 import * as P from './pressure.js';
 import {startMissions, stopMissions} from './missions.js';
@@ -64,7 +64,7 @@ function shell() {
   <div class="sidebar-bottom"><button class="plan-mini" data-action="otto"><span class="plan-orbit">${icon('otto-happy')}</span><span>Chiedi a Otto<small>Un solo assistente per tutto lo studio</small></span>${icon('chevron')}</button>${navItem('settings', 'Impostazioni', 'settings')}<button class="account" data-action="account"><span class="avatar">AC</span><span>Andrea Conti<small>Notaio titolare</small></span>${icon('down')}</button></div>
  </aside><div class="mobile-scrim" data-action="sidebar"></div>
  <div class="app-body"><header class="topbar"><div class="breadcrumbs"><button class="icon-btn mobile-toggle" data-action="sidebar" aria-label="Apri navigazione" aria-controls="workspace-navigation" aria-expanded="false">${icon('list')}</button><span>Studio</span>${icon('chevron')}<strong id="crumb"></strong></div>
-  <div class="topbar-actions"><button class="search-trigger" data-action="search" aria-label="Cerca nella Station">${icon('search')}<span>Cerca</span><kbd>⌘ K</kbd></button>${gameChip()}<button class="live-toggle ${live.on ? 'on' : ''}" data-action="live" aria-pressed="${live.on}" title="Studio live: email, chiamate e messaggi arrivano da soli">${live.on ? '<span class="live-dot"></span>' : '<i></i>'}<span>Studio live</span></button><button class="ask-otto" data-action="otto">${icon('otto-happy')}<span>Chiedi a Otto</span></button><button class="demo-btn" data-action="tour"><i></i><span>Demo interattiva</span></button></div></header>
+  <div class="topbar-actions"><button class="search-trigger" data-action="search" aria-label="Cerca nella Station">${icon('search')}<span>Cerca</span><kbd>⌘ K</kbd></button>${gameChip()}<button class="ask-otto" data-action="otto">${icon('otto-happy')}<span>Chiedi a Otto</span></button><button class="demo-btn" data-action="tour"><i></i><span>Demo interattiva</span></button></div></header>
   <main id="main" tabindex="-1"></main>
   <footer class="app-footer"><span>CSD Station <span class="footer-divider">/</span> Lo studio notarile, tutto collegato.</span><span>Anteprima dimostrativa · persone, pratiche e documenti inventati · nessun servizio collegato</span></footer></div>
  <aside class="otto-drawer" id="otto-drawer" aria-label="Otto, assistente dello studio" hidden></aside><div class="live-stack" id="live-stack" aria-live="polite"></div>`;
@@ -547,7 +547,7 @@ document.addEventListener('click', e => {
  if ((x = el('[data-call]'))) { ui.call = x.dataset.call; return render(); }
  if ((x = el('[data-chat]'))) { ui.chat = x.dataset.chat; return render(); }
  if ((x = el('[data-category]'))) { ui.category = x.dataset.category; return render(); }
- if ((x = el('[data-filing-act]'))) { if (!P.startFiling(x.dataset.filingAct)) toast(`L’addetto lavora ${P.studioCfg.cap} adempimenti alla volta: aspetta che uno finisca.`); return render(); }
+ if ((x = el('[data-filing-act]'))) { const id = x.dataset.filingAct, f = P.filings.find(y => y.id === id); if (P.startFiling(id)) ecoPoints('filing', 3, 'Adempimento avviato', id, {born:f?.created}); else toast(`L’addetto lavora ${P.studioCfg.cap} adempimenti alla volta: aspetta che uno finisca.`); return render(); }
  if ((x = el('[data-studio]'))) { ecoPoints('studio', 3, 'Lavoro con Otto', null, {id:x.dataset.studio}); const s = studioSuggestions.find(s => s.id === x.dataset.studio); return runStudio(s.prompt, s.id); }
  if ((x = el('[data-memory]'))) { ask(x.dataset.memory); return; }
  if ((x = el('[data-otto]'))) return askGlobal(x.dataset.otto);
@@ -636,13 +636,15 @@ setInterval(() => {
   const reds = r.late.length + r.red.length;
   if (reds) penalty(Math.min(2, reds), r.late.length ? 'Email in ritardo' : 'Adempimento in scadenza');
   r.expired.forEach(f => { penalty(15, 'Termine scaduto'); toast(`${f.what} (${f.act}): termine scaduto, sanzione per lo studio.`); });
-  r.done.forEach(f => ecoPoints('filing', 6, 'Adempimento chiuso', f.id, {born:f.created}));
+  r.done.forEach(f => ecoPoints('filed', 6, 'Adempimento chiuso', f.id, {born:f.doneAt}));
   const sig = `${r.late.length}|${r.red.length}`, was = ui.pressure?.sig;
   ui.pressure = {...r, sig};
   // nello Scadenziario i secondi scorrono a vista; in Posta si ridisegna solo quando cambia qualcosa
   if (route() === 'scadenze' || ((r.changed || was !== sig) && route() === 'posta')) liveRefresh();
-  document.querySelector('.sidebar a[href="#posta"]')?.classList.toggle('kds-alarm', r.late.length > 0);
-  document.querySelector('.sidebar a[href="#scadenze"]')?.classList.toggle('kds-alarm', r.red.length > 0);
+  // cosa sta facendo perdere punti, e dove andare a sistemarlo
+  const n = r.late.length;
+  setPressure([...(n ? [{page:'posta', label:`${n === 1 ? 'Un’email aspetta' : `${n} email aspettano`} risposta da più di ${Math.round(P.studioCfg.mailSla / 60)} minuti`}] : []),
+   ...r.red.map(f => ({page:'scadenze', label:`${f.what} quasi scaduta`}))]);
  } catch (err) { console.warn('CS Notaro OS · errore nel battito', err); }
 }, 1000);
 // Dentro il sito la demo parte ferma (niente cicli né animazioni): si accende solo quando il visitatore la apre.
@@ -659,8 +661,8 @@ initGame(challenges, {story,icon, missionsOnly:true,
  // compiti veri: nascono dallo stato dello studio e si fanno con i tasti delle sezioni
  tasks:() => {
   const c = [];
-  P.filings.filter(f => f.state === 'todo' && P.filingLeft(f) < 100).forEach(f => c.push({key:'filing', ref:f.id, page:'scadenze', title:`${f.what} in scadenza`, text:`Nello Scadenziario **avvia ${f.what.toLowerCase()}** (${f.act}) prima che scada il termine.`, target:`[data-filing-act="${f.id}"]`, valid:() => f.state === 'todo', auto:() => P.startFiling(f.id)}));
-  D.mails.filter(m => !m.reading && !m.missionOpen && !state.handled.includes(m.id)).slice(0, 4).forEach(m => c.push({key:'handle', ref:m.id, page:'posta', title:`Email · ${m.from}`, text:`Apri **“${m.subject}”**, leggi cosa ha capito Otto e premi **${m.draft ? 'Approva e invia' : 'Approva e archivia'}**.`, target:`[data-action="handle:${m.id}"]`, valid:() => !state.handled.includes(m.id), auto:() => { if (!state.handled.includes(m.id)) state.handled.push(m.id); }}));
+  P.filings.filter(f => f.state === 'todo' && P.filingLeft(f) < 100).forEach(f => c.push({key:'filing', urgent:true, ref:f.id, page:'scadenze', title:`${f.what} in scadenza`, text:`Nello Scadenziario **avvia ${f.what.toLowerCase()}** (${f.act}) prima che scada il termine.`, target:`[data-filing-act="${f.id}"]`, valid:() => f.state === 'todo', auto:() => P.startFiling(f.id)}));
+  D.mails.filter(m => !m.reading && !m.missionOpen && !state.handled.includes(m.id)).slice(0, 4).forEach(m => c.push({key:'handle', urgent:!m.old, ref:m.id, page:'posta', title:`Email · ${m.from}`, text:`Apri **“${m.subject}”**, leggi cosa ha capito Otto e premi **${m.draft ? 'Approva e invia' : 'Approva e archivia'}**.`, target:`[data-action="handle:${m.id}"]`, valid:() => !state.handled.includes(m.id), auto:() => { if (!state.handled.includes(m.id)) state.handled.push(m.id); }}));
   D.chats.filter(ch => ch.draft && !ch.mission && !ch.thinking && !state.sent.includes(ch.id)).forEach(ch => c.push({key:'send', ref:ch.id, page:'whatsapp', title:`WhatsApp · ${ch.who}`, text:'Controlla la risposta proposta da Otto e premi **Invia**.', target:`[data-action="send:${ch.id}"]`, valid:() => !state.sent.includes(ch.id), auto:() => { if (!state.sent.includes(ch.id)) state.sent.push(ch.id); }}));
   D.tasks.filter(t => !t.done && !state.done.includes(t.id)).slice(0, 3).forEach(t => c.push({key:'task', ref:t.id, page:'staff', title:`Attività · ${t.text}`, text:'In Staff & task **spunta l’attività** quando è completata.', target:`input[data-task="${t.id}"]`, valid:() => !state.done.includes(t.id), auto:() => { if (!state.done.includes(t.id)) state.done.push(t.id); }}));
   // come nella demo guidata: un lavoro da chiedere a Otto nello Studio, quello giusto
@@ -672,7 +674,7 @@ initGame(challenges, {story,icon, missionsOnly:true,
  }, missionTypes:12, sections:12, placeOf:'dello studio', startNote:'Email, messaggi e chiamate da gestire arrivano dal quadrato rosso “!” in alto, e ogni sezione dello studio ha la sua missione.', menuNote:'Le missioni arrivano dallo studio vivo: email da controllare, messaggi da correggere, chiamate in diretta. Sempre nuove.',
  focus:(page, ref) => { if (page === 'posta') { ui.mail = ref; ui.mailFilter = 'all'; } if (page === 'whatsapp') ui.chat = ref; if (page === 'centralino') ui.call = ref; if (route() === page) { render(); } else location.hash = page; setTimeout(() => document.querySelector('[data-mission]')?.scrollIntoView({block:'center', behavior:'smooth'}), 120); },
  onStart:() => { P.studioGameStart(state.handled); ui.pressure = {}; startMissions((id, page) => { if (page === 'posta' && !state.handled.includes(id)) state.handled.push(id); if (route() === page) { const y = scrollY; render(); scrollTo(0, y); } }); },
- onReset:() => { stopMissions(); P.studioGameStop(); },
+ onReset:() => { stopMissions(); P.studioGameStop(); setPressure([]); },
  // potenziamenti dello studio, da comprare nella Bottega di Otto
  shop:[
   {id:'segretaria', name:'Segretaria in più', desc:'+60 secondi prima che un’email vada in ritardo.', cost:25, mood:'otto-cap', use:() => { P.studioCfg.mailSla += 60; return `Ora le email possono aspettare ${Math.round(P.studioCfg.mailSla / 60)} minuti.`; }},

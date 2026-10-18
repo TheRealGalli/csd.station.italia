@@ -14,7 +14,7 @@ const base = {1:10, 2:20, 3:30};
 const levelNotes = {1:'Si comincia: scelte chiare per prendere la mano.', 2:'Arrivano le prime trappole. Prima di approvare, apri le fonti.', 3:'Ultimo livello: errori sottili e un po’ di fretta.'};
 
 let C = [], icon = () => '', pageName = id => id, place = 'lo studio', timer = 0, hooks = {};
-const S = {chapter:-1, chProgress:0, chStart:0, bought:{}, paused:0, coached:{}, tasksDone:0, tasks:{}, tseq:0, fx:{shield:0, double:0, freeHints:0, freezeUntil:0}, gifts:[], gift:null, offers:[], missions:{}, mseq:0, avail:{}, seenOpen:0, started:false, points:0, level:1, round:1, streak:0, last:null, solved:{}, cards:{}, showing:{}, sound:true};
+const S = {won:0, t0:0, chapter:-1, chProgress:0, chStart:0, bought:{}, paused:0, coached:{}, tasksDone:0, tasks:{}, tseq:0, fx:{shield:0, double:0, freeHints:0, freezeUntil:0}, gifts:[], gift:null, offers:[], missions:{}, mseq:0, avail:{}, seenOpen:0, started:false, points:0, level:1, round:1, streak:0, last:null, solved:{}, cards:{}, showing:{}, sound:true};
 try { S.sound = localStorage.getItem('csd.game.sound') !== 'off'; } catch {}
 
 export function initGame(challenges, opts) {
@@ -77,10 +77,15 @@ function taskDirector() {
   refresh(t.page); markNav(); updateAlert();
   coach('auto', '.game-chip', 'Ci ho pensato io', 'Il tempo era finito e **l’ho fatto io**, seguendo le regole. Costa qualche punto, ma niente panico: la prossima volta tocca a te.', 'otto-think');
  }
- if (now < nextTaskAt || openAll().length >= maxOpen()) return;
- const [g1, g2] = gap(); nextTaskAt = now + (g1 + Math.random() * (g2 - g1)) * 1000;
+ if (openAll().length >= maxOpen() + 1) return;
  const busy = new Set(openTasks().map(t => `${t.key}:${t.ref ?? ''}`));
- const list = (hooks.tasks() || []).filter(c => !busy.has(`${c.key}:${c.ref ?? ''}`));
+ const all = (hooks.tasks() || []).filter(c => !busy.has(`${c.key}:${c.ref ?? ''}`));
+ // ciò che fa perdere punti (un'email che sta per scadere, una cella che si scalda) diventa subito un compito,
+ // anche oltre il limite di uno: così il giocatore lo sa prima di perdere punti, mai dopo
+ const hot = all.filter(c => c.urgent);
+ if (!hot.length && (now < nextTaskAt || openAll().length >= maxOpen())) return;
+ const list = hot.length ? hot : all;
+ if (!hot.length) { const [g1, g2] = gap(); nextTaskAt = now + (g1 + Math.random() * (g2 - g1)) * 1000; }
  if (!list.length) return;
  const c = list[Math.floor(Math.random() * list.length)], id = `tk${++S.tseq}`;
  S.tasks[id] = {...c, id, created:now, ttl:taskTtl(), pts:taskPts()};
@@ -94,10 +99,12 @@ function markTargets() {
  if (!S.started) return;
  const page = location.hash.slice(1) || 'home';
  for (const t of openTasks()) if (t.page === page && t.target) {
-  let el = null; try { el = document.querySelector(t.target); } catch {}
+  // più bersagli separati da ", ": vale il primo che c'è (per esempio il tasto, oppure la scheda che lo contiene)
+  let el = null, sel = '';
+  for (const x of t.target.split(', ')) { try { el = document.querySelector(x); } catch {} if (el) { sel = x; break; } }
   if (!el) continue;
   el.classList.add('game-target'); el.style.animationDelay = `-${(Date.now() % 1400) / 1000}s`;
-  coach('target', t.target, 'Il tasto che lampeggia', 'Fai come faresti davvero, con i tasti di questa sezione: **quello che lampeggia** è il prossimo passo.', 'otto-read');
+  coach('target', sel, 'Il tasto che lampeggia', 'Fai come faresti davvero, con i tasti di questa sezione: **quello che lampeggia** è il prossimo passo.', 'otto-read');
  }
 }
 function completeTask(t) {
@@ -131,7 +138,7 @@ export function missionPanel(id) {
   ${r ? '' : `<div class="gc-timer ${m.armed ? '' : 'waiting'}"><i style="animation-duration:${m.ttl / 1000}s;animation-delay:-${elapsed.toFixed(1)}s"></i></div>`}
   ${!r && m.st.hintMsg ? `<p class="gc-hintmsg">${icon('otto-wink')}<span>${esc(m.st.hintMsg)}</span></p>` : ''}
   <div class="mg">${m.render(m.data, m.st)}</div>
-  ${r ? `<div class="gc-result"><b class="${r.pts < 0 ? 'neg' : ''}">${r.pts > 0 ? '+' : ''}${r.pts} pt · ${esc(r.label)}</b><p>${rich(r.why)}</p>${nextAfter(id) ? `<button class="gc-nextm" data-game="mclose:${id}">Prossima missione ${icon('arrow')}</button>` : `<button data-game="mclose:${id}">Fatto ${icon('check')}</button>`}</div>` : ''}
+  ${r ? `<div class="gc-result"><b class="${r.pts < 0 ? 'neg' : ''}">${r.pts > 0 ? '+' : ''}${r.pts} pt · ${esc(r.label)}</b><p>${rich(r.why)}</p>${nextAfter(id) ? `<button class="gc-nextm" data-game="mclose:${id}">Prossima cosa da fare ${icon('arrow')}</button>` : `<button data-game="mclose:${id}">Fatto ${icon('check')}</button>`}</div>` : ''}
  </section>`;
 }
 // L'indizio di Otto costa punti, una volta per missione: più il livello è alto, più costa.
@@ -197,6 +204,24 @@ export function penalty(n, label) {
  // i punti scendono subito; il "−N" volante si mostra ogni 3 secondi, per non riempire lo schermo
  if (!penTimer) penTimer = setTimeout(() => { if (penBuf) float(-penBuf, document.querySelector('.game-chip'), label); penBuf = 0; penTimer = 0; }, 3000);
 }
+// ————— ciò che sta facendo perdere punti —————
+// Le app dicono ogni secondo cosa è in rosso ({page, label}); qui diventa una striscia rossa sotto la barra in alto,
+// la linea rossa con il puntino sulla voce del menu, e la prima volta una spiegazione di Otto.
+let pressure = [];
+export function setPressure(list) {
+ pressure = S.started && !touring() ? list : [];
+ let el = document.querySelector('.game-pressure');
+ if (!pressure.length) { el?.remove(); markAlarms(); return; }
+ if (!el) { el = document.createElement('button'); el.className = 'game-pressure'; el.dataset.game = 'pressure'; document.body.append(el); }
+ const html = `<b class="game-bang">!</b><span><b>Stai perdendo ${Math.min(2, pressure.length)} punt${Math.min(2, pressure.length) === 1 ? 'o' : 'i'} al secondo</b> · ${pressure.map(p => esc(p.label)).join(' · ')}</span><em>Vai ${icon('arrow')}</em>`;
+ if (el.innerHTML !== html) el.innerHTML = html;
+ markAlarms();
+ coach('first-red', '.game-pressure', 'Una sezione è in rosso', 'Quando qualcosa resta indietro (comande ferme, una cella calda, email senza risposta) **perdi punti ogni secondo**. La voce nel menu a sinistra si colora di rosso: vai lì e sistemala.', 'otto-think');
+}
+function markAlarms() {
+ document.querySelectorAll('.sidebar a.nav-alarm').forEach(a => a.classList.remove('nav-alarm'));
+ for (const p of new Set(pressure.map(x => x.page))) document.querySelector(`.sidebar a[href="#${p}"]`)?.classList.add('nav-alarm');
+}
 // Bottega: oltre ai potenziamenti comuni, ogni app aggiunge i suoi (hooks.shop).
 const allItems = () => [...catalog, ...(hooks.shop || [])];
 // La Bottega costa davvero: prezzi base ×2, e ogni acquisto dello stesso potenziamento lo rincara del 2%.
@@ -214,7 +239,7 @@ function resolveMission(m, r, from) {
  if (pts > 0 && S.fx.double && !r.delegated) { S.fx.double--; pts *= 2; r = {...r, why:`${r.why} **Punti doppi!**`}; }
  if (pts > 0 && !r.delegated) { S.streak++; S.last = 'ok'; if (S.streak % 3 === 0) { pts += 15; r.why += ` **Serie di ${S.streak}: +15 bonus.**`; } } else { S.streak = 0; S.last = 'ko'; }
  S.points += pts; m.result = {...r, pts}; syncLevel(); checkGifts();
- if (pts > 0 && !r.delegated) storyProgress('missions', m.page);
+ if (pts > 0 && !r.delegated) { S.won++; storyProgress('missions', m.page); }
  play(pts > 0 ? (pts >= 30 ? 'great' : 'good') : 'bad');
  refreshMission(m.id);
  if (pts < 0) setTimeout(() => coach('first-ko', `[data-mission="${m.id}"] .gc-result`, 'Capita', 'Sotto trovi **perché** non andava: è così che il sistema ti insegna il lavoro. Si va avanti.', 'otto-think'), 900);
@@ -233,8 +258,8 @@ const challenge = id => list().find(c => c.id === id);
 export function gameChip() {
  if (!S.started) return `<button class="game-chip idle" data-game="menu" aria-label="La sfida di Otto: avviala" title="La sfida di Otto"><span class="gch-face">${icon('otto-happy')}</span><b class="gch-play">Sfida</b></button>`;
  const ch = chapterInfo();
- // in alto: capitolo, poi "!", poi punti
- return `${ch ? `<button class="game-chapter" data-game="menu" title="${esc(`Capitolo ${ch.n} · ${ch.title} — ${ch.goal}`)}"><small>CAP. ${ch.n}/${ch.of}</small><b class="${ch.title.length > 17 ? 'long' : ''}"><span>${esc(ch.title)}</span></b><i>${esc(ch.goal.split(' · ').pop())}</i></button>` : ''}${alertBtn()}<button class="game-chip ${S.points ? '' : 'idle'}" data-game="menu" aria-label="La sfida di Otto: ${S.points} punti, livello ${S.level}" title="${ch ? esc(`Capitolo ${ch.n} · ${ch.title} — ${ch.goal}`) : 'La sfida di Otto'}"><span class="gch-face">${icon(face())}</span><b class="gch-pts">${S.points}</b><small>pt</small><span class="gch-lvl">${[1, 2, 3].map(l => `<i class="${l < S.level ? 'done' : l === S.level ? 'on' : ''}"></i>`).join('')}</span>${S.gift ? '<i class="gch-gift" title="Otto ha un regalo per te"></i>' : ''}</button>`;
+ // in alto: "!", poi il capitolo, poi i punti
+ return `${alertBtn()}${ch ? `<button class="game-chapter" data-game="menu" title="${esc(`Capitolo ${ch.n} · ${ch.title} — ${ch.goal}`)}"><small>CAP. ${ch.n}/${ch.of}</small><b class="${ch.title.length > 17 ? 'long' : ''}"><span>${esc(ch.title)}</span></b><i>${esc(ch.goal.split(' · ').pop())}</i></button>` : ''}<button class="game-chip ${S.points ? '' : 'idle'}" data-game="menu" aria-label="La sfida di Otto: ${S.points} punti, livello ${S.level}" title="${ch ? esc(`Capitolo ${ch.n} · ${ch.title} — ${ch.goal}`) : 'La sfida di Otto'}"><span class="gch-face">${icon(face())}</span><b class="gch-pts">${S.points}</b><small>pt</small><span class="gch-lvl">${[1, 2, 3].map(l => `<i class="${l < S.level ? 'done' : l === S.level ? 'on' : ''}"></i>`).join('')}</span>${S.gift ? '<i class="gch-gift" title="Otto ha un regalo per te"></i>' : ''}</button>`;
 }
 function updateChip(bump) {
  document.querySelectorAll('.game-alert, .game-chapter').forEach(el => el.remove());
@@ -338,7 +363,7 @@ function alertBtn() {
 function updateAlert() {
  const n = S.started ? openAll().length : 0;
  document.querySelectorAll('.game-alert').forEach(el => el.remove());
- const chip = document.querySelector('.game-chip'); if (!chip || !n) return;
+ const chip = document.querySelector('.game-chapter') || document.querySelector('.game-chip'); if (!chip || !n) return;
  chip.insertAdjacentHTML('beforebegin', alertBtn());
  if (n > S.seenOpen) document.querySelector('.game-alert')?.classList.add('ring');
  S.seenOpen = n;
@@ -378,7 +403,7 @@ function syncShopLabels() {
 }
 // Chiamata dall'app dopo ogni render: inserisce la sfida sotto il titolo della pagina.
 export function mountGame(page, main) {
- clearTimeout(timer); markNav(); syncShopLabels(); setTimeout(markTargets, 30); setTimeout(coachMission, 600);
+ clearTimeout(timer); markNav(); markAlarms(); syncShopLabels(); setTimeout(markTargets, 30); setTimeout(coachMission, 600);
  const html = inner(page); if (!html) return;
  const box = `<div class="game-slot" data-gslot="${page}">${html}</div>`;
  // la cosa arrivata va dove arriverebbe davvero: ogni sezione indica il suo posto con data-anchor
@@ -516,7 +541,7 @@ export function gameIntro() {
  document.body.append(el); draw(); play('open');
 }
 function start() {
- S.started = true; openLevel(); nextTaskAt = Date.now() + 12000; hooks.onStart?.(); updateChip('bump'); play('level');
+ S.started = true; S.t0 = Date.now(); openLevel(); nextTaskAt = Date.now() + 12000; hooks.onStart?.(); updateChip('bump'); play('level');
  refresh(location.hash.slice(1) || 'home'); markNav();
  setTimeout(() => startChapter(0), 1400);
  setTimeout(() => coach('welcome', '.game-chip', 'Si comincia', `Questi sono i tuoi punti. Guardati intorno con calma: ${place} lavora da solo e **ti chiamo io** quando serve.`, 'otto-happy'), 600);
@@ -603,7 +628,8 @@ function storyChat(m, sel) {
  const close = () => {
   clearTimeout(timer); cancelAnimationFrame(raf); box.classList.add('out'); setTimeout(() => box.remove(), 200); coachOpen = null;
   S.paused = Math.max(0, S.paused - 1); if (!S.paused) document.body.classList.remove('game-paused');
-  m.armed = true; refreshMission(m.id); play('level');
+  // spiegato il settore, parte il tempo anche delle altre missioni dello stesso settore arrivate nel frattempo
+  openMissions().filter(x => x.page === m.page).forEach(x => { x.armed = true; }); m.armed = true; refreshMission(m.id); play('level');
   const n = coachQueue.shift(); if (n) setTimeout(() => coach(...n), 450);
  };
  box.addEventListener('click', e => {
@@ -625,7 +651,7 @@ function goalText(c) {
 }
 function startChapter(i) {
  const c = chapters()[i]; if (!c || !S.started) return;
- S.chapter = i; S.chProgress = 0; S.chStart = S.points;
+ S.chapter = i; S.chProgress = 0; S.chStart = S.points; c.done = false;
  try { c.apply?.(true); } catch {}
  updateChip();
  ottoChat({name:c.narrator, role:c.role, title:`Capitolo ${i + 1} · ${c.title}`, lines:[...c.intro, `**Obiettivo:** ${c.goal.label}.`], button:'Iniziamo'});
@@ -638,13 +664,42 @@ function storyProgress(kind, page) {
  updateChip();
  if (!ok) return;
  c.done = true;
+ const at = S.chapter;
  setTimeout(() => {
+  if (S.chapter !== at || !S.started) return;
   try { c.apply?.(false); } catch {}
   S.points += 50; updateChip('bump'); play('level');
   const last = S.chapter >= chapters().length - 1;
-  ottoChat({name:c.narrator, role:c.role, title:`Capitolo ${S.chapter + 1} completato`, lines:[...c.outro, '**+50 punti** per il capitolo.', last ? (hooks.story.ending || 'La giornata è finita. Puoi continuare a giocare quanto vuoi.') : 'Ma la giornata non è finita…'], button:last ? 'Continua a giocare' : 'Avanti', onClose:() => { if (!last) setTimeout(() => startChapter(S.chapter + 1), 1200); else { S.chapter = chapters().length; updateChip(); } }});
+  ottoChat({name:c.narrator, role:c.role, title:`Capitolo ${S.chapter + 1} completato`, lines:[...c.outro, '**+50 punti** per il capitolo.', last ? (hooks.story.ending || 'La giornata è finita. Puoi continuare a giocare quanto vuoi.') : 'Ma la giornata non è finita…'], button:last ? 'Vedi com’è andata' : 'Avanti', onClose:() => { if (!last) setTimeout(() => startChapter(S.chapter + 1), 1200); else { S.chapter = chapters().length; updateChip(); setTimeout(finale, 500); } }});
  }, 1600);
 }
+// La schermata finale: tutti i capitoli chiusi. Il riepilogo della partita, poi si sceglie se continuare.
+function finale() {
+ if (!S.started || document.querySelector('.game-finale')) return;
+ if (coachOpen) { setTimeout(finale, 1500); return; }
+ const f = hooks.story?.finale || {}, mins = Math.max(1, Math.round((Date.now() - (S.t0 || Date.now())) / 60000));
+ S.paused++; document.body.classList.add('game-paused');
+ const box = document.createElement('div');
+ box.className = 'game-finale'; box.setAttribute('role', 'dialog'); box.setAttribute('aria-label', f.title || 'Partita completata');
+ const stat = (n, l) => `<span><b>${n}</b><small>${l}</small></span>`;
+ box.innerHTML = `<div class="gf-card">
+  <div class="gf-screen"><small>${esc(f.kicker || 'MISSIONE COMPIUTA')}</small><b>${chapters().length}/${chapters().length} CAPITOLI</b></div>
+  <span class="gf-otto">${icon('otto-happy')}</span>
+  <h2>${esc(f.title || 'Hai completato la giornata')}</h2>
+  <p>${rich(f.text || 'Tutti i capitoli sono chiusi.')}</p>
+  <div class="gf-stats">${stat(S.points, 'punti')}${stat(S.won, S.won === 1 ? 'missione vinta' : 'missioni vinte')}${stat(S.tasksDone, S.tasksDone === 1 ? 'compito fatto' : 'compiti fatti')}${stat(`${mins}′`, 'di gioco')}</div>
+  <div class="gf-actions"><button class="gf-go" data-finale="go">Continua a giocare</button><button data-finale="restart">Ricomincia da capo</button>${f.wa ? `<a class="gf-wa" href="${esc(f.wa)}" target="_blank" rel="noreferrer">${esc(f.waLabel || 'Parlane con noi su WhatsApp')} ${icon('arrow')}</a>` : ''}</div>
+ </div>`;
+ document.body.append(box); play('level');
+ box.querySelector('.gf-go').focus({preventScroll:true});
+ box.addEventListener('click', e => {
+  const t = e.target.closest('[data-finale]'); if (!t) return;
+  box.remove(); S.paused = Math.max(0, S.paused - 1); if (!S.paused) document.body.classList.remove('game-paused');
+  if (t.dataset.finale === 'restart') { restartGame(); setTimeout(gameIntro, 300); }
+ });
+}
+// Per le prove a mano: chiude la storia e mostra la schermata finale.
+export const showFinale = () => { S.chapter = chapters().length; updateChip(); finale(); };
 // Chat di Otto senza un elemento da indicare (capitoli): pannello in basso a destra, tempo fermo.
 function ottoChat({name, role, title, lines, button = 'Ho capito', onClose}) {
  if (coachOpen || touring()) { setTimeout(() => ottoChat({name, role, title, lines, button, onClose}), 1500); return; }
@@ -779,6 +834,8 @@ function checkGifts() {
  }
 }
 export const gameOn = () => S.started;
+// Solo per i test automatici delle missioni (scripts e prove a mano): lo stato della sfida.
+export const gameState = () => S;
 export function openShop() {
  document.querySelector('.game-pop')?.remove();
  if (S.offers.length < 4) S.offers = sample(4).map(c => c.id);
@@ -812,6 +869,7 @@ function onClick(e) {
  if (k === 'menu') { play('click'); return menu(); }
  if (k === 'start') return introSeen ? start() : gameIntro();
  if (k === 'alert') { play('click'); return chooser(); }
+ if (k === 'pressure') { const p = pressure[0]; if (p) go(p.page); return; }
  if (k === 'go') return go(id, i);
  if (k === 'mg') return missionAction(id, i, b.dataset.game.split(':').slice(3).join(':'), b);
  if (k === 'hint') return useHint(id, b);
@@ -824,5 +882,12 @@ function onClick(e) {
  if (k === 'pick') return pick(id, +i, b);
  if (k === 'next') { const c = challenge(id); delete S.showing[c.page]; play('click'); return refresh(c.page); }
  if (k === 'sound') { S.sound = !S.sound; try { localStorage.setItem('csd.game.sound', S.sound ? 'on' : 'off'); } catch {} b.textContent = S.sound ? 'Suoni attivi' : 'Suoni spenti'; play('click'); return; }
- if (k === 'restart') { hooks.onReset?.(); Object.assign(S, {chapter:-1, chProgress:0, chStart:0, bought:{}, paused:0, coached:{}, tasksDone:0, tasks:{}, fx:{shield:0, double:0, freeHints:0, freezeUntil:0}, gifts:[], gift:null, offers:[], missions:{}, avail:{}, seenOpen:0, started:false, points:0, level:1, round:1, streak:0, last:null, solved:{}, cards:{}, showing:{}}); updateChip(); refresh(location.hash.slice(1) || 'home'); }
+ if (k === 'restart') return restartGame();
+}
+// Ricomincia da zero: anche la storia (capitoli già chiusi e regole del capitolo in corso).
+function restartGame() {
+ const cur = chapters()[S.chapter]; if (cur && !cur.done) { try { cur.apply?.(false); } catch {} }
+ chapters().forEach(c => { c.done = false; });
+ document.querySelector('.game-finale')?.remove(); document.body.classList.remove('game-paused'); setPressure([]);
+ { hooks.onReset?.(); Object.assign(S, {won:0, t0:0, chapter:-1, chProgress:0, chStart:0, bought:{}, paused:0, coached:{}, tasksDone:0, tasks:{}, fx:{shield:0, double:0, freeHints:0, freezeUntil:0}, gifts:[], gift:null, offers:[], missions:{}, avail:{}, seenOpen:0, started:false, points:0, level:1, round:1, streak:0, last:null, solved:{}, cards:{}, showing:{}}); updateChip(); refresh(location.hash.slice(1) || 'home'); }
 }

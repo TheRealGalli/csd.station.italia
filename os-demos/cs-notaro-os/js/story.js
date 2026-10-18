@@ -5,6 +5,8 @@ import {studioCfg} from './pressure.js';
 
 const keep = {};
 export const story = {
+ // la schermata finale, quando tutti i capitoli sono chiusi
+ finale:{kicker:'STUDIO CHIUSO', title:'Hai completato la settimana in studio', text:'Atti firmati, termini rispettati, nessuna sanzione. Posta, pratiche, clienti e controlli: lo studio ha retto a tutto, **con te alle decisioni e Otto a fare il resto**.', wa:'https://wa.me/393518628203?text=Ciao%20Carlo%21%20Ho%20finito%20la%20settimana%20di%20CS%20Notaro%20OS.%20Vorrei%20avere%20pi%C3%B9%20informazioni.', waLabel:'Vorrei più informazioni'},
  ending:'La settimana è chiusa: atti firmati, termini rispettati, nessuna sanzione. **Puoi continuare a giocare quanto vuoi.**',
  chapters:[
   {title:'Il primo giorno', narrator:'Otto del notaio', role:'otto-notary',
