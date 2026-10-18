@@ -5,7 +5,8 @@ import * as D from './demo.js';
 import {studioScenario, studioSuggestions, askOtto, ottoSuggestions, proposeValues} from './agent.js';
 import {inspect, fillNative, formPdf} from './pdf-core.js';
 import {startTour} from './tour.js';
-import {initGame, gameChip, mountGame, gameInvite} from './game.js';
+import {initGame, gameChip, mountGame, gameInvite, missionPanel} from './game.js';
+import {startMissions, stopMissions} from './missions.js';
 import {challenges} from './challenges.js';
 import {notaroTour} from './tour-steps.js';
 import {live, subscribe as onLive, startLive} from './live.js';
@@ -144,16 +145,17 @@ function posta() {
  <div class="queue-strip"><span class="eyebrow">CODA DI OGGI</span>${queue.map(({p, n}) => `<span class="queue-person">${avatar(p.id)}<b>${n}</b> ${esc(p.name.split(' ')[0])}</span>`).join('')}</div>
  <div class="split">
   <section class="list-pane"><div class="filter-tabs small">${[['all', 'Tutte'], ['todo', 'Da approvare'], ['done', 'Gestite']].map(([k, v]) => `<button data-mail-filter="${k}" class="${ui.mailFilter === k ? 'selected' : ''}" aria-pressed="${ui.mailFilter === k}">${v}</button>`).join('')}</div>
-   ${filtered.map(x => `<button class="list-item ${x.id === m.id ? 'active' : ''} ${state.handled.includes(x.id) ? 'handled' : ''}" data-mail="${x.id}"><span class="li-top"><b>${x.live && Date.now() - x.at < 90000 ? '<span class="new-tag">NUOVA</span>' : ''}${esc(x.from)}</b><small>${x.time}</small></span><span class="li-subject">${esc(x.subject)}</span><span class="li-ai">${x.reading ? '<i class="spinner"></i>Otto la sta leggendo…' : icon('sparkle') + esc(x.understood)}</span><span class="li-meta">${pchip(x.practice)}<span class="prio prio-${x.priority}">${x.priority}</span>${avatar(x.assignee)}</span></button>`).join('') || '<p class="muted pad">Nessuna email in questa vista.</p>'}
+   ${filtered.map(x => `<button class="list-item ${x.missionOpen && !x.reading ? 'has-mission' : ''} ${x.id === m.id ? 'active' : ''} ${state.handled.includes(x.id) ? 'handled' : ''}" data-mail="${x.id}"><span class="li-top"><b>${x.missionOpen && !x.reading ? '<span class="mission-flag" title="Serve il tuo controllo">!</span>' : ''}${x.live && Date.now() - x.at < 90000 ? '<span class="new-tag">NUOVA</span>' : ''}${esc(x.from)}</b><small>${x.time}</small></span><span class="li-subject">${esc(x.subject)}</span><span class="li-ai">${x.reading ? '<i class="spinner"></i>Otto la sta leggendo…' : icon('sparkle') + esc(x.understood)}</span><span class="li-meta">${pchip(x.practice)}<span class="prio prio-${x.priority}">${x.priority}</span>${avatar(x.assignee)}</span></button>`).join('') || '<p class="muted pad">Nessuna email in questa vista.</p>'}
   </section>
   <section class="detail-pane">
    <div class="detail-head"><div><span class="eyebrow">${esc(m.kind.toUpperCase())} · ${m.time}</span><h2>${esc(m.subject)}</h2><p class="muted">${esc(m.from)} · ${esc(m.address)}</p></div>${state.handled.includes(m.id) ? badge('Gestita', 'badge-green') : badge('Da approvare', 'badge-amber')}</div>
    <details class="original"><summary>Messaggio originale</summary><p>${esc(m.body)}</p></details>
    ${m.attachments.length ? `<div class="attachments">${m.attachments.map(a => `<span class="file-chip">${icon('clip')}${esc(a)}</span>`).join('')}</div>` : ''}
+   ${m.mission && !m.reading ? missionPanel(m.mission) : ''}
    ${m.reading ? `<div class="otto-reading"><i class="spinner"></i><div><b>Otto sta leggendo l’email e gli allegati…</b><span class="skeleton"></span><span class="skeleton short"></span></div></div>` : `${ottoNote(m.understood)}
-   <div class="prepared"><span class="eyebrow">HO GIÀ PREPARATO</span>${m.prepared.map(p => `<${p.go ? `button data-action="${p.go.startsWith('studio:') ? p.go : 'go:' + p.go}"` : 'div'} class="prepared-item">${icon(p.icon)}<span>${esc(p.text)}</span>${p.go ? icon('arrow') : icon('check')}</${p.go ? 'button' : 'div'}>`).join('')}</div>
+   ${m.prepared.length ? `<div class="prepared"><span class="eyebrow">HO GIÀ PREPARATO</span>${m.prepared.map(p => `<${p.go ? `button data-action="${p.go.startsWith('studio:') ? p.go : 'go:' + p.go}"` : 'div'} class="prepared-item">${icon(p.icon)}<span>${esc(p.text)}</span>${p.go ? icon('arrow') : icon('check')}</${p.go ? 'button' : 'div'}>`).join('')}</div>` : ''}
    ${m.draft ? `<label class="draft"><span class="eyebrow">BOZZA DI RISPOSTA</span><textarea rows="4">${esc(m.draft)}</textarea></label>` : ''}`}
-   <div class="detail-actions">${state.handled.includes(m.id) ? btn('Riapri', `handle:${m.id}`, 'btn-secondary', '') : btn(m.draft ? 'Approva e invia' : 'Approva e archivia', `handle:${m.id}`, 'btn-primary', 'check')}<span class="assign">Assegnata a ${avatar(m.assignee)} ${esc(D.person(m.assignee).name)}</span></div>
+   ${m.missionOpen ? '' : `<div class="detail-actions">${state.handled.includes(m.id) ? btn('Riapri', `handle:${m.id}`, 'btn-secondary', '') : btn(m.draft ? 'Approva e invia' : 'Approva e archivia', `handle:${m.id}`, 'btn-primary', 'check')}<span class="assign">Assegnata a ${avatar(m.assignee)} ${esc(D.person(m.assignee).name)}</span></div>`}
   </section>
  </div>`;
 }
@@ -603,6 +605,10 @@ window.addEventListener('message', e => {
  if (e.data === 'csd:resume') wake(true);
  if (e.data === 'csd:pause') wake(false);
 });
-initGame(challenges, {icon, pageName:id => moduleById(id)?.title || {home:'Oggi in studio'}[id] || id});
+initGame(challenges, {icon, menuNote:'E nella Posta arrivano missioni sempre nuove, dentro le email.',
+ focus:(page, ref) => { if (page === 'posta') { ui.mail = ref; ui.mailFilter = 'all'; } if (route() === page) { render(); } else location.hash = page; setTimeout(() => document.querySelector('[data-mission]')?.scrollIntoView({block:'center', behavior:'smooth'}), 120); },
+ onStart:() => startMissions(id => { if (!state.handled.includes(id)) state.handled.push(id); if (route() === 'posta') { const y = scrollY; render(); scrollTo(0, y); } }),
+ onReset:() => stopMissions(),
+ pageName:id => moduleById(id)?.title || {home:'Oggi in studio'}[id] || id});
 shell();
 startLive();

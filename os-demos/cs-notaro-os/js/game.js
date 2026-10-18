@@ -13,13 +13,15 @@ const rich = v => esc(v).replace(/\*\*(.+?)\*\*/g, '<b>$1</b>').replace(/==(.+?)
 const base = {1:10, 2:20, 3:30};
 const levelNotes = {1:'Si comincia: scelte chiare per prendere la mano.', 2:'Arrivano le prime trappole. Prima di approvare, apri le fonti.', 3:'Ultimo livello: errori sottili e un po’ di fretta.'};
 
-let C = [], icon = () => '', pageName = id => id, place = 'lo studio', timer = 0;
-const S = {avail:{}, seenOpen:0, started:false, points:0, level:1, round:1, streak:0, last:null, solved:{}, cards:{}, showing:{}, sound:true};
+let C = [], icon = () => '', pageName = id => id, place = 'lo studio', timer = 0, hooks = {};
+const S = {missions:{}, mseq:0, avail:{}, seenOpen:0, started:false, points:0, level:1, round:1, streak:0, last:null, solved:{}, cards:{}, showing:{}, sound:true};
 try { S.sound = localStorage.getItem('csd.game.sound') !== 'off'; } catch {}
 
 export function initGame(challenges, opts) {
- C = challenges; icon = opts.icon; pageName = opts.pageName || pageName; place = opts.place || place;
+ C = challenges; icon = opts.icon; pageName = opts.pageName || pageName; place = opts.place || place; hooks = opts;
  document.addEventListener('click', onClick);
+ document.addEventListener('input', onInput);
+ document.addEventListener('keydown', onKey);
 }
 
 // ————— stato —————
@@ -40,6 +42,41 @@ function resolve(c) {
 }
 const list = () => { if (cache.round !== S.round) cache = {round:S.round, list:C.map(resolve)}; return cache.list; };
 const open = () => list().filter(c => c.level === S.level && !S.solved[c.id]);
+// Missioni: decisioni legate a un elemento preciso (un'email), con il loro minigioco. Le crea il regista dell'app.
+const missionLeft = m => m.ttl - (Date.now() - m.created);
+const openMissions = () => Object.values(S.missions).filter(m => !m.result);
+const openAll = () => [...open().map(c => ({id:c.id, title:c.title, page:c.page, left:left(c), pts:maxPts(c)})), ...openMissions().map(m => ({id:m.id, title:m.title, page:m.page, ref:m.ref, left:missionLeft(m), pts:45}))];
+export function addMission(m) {
+ const id = `ms${++S.mseq}`;
+ S.missions[id] = {...m, id, created:Date.now(), st:{id}, result:null};
+ markNav(); updateAlert();
+ return id;
+}
+export function missionPanel(id) {
+ const m = S.missions[id]; if (!m || m.closed) return '';
+ const r = m.result, elapsed = (m.ttl - missionLeft(m)) / 1000;
+ return `<section class="game-card mission l2 ${r ? (r.pts < 0 ? 'is-ko' : 'is-ok') : ''}" data-mission="${id}">
+  <div class="gc-top"><span class="gc-tag">${icon(r ? (r.pts < 0 ? 'otto-think' : 'otto-happy') : 'otto-read')} MISSIONE · ${esc(m.label)}</span>${r ? '' : '<span class="gc-worth">fino a +45 pt</span>'}</div>
+  ${r ? '' : `<div class="gc-timer"><i style="animation-duration:${m.ttl / 1000}s;animation-delay:-${elapsed.toFixed(1)}s"></i></div>`}
+  <div class="mg">${m.render(m.data, m.st)}</div>
+  ${r ? `<div class="gc-result"><b class="${r.pts < 0 ? 'neg' : ''}">${r.pts > 0 ? '+' : ''}${r.pts} pt · ${esc(r.label)}</b><p>${rich(r.why)}</p><button data-game="mclose:${id}">Fatto ${icon('check')}</button></div>` : ''}
+ </section>`;
+}
+function refreshMission(id) {
+ const el = document.querySelector(`[data-mission="${id}"]`);
+ if (el) el.outerHTML = missionPanel(id);
+}
+function resolveMission(m, r, from) {
+ m.st.done = true;
+ let pts = Math.max(r.pts, -S.points);
+ if (pts > 0) { S.streak++; S.last = 'ok'; if (S.streak % 3 === 0) { pts += 15; r.why += ` **Serie di ${S.streak}: +15 bonus.**`; } } else { S.streak = 0; S.last = 'ko'; }
+ S.points += pts; m.result = {...r, pts};
+ play(pts > 0 ? (pts >= 30 ? 'great' : 'good') : 'bad');
+ refreshMission(m.id);
+ float(pts, document.querySelector(`[data-mission="${m.id}"] .gc-result b`) || from);
+ markNav(); updateAlert();
+ m.onDone?.();
+}
 const keySources = c => (c.sources || []).map((s, i) => s.key ? i : -1).filter(i => i >= 0);
 const maxPts = c => base[c.level] + (keySources(c).length ? base[c.level] / 2 : 0);
 const face = () => S.last === 'ko' ? 'otto-think' : S.streak >= 3 ? 'otto-wink' : S.last === 'ok' ? 'otto-happy' : 'sparkle';
@@ -99,7 +136,8 @@ function arm() {}
 // Un solo orologio per tutte le decisioni aperte: quando una scade toglie un po' di punti, meno di una scelta sbagliata.
 function openLevel() { const t = Date.now(); open().forEach(c => { S.avail[c.id] ||= t; }); }
 function tick() {
- if (!S.started || touring() || document.hidden) { for (const id in S.avail) S.avail[id] += 1000; return; }
+ if (!S.started || touring() || document.hidden) { for (const id in S.avail) S.avail[id] += 1000; openMissions().forEach(m => { m.created += 1000; }); return; }
+ for (const m of openMissions()) if (missionLeft(m) <= 0) resolveMission(m, {pts:-8, label:'Tempo scaduto', why:'L’email è rimasta senza risposta: Otto l’ha rimessa in coda. Una decisione presa tardi costa meno di una sbagliata, ma costa.'});
  for (const c of open()) {
   if (left(c) > 0) continue;
   const b = base[c.level], k = S.cards[c.id] ||= {opened:[], seen:true};
@@ -114,11 +152,11 @@ function tick() {
 setInterval(tick, 1000);
 // Il quadrato rosso con il punto esclamativo: quante decisioni aspettano, e ci porta lì.
 function alertBtn() {
- const n = S.started ? open().length : 0;
+ const n = S.started ? openAll().length : 0;
  return n ? `<button class="game-alert" data-game="alert" aria-label="${n} decisioni da prendere" title="Decisioni da prendere"><b>!</b>${n > 1 ? `<small>${n}</small>` : ''}</button>` : '';
 }
 function updateAlert() {
- const n = S.started ? open().length : 0;
+ const n = S.started ? openAll().length : 0;
  document.querySelectorAll('.game-alert').forEach(el => el.remove());
  const chip = document.querySelector('.game-chip'); if (!chip || !n) return;
  chip.insertAdjacentHTML('afterend', alertBtn());
@@ -126,14 +164,14 @@ function updateAlert() {
  S.seenOpen = n;
 }
 function chooser() {
- const list = open();
- if (list.length === 1) { location.hash = list[0].page; return; }
+ const list = openAll();
+ if (list.length === 1) return go(list[0].page, list[0].ref);
  const btn = document.querySelector('.game-alert'); if (!btn) return;
  document.querySelector('.game-pop')?.remove();
  const r = btn.getBoundingClientRect(), el = document.createElement('div');
  el.className = 'game-pop'; el.setAttribute('role', 'dialog'); el.setAttribute('aria-label', 'Decisioni da prendere');
  el.innerHTML = `<header><span>${icon('otto-think')}</span><div><b>${list.length} decisioni aspettano</b><small>Scegli da quale cominciare</small></div></header>
-  ${[...list].sort((a, b) => left(a) - left(b)).map(c => `<button class="gp-item" data-game="go:${c.page}"><b>${esc(c.title)}</b><small>${esc(pageName(c.page))} · ${Math.max(0, Math.ceil(left(c) / 1000))} s · fino a +${maxPts(c)} pt</small></button>`).join('')}`;
+  ${[...list].sort((a, b) => a.left - b.left).map(c => `<button class="gp-item ${c.ref ? 'is-mission' : ''}" data-game="go:${c.page}${c.ref ? ':' + c.ref : ''}"><b>${esc(c.title)}</b><small>${esc(pageName(c.page))} · ${Math.max(0, Math.ceil(c.left / 1000))} s · fino a +${c.pts} pt</small></button>`).join('')}`;
  el.style.top = `${r.bottom + 10}px`; el.style.right = `${Math.max(12, innerWidth - r.right)}px`;
  document.body.append(el);
 }
@@ -141,7 +179,7 @@ function chooser() {
 function markNav() {
  document.querySelectorAll('.game-dot').forEach(d => d.remove());
  if (!S.started || touring()) return;
- for (const page of new Set(open().map(c => c.page))) {
+ for (const page of new Set(openAll().map(c => c.page))) {
   const a = document.querySelector(`.sidebar a[href="#${page}"]`);
   a?.insertAdjacentHTML('beforeend', '<i class="game-dot" title="Decisione da prendere"></i>');
  }
@@ -245,7 +283,7 @@ export function gameInvite() {
  setTimeout(() => celebrate('Ora prova tu', 'Avvia la sfida di Otto da “Sfida” in alto: le decisioni vere passano a te.'), 500);
 }
 function start() {
- S.started = true; openLevel(); updateChip('bump'); play('level');
+ S.started = true; openLevel(); hooks.onStart?.(); updateChip('bump'); play('level');
  refresh(location.hash.slice(1) || 'home'); markNav();
  celebrate('La sfida è iniziata', 'Le decisioni arrivano dal quadrato rosso “!” in alto e dai puntini rossi nel menu. Ognuna ha il suo tempo.');
 }
@@ -279,7 +317,7 @@ function menu() {
  el.className = 'game-pop'; el.setAttribute('role', 'dialog'); el.setAttribute('aria-label', 'La sfida di Otto');
  const list = open();
  if (!S.started) el.innerHTML = `<header><span>${icon('otto-happy')}</span><div><b>La sfida di Otto</b><small>Spenta · si attiva solo se vuoi</small></div></header>
-  <p>Prova a gestire ${place} come se fosse tuo. <b>Otto prepara, tu verifichi:</b> apri le fonti, poi approva la scelta giusta. 14 decisioni vere, tre livelli.</p>
+  <p>Prova a gestire ${place} come se fosse tuo. <b>Otto prepara, tu verifichi:</b> apri le fonti, poi approva la scelta giusta. Decisioni vere su tre livelli.${hooks.menuNote ? ' ' + esc(hooks.menuNote) : ''}</p>
   <ul class="gp-rules"><li><i class="ok"></i>Giusto e verificato alla fonte <b>pieno + bonus</b></li><li><i class="mid"></i>Giusto ma alla cieca <b>metà</b></li><li><i class="ko"></i>Scelta sbagliata <b>punti in meno</b></li></ul>
   <button class="gp-start" data-game="start">Inizia la sfida</button>
   <footer><button data-game="sound">${S.sound ? 'Suoni attivi' : 'Suoni spenti'}</button></footer>`;
@@ -291,6 +329,33 @@ function menu() {
  el.style.top = `${r.bottom + 10}px`; el.style.right = `${Math.max(12, innerWidth - r.right)}px`;
  document.body.append(el);
 }
+function go(page, ref) {
+ if (ref && hooks.focus) return hooks.focus(page, ref);
+ location.hash = page;
+}
+function missionAction(id, action, v, from) {
+ const m = S.missions[id]; if (!m || m.result) return;
+ const r = m.handle(m.data, m.st, action, v);
+ if (r?.done) return resolveMission(m, r, from);
+ if (r?.sound) play(r.sound); else play('click');
+ refreshMission(id);
+}
+function onInput(e) {
+ const t = e.target.closest?.('[data-mg-input]'); if (!t) return;
+ const [id, i] = t.dataset.mgInput.split(':'), m = S.missions[id]; if (!m || m.result) return;
+ // anche incollando o scrivendo veloce: i caratteri in più scorrono nelle caselle successive
+ const boxes = [...t.parentElement.querySelectorAll('[data-mg-input]')], chars = [...t.value.toUpperCase().replace(/\s/g, '')];
+ if (!chars.length) { m.handle(m.data, m.st, 'type', {i:+i, v:''}); return; }
+ let j = +i;
+ for (const ch of chars) { if (!boxes[j]) break; boxes[j].value = ch; boxes[j].classList.remove('bad'); m.handle(m.data, m.st, 'type', {i:j, v:ch}); j++; }
+ play('click'); (boxes[j] || boxes[boxes.length - 1]).focus();
+}
+function onKey(e) {
+ const t = e.target.closest?.('[data-mg-input]'); if (!t) return;
+ const boxes = [...t.parentElement.querySelectorAll('[data-mg-input]')], i = boxes.indexOf(t);
+ if (e.key === 'Backspace' && !t.value && i > 0) { boxes[i - 1].focus(); e.preventDefault(); }
+ if (e.key === 'Enter') { e.preventDefault(); missionAction(t.dataset.mgInput.split(':')[0], 'confirm', '0', t); }
+}
 function onClick(e) {
  const b = e.target.closest('[data-game]');
  if (!b) { if (!e.target.closest('.game-pop')) document.querySelector('.game-pop')?.remove(); return; }
@@ -299,10 +364,12 @@ function onClick(e) {
  if (k === 'menu') { play('click'); return menu(); }
  if (k === 'start') return start();
  if (k === 'alert') { play('click'); return chooser(); }
- if (k === 'go') { location.hash = id; return; }
+ if (k === 'go') return go(id, i);
+ if (k === 'mg') return missionAction(id, i, b.dataset.game.split(':').slice(3).join(':'), b);
+ if (k === 'mclose') { S.missions[id].closed = true; refreshMission(id); return; }
  if (k === 'src') { const c = S.cards[id]; if (c && !c.opened.includes(+i)) c.opened.push(+i); play('open'); return refresh(challenge(id).page); }
  if (k === 'pick') return pick(id, +i, b);
  if (k === 'next') { const c = challenge(id); delete S.showing[c.page]; play('click'); return refresh(c.page); }
  if (k === 'sound') { S.sound = !S.sound; try { localStorage.setItem('csd.game.sound', S.sound ? 'on' : 'off'); } catch {} b.textContent = S.sound ? 'Suoni attivi' : 'Suoni spenti'; play('click'); return; }
- if (k === 'restart') { Object.assign(S, {avail:{}, seenOpen:0, started:false, points:0, level:1, round:1, streak:0, last:null, solved:{}, cards:{}, showing:{}}); updateChip(); refresh(location.hash.slice(1) || 'home'); }
+ if (k === 'restart') { hooks.onReset?.(); Object.assign(S, {missions:{}, avail:{}, seenOpen:0, started:false, points:0, level:1, round:1, streak:0, last:null, solved:{}, cards:{}, showing:{}}); updateChip(); refresh(location.hash.slice(1) || 'home'); }
 }

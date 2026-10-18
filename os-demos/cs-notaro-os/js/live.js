@@ -4,7 +4,8 @@
 import * as D from './demo.js';
 
 // awake: dentro il sito la demo resta ferma finché il visitatore non la apre (vedi app.js).
-export const live = {on:true, awake:window.parent === window, feed:[]};
+// game: con la sfida avviata il ciclo normale tace e le email arrivano dal regista delle missioni (missions.js).
+export const live = {on:true, awake:window.parent === window, game:false, missions:[], feed:[]};
 let listeners = [];
 export const subscribe = fn => { listeners.push(fn); };
 const emit = ev => listeners.forEach(fn => fn(ev));
@@ -71,6 +72,14 @@ function newMail() {
  }, 2600);
  return m;
 }
+// Un'email preparata dal regista delle missioni: arriva come le altre, Otto la legge e poi tocca a te.
+export function spawnMail(t) {
+ const m = {...t, id:uid('m'), time:clock(), live:true, reading:true, at:Date.now()};
+ D.mails.unshift(m);
+ emit({type:'mail', title:`Nuova email · ${m.from}`, text:'Otto la sta leggendo…', go:'posta', icon:'inbox', ref:m.id});
+ setTimeout(() => { m.reading = false; emit({type:'mail-read', title:'Serve il tuo controllo', text:m.subject, go:'posta', icon:'alert', ref:m.id}); }, 2600);
+ return m;
+}
 function newCall() {
  const t = pick(callPool, 'call');
  const c = {id:uid('c'), time:clock(), caller:t.caller, number:'+39 3•• •••• ' + (100 + seq * 7 % 900), kind:t.kind, duration:'in corso', outcome:'In corso', intent:t.intent, summary:t.lines[0][1], reply:'', actions:[], lines:t.lines, shown:1, live:true};
@@ -123,7 +132,7 @@ function trim(list, keep, done) {
  extra.slice(0, Math.max(0, extra.length - keep)).forEach(x => list.splice(list.indexOf(x), 1));
 }
 function tidy() {
- trim(D.mails, 6, m => !m.reading);
+ trim(D.mails, 6, m => !m.reading && !m.missionOpen);
  trim(D.calls, 4, c => !c.live);
  trim(D.visure, 3, v => v.status === 'Completata');
  D.audit.length = Math.min(D.audit.length, 40);
@@ -133,7 +142,7 @@ function tidy() {
 // Sceneggiatura a ciclo: ritmo variato, mai due eventi uguali di fila.
 const script = [newMail, newWhatsapp, newCall, taskDone, newMail, visuraDone, newWhatsapp, newMail, taskDone, newCall];
 let i = 0, timer;
-const running = () => live.on && live.awake && !document.body.classList.contains('touring') && !document.hidden;
+const running = () => live.on && live.awake && !live.game && !document.body.classList.contains('touring') && !document.hidden;
 function next() {
  timer = setTimeout(() => {
   if (running()) { tidy(); const fn = script[i++ % script.length]; if (fn() === false) script[(i) % script.length](); }

@@ -1,16 +1,8 @@
-// Le 14 sfide di CS Notaro OS (motore in game.js). Ogni risposta giusta si trova davvero nelle fonti:
+// Le 12 sfide di CS Notaro OS (le decisioni della Posta sono missioni a parte, in missions.js) (motore in game.js). Ogni risposta giusta si trova davvero nelle fonti:
 // è il lavoro vero dello studio, Otto prepara e la persona verifica. Ogni giornata usa una variante
 // diversa (vars): nomi, numeri e a volte anche la risposta giusta cambiano. Dati e persone inventati.
 export const challenges = [
  // ————— livello 1: prendere la mano —————
- {id:'n-banca', level:1, page:'posta', title:'{bank} conferma il modulo',
-  text:'La banca scrive che ha ricevuto il modulo di erogazione della pratica **{practice}**. Otto propone di **archiviare l’email e avvisare {client} su WhatsApp** che l’assegno sarà pronto {day}.',
-  sources:[{label:'Email di {bank}', text:'Confermiamo la ricezione del modulo. ==L’assegno circolare sarà disponibile in filiale {day}.=='}],
-  options:[
-   {label:'Approva: archivia e avvisa il cliente', ok:true, why:'Esatto. Nessuna azione per lo studio, il cliente aggiornato senza una telefonata.'},
-   {label:'Rispondi chiedendo di nuovo il modulo', why:'La banca l’ha già ricevuto: una richiesta in più fa solo perdere tempo a tutti.'}
-  ],
-  vars:[{bank:'Banca Arno', practice:'Rossi / Verdi', client:'Mario Rossi', day:'giovedì'}, {bank:'Credito Fiorentino', practice:'Bassi / Lodi', client:'Chiara Bassi', day:'lunedì'}, {bank:'Banca del Mugello', practice:'Neri / Galli', client:'Davide Neri', day:'venerdì mattina'}]},
  {id:'n-firma', level:1, page:'whatsapp', title:'{client} conferma la firma',
   text:'Il cliente scrive “{when} va benissimo”. Otto ha preparato la risposta: **“Confermato {when_full}, le mando un promemoria il giorno prima.”**',
   sources:[{label:'Agenda dello studio', text:'{agenda} · ==Firma {act} {surname}== · sala grande · {notary}'}],
@@ -60,17 +52,6 @@ export const challenges = [
    {label:'Chiedi alle parti prima di decidere', partial:true, why:'Prudente, ma la risposta era già nel bonifico: bastava aprirlo.'}
   ],
   vars:[{practice:'Rossi / Verdi', right:'24.500,00', wrong:'25.000,00', date:'03/09/2026', buyer:'Rossi Mario', seller:'Verdi Anna', street:'via dei Tigli 12'}, {practice:'Bassi / Lodi', right:'18.000,00', wrong:'18.500,00', date:'21/08/2026', buyer:'Bassi Chiara', seller:'Lodi Franco', street:'via Gramsci 40'}, {practice:'Neri / Galli', right:'31.200,00', wrong:'32.100,00', date:'12/09/2026', buyer:'Neri Davide', seller:'Galli Lucia', street:'via Faentina 7'}]},
- {id:'n-iban', level:2, page:'posta', title:'Manca l’IBAN di {seller}',
-  text:'Per il modulo di erogazione serve l’IBAN della parte venditrice, **{seller}**. Otto l’ha lasciato vuoto: non è in nessun documento della pratica. Cosa fai?',
-  sources:[
-   {label:'Email di {lawyer}', text:'Le trasmetto i documenti della pratica. ==L’IBAN di {seller} le arriverà a parte.==', key:true},
-   {label:'Pratica {year} di {seller}', text:'IBAN IT60 X054 2811 1010 0000 0123 456 · ==conto chiuso nel {closed}=='}
-  ],
-  options:[
-   {label:'Chiedi l’IBAN a {lawyer} su WhatsApp', ok:true, why:'Giusto: il dato arriva da chi lo deve dare. Otto ha già pronta la richiesta.'},
-   {label:'Usa l’IBAN della pratica del {year}', why:'Quel conto è stato chiuso nel {closed}: l’erogazione sarebbe tornata indietro il giorno della stipula.'}
-  ],
-  vars:[{seller:'Anna Verdi', lawyer:'l’avv. Lorenzi', year:2021, closed:2023}, {seller:'Franco Lodi', lawyer:'lo studio Bertelli', year:2019, closed:2024}, {seller:'Lucia Galli', lawyer:'l’avv. Moretti', year:2020, closed:2022}]},
  {id:'n-imposte', level:2, page:'preventivi', title:'Prima casa o no?',
   text:'Nel preventivo per **{buyer}** Otto deve scegliere l’imposta di registro: **2% con l’agevolazione prima casa** o **9%**. Cosa dicono i documenti?',
   sources:[
