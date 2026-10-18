@@ -245,6 +245,8 @@ export const haccp = [{task:'Temperatura frigo 1 (≤ 4°C)', done:true, by:'Kar
 let inbound = [];
 export const onInbound = fn => inbound.push(fn);
 const ping = ev => inbound.forEach(fn => fn(ev));
+// Un avviso dal locale (usato anche dalle missioni della sfida): riga nel flusso, notifica e aggiornamento.
+export function notify(ev, text, kind = 'sala') { if (text) log(text, kind); ping(ev); emit(); }
 const callPool = [
  {caller:'Chiara Lotti', guests:4, time:'21:30', text:'Avete un tavolo per 4 alle 21:30?', reply:'Sì: tavolo 12 alle 21:30. Ti mando la conferma su WhatsApp.', table:'T12'},
  {caller:'Hotel Brunelleschi · concierge', guests:2, time:'21:45', text:'Due ospiti dell’hotel, uno vegano.', reply:'Prenotato il tavolo 1 alle 21:45, segnalato il menu vegano alla cucina.', table:'T1'},
@@ -289,4 +291,5 @@ function inboundSupplier() {
  ping({type:'supplier', title:`Fornitore · ${i.supplier}`, text:`Consegna di ${i.name} confermata per domattina`, go:'magazzino', icon:'box'}); emit();
 }
 const inboundScript = [inboundCall, inboundWhatsapp, inboundReview, inboundCall, inboundSupplier, inboundWhatsapp];
-export function inboundTick() { if (!service.live) return; inboundScript[phase++ % inboundScript.length](); }
+// con la sfida avviata (service.game) gli avvisi arrivano dalle missioni
+export function inboundTick() { if (!service.live || service.game) return; inboundScript[phase++ % inboundScript.length](); }

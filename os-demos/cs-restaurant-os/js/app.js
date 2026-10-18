@@ -4,6 +4,7 @@ import * as D from './demo.js';
 import {startTour} from './tour.js';
 import {initGame, gameChip, mountGame, gameInvite} from './game.js';
 import {challenges} from './challenges.js';
+import {startMissions, stopMissions} from './missions.js';
 import {restaurantTour} from './tour-steps.js';
 import {now as NOW, service as SV} from './clock.js';
 
@@ -417,5 +418,5 @@ window.addEventListener('message', e => {
  if (e.data === 'csd:resume') wake(true);
  if (e.data === 'csd:pause') wake(false);
 });
-initGame(challenges, {icon, place:'il locale', pageName:id => moduleById(id)?.title || {home:SV.title}[id] || id});
+initGame(challenges, {icon, place:'il locale', missionsOnly:true, onStart:startMissions, onReset:stopMissions, menuNote:'Le missioni arrivano dal locale vivo: fatture dei fornitori, comande grandi, conti, prenotazioni e chiamate. Sempre nuove.', pageName:id => moduleById(id)?.title || {home:SV.title}[id] || id});
 shell();

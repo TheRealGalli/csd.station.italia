@@ -138,6 +138,9 @@ function teaser() {
 function inner(page) {
  if (touring()) return '';
  if (!S.started) return page === 'home' ? teaser() : '';
+ // missioni senza un elemento preciso: vivono in cima alla loro pagina, una alla volta
+ const pm = Object.values(S.missions).filter(m => m.page === page && !m.ref && !m.closed).sort((a, b) => (a.result ? 0 : 1) - (b.result ? 0 : 1) || a.created - b.created)[0];
+ if (pm) return missionPanel(pm.id);
  const showing = S.showing[page] && challenge(S.showing[page]);
  const c = showing || open().find(x => x.page === page);
  if (c) { S.showing[page] = c.id; return card(c); }
@@ -342,7 +345,8 @@ function menu() {
 }
 function go(page, ref) {
  if (ref && hooks.focus) return hooks.focus(page, ref);
- location.hash = page;
+ if ((location.hash.slice(1) || 'home') !== page) location.hash = page;
+ setTimeout(() => document.querySelector('[data-mission]')?.scrollIntoView({block:'center', behavior:'smooth'}), 150);
 }
 function missionAction(id, action, v, from) {
  const m = S.missions[id]; if (!m || m.result) return;
@@ -377,7 +381,7 @@ function onClick(e) {
  if (k === 'alert') { play('click'); return chooser(); }
  if (k === 'go') return go(id, i);
  if (k === 'mg') return missionAction(id, i, b.dataset.game.split(':').slice(3).join(':'), b);
- if (k === 'mclose') { S.missions[id].closed = true; refreshMission(id); return; }
+ if (k === 'mclose') { const m = S.missions[id]; m.closed = true; m.ref ? refreshMission(id) : refresh(m.page); return; }
  if (k === 'src') { const c = S.cards[id]; if (c && !c.opened.includes(+i)) c.opened.push(+i); play('open'); return refresh(challenge(id).page); }
  if (k === 'pick') return pick(id, +i, b);
  if (k === 'next') { const c = challenge(id); delete S.showing[c.page]; play('click'); return refresh(c.page); }
