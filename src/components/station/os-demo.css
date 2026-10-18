@@ -63,12 +63,12 @@
 .os-play:hover{background:#27492a;border-color:#7fb045;transform:translateY(-1px)}
 /* Otto con l'accessorio del settore: un piatto per il ristorante, occhiali e libro per il notaio */
 .os-prop{position:absolute;pointer-events:none}
-.os-plate{right:-16px;top:27px;width:30px;height:9px;border-radius:50%;background:#f4f6ee;box-shadow:0 2px 0 #b9c3a8,0 4px 6px #0005;transform:rotate(-8deg)}
+.os-plate{right:-11px;top:37px;width:30px;height:9px;border-radius:50%;background:#f4f6ee;box-shadow:0 2px 0 #b9c3a8,0 4px 6px #0005;transform:rotate(-8deg)}
 .os-plate i{position:absolute;left:8px;top:-7px;width:14px;height:9px;border-radius:7px 7px 2px 2px;background:linear-gradient(#e2b14f,#c98a2e);box-shadow:inset 0 -2px 0 #a8701f}
 .os-plate i:before{content:'';position:absolute;left:5px;top:-3px;width:4px;height:4px;border-radius:50%;background:#7fb045}
-.os-glasses{left:19px;top:25px;width:34px;height:12px}
-.os-glasses:before,.os-glasses:after{content:'';position:absolute;top:0;width:12px;height:11px;border:2px solid #e9d8a6;border-radius:50%;box-sizing:border-box}
+.os-glasses{left:19px;top:29.5px;width:26px;height:11px}
+.os-glasses:before,.os-glasses:after{content:'';position:absolute;top:0;width:11px;height:11px;border:2px solid #e9d8a6;border-radius:50%;box-sizing:border-box}
 .os-glasses:before{left:0}.os-glasses:after{right:0}
-.os-glasses{background:linear-gradient(#e9d8a6,#e9d8a6) center 5px/8px 2px no-repeat}
+.os-glasses{background:linear-gradient(#e9d8a6,#e9d8a6) center 4.5px/6px 2px no-repeat}
 .os-book{left:-6px;top:56px;width:22px;height:27px;border-radius:2px 4px 4px 2px;background:linear-gradient(90deg,#5b3a1f 0 3px,#8a5a2e 3px);box-shadow:0 3px 6px #0006;transform:rotate(-14deg)}
 .os-book:after{content:'';position:absolute;left:7px;top:6px;width:10px;height:2px;background:#e9d8a6;box-shadow:0 4px 0 #e9d8a6aa}
