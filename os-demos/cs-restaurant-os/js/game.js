@@ -359,6 +359,8 @@ function tick() {
 // i battiti del gioco non devono mai fermare la pagina: un errore si registra e si va avanti
 const safe = (fn, name) => () => { try { fn(); } catch (err) { console.warn(`Sfida di Otto · ${name}`, err); } };
 setInterval(safe(tick, 'tempo'), 1000);
+// Esc chiude la Bottega
+document.addEventListener('keydown', e => { if (e.key === 'Escape' && document.querySelector('.otto-shop')) { document.querySelector('.otto-shop').remove(); S.shopNote = ''; } });
 // tornando sulla scheda il conto del tempo fermo si fa subito, prima che le app controllino cosa è in rosso
 document.addEventListener('visibilitychange', () => { if (!document.hidden) safe(tick, 'tempo')(); });
 // Consigli casuali di Otto, a tempo fermo, solo quando non c'è niente di urgente.
@@ -940,6 +942,9 @@ function buy(id, free) {
 }
 
 function onClick(e) {
+ // la Bottega si chiude anche cliccando fuori (non solo con la X)
+ const shop = document.querySelector('.otto-shop');
+ if (shop && !e.target.closest('.otto-shop, .ask-otto, .plan-mini, [data-game="shop"]')) { shop.remove(); S.shopNote = ''; }
  if (!e.target.closest('.gc-nextm')) { clearTimeout(autoNext); document.querySelectorAll('.gc-auto').forEach(x => x.remove()); }
  const b = e.target.closest('[data-game]');
  if (!b) { if (!e.target.closest('.game-pop')) document.querySelector('.game-pop')?.remove(); return; }
