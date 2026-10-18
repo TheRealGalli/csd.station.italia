@@ -233,7 +233,8 @@ const challenge = id => list().find(c => c.id === id);
 export function gameChip() {
  if (!S.started) return `<button class="game-chip idle" data-game="menu" aria-label="La sfida di Otto: avviala" title="La sfida di Otto"><span class="gch-face">${icon('otto-happy')}</span><b class="gch-play">Sfida</b></button>`;
  const ch = chapterInfo();
- return `<button class="game-chip ${S.points ? '' : 'idle'}" data-game="menu" aria-label="La sfida di Otto: ${S.points} punti, livello ${S.level}" title="${ch ? esc(`Capitolo ${ch.n} · ${ch.title} — ${ch.goal}`) : 'La sfida di Otto'}"><span class="gch-face">${icon(face())}</span><b class="gch-pts">${S.points}</b><small>pt</small><span class="gch-lvl">${[1, 2, 3].map(l => `<i class="${l < S.level ? 'done' : l === S.level ? 'on' : ''}"></i>`).join('')}</span>${S.gift ? '<i class="gch-gift" title="Otto ha un regalo per te"></i>' : ''}</button>${alertBtn()}${ch ? `<button class="game-chapter" data-game="menu" title="${esc(ch.goal)}"><small>CAP. ${ch.n}/${ch.of}</small><b>${esc(ch.title)}</b><i>${esc(ch.goal.split(' · ').pop())}</i></button>` : ''}`;
+ // in alto: capitolo, poi "!", poi punti
+ return `${ch ? `<button class="game-chapter" data-game="menu" title="${esc(`Capitolo ${ch.n} · ${ch.title} — ${ch.goal}`)}"><small>CAP. ${ch.n}/${ch.of}</small><b class="${ch.title.length > 17 ? 'long' : ''}"><span>${esc(ch.title)}</span></b><i>${esc(ch.goal.split(' · ').pop())}</i></button>` : ''}${alertBtn()}<button class="game-chip ${S.points ? '' : 'idle'}" data-game="menu" aria-label="La sfida di Otto: ${S.points} punti, livello ${S.level}" title="${ch ? esc(`Capitolo ${ch.n} · ${ch.title} — ${ch.goal}`) : 'La sfida di Otto'}"><span class="gch-face">${icon(face())}</span><b class="gch-pts">${S.points}</b><small>pt</small><span class="gch-lvl">${[1, 2, 3].map(l => `<i class="${l < S.level ? 'done' : l === S.level ? 'on' : ''}"></i>`).join('')}</span>${S.gift ? '<i class="gch-gift" title="Otto ha un regalo per te"></i>' : ''}</button>`;
 }
 function updateChip(bump) {
  document.querySelectorAll('.game-alert, .game-chapter').forEach(el => el.remove());
@@ -338,7 +339,7 @@ function updateAlert() {
  const n = S.started ? openAll().length : 0;
  document.querySelectorAll('.game-alert').forEach(el => el.remove());
  const chip = document.querySelector('.game-chip'); if (!chip || !n) return;
- chip.insertAdjacentHTML('afterend', alertBtn());
+ chip.insertAdjacentHTML('beforebegin', alertBtn());
  if (n > S.seenOpen) document.querySelector('.game-alert')?.classList.add('ring');
  S.seenOpen = n;
 }
