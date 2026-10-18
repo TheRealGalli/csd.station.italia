@@ -13,7 +13,7 @@
 //  multi    · selezioni tutto ciò che vale, e niente di più
 const esc = v => String(v ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const rich = v => esc(v).replace(/\*\*(.+?)\*\*/g, '<b>$1</b>');
-export const sources = list => list?.length ? `<div class="mg-sources">${list.map(s => `<div class="mg-doc ${s.official ? 'official' : ''}"><span class="mg-doc-t">${esc(s.t)}</span>${s.rows.map(r => `<div class="mg-row"><span class="mg-k">${esc(r[0])}</span><span class="mg-v ${r[2] ? 'mono' : ''}">${esc(r[1])}</span></div>`).join('')}</div>`).join('')}</div>` : '';
+export const sources = (list, hint = -1) => list?.length ? `<div class="mg-sources">${list.map((s, i) => `<div class="mg-doc ${s.official ? 'official' : ''} ${i === hint ? 'hinted' : ''}"><span class="mg-doc-t">${esc(s.t)}</span>${s.rows.map(r => `<div class="mg-row"><span class="mg-k">${esc(r[0])}</span><span class="mg-v ${r[2] ? 'mono' : ''}">${esc(r[1])}</span></div>`).join('')}</div>`).join('')}</div>` : '';
 const ask = (d, st, extra = '') => `<p class="mg-ask">${d.ask}${st.tries ? ` <span class="mg-tries">Tentativi sbagliati: ${st.tries}/${d.maxTries || 2}</span>` : ''}${extra}</p>`;
 const score = (m, base = 30) => Math.max(10, base + (m ? 0 : 15) - m * 5);
 const win = (d, m, perfect, ok) => ({done:true, pts:score(m), label:m ? (d.winLabel2 || 'Giusto, con qualche tentativo') : (d.winLabel || perfect), why:ok || d.winWhy});
@@ -24,7 +24,7 @@ const diff = {
  render(d, st) {
   const step = st.step || 'find';
   const row = (r, i, left) => {
-   const cls = [left && step === 'find' ? 'pick' : '', st.misses?.includes(i) ? 'miss' : '', step !== 'find' && i === d.wrongRow ? 'hit' : ''].join(' ');
+   const cls = [left && step === 'find' ? 'pick' : '', st.misses?.includes(i) ? 'miss' : '', step !== 'find' && i === d.wrongRow ? 'hit' : '', left && st.hintRow === i && step === 'find' ? 'hinted' : ''].join(' ');
    const cell = `<span class="mg-k">${esc(r[0])}</span><span class="mg-v">${esc(left ? r[1] : r[2])}</span>`;
    return left && step === 'find' ? `<button class="mg-row ${cls}" data-game="mg:${st.id}:row:${i}">${cell}</button>` : `<div class="mg-row ${cls}">${cell}</div>`;
   };
@@ -44,7 +44,7 @@ const boxes = {
  render(d, st) {
   const vals = st.vals || [], bad = st.bad || [];
   const cells = [...d.answer].map((_, i) => `${d.split && i === +d.split ? `<span class="mg-sep">${esc(d.splitLabel || '·')}</span>` : ''}<input class="mg-box ${bad.includes(i) ? 'bad' : ''} ${st.done ? 'ok' : ''}" data-mg-input="${st.id}:${i}" autocomplete="off" inputmode="${/^\d+$/.test(d.answer) ? 'numeric' : 'text'}" value="${esc(st.done ? d.answer[i] : vals[i] || '')}" aria-label="Carattere ${i + 1}" ${st.done ? 'disabled' : ''}>`).join('');
-  return `${ask({...d, maxTries:3}, st)}${sources(d.sources)}
+  return `${ask({...d, maxTries:3}, st)}${sources(d.sources, st.hintSrc ?? -1)}
    <div class="mg-form"><span class="mg-doc-t">${esc(d.field)}</span><div class="mg-line">${d.prefix ? `<span class="mg-prefix mono">${esc(d.prefix)}</span>` : d.firstLabel ? `<span class="mg-sep">${esc(d.firstLabel)}</span>` : ''}${cells}</div></div>
    ${st.done ? '' : `<div class="gc-options"><button data-game="mg:${st.id}:confirm:0">Conferma</button></div>`}`;
  },
@@ -85,7 +85,7 @@ const proof = {
  render(d, st) {
   const sel = st.sel, fixed = st.fixed || {};
   return `<p class="mg-ask">${d.ask}</p>${sources(d.sources)}
-   <div class="mg-draft"><span class="mg-doc-t">${esc(d.draftLabel || 'Bozza proposta da Otto')}</span><p>${d.parts.map((p, i) => i % 2 ? `<button class="mg-tok ${fixed[i] ? 'fixed' : ''} ${sel === i ? 'sel' : ''} ${st.misses?.includes(i) ? 'miss' : ''}" data-game="mg:${st.id}:tok:${i}" ${st.done || fixed[i] ? 'disabled' : ''}>${esc(fixed[i] || p.t)}</button>` : esc(p.t)).join('')}</p></div>
+   <div class="mg-draft"><span class="mg-doc-t">${esc(d.draftLabel || 'Bozza proposta da Otto')}</span><p>${d.parts.map((p, i) => i % 2 ? `<button class="mg-tok ${fixed[i] ? 'fixed' : ''} ${st.hintTok === i && !fixed[i] ? 'hinted' : ''} ${sel === i ? 'sel' : ''} ${st.misses?.includes(i) ? 'miss' : ''}" data-game="mg:${st.id}:tok:${i}" ${st.done || fixed[i] ? 'disabled' : ''}>${esc(fixed[i] || p.t)}</button>` : esc(p.t)).join('')}</p></div>
    ${sel != null && !st.done ? `<div class="gc-options">${d.parts[sel].choices.map(c => `<button data-game="mg:${st.id}:fix:${encodeURIComponent(c)}">${esc(c)}</button>`).join('')}</div>` : ''}`;
  },
  handle(d, st, a, v) {
@@ -103,7 +103,7 @@ const phone = {
   const at = st.turn || 0, log = st.log || [];
   return `<p class="mg-ask">${d.ask || 'Chiamata in corso. <b>Scegli cosa risponde Otto</b>: le fonti dicono cosa si può fare.'}</p>${sources(d.sources)}
    <div class="transcript mg-call">${d.turns.slice(0, at + 1).map((t, i) => `<div class="bubble caller"><small>${esc(d.caller)}</small>${esc(t.c)}</div>${log.filter(l => l.turn === i).map(l => l.ok ? `<div class="bubble agent"><small>Otto</small>${esc(l.t)}</div>` : `<div class="mg-oops">${esc(l.why)}</div>`).join('')}`).join('')}</div>
-   ${st.done ? '' : `<div class="gc-options mg-replies">${d.turns[at].o.map((o, i) => `<button data-game="mg:${st.id}:say:${i}" ${log.some(l => l.turn === at && !l.ok && l.t === o.t) ? 'disabled' : ''}>${esc(o.t)}</button>`).join('')}</div>`}`;
+   ${st.done ? '' : `<div class="gc-options mg-replies">${d.turns[at].o.map((o, i) => `<button class="${st.elim?.[at] === i ? 'elim' : ''}" data-game="mg:${st.id}:say:${i}" ${log.some(l => l.turn === at && !l.ok && l.t === o.t) || st.elim?.[at] === i ? 'disabled' : ''}>${esc(o.t)}</button>`).join('')}</div>`}`;
  },
  handle(d, st, a, v) {
   if (a !== 'say') return;
@@ -200,7 +200,7 @@ const classify = {
 const pick = {
  render(d, st) {
   return `<p class="mg-ask">${d.ask}</p>${sources(d.sources)}
-   <div class="mg-cards">${d.cards.map((c, i) => `<button class="mg-card ${st.misses?.includes(i) ? 'miss' : ''} ${st.done && c.ok ? 'sol' : ''}" data-game="mg:${st.id}:card:${i}" ${st.done || st.misses?.includes(i) ? 'disabled' : ''}>${c.meta ? `<small>${esc(c.meta)}</small>` : ''}<b>${esc(c.title)}</b>${c.body ? `<span>${rich(c.body)}</span>` : ''}</button>`).join('')}</div>
+   <div class="mg-cards">${d.cards.map((c, i) => `<button class="mg-card ${st.misses?.includes(i) ? 'miss' : ''} ${st.elim === i ? 'elim' : ''} ${st.done && c.ok ? 'sol' : ''}" data-game="mg:${st.id}:card:${i}" ${st.done || st.misses?.includes(i) || st.elim === i ? 'disabled' : ''}>${c.meta ? `<small>${esc(c.meta)}</small>` : ''}<b>${esc(c.title)}</b>${c.body ? `<span>${rich(c.body)}</span>` : ''}</button>`).join('')}</div>
    ${st.note ? `<div class="mg-oops">${esc(st.note)}</div>` : ''}`;
  },
  handle(d, st, a, v) {
@@ -218,7 +218,7 @@ const multi = {
  render(d, st) {
   const on = st.on || [];
   return `<p class="mg-ask">${d.ask}</p>${sources(d.sources)}
-   <div class="mg-multi">${d.chips.map((c, i) => `<button class="${on.includes(i) ? 'on' : ''} ${st.done ? (c.ok ? 'sol' : on.includes(i) ? 'miss' : '') : ''}" data-game="mg:${st.id}:tog:${i}" ${st.done ? 'disabled' : ''}>${esc(c.t)}</button>`).join('')}</div>
+   <div class="mg-multi">${d.chips.map((c, i) => `<button class="${on.includes(i) ? 'on' : ''} ${st.hintChip === i && !st.done ? 'hinted' : ''} ${st.done ? (c.ok ? 'sol' : on.includes(i) ? 'miss' : '') : ''}" data-game="mg:${st.id}:tog:${i}" ${st.done ? 'disabled' : ''}>${esc(c.t)}</button>`).join('')}</div>
    ${st.done ? '' : `<div class="gc-options"><button data-game="mg:${st.id}:confirm:0">${esc(d.confirm || 'Conferma')}</button></div>`}`;
  },
  handle(d, st, a, v) {
@@ -231,5 +231,24 @@ const multi = {
   return {done:true, pts:-10, label:'Selezione sbagliata', why:`In verde quelle giuste. ${d.partWhy || ''}`};
  }
 };
+
+// ————— indizi di Otto —————
+// Ogni meccanica sa dare un aiuto: evidenziare la fonte giusta, indicare dov'è l'errore o togliere una risposta sbagliata.
+// Restituiscono la frase che Otto dice; lo stato cambia in modo che render mostri l'aiuto.
+diff.hint = (d, st) => { st.hintRow = d.wrongRow; return `Guarda bene la riga “${d.rows[d.wrongRow][0]}”: confrontala con la fonte.`; };
+boxes.hint = (d, st) => {
+ const v = st.vals ||= []; [0, 1].forEach(i => { v[i] = d.answer[i]; }); st.bad = (st.bad || []).filter(i => i > 1);
+ if (d.sources.length > 1) { st.hintSrc = 0; return `La fonte giusta è “${d.sources[0].t}”, e ti ho scritto i primi due caratteri.`; }
+ return `Ti ho scritto i primi due caratteri: “${d.answer.slice(0, 2)}”. Attenzione alla riga giusta della fonte.`;
+};
+const fixOne = (items, map, key, label) => { const i = items.findIndex((it, k) => map[k] !== it[key]); if (i < 0) return null; map[i] = items[i][key]; return label(items[i]); };
+triage.hint = (d, st) => fixOne(d.items, st.assign ||= {}, 'lane', it => `Ti ho sistemato “${it.text}”: va a ${d.lanes.find(l => l[0] === it.lane)[1]}.`) || 'Fin qui è tutto giusto: conferma pure.';
+classify.hint = (d, st) => fixOne(d.items, st.set ||= {}, 'ans', it => `Ti ho sistemato “${it.text}”: la scelta giusta è “${d.states.find(s => s[0] === it.ans)[1]}”.`) || 'Fin qui è tutto giusto: conferma pure.';
+proof.hint = (d, st) => { st.hintTok = d.parts.findIndex(p => p.err); return 'L’errore è nella parte che ho evidenziato: controllala con le fonti.'; };
+phone.hint = (d, st) => { const at = st.turn || 0, tried = (st.log || []).filter(l => l.turn === at && !l.ok).map(l => l.t), i = d.turns[at].o.findIndex(o => !o.ok && !tried.includes(o.t)); (st.elim ||= {})[at] = i; return 'Ho tolto una risposta che non va: scegli tra le altre.'; };
+pick.hint = (d, st) => { st.elim = d.cards.findIndex((c, i) => !c.ok && !st.misses?.includes(i)); return 'Ho tolto una carta sbagliata: scegli tra le altre.'; };
+multi.hint = (d, st) => { const on = st.on ||= [], i = d.chips.findIndex((c, k) => c.ok && !on.includes(k)); if (i < 0) { const x = on.findIndex(k => !d.chips[k].ok); if (x >= 0) { on.splice(x, 1); return 'Ne hai selezionata una di troppo: l’ho tolta io.'; } return 'La selezione è già giusta: conferma pure.'; } on.push(i); st.hintChip = i; return `“${d.chips[i].t}” c’è di sicuro: l’ho selezionato io.`; };
+calc.hint = d => d.hint ? `Ecco come si fa: ${d.hint}` : 'Rileggi le fonti: tutti i numeri che servono sono lì.';
+cal.hint = d => `Regola: ${d.hint}. Conta i giorni dalla data della pratica.`;
 
 export const mechanics = {diff, boxes, triage, proof, phone, calc, cal, classify, pick, multi};

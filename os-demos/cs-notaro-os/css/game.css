@@ -203,3 +203,15 @@
 .mg-qtext small{display:block;font-size:10.5px;color:#8e9884;margin-top:2px;font-family:ui-monospace,Menlo,monospace}
 .mg-chips button.st-no.on,.mg-chips button.st-phish.on{background:#b2412d;border-color:#b2412d;color:#fff}
 .main-studio>.game-slot{margin:18px 26px 4px}
+/* indizio di Otto */
+.gc-hintbar{display:flex;align-items:center;gap:10px;margin-top:10px}
+.gc-hint{display:inline-flex;align-items:center;gap:7px;border:1px dashed #a9c97c;background:#fff;color:#3f6a1c;border-radius:20px;padding:6px 12px;font-size:12px;font-weight:600;transition:background .15s,border-color .15s}
+.gc-hint .icon{width:16px;height:16px}.gc-hint b{color:#b2412d;font-weight:700;margin-left:2px}
+.gc-hint:hover:not(:disabled){background:#f1f8e6;border-color:#7fb045}
+.gc-hint:disabled{opacity:.5;cursor:not-allowed}
+.gc-hintbar small{font-size:11px;color:#8e9884}
+.gc-hintmsg{display:flex;align-items:flex-start;gap:8px;margin:0;background:#1d2b20;color:#eef4e4;border-radius:10px;padding:9px 12px;font-size:12.5px;line-height:1.5;animation:game-in .3s ease both}
+.gc-hintmsg .icon{width:18px;height:18px;color:#c5f476;flex:none}
+.mg-row.hinted,.mg-tok.hinted,.mg-multi button.hinted{box-shadow:0 0 0 2px #e2b14f;background:#fdf6dc}
+.mg-doc.hinted{border-color:#e2b14f;box-shadow:0 0 0 2px #e2b14f55}
+.mg-card.elim,.mg-replies button.elim{opacity:.35;text-decoration:line-through}

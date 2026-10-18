@@ -65,9 +65,20 @@ export function missionPanel(id) {
  return `<section class="game-card mission l2 ${r ? (r.pts < 0 ? 'is-ko' : 'is-ok') : ''}" data-mission="${id}">
   <div class="gc-top"><span class="gc-tag">${icon(r ? (r.pts < 0 ? 'otto-think' : 'otto-happy') : 'otto-read')} MISSIONE · ${esc(m.label)}</span>${r ? '' : '<span class="gc-worth">fino a +45 pt</span>'}</div>
   ${r ? '' : `<div class="gc-timer"><i style="animation-duration:${m.ttl / 1000}s;animation-delay:-${elapsed.toFixed(1)}s"></i></div>`}
+  ${!r && m.hint ? `<div class="gc-hintbar">${m.st.hintMsg ? `<p class="gc-hintmsg">${icon('otto-wink')}<span>${esc(m.st.hintMsg)}</span></p>` : `<button class="gc-hint" data-game="hint:${id}" ${S.points < hintCost() ? 'disabled title="Servono più punti"' : ''}>${icon('otto-wink')} Indizio di Otto <b>−${hintCost()} pt</b></button>${S.points < hintCost() ? `<small>servono ${hintCost()} punti</small>` : ''}`}</div>` : ''}
   <div class="mg">${m.render(m.data, m.st)}</div>
   ${r ? `<div class="gc-result"><b class="${r.pts < 0 ? 'neg' : ''}">${r.pts > 0 ? '+' : ''}${r.pts} pt · ${esc(r.label)}</b><p>${rich(r.why)}</p><button data-game="mclose:${id}">Fatto ${icon('check')}</button></div>` : ''}
  </section>`;
+}
+// L'indizio di Otto costa punti, una volta per missione: più il livello è alto, più costa.
+const hintCost = () => ({1:10, 2:15, 3:20})[S.level];
+function useHint(id, from) {
+ const m = S.missions[id]; if (!m || m.result || m.st.hintMsg) return;
+ const cost = hintCost();
+ if (S.points < cost) { play('bad'); return; }
+ S.points -= cost; m.st.hintMsg = m.hint(m.data, m.st) || 'Rileggi bene le fonti.';
+ play('open'); refreshMission(id);
+ float(-cost, document.querySelector(`[data-mission="${id}"] .gc-hintmsg`) || from);
 }
 function refreshMission(id) {
  const el = document.querySelector(`[data-mission="${id}"]`);
@@ -381,6 +392,7 @@ function onClick(e) {
  if (k === 'alert') { play('click'); return chooser(); }
  if (k === 'go') return go(id, i);
  if (k === 'mg') return missionAction(id, i, b.dataset.game.split(':').slice(3).join(':'), b);
+ if (k === 'hint') return useHint(id, b);
  if (k === 'mclose') { const m = S.missions[id]; m.closed = true; m.ref ? refreshMission(id) : refresh(m.page); return; }
  if (k === 'src') { const c = S.cards[id]; if (c && !c.opened.includes(+i)) c.opened.push(+i); play('open'); return refresh(challenge(id).page); }
  if (k === 'pick') return pick(id, +i, b);

@@ -23,7 +23,7 @@ let testLevel = 0;
 const lvl = () => testLevel || gameLevel();
 const by = (l1, l2, l3) => [l1, l2, l3][lvl() - 1];
 const days = ['lunedì', 'martedì', 'mercoledì', 'giovedì', 'venerdì'];
-const mk = (kind, label, title, data, ttl = 160000) => ({kind, label, title, ttl, data, render:M[kind].render, handle:M[kind].handle});
+const mk = (kind, label, title, data, ttl = 160000) => ({kind, label, title, ttl, data, render:M[kind].render, handle:M[kind].handle, hint:M[kind].hint});
 const srl = () => `${G.pick(['Arcadia', 'Lumen', 'Orione', 'Vela', 'Trama', 'Nodo', 'Tessera', 'Ginepro'])} S.r.l.`;
 const date = d => d.toLocaleDateString('it-IT', {day:'numeric', month:'long', year:'numeric'});
 const dm = d => d.toLocaleDateString('it-IT', {day:'numeric', month:'long'});
