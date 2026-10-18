@@ -215,7 +215,7 @@ function qrAction(a) {
  if (a === 'back' || a === 'again') { q.step = 'menu'; if (a === 'again') { q.cart = {}; q.receipt = null; } }
  if (a === 'pay' || a === 'order') {
   const items = Object.entries(q.cart).filter(([, n]) => n > 0);
-  const r = D.qrOrder(q.table, items, a === 'pay', 'Apple Pay'); if (r) ecoPoints('qr', 3, 'Ordine dal QR');
+  const r = D.qrOrder(q.table, items, a === 'pay', 'Apple Pay'); if (r) ecoPoints('qr', 3, 'Ordine dal QR', q.table, {items, prepaid:a === 'pay'});
   q.receipt = r ? {prepaid:a === 'pay', amount:r.amount, method:'Apple Pay', doc:r.receipt?.id} : null;
   q.cart = {}; q.step = 'paid';
   toast(a === 'pay' ? `Tavolo ${q.table.slice(1)}: ordine in cucina e pagato con Stripe · ${euro(r?.amount || 0)}` : `Tavolo ${q.table.slice(1)}: ordine in cucina, paga a fine cena`);
@@ -433,7 +433,16 @@ initGame(challenges, {icon, place:'il locale', missionsOnly:true,
   if (rev) c.push({key:'review', ref:rev.who, page:'recensioni_ai', title:`Nuova recensione di ${rev.who.trim()}`, text:'Leggi la bozza di Otto e premi **Approva e pubblica**.', target:`[data-action="review:${rev.who}"]`, valid:() => !ui.done.reviews.includes(rev.who), auto:() => ui.done.reviews.push(rev.who)});
   const h = D.haccp.findIndex((x, i) => !x.done && !ui.done.haccp.includes(i));
   if (h >= 0) c.push({key:'haccp', ref:h, page:'staff', title:`HACCP · ${D.haccp[h].task}`, text:'In Staff & HACCP **spunta il controllo** nella checklist di oggi.', target:`input[data-haccp="${h}"]`, valid:() => !ui.done.haccp.includes(h), auto:() => ui.done.haccp.push(h)});
+  // come un cameriere: un ordine da fare dal menu QR, con il pagamento giusto
+  const seated = D.tables.filter(t => (t.status === 'seated' || t.status === 'ordered') && !['T3', 'T7', 'T8'].includes(t.id));
+  if (seated.length && Math.random() < .5) {
+   const t = seated[Math.floor(Math.random() * seated.length)], dishes = D.menu.filter(D.available).sort(() => Math.random() - .5).slice(0, 1 + Math.floor(Math.random() * 2));
+   const want = dishes.map(d => [d.id, 1 + Math.floor(Math.random() * 2)]), prepaid = Math.random() < .5;
+   const list = want.map(([id, n]) => `${n}× ${D.dish(id).name}`).join(', ');
+   c.push({key:'qr', ref:t.id, page:'menu_pos', title:`Ordine al tavolo ${t.id.slice(1)}`, text:`Il tavolo ${t.id.slice(1)} ordina **${list}**. ${prepaid ? 'Il cliente **paga subito con Stripe**: premi Paga ora.' : 'Il cliente **paga dopo, in cassa**: premi Ordina e paga a fine cena.'} Scegli il tavolo sotto il QR e componi l’ordine sul telefono.`, target:`[data-qr-table="${t.id}"]`,
+    check:p => { const got = Object.fromEntries((p.items || []).map(([id, n]) => [id, +n])); const same = want.every(([id, n]) => got[id] === n) && Object.keys(got).length === want.length; return !same ? {ok:false, why:'Piatti o quantità diversi'} : p.prepaid !== prepaid ? {ok:false, why:prepaid ? 'Doveva pagare subito' : 'Doveva pagare in cassa'} : {ok:true}; }});
+  }
   return c;
  },
- focus:(page, ref) => { if (page === 'sala') { ui.table = ref; ui.adding = false; } if (route() === page) render(); else location.hash = page; }, missionTypes:12, sections:12, placeOf:'del locale', startNote:'Fatture, comande, conti, chiamate e prenotazioni arrivano dal quadrato rosso “!” in alto, e ogni sezione del locale ha la sua missione.', onStart:startMissions, onReset:stopMissions, menuNote:'Le missioni arrivano dal locale vivo: fatture dei fornitori, comande grandi, conti, prenotazioni e chiamate. Sempre nuove.', pageName:id => moduleById(id)?.title || {home:SV.title}[id] || id});
+ focus:(page, ref) => { if (page === 'menu_pos' && ref) ui.qr = {table:ref, cart:{}, step:'menu', cat:ui.qr.cat, receipt:null}; if (page === 'sala') { ui.table = ref; ui.adding = false; } if (route() === page) render(); else location.hash = page; }, missionTypes:12, sections:12, placeOf:'del locale', startNote:'Fatture, comande, conti, chiamate e prenotazioni arrivano dal quadrato rosso “!” in alto, e ogni sezione del locale ha la sua missione.', onStart:startMissions, onReset:stopMissions, menuNote:'Le missioni arrivano dal locale vivo: fatture dei fornitori, comande grandi, conti, prenotazioni e chiamate. Sempre nuove.', pageName:id => moduleById(id)?.title || {home:SV.title}[id] || id});
 shell();

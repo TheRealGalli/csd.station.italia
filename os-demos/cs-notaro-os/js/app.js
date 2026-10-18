@@ -525,7 +525,7 @@ document.addEventListener('click', e => {
  if ((x = el('[data-call]'))) { ui.call = x.dataset.call; return render(); }
  if ((x = el('[data-chat]'))) { ui.chat = x.dataset.chat; return render(); }
  if ((x = el('[data-category]'))) { ui.category = x.dataset.category; return render(); }
- if ((x = el('[data-studio]'))) { ecoPoints('studio', 3, 'Lavoro con Otto'); const s = studioSuggestions.find(s => s.id === x.dataset.studio); return runStudio(s.prompt, s.id); }
+ if ((x = el('[data-studio]'))) { ecoPoints('studio', 3, 'Lavoro con Otto', null, {id:x.dataset.studio}); const s = studioSuggestions.find(s => s.id === x.dataset.studio); return runStudio(s.prompt, s.id); }
  if ((x = el('[data-memory]'))) { ask(x.dataset.memory); return; }
  if ((x = el('[data-otto]'))) return askGlobal(x.dataset.otto);
 });
@@ -615,7 +615,11 @@ initGame(challenges, {icon, missionsOnly:true,
   D.mails.filter(m => !m.reading && !m.missionOpen && !state.handled.includes(m.id)).slice(0, 4).forEach(m => c.push({key:'handle', ref:m.id, page:'posta', title:`Email · ${m.from}`, text:`Apri **“${m.subject}”**, leggi cosa ha capito Otto e premi **${m.draft ? 'Approva e invia' : 'Approva e archivia'}**.`, target:`[data-action="handle:${m.id}"]`, valid:() => !state.handled.includes(m.id), auto:() => { if (!state.handled.includes(m.id)) state.handled.push(m.id); }}));
   D.chats.filter(ch => ch.draft && !ch.mission && !ch.thinking && !state.sent.includes(ch.id)).forEach(ch => c.push({key:'send', ref:ch.id, page:'whatsapp', title:`WhatsApp · ${ch.who}`, text:'Controlla la risposta proposta da Otto e premi **Invia**.', target:`[data-action="send:${ch.id}"]`, valid:() => !state.sent.includes(ch.id), auto:() => { if (!state.sent.includes(ch.id)) state.sent.push(ch.id); }}));
   D.tasks.filter(t => !t.done && !state.done.includes(t.id)).slice(0, 3).forEach(t => c.push({key:'task', ref:t.id, page:'staff', title:`Attività · ${t.text}`, text:'In Staff & task **spunta l’attività** quando è completata.', target:`input[data-task="${t.id}"]`, valid:() => !state.done.includes(t.id), auto:() => { if (!state.done.includes(t.id)) state.done.push(t.id); }}));
-  if (Math.random() < .3) c.push({key:'studio', page:'studio', title:'Un modulo della banca da compilare', text:'Nello **Studio** chiedi a Otto: **“Compila il modulo di erogazione”**.', target:'[data-studio="erogazione"]'});
+  // come nella demo guidata: un lavoro da chiedere a Otto nello Studio, quello giusto
+  if (Math.random() < .5) {
+   const w = [['erogazione', 'Banca Arno aspetta il modulo di erogazione', 'La banca ha mandato delibera e perizia: nello **Studio** chiedi a Otto di **compilare il modulo di erogazione**.'], ['confronto', 'Preliminare e bozza non coincidono', 'Prima della firma serve il **confronto tra preliminare e bozza d’atto**: chiedilo a Otto nello **Studio**.'], ['bozza', 'Serve la bozza della compravendita', 'Le parti aspettano la **bozza dell’atto di compravendita**: falla preparare a Otto nello **Studio**.'], ['ricerca', 'Un cliente chiede di una servitù a Fiesole', 'Cerca negli atti dello studio le **servitù di passaggio a Fiesole**: chiedilo a Otto nello **Studio**.']][Math.floor(Math.random() * 4)];
+   c.push({key:'studio', page:'studio', title:w[1], text:w[2], target:`[data-studio="${w[0]}"]`, check:p => p.id === w[0] ? {ok:true} : {ok:false, why:'Hai chiesto un altro lavoro'}});
+  }
   return c;
  }, missionTypes:12, sections:12, placeOf:'dello studio', startNote:'Email, messaggi e chiamate da gestire arrivano dal quadrato rosso “!” in alto, e ogni sezione dello studio ha la sua missione.', menuNote:'Le missioni arrivano dallo studio vivo: email da controllare, messaggi da correggere, chiamate in diretta. Sempre nuove.',
  focus:(page, ref) => { if (page === 'posta') { ui.mail = ref; ui.mailFilter = 'all'; } if (page === 'whatsapp') ui.chat = ref; if (page === 'centralino') ui.call = ref; if (route() === page) { render(); } else location.hash = page; setTimeout(() => document.querySelector('[data-mission]')?.scrollIntoView({block:'center', behavior:'smooth'}), 120); },

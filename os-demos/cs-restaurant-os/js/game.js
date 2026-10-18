@@ -150,9 +150,11 @@ function closeAndNext(id) {
 // Azioni normali dell'ecosistema (rifornire, chiudere un conto, approvare un'email…): pochi punti, con una pausa
 // di 20 secondi per la stessa azione, così cliccare a ripetizione non conviene.
 const ecoLast = {};
-export function ecoPoints(key, pts, label, ref) {
+export function ecoPoints(key, pts, label, ref, payload) {
  if (!S.started || touring()) return;
  const t = openTasks().find(x => x.key === key && (x.ref == null || ref == null || String(x.ref) === String(ref)));
+ // compiti con verifica: il risultato deve essere quello chiesto (piatti, tavolo, pagamento, lavoro giusto…)
+ if (t?.check) { const r = t.check(payload || {}); if (!r.ok) { const pen = Math.min(5, S.points); S.points -= pen; play('bad'); float(-pen || 0, document.querySelector('.game-chip'), r.why); return; } }
  if (t) return completeTask(t);
  const now = Date.now(); if (now - (ecoLast[key] || 0) < 20000) return;
  ecoLast[key] = now; S.points += pts; syncLevel(); checkGifts(); play('coin');
