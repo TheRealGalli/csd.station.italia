@@ -418,5 +418,5 @@ window.addEventListener('message', e => {
  if (e.data === 'csd:resume') wake(true);
  if (e.data === 'csd:pause') wake(false);
 });
-initGame(challenges, {icon, place:'il locale', missionsOnly:true, onStart:startMissions, onReset:stopMissions, menuNote:'Le missioni arrivano dal locale vivo: fatture dei fornitori, comande grandi, conti, prenotazioni e chiamate. Sempre nuove.', pageName:id => moduleById(id)?.title || {home:SV.title}[id] || id});
+initGame(challenges, {icon, place:'il locale', missionsOnly:true, startNote:'Fatture, comande, conti, chiamate e prenotazioni arrivano dal quadrato rosso “!” in alto, e ogni sezione del locale ha la sua missione.', onStart:startMissions, onReset:stopMissions, menuNote:'Le missioni arrivano dal locale vivo: fatture dei fornitori, comande grandi, conti, prenotazioni e chiamate. Sempre nuove.', pageName:id => moduleById(id)?.title || {home:SV.title}[id] || id});
 shell();

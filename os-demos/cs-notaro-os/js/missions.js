@@ -1,338 +1,262 @@
-// Missioni di CS Notaro OS. Con la sfida avviata, un regista fa arrivare email vere da gestire:
-// ognuna porta con sé un minigioco, dentro l'email stessa. È il controllo umano che il prodotto chiederà davvero.
+// Missioni di CS Notaro OS: un minigioco per ogni modulo, con più scenari e valori sempre nuovi (gen.js).
+// Le meccaniche sono in mg.js; qui ci sono i contenuti dello studio. La difficoltà cresce con il livello
+// (gameLevel): al livello 1 poche righe ed errori evidenti, poi più voci, esche e calcoli composti.
 //
-// Sei minigiochi, sempre con valori nuovi dal generatore (gen.js):
-//  · Trova la differenza (Posta): due documenti affiancati, tocchi la riga che non torna e scegli il valore giusto.
-//  · Caselle dalla fonte (Posta): copi il dato mancante dal documento giusto, una casella per carattere.
-//  · Smista la coda (Posta): ogni email della PEC alla persona giusta del team.
-//  · Il conto torna? (Posta): imposta, saldo o scadenza, con tastierino o calendario.
-//  · Correggi la bozza (WhatsApp): trovi l'errore nella risposta di Otto e lo correggi.
-//  · Al telefono (Centralino): scegli le risposte di Otto durante una chiamata in diretta.
+//  Posta            · Smista la coda (persone, priorità, phishing)      [nell'email]
+//  Centralino       · Al telefono                                       [nella chiamata]
+//  WhatsApp         · Correggi la bozza                                 [nella chat]
+//  Lo Studio        · Caselle dalla fonte (IBAN, codice fiscale, catasto)
+//  Memoria          · Trova il precedente giusto
+//  Visure           · Trova la differenza
+//  Preventivi       · Il conto torna (calcolatrice: percentuali, minimi, IVA, frazioni)
+//  Osservatorio     · Si applica o no?
+//  Staff            · Riassegna il lavoro
+//  Scadenziario     · La data giusta sul calendario
+//  Antiriciclaggio  · Quanto possiede davvero? (percentuali composte)
+//  Compliance       · Consenti o rifiuta
 import * as G from './gen.js';
+import {mechanics as M} from './mg.js';
 import {addMission, gameLevel} from './game.js';
 import {spawnMail, spawnChat, spawnCall, live} from './live.js';
 
-const esc = v => String(v ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-const practice = () => `P-${G.int(205, 289)}`;
+let testLevel = 0;
+const lvl = () => testLevel || gameLevel();
+const by = (l1, l2, l3) => [l1, l2, l3][lvl() - 1];
+const days = ['lunedì', 'martedì', 'mercoledì', 'giovedì', 'venerdì'];
+const mk = (kind, label, title, data, ttl = 160000) => ({kind, label, title, ttl, data, render:M[kind].render, handle:M[kind].handle});
+const srl = () => `${G.pick(['Arcadia', 'Lumen', 'Orione', 'Vela', 'Trama', 'Nodo', 'Tessera', 'Ginepro'])} S.r.l.`;
+const date = d => d.toLocaleDateString('it-IT', {day:'numeric', month:'long', year:'numeric'});
+const dm = d => d.toLocaleDateString('it-IT', {day:'numeric', month:'long'});
 let timer = 0, running = false, turn = 0, onHandled = () => {};
 
-// ————— Trova la differenza —————
-function diffMission() {
- const buyer = G.person(), p = practice();
- const kind = G.pick(['catasto', 'identita', 'bonifico']);
- let left, right, rows, wrongRow, mail;
+// ————— Posta · Smista la coda —————
+const team = [['GM', 'Giulia', 'Compravendite e mutui'], ['LB', 'Luca', 'Società'], ['EF', 'Elena', 'Successioni e donazioni'], ['SR', 'Sara', 'Appuntamenti e segreteria']];
+const teamPool = {
+ GM:[() => `${G.pick(G.banks)[0]}: delibera del mutuo ${G.person().last}`, () => `Agenzia: proposta d’acquisto in ${G.pick(G.streets)}`, () => `Perizia dell’immobile ${G.person().last}`, () => `Geometra: planimetria aggiornata ${G.person().last}`],
+ LB:[() => `Commercialista: cessione quote ${srl()}`, () => `Statuto ${srl()}: revisione v3`, () => `Aumento di capitale ${srl()}`, () => `Nomina nuovo amministratore ${srl()}`],
+ EF:[() => `Successione ${G.person().last}: certificato di morte`, () => `Donazione al figlio: casa di ${G.pick(G.cities)}`, () => 'Testamento olografo: richiesta di pubblicazione', () => `Rinuncia all’eredità ${G.person().last}`],
+ SR:[() => `${G.person().name}: richiesta di appuntamento`, () => `Spostamento della firma ${G.person().last}`, () => `Copia conforme di un atto del ${G.int(2008, 2022)}`, () => `${G.person().name}: dove parcheggio?`]
+};
+function postaMission() {
+ const n = by(3, 4, 6), kind = G.pick(by(['team', 'team', 'prio'], ['team', 'prio', 'phish'], ['team', 'prio', 'phish']));
+ let lanes, items, ask, why, under;
+ if (kind === 'team') {
+  lanes = team; const keys = G.shuffle([...team, ...team].map(l => l[0])).slice(0, n);
+  items = keys.map(k => ({lane:k, text:G.pick(teamPool[k])()}));
+  ask = 'Assegna ogni email <b>alla persona giusta</b>, poi conferma lo smistamento.'; why = 'Ogni email è arrivata a chi segue quella materia: nessuno deve girarla a un collega.';
+  under = 'Ognuna va a chi segue quella materia: Giulia compravendite, Luca società, Elena successioni, Sara segreteria.';
+ } else if (kind === 'prio') {
+  lanes = [['oggi', 'Oggi', 'scade entro 48 ore'], ['sett', 'Settimana', 'entro 7 giorni'], ['arch', 'Archivio', 'nessuna azione']];
+  const pool = {oggi:[() => `Stipula ${G.person().last} domani: manca il modulo della banca`, () => 'PEC Agenzia Entrate: risposta entro 2 giorni', () => `${G.pick(G.banks)[0]}: erogazione dopodomani, serve la bozza`], sett:[() => `Statuto ${srl()}: osservazioni entro venerdì prossimo`, () => `Successione ${G.person().last}: documenti entro 7 giorni`, () => 'Commercialista: preventivo entro la settimana'], arch:[() => 'Newsletter del Consiglio notarile', () => `Conferma di lettura · ${G.person().name}`, () => 'Fattura già pagata del fornitore di cancelleria']};
+  items = G.shuffle(['oggi', 'oggi', 'sett', 'sett', 'arch', 'arch']).slice(0, n).map(k => ({lane:k, text:G.pick(pool[k])()}));
+  ask = 'Metti in ordine la coda: <b>cosa va fatto oggi</b>, in settimana o si archivia?'; why = 'La coda è in ordine: Otto mette in cima ciò che scade e archivia il resto.';
+  under = 'Le email vanno messe in ordine di urgenza: ciò che scade entro 48 ore prima di tutto.';
+ } else {
+  lanes = [['ok', 'Vera', 'mittente conosciuto'], ['phish', 'Truffa', 'da segnalare']];
+  const goods = [() => { const [b, d] = G.pick(G.banks); return [`${b} <mutui@${d}.example>`, 'Delibera del mutuo in allegato']; }, () => ['Avv. Lorenzi <studio@lorenzi.example>', 'Bozza d’atto v2'], () => ['Agenzia Entrate <pec@agenzia.example>', 'Ricevuta di registrazione']];
+  const bads = [() => { const [b, d] = G.pick(G.banks); return [`${b} <sicurezza@${d}-verifica.example>`, 'Conto bloccato: confermi i dati entro un’ora']; }, () => ['Notaio Conti <notaio.conti@posta-gratis.example>', 'Bonifico urgente da fare oggi, non chiamarmi'], () => ['Agenzia Entrate <rimborsi@agenzia-entrate.example.ru>', 'Rimborso: inserisca la carta']];
+  items = G.shuffle([...Array(Math.ceil(n / 2))].map(() => ({lane:'phish', p:G.pick(bads)()})).concat([...Array(Math.floor(n / 2))].map(() => ({lane:'ok', p:G.pick(goods)()})))).map(x => ({lane:x.lane, text:x.p[1], sub:x.p[0]}));
+  ask = 'Alcune email sono <b>truffe</b>: guarda bene il mittente e segnala quelle false.'; why = 'Truffe segnalate e bloccate: nessuno dello studio cliccherà su quei link.';
+  under = 'Tra le email nuove ci sono tentativi di phishing: il nome sembra giusto, l’indirizzo no.';
+ }
+ const subject = kind === 'phish' ? `${n} email sospette da controllare` : `${n} email da smistare`;
+ return {anchor:'mail', mail:{from:'PEC dello studio · smistamento', address:'pec@studioconti.example', kind:'PEC', subject, attachments:[], body:`Sono arrivate ${n} email. Otto le ha lette: ora serve la tua decisione.`, understood:under},
+  mission:mk('triage', 'SMISTA LA CODA', `Smista la coda · ${subject}`, {ask, lanes, items, confirm:'Conferma', winWhy:why}, 200000)};
+}
+
+// ————— Centralino · Al telefono —————
+function centralinoMission() {
+ const who = G.person(), kind = G.pick(['sposta', 'privacy', 'urgenza', 'banca']), d1 = G.pick(days), busy = G.pick(['10:00', '11:30']), free = G.pick(['15:00', '16:30']);
+ let turns, sources, caller = who.name, intent;
+ if (kind === 'sposta') {
+  sources = [{t:`Agenda di ${d1}`, rows:[[busy, 'occupato · altra firma'], [free, 'libero']]}]; intent = 'Spostamento della firma';
+  turns = [{c:`Buongiorno, sono ${who.name}. Posso spostare la mia firma a ${d1}?`, o:[{t:`Certo: ${d1} alle ${free} è libero, la segno?`, ok:true}, {t:`Sì, alle ${busy} va benissimo.`, why:`Alle ${busy} c’è già un’altra firma.`}, {t:'Le firme non si possono spostare.', why:'Si possono spostare, se c’è posto: e c’è.'}]},
+   {c:'Perfetto. Devo portare qualcosa?', o:[{t:'Solo un documento d’identità valido: il resto lo abbiamo noi.', ok:true}, {t:'Niente, non serve nulla.', why:'Il notaio deve identificare chi firma: il documento serve sempre.'}, {t:'Tutti gli atti originali di casa.', why:'Gli atti li ha già lo studio.'}]}];
+ } else if (kind === 'privacy') {
+  const rel = G.person(); caller = `${rel.first} ${who.last}`; intent = 'Informazioni su una successione';
+  sources = [{t:`Pratica successione ${who.last}`, rows:[['Erede', who.name], ['Altri autorizzati', 'nessuno']]}];
+  turns = [{c:`Salve, sono ${caller}, il fratello di ${who.first}. A che punto è la successione?`, o:[{t:`Posso dare informazioni solo a ${who.first}: le chiedo di richiamarla lei.`, ok:true}, {t:'Manca solo la dichiarazione, poi è fatta.', why:'Nessuno lo ha autorizzato: sarebbe una violazione della privacy.'}, {t:'Mi dica il codice fiscale e le dico tutto.', why:'Un codice fiscale non dà diritto alla pratica di un altro.'}]},
+   {c:'Ma sono di famiglia!', o:[{t:`Capisco. Se ${who.first} ci autorizza per iscritto, la aggiorno volentieri.`, ok:true}, {t:'Va bene, allora le dico tutto.', why:'Essere parenti non basta: serve l’autorizzazione.'}, {t:'La richiamiamo noi tra un’ora.', why:'Senza autorizzazione non si dice niente, nemmeno tra un’ora.'}]}];
+ } else if (kind === 'urgenza') {
+  const s1 = G.pick(['domani alle 9:00', 'domani alle 12:00']); intent = 'Successione urgente';
+  sources = [{t:'Agenda della dott.ssa Ferri', rows:[[s1, 'libero'], ['oggi pomeriggio', 'occupato'], ['tra 10 giorni', 'libero']]}];
+  turns = [{c:'Buongiorno... è mancato mio padre e la banca ha bloccato il conto. Non so cosa fare.', o:[{t:`Mi dispiace molto. La dott.ssa Ferri può vederla ${s1}: va bene?`, ok:true}, {t:'Le propongo tra dieci giorni.', why:'C’è un posto molto prima: con un conto bloccato ogni giorno conta.'}, {t:'Venga oggi pomeriggio.', why:'Oggi pomeriggio è occupata.'}]},
+   {c:'Grazie. Cosa devo portare?', o:[{t:'Il certificato di morte e i documenti degli eredi: le mando l’elenco su WhatsApp.', ok:true}, {t:'Il testamento firmato da lei.', why:'Il testamento lo firma chi lo fa, non chi eredita.'}, {t:'Niente, facciamo tutto noi.', why:'Senza certificato e documenti la pratica non parte.'}]}];
+ } else {
+  const [bank] = G.pick(G.banks), num = `+39 055 ${G.int(200, 899)} ${G.int(1000, 9999)}`; caller = `${bank} · Ufficio mutui`; intent = `Stato della bozza ${who.last}`;
+  sources = [{t:`Anagrafica ${bank}`, rows:[['Numero registrato', num], ['Chiamata in arrivo da', num]]}];
+  turns = [{c:`Buongiorno, ${bank}. A che punto è la bozza della pratica ${who.last}?`, o:[{t:'Il numero è quello registrato: la bozza vi arriva via PEC entro mercoledì.', ok:true}, {t:'Non possiamo dire nulla alle banche.', why:'La banca è parte della pratica e chiama dal numero registrato.'}, {t:'Ci mandi una PEC, rispondiamo tra una settimana.', why:'La chiamata è verificata: farla aspettare rallenta la stipula.'}]},
+   {c:'Perfetto, e la data di stipula è confermata?', o:[{t:'Sì, è in agenda: Otto vi manda la conferma scritta adesso.', ok:true}, {t:'Non lo so, richiami domani.', why:'L’agenda è lì: si conferma subito.'}, {t:'Ditecelo voi.', why:'La data la fissa lo studio ed è già in agenda.'}]}];
+ }
+ if (lvl() === 1) turns.length = 1;
+ turns.forEach(t => { t.o = G.shuffle(t.o); });
+ return {anchor:'call', call:{caller, kind:kind === 'banca' ? 'Banca' : 'Cliente', intent, first:turns[0].c}, mission:mk('phone', 'AL TELEFONO', `Al telefono · ${caller}`, {turns, sources, caller}, 190000)};
+}
+
+// ————— WhatsApp · Correggi la bozza —————
+function whatsappMission() {
+ const who = G.person(), day = G.int(0, 4), dd = G.int(20, 30), hour = G.pick(['9:30', '10:30', '11:00', '15:00', '16:30']), notary = G.pick(['Notaio Conti', 'Notaio Ferri']), amt = G.amount() * 4, num = G.int(2, 40);
+ const kind = G.pick(['ora', 'giorno', 'notaio', 'importo', 'civico']);
+ const wrongOf = {ora:G.pick(['9:00', '12:00', '14:30', '17:30'].filter(h => h !== hour)), giorno:`${days[(day + 1) % 5]} ${dd + 1}`, notaio:notary === 'Notaio Conti' ? 'Notaio Ferri' : 'Notaio Conti', importo:G.euro(G.typoNumber(amt)), civico:String(G.typoNumber(num))};
+ const rightOf = {ora:hour, giorno:`${days[day]} ${dd}`, notaio:notary, importo:G.euro(amt), civico:String(num)};
+ const decoyOf = {ora:'13:00', giorno:`sabato ${dd + 2}`, notaio:'Notaio Benassi', importo:G.euro(G.roundUp(amt)), civico:String(num + 10)};
+ const seg = key => key === kind ? {t:wrongOf[key], err:true, ok:rightOf[key], choices:G.shuffle([rightOf[key], wrongOf[key], decoyOf[key]])} : {t:rightOf[key]};
+ const parts = [{t:`Buongiorno ${who.first}, confermato: firma `}, seg('giorno'), {t:' alle '}, seg('ora'), {t:' con il '}, seg('notaio'), {t:', in via de’ Tornabuoni '}, seg('civico'), {t:'. Per il saldo prepari un bonifico di '}, seg('importo'), {t:'.'}];
+ const sources = [{t:'Agenda dello studio', rows:[[`${days[day]} ${dd} ottobre`, `${hour} · firma ${who.last} · ${notary}`]]}, {t:`Pratica ${who.last}`, rows:[['Saldo prezzo', G.euro(amt)], ['Sede della firma', `via de’ Tornabuoni ${num}`]]}];
+ return {anchor:'chat', chat:{who:who.name, practice:`P-${G.int(205, 289)}`, text:G.pick(['Mi conferma giorno, ora e indirizzo della firma? E quanto è il saldo?', 'Buongiorno, ci ricorda quando e dove firmiamo? E il saldo?'])},
+  mission:mk('proof', 'CORREGGI LA BOZZA', `Correggi la bozza · risposta a ${who.name}`, {ask:'Otto ha scritto la risposta, ma qualcosa <b>non torna con le fonti</b>. Tocca la parte sbagliata e correggila.', draftLabel:'Risposta proposta da Otto', parts, sources, winWhy:'Ora la risposta coincide con agenda e pratica: Otto la invia al cliente.', winLabel:'Bozza perfetta'}, 170000)};
+}
+
+// ————— Lo Studio · Caselle dalla fonte —————
+function studioMission() {
+ const who = G.person(), kind = G.pick(by(['cf', 'catasto'], ['iban', 'cf', 'catasto'], ['iban', 'cf', 'catasto']));
+ if (kind === 'iban') {
+  const now = G.iban(), old = G.iban(), n = by(5, 7, 9), raw = now.replace(/ /g, '');
+  return mk('boxes', 'CASELLE DALLA FONTE', `Caselle dalla fonte · IBAN di ${who.name}`, {ask:'Otto sta compilando il modulo di erogazione: copia la parte finale dell’IBAN dal <b>conto attuale</b>, una casella per carattere.', field:'Modulo di erogazione · IBAN parte venditrice', answer:raw.slice(-n), prefix:raw.slice(0, -n).replace(/(.{4})/g, '$1 ').trim(), sources:[{t:`Email dell’avvocato di ${who.name}`, rows:[['Conto attuale', now, true], ['Conto chiuso nel 2024', old, true]]}], winWhy:'IBAN del conto attuale: l’erogazione arriverà davvero alla venditrice.', loseWhy:'Il conto chiuso avrebbe fatto tornare indietro l’erogazione.'});
+ }
+ if (kind === 'cf') {
+  const other = G.person(), n = by(4, 6, 8);
+  return mk('boxes', 'CASELLE DALLA FONTE', `Caselle dalla fonte · codice fiscale di ${who.name}`, {ask:`Nel modulo della banca il codice fiscale di <b>${who.name}</b> è a metà: completalo dalla tessera giusta.`, field:`Codice fiscale di ${who.name}`, answer:who.cf.slice(-n), prefix:who.cf.slice(0, -n), sources:[{t:`Tessera sanitaria · ${who.name}`, rows:[['Codice fiscale', who.cf, true]]}, {t:`Tessera sanitaria · ${other.name} (coniuge)`, rows:[['Codice fiscale', other.cf, true]]}], winWhy:'Codice fiscale completo e identico alla tessera giusta: la banca non bloccherà la delibera.', loseWhy:'Dalla tessera del coniuge il modulo sarebbe stato intestato alla persona sbagliata.'});
+ }
+ const c = G.catasto(), city = G.pick(G.cities), oldSub = G.typoNumber(c.sub);
+ return mk('boxes', 'CASELLE DALLA FONTE', `Caselle dalla fonte · dati catastali ${who.last}`, {ask:'Nel modulo mancano particella e subalterno: prendili dalla <b>visura aggiornata</b>, non da quella vecchia.', field:'Particella e subalterno', firstLabel:'part.', split:String(String(c.part).length), splitLabel:'sub', answer:`${c.part}${String(c.sub).padStart(2, '0')}`, sources:[{t:`Visura aggiornata · ${city}`, rows:[['Foglio', String(c.fg)], ['Particella', String(c.part)], ['Subalterno', String(c.sub).padStart(2, '0')]]}, {t:'Visura del 2019', rows:[['Particella', String(c.part)], ['Subalterno', String(oldSub).padStart(2, '0')]]}], winWhy:'Dati presi dalla visura aggiornata: l’atto descrive l’immobile com’è oggi.', loseWhy:'La visura del 2019 è precedente alla variazione.'});
+}
+
+// ————— Memoria dello studio · Trova il precedente —————
+function memoriaMission() {
+ const kind = G.pick(['servitu', 'provenienza', 'clausola']), who = G.person();
+ if (kind === 'servitu') {
+  const y1 = G.int(2004, 2012), y2 = G.int(2015, 2023), r1 = G.int(6000, 9000), r2 = G.int(10000, 12400), place = G.pick(G.cities);
+  const cards = [{title:`No: rinunciata nel ${y2}`, meta:`Rep. ${r2.toLocaleString('it-IT')} · ${y2}`, body:`Rinuncia alla servitù costituita con Rep. ${r1.toLocaleString('it-IT')}, **trascritta**.`, ok:true}, {title:`Sì: costituita nel ${y1}`, meta:`Rep. ${r1.toLocaleString('it-IT')} · ${y1}`, body:'Costituzione di servitù di passaggio a favore del fondo vicino.', why:`Era vera fino al ${y2}: l’atto successivo l’ha estinta.`}];
+  if (lvl() > 1) cards.push({title:'Sì, ma solo a piedi', meta:`Rep. ${(r1 + 812).toLocaleString('it-IT')} · ${y1 + 1}`, body:'Modifica delle modalità di passaggio.', why:'Anche la modifica è stata superata dalla rinuncia.'});
+  return mk('pick', 'TROVA IL PRECEDENTE', `Memoria · servitù a ${place}`, {ask:`${who.name} compra un fondo a <b>${place}</b> e chiede: <b>c’è ancora la servitù di passaggio?</b> Otto ha trovato questi atti nell’archivio.`, cards:G.shuffle(cards), winWhy:'L’atto più recente decide: la servitù è estinta e trascritta. Otto lo cita nella bozza.', loseWhy:'Si guarda sempre l’ultimo atto trascritto.'});
+ }
+ if (kind === 'provenienza') {
+  const c = G.catasto(), city = G.pick(G.cities), y = G.int(2006, 2016), seller = G.person();
+  const cards = [{title:`Compravendita ${y + G.int(2, 4)} · acquirente ${seller.name}`, meta:`Fg. ${c.fg} · Part. ${c.part} · Sub. ${c.sub}`, body:`Rep. ${G.int(10000, 12400).toLocaleString('it-IT')} · atto di compravendita`, ok:true}, {title:`Compravendita ${y} · acquirente ${G.person().name}`, meta:`Fg. ${c.fg} · Part. ${c.part} · Sub. ${c.sub}`, body:`Rep. ${G.int(6000, 9000).toLocaleString('it-IT')} · atto di compravendita`, why:'C’è un passaggio più recente: la provenienza è sempre l’ultimo titolo.'}, {title:`Compravendita ${y + G.int(5, 6)} · acquirente ${seller.name}`, meta:`Fg. ${c.fg} · Part. ${c.part} · Sub. ${G.typoNumber(c.sub)}`, body:`Rep. ${G.int(12401, 12600).toLocaleString('it-IT')} · atto di compravendita`, why:'Subalterno diverso: è un altro immobile.'}];
+  return mk('pick', 'TROVA IL PRECEDENTE', `Memoria · provenienza ${seller.last}`, {ask:`Per la bozza serve l’<b>atto di provenienza</b> dell’immobile che ${seller.name} vende a ${city} (Fg. ${c.fg}, Part. ${c.part}, Sub. ${c.sub}). Quale?`, cards:G.shuffle(lvl() === 1 ? cards.slice(0, 2) : cards), winWhy:'Ultimo titolo, stesso immobile: è la provenienza giusta da citare.', loseWhy:'Serve l’ultimo titolo dello stesso identico immobile.'});
+ }
+ const t = G.pick([['un terreno agricolo confinante con un coltivatore diretto', 'Prelazione agraria', 'Prelazione urbana', 'Regolamento di condominio'], ['un appartamento in condominio con regolamento contrattuale', 'Regolamento di condominio', 'Prelazione agraria', 'Prelazione urbana'], ['un negozio affittato a un’attività commerciale', 'Prelazione urbana del conduttore', 'Prelazione agraria', 'Regolamento di condominio']]);
+ return mk('pick', 'TROVA IL PRECEDENTE', 'Memoria · la clausola giusta', {ask:`La bozza riguarda <b>${t[0]}</b>. Quale clausola del clausolario va inserita?`, cards:G.shuffle([{title:t[1], meta:'Clausolario dello studio', ok:true}, {title:t[2], meta:'Clausolario dello studio', why:'Non è il caso di questo immobile.'}, {title:t[3], meta:'Clausolario dello studio', why:'Non è il caso di questo immobile.'}]), winWhy:'Clausola giusta per il tipo di immobile: Otto la inserisce con il riferimento al modello.'});
+}
+
+// ————— Visure · Trova la differenza —————
+function visureMission() {
+ const buyer = G.person(), kind = G.pick(['catasto', 'identita', 'bonifico']);
+ let rows, w, left, right;
  if (kind === 'catasto') {
   const c = G.catasto(), city = G.pick(G.cities);
-  rows = [['Comune', city, city], ['Foglio', c.fg, c.fg], ['Particella', c.part, c.part], ['Subalterno', c.sub, c.sub], ['Categoria', c.cat, c.cat]];
-  wrongRow = G.int(1, 3); rows[wrongRow][1] = G.typoNumber(rows[wrongRow][2]);
-  left = 'Bozza d’atto v2'; right = 'Visura catastale';
-  const [law, dom] = G.pick(G.lawyers);
-  mail = {from:law, address:`studio@${dom}.example`, kind:'Legale', subject:`${buyer.last} – bozza d’atto v2 da verificare`, attachments:['Bozza_atto_v2.docx', 'Visura_catastale.pdf'],
-   body:`Buongiorno, le trasmetto la bozza d’atto aggiornata per la pratica ${buyer.last}. Mi conferma che i dati catastali sono corretti prima di inviarla alle parti?`,
-   understood:`Prima di mandare la bozza alle parti va confrontata con la visura: Otto ha trovato una riga che non torna e chiede a te quale vale.`};
+  rows = [['Comune', city, city], ['Foglio', String(c.fg), String(c.fg)], ['Particella', String(c.part), String(c.part)], ['Subalterno', String(c.sub), String(c.sub)], ['Categoria', c.cat, c.cat]];
+  w = G.int(1, 3); rows[w][1] = String(G.typoNumber(+rows[w][2])); left = 'Bozza d’atto v2'; right = 'Visura catastale';
  } else if (kind === 'identita') {
   rows = [['Cognome', buyer.last, buyer.last], ['Nome', buyer.first, buyer.first], ['Nato a', buyer.place, buyer.place], ['Data di nascita', buyer.born, buyer.born], ['Codice fiscale', buyer.cf, buyer.cf]];
-  wrongRow = G.pick([0, 3, 4]); rows[wrongRow][1] = wrongRow === 3 ? G.typoDate(buyer.born) : G.typoText(rows[wrongRow][2]);
-  left = 'Modulo della banca'; right = 'Carta d’identità';
-  const [bank, dom] = G.pick(G.banks);
-  mail = {from:`${bank} · Ufficio mutui`, address:`mutui@${dom}.example`, kind:'Banca', subject:`Mutuo ${buyer.last} – modulo anagrafico`, attachments:['Modulo_anagrafico.pdf', `CI_${buyer.last}.jpg`],
-   body:`Gentile Notaio, alleghiamo il modulo anagrafico del mutuatario ${buyer.name}. Vi chiediamo di verificarlo con il documento d’identità prima della stipula.`,
-   understood:`Il modulo della banca va confrontato con la carta d’identità: un dato anagrafico sbagliato blocca l’erogazione il giorno della firma.`};
+  w = by(G.pick([0, 3]), G.pick([0, 3, 4]), G.pick([3, 4])); rows[w][1] = w === 3 ? G.typoDate(buyer.born) : G.typoText(rows[w][2]); left = 'Modulo della banca'; right = 'Carta d’identità';
  } else {
-  const seller = G.person(), amt = G.amount(), d = G.int(2, 27), m = G.int(6, 9);
-  rows = [['Ordinante', buyer.name, buyer.name], ['Beneficiario', seller.name, seller.name], ['Importo', G.euro(amt), G.euro(amt)], ['Data', `${String(d).padStart(2, '0')}/${String(m + 1).padStart(2, '0')}/2026`, `${String(d).padStart(2, '0')}/${String(m + 1).padStart(2, '0')}/2026`], ['Causale', `Caparra ${G.pick(G.streets)} ${G.int(2, 60)}`, '']];
-  rows[4][2] = rows[4][1];
-  wrongRow = 2; rows[2][1] = G.euro(Math.random() < .5 ? G.roundUp(amt) : G.typoNumber(amt));
-  left = 'Preliminare'; right = 'Bonifico ricevuto';
-  const [law, dom] = G.pick(G.lawyers);
-  mail = {from:law, address:`studio@${dom}.example`, kind:'Legale', subject:`${buyer.last} / ${seller.last} – caparra versata`, attachments:['Preliminare.pdf', 'Contabile_bonifico.pdf'],
-   body:`Le invio la contabile del bonifico della caparra, da riportare nell’atto di compravendita ${buyer.last} / ${seller.last}.`,
-   understood:`La caparra in atto va scritta con l’importo effettivamente versato: il preliminare e la contabile non dicono la stessa cifra.`};
+  const seller = G.person(), amt = G.amount();
+  rows = [['Ordinante', buyer.name, buyer.name], ['Beneficiario', seller.name, seller.name], ['Importo', G.euro(amt), G.euro(amt)], ['Causale', 'Caparra confirmatoria', 'Caparra confirmatoria']];
+  w = 2; rows[2][1] = G.euro(Math.random() < .5 ? G.roundUp(amt) : G.typoNumber(amt)); left = 'Preliminare'; right = 'Bonifico ricevuto';
  }
- const options = G.shuffle([{v:rows[wrongRow][2], ok:true}, {v:rows[wrongRow][1], ok:false}]);
- return {mail:{...mail, practice:p}, mission:{kind:'diff', title:`Trova la differenza · ${mail.subject}`, label:'TROVA LA DIFFERENZA', ttl:150000,
-  data:{left, right, rows, wrongRow, options},
-  render:diffRender, handle:diffHandle}};
-}
-function diffRender(d, st) {
- const step = st.step || 'find';
- const row = (r, i, side) => {
-  const cls = [side === 'left' && step === 'find' ? 'pick' : '', st.misses?.includes(i) ? 'miss' : '', (step !== 'find' || st.done) && i === d.wrongRow ? 'hit' : ''].join(' ');
-  const cell = `<span class="mg-k">${esc(r[0])}</span><span class="mg-v">${esc(side === 'left' ? r[1] : r[2])}</span>`;
-  return side === 'left' && step === 'find' ? `<button class="mg-row ${cls}" data-game="mg:${st.id}:row:${i}">${cell}</button>` : `<div class="mg-row ${cls}">${cell}</div>`;
- };
- return `<p class="mg-ask">${step === 'find' ? 'Confronta i due documenti e <b>tocca a sinistra la riga che non coincide</b> con la fonte ufficiale.' : `Trovata: <b>${esc(d.rows[d.wrongRow][0].toLowerCase())}</b>. Quale valore è quello giusto?`}</p>
-  <div class="mg-docs"><div class="mg-doc"><span class="mg-doc-t">${esc(d.left)}</span>${d.rows.map((r, i) => row(r, i, 'left')).join('')}</div>
-  <div class="mg-doc official"><span class="mg-doc-t">${esc(d.right)} · fonte ufficiale</span>${d.rows.map((r, i) => row(r, i, 'right')).join('')}</div></div>
-  ${step === 'choose' && !st.done ? `<div class="gc-options">${d.options.map((o, i) => `<button data-game="mg:${st.id}:pick:${i}">Vale ${esc(o.v)}</button>`).join('')}</div>` : ''}`;
-}
-function diffHandle(d, st, action, v) {
- if (action === 'row') {
-  if (+v === d.wrongRow) { st.step = 'choose'; return {sound:'open'}; }
-  (st.misses ||= []).includes(+v) || st.misses.push(+v);
-  return {sound:'bad'};
- }
- if (action === 'pick') {
-  const o = d.options[+v], m = st.misses?.length || 0, field = d.rows[d.wrongRow][0].toLowerCase();
-  if (o.ok) return {done:true, pts:Math.max(10, 30 + (m ? 0 : 15) - m * 5), label:m ? 'Trovata, con qualche tentativo' : 'Occhio di falco', why:`Il ${field} giusto è quello della fonte ufficiale (${esc(d.right.toLowerCase())}): ${esc(o.v)}. Otto corregge il documento e lo segna nel registro.`};
-  return {done:true, pts:-15, label:'Valore sbagliato', why:`Hai scelto il valore del documento da correggere. La fonte ufficiale, ${esc(d.right.toLowerCase())}, dice ${esc(d.rows[d.wrongRow][2])}.`};
- }
+ if (lvl() === 1 && rows.length > 4) { const keep = rows.filter((r, i) => i === w || i < 3).slice(0, 4); rows = keep; w = rows.findIndex(r => r[1] !== r[2]); }
+ return mk('diff', 'TROVA LA DIFFERENZA', `Trova la differenza · ${left} di ${buyer.last}`, {ask:'Confronta i due documenti e <b>tocca a sinistra la riga che non coincide</b> con la fonte ufficiale.', left, right, rows, wrongRow:w, options:G.shuffle([{v:rows[w][2], ok:true}, {v:rows[w][1]}]), winWhy:`Vale la fonte ufficiale (${right.toLowerCase()}): Otto corregge il documento e lo segna nel registro.`, loseWhy:`Hai scelto il valore del documento da correggere: la fonte ufficiale dice ${rows[w][2]}.`});
 }
 
-// ————— Caselle dalla fonte —————
-function boxesMission() {
- const who = G.person(), p = practice();
- const kind = G.pick(['iban', 'cf', 'catasto']);
- let mail, prefix, answer, sources, field;
- if (kind === 'iban') {
-  const now = G.iban(), old = G.iban();
-  answer = now.replace(/ /g, '').slice(-7); prefix = now.replace(/ /g, '').slice(0, -7).replace(/(.{4})/g, '$1 ').trim();
-  field = 'IBAN della parte venditrice';
-  sources = [{t:`Email di ${who.name}`, rows:[['Conto attuale', now, true], ['Conto chiuso nel 2024', old, false]]}];
-  const [law, dom] = G.pick(G.lawyers);
-  mail = {from:law, address:`studio@${dom}.example`, kind:'Legale', subject:`${who.last} – IBAN per l’erogazione`, attachments:['IBAN_venditore.pdf'],
-   body:`Le trasmetto le coordinate bancarie di ${who.name}. Attenzione: il vecchio conto è stato chiuso, va usato solo quello attuale.`,
-   understood:`Nel modulo di erogazione manca la parte finale dell’IBAN. Copiala dal conto attuale: quello vecchio è chiuso.`};
- } else if (kind === 'cf') {
-  answer = who.cf.slice(-6); prefix = who.cf.slice(0, -6);
-  field = `Codice fiscale di ${who.name}`;
-  const other = G.person();
-  sources = [{t:`Tessera sanitaria · ${who.name}`, rows:[['Codice fiscale', who.cf, true], ['Nato a', who.place, false]]}, {t:`Tessera sanitaria · ${other.name} (coniuge)`, rows:[['Codice fiscale', other.cf, false]]}];
-  const [bank, dom] = G.pick(G.banks);
-  mail = {from:`${bank} · Ufficio mutui`, address:`mutui@${dom}.example`, kind:'Banca', subject:`Mutuo ${who.last} – codice fiscale mancante`, attachments:['Tessere_sanitarie.pdf'],
-   body:`Per completare la delibera ci manca il codice fiscale di ${who.name}. In allegato le tessere sanitarie dei due coniugi.`,
-   understood:`Nel modulo della banca il codice fiscale è a metà. Copia le ultime sei caselle dalla tessera giusta: nell’allegato ce ne sono due.`};
- } else {
-  const c = G.catasto(), city = G.pick(G.cities), old = {...c, sub:G.typoNumber(c.sub)};
-  answer = `${c.part}${String(c.sub).padStart(2, '0')}`; prefix = '';
-  field = 'Particella e subalterno';
-  sources = [{t:`Visura catastale aggiornata · ${city}`, rows:[['Foglio', c.fg, false], ['Particella', c.part, true], ['Subalterno', String(c.sub).padStart(2, '0'), true]]}, {t:'Visura del 2019 (prima della variazione)', rows:[['Particella', c.part, false], ['Subalterno', String(old.sub).padStart(2, '0'), false]]}];
-  mail = {from:'Agenzia delle Entrate · Territorio', address:'catasto@agenzia.example', kind:'PEC', subject:`Visura aggiornata – ${who.last}, ${city}`, attachments:['Visura_2026.pdf', 'Visura_2019.pdf'],
-   body:`Si trasmette la visura catastale aggiornata dopo la variazione del subalterno. In allegato anche la visura precedente.`,
-   understood:`Il modulo di erogazione ha particella e subalterno vuoti. Vanno presi dalla visura aggiornata, non da quella del 2019.`};
+// ————— Preventivi · Il conto torna —————
+function preventiviMission() {
+ const who = G.person(), k = G.pick(by(['reg', 'caparra', 'iva'], ['reg', 'regmin', 'iva', 'caparra', 'saldo'], ['regmin', 'totale', 'saldo', 'iva']));
+ const base = {unit:'€', winWhy:'Il conto torna: Otto lo scrive nel preventivo.'};
+ if (k === 'reg' || k === 'regmin') {
+  const v = k === 'regmin' && Math.random() < .5 ? G.int(28, 49) * 1000 : G.int(60, 140) * 1000 + G.int(0, 9) * 110;
+  return mk('calc', 'IL CONTO TORNA?', `Preventivo · imposta di registro ${who.last}`, {...base, ask:`Prima casa: quanto è l’<b>imposta di registro</b> per ${who.name}?`, answer:Math.max(1000, Math.round(v * .02)), sources:[{t:'Regola prima casa', rows:[['Imposta di registro', '2% del valore catastale'], ['Minimo di legge', '€ 1.000']]}, {t:`Visura · ${who.last}`, rows:[['Valore catastale', G.euro(v)]]}], hint:'2% del valore catastale, mai meno di € 1.000.', winWhy:v * .02 < 1000 ? 'Il 2% era sotto il minimo: si pagano € 1.000. È la trappola classica.' : 'Il 2% del valore catastale: Otto lo scrive nel preventivo.'});
  }
- return {mail:{...mail, practice:p}, mission:{kind:'boxes', title:`Caselle dalla fonte · ${mail.subject}`, label:'CASELLE DALLA FONTE', ttl:150000,
-  data:{prefix, answer, sources, field, split:kind === 'catasto' ? String(answer.length - 2) : ''},
-  render:boxesRender, handle:boxesHandle}};
-}
-function boxesRender(d, st) {
- const vals = st.vals || [], bad = st.bad || [];
- const boxes = [...d.answer].map((_, i) => `${d.split && i === +d.split ? '<span class="mg-sep">sub</span>' : ''}<input class="mg-box ${bad.includes(i) ? 'bad' : ''} ${st.done ? 'ok' : ''}" data-mg-input="${st.id}:${i}" autocomplete="off" inputmode="${/^\d+$/.test(d.answer) ? 'numeric' : 'text'}" value="${esc(st.done ? d.answer[i] : vals[i] || '')}" aria-label="Carattere ${i + 1}" ${st.done ? 'disabled' : ''}>`).join('');
- return `<p class="mg-ask">Copia il dato dalla <b>fonte giusta</b>: una casella per carattere.${st.tries ? ` <span class="mg-tries">Tentativi sbagliati: ${st.tries}/3</span>` : ''}</p>
-  <div class="mg-sources">${d.sources.map(s => `<div class="mg-doc"><span class="mg-doc-t">${esc(s.t)}</span>${s.rows.map(r => `<div class="mg-row"><span class="mg-k">${esc(r[0])}</span><span class="mg-v mono">${esc(r[1])}</span></div>`).join('')}</div>`).join('')}</div>
-  <div class="mg-form"><span class="mg-doc-t">Modulo · ${esc(d.field)}</span><div class="mg-line">${d.prefix ? `<span class="mg-prefix mono">${esc(d.prefix)}</span>` : '<span class="mg-sep">part.</span>'}${boxes}</div></div>
-  ${st.done ? '' : `<div class="gc-options"><button data-game="mg:${st.id}:confirm:0">Conferma</button></div>`}`;
-}
-function boxesHandle(d, st, action, v) {
- if (action === 'type') { (st.vals ||= [])[v.i] = v.v.toUpperCase(); st.bad = (st.bad || []).filter(x => x !== v.i); return null; }
- if (action === 'confirm') {
-  const vals = st.vals || [];
-  st.bad = [...d.answer].map((c, i) => (vals[i] || '') === c ? -1 : i).filter(i => i >= 0);
-  if (!st.bad.length) { st.done = true; return {done:true, pts:Math.max(10, 30 + (st.tries ? 0 : 15) - (st.tries || 0) * 5), label:st.tries ? 'Copiato, al secondo colpo' : 'Copiato alla perfezione', why:`Dato completo (${esc(d.field)}) e identico alla fonte. Otto lo inserisce nel modulo e lo segna come verificato da te.`}; }
-  st.tries = (st.tries || 0) + 1;
-  if (st.tries >= 3) { st.done = true; return {done:true, pts:-10, label:'Dato non corretto', why:`Tre tentativi sbagliati: Otto rimette la pratica in coda. Il valore giusto era ${esc(d.prefix ? '…' : '')}${esc(d.answer)}, dalla ${esc(d.sources[0].t.toLowerCase())}.`}; }
-  return {sound:'bad'};
+ if (k === 'caparra') {
+  const p = G.int(14, 42) * 10000, f = G.pick([[1, 10, 'un decimo'], [1, 5, 'un quinto'], [1, 20, 'un ventesimo']]);
+  return mk('calc', 'IL CONTO TORNA?', `Preventivo · caparra ${who.last}`, {...base, ask:`Nel preliminare la caparra è <b>${f[2]} del prezzo</b>. Quanto deve versare ${who.name}?`, answer:p * f[0] / f[1], sources:[{t:'Preliminare', rows:[['Prezzo', G.euro(p)], ['Caparra', `${f[0]}/${f[1]} del prezzo`]]}], hint:`Prezzo diviso ${f[1]}.`});
  }
+ if (k === 'iva') {
+  const o = G.int(12, 36) * 100;
+  return mk('calc', 'IL CONTO TORNA?', `Preventivo · onorario con IVA ${who.last}`, {...base, ask:'Quanto paga il cliente per l’<b>onorario con l’IVA al 22%</b>?', answer:+(o * 1.22).toFixed(2), sources:[{t:'Preventivo', rows:[['Onorario', G.euro(o)], ['IVA', '22%']]}], hint:'Onorario più il 22%: per esempio onorario × 122%.'});
+ }
+ if (k === 'saldo') {
+  const p = G.int(140, 420) * 1000, c = Math.round(p * G.pick([.05, .1]) / 500) * 500, m = Math.round(p * G.pick([.5, .6, .7]) / 1000) * 1000;
+  return mk('calc', 'IL CONTO TORNA?', `Preventivo · saldo ${who.last}`, {...base, ask:'Quanto deve versare l’acquirente <b>di saldo alla firma</b>?', answer:p - c - m, sources:[{t:'Preliminare', rows:[['Prezzo', G.euro(p)], ['Caparra già versata', G.euro(c)]]}, {t:'Delibera del mutuo', rows:[['Erogato alla firma', G.euro(m)]]}], hint:'Prezzo meno caparra meno mutuo.'});
+ }
+ const v = G.int(60, 140) * 1000;
+ return mk('calc', 'IL CONTO TORNA?', `Preventivo · imposte totali ${who.last}`, {...base, ask:'Prima casa: quanto sono le <b>imposte in tutto</b>?', answer:Math.max(1000, Math.round(v * .02)) + 100, sources:[{t:'Prima casa', rows:[['Registro', '2% del valore catastale (min € 1.000)'], ['Ipotecaria', '€ 50'], ['Catastale', '€ 50']]}, {t:`Visura · ${who.last}`, rows:[['Valore catastale', G.euro(v)]]}], hint:'Registro (2%, minimo 1.000) + 50 + 50.'});
 }
 
-// ————— Smista la coda —————
-// Un pacco di email dalla PEC: ognuna va alla persona giusta del team.
-const lanes = [['GM', 'Giulia', 'Compravendite e mutui'], ['LB', 'Luca', 'Società'], ['EF', 'Elena', 'Successioni e donazioni'], ['SR', 'Sara', 'Appuntamenti e segreteria']];
-const srl = () => `${G.pick(['Arcadia', 'Lumen', 'Orione', 'Vela', 'Trama', 'Nodo', 'Tessera'])} ${G.pick(['S.r.l.', 'S.r.l.s.', 'S.p.A.'])}`;
-const triagePool = {
- GM:[() => `${G.pick(G.banks)[0]}: delibera del mutuo ${G.person().last}`, () => `Agenzia Casa Arno: proposta d’acquisto in ${G.pick(G.streets)}`, () => `Perizia dell’immobile ${G.person().last}, ${G.pick(G.cities)}`, () => `Geometra: planimetria aggiornata ${G.person().last}`],
- LB:[() => `Commercialista: cessione quote ${srl()}`, () => `Statuto ${srl()}: revisione v3`, () => `Aumento di capitale ${srl()}`, () => `Trasformazione in S.r.l. della ditta ${G.person().last}`],
- EF:[() => `Successione ${G.person().last}: certificato di morte`, () => `Donazione al figlio: casa di ${G.pick(G.cities)}`, () => `Testamento olografo: richiesta di pubblicazione`, () => `Rinuncia all’eredità ${G.person().last}`],
- SR:[() => `${G.person().name}: richiesta di appuntamento`, () => `Spostamento della firma ${G.person().last}`, () => `Richiesta copia conforme di un atto del ${G.int(2008, 2022)}`, () => `${G.person().name}: dove parcheggio venerdì?`]
-};
-function triageMission() {
- const n = G.int(4, 5), keys = G.shuffle([...lanes.map(l => l[0]), ...lanes.map(l => l[0])]).slice(0, n);
- const items = keys.map(k => ({lane:k, text:G.pick(triagePool[k])()}));
- const mail = {from:'PEC dello studio · smistamento', address:'pec@studioconti.example', kind:'PEC', subject:`${n} email arrivate da smistare`, attachments:[],
-  body:`Sono arrivate ${n} email sulla casella PEC dello studio. Otto le ha lette: ora vanno assegnate alle persone giuste.`,
-  understood:`Ognuna va a chi segue quella materia: Giulia compravendite e mutui, Luca società, Elena successioni e donazioni, Sara appuntamenti e segreteria.`};
- return {mail, mission:{kind:'triage', title:`Smista la coda · ${n} email dalla PEC`, label:'SMISTA LA CODA', ttl:200000, data:{items}, render:triageRender, handle:triageHandle}};
-}
-function triageRender(d, st) {
- const a = st.assign || {};
- const all = d.items.every((_, i) => a[i]);
- return `<p class="mg-ask">Assegna ogni email <b>alla persona giusta</b>, poi conferma lo smistamento.</p>
-  <div class="mg-lanes">${lanes.map(l => `<span><b>${l[1]}</b>${l[2]}</span>`).join('')}</div>
-  <div class="mg-queue">${d.items.map((it, i) => `<div class="mg-qrow ${st.done ? (a[i] === it.lane ? 'right' : 'wrong') : ''}"><span class="mg-qtext">${esc(it.text)}</span><span class="mg-chips">${lanes.map(l => `<button class="${a[i] === l[0] ? 'on' : ''} ${st.done && it.lane === l[0] ? 'sol' : ''}" data-game="mg:${st.id}:set:${i}.${l[0]}" ${st.done ? 'disabled' : ''}>${l[1]}</button>`).join('')}</span></div>`).join('')}</div>
-  ${st.done ? '' : `<div class="gc-options"><button data-game="mg:${st.id}:confirm:0" ${all ? '' : 'disabled'}>Conferma lo smistamento</button></div>`}`;
-}
-function triageHandle(d, st, action, v) {
- if (action === 'set') { const [i, lane] = v.split('.'); (st.assign ||= {})[i] = lane; return {sound:'click'}; }
- if (action === 'confirm') {
-  const a = st.assign || {}, ok = d.items.filter((it, i) => a[i] === it.lane).length, t = d.items.length;
-  if (ok === t) return {done:true, pts:45, label:'Coda smistata alla perfezione', why:`Tutte e ${t} le email sono arrivate alla persona giusta: nessuno deve girarle a un collega.`};
-  if (ok >= t / 2) return {done:true, pts:Math.round(30 * ok / t), label:`${ok} su ${t} al posto giusto`, why:'Le righe rosse sono finite alla persona sbagliata: in verde chi doveva riceverle.'};
-  return {done:true, pts:-10, label:`Solo ${ok} su ${t}`, why:'Metà della coda è finita alle persone sbagliate: in verde chi doveva riceverle.'};
- }
+// ————— Osservatorio · Si applica o no? —————
+function osservatorioMission() {
+ const from = new Date(2026, G.int(10, 11), G.int(1, 25)), n = by(3, 4, 6);
+ const items = Array.from({length:n}, () => { const before = Math.random() < .5, dt = new Date(from); dt.setDate(dt.getDate() + (before ? -G.int(1, 20) : G.int(0, 20))); return {text:`Pratica ${G.person().last}`, sub:`visura richiesta il ${dm(dt)}`, ans:before ? 'no' : 'si'}; });
+ return mk('classify', 'SI APPLICA?', 'Osservatorio · nuova tabella dei diritti', {ask:`Nuova tabella dei diritti per le visure ipotecarie, <b>dal ${dm(from)}</b>. A quali pratiche si applica?`, sources:[{t:'Circolare (esempio)', rows:[['Si applica', `alle richieste presentate dal ${dm(from)} in poi`]]}], states:[['si', 'Si applica'], ['no', 'Non si applica']], items, winWhy:'Solo le richieste dalla data della circolare: i clienti con visure già fatte non ricevono rincari che non esistono.'});
 }
 
-// ————— Correggi la bozza —————
-// La risposta preparata da Otto su WhatsApp contiene un errore rispetto alle fonti: lo trovi e lo correggi.
-const days = ['lunedì', 'martedì', 'mercoledì', 'giovedì', 'venerdì'];
-function proofMission() {
- const who = G.person(), day = G.int(0, 4), date = G.int(20, 30), kind = G.pick(['ora', 'giorno', 'notaio', 'importo']);
- const hour = G.pick(['9:30', '10:30', '11:00', '15:00', '16:30']), other = G.pick(['9:00', '12:00', '14:30', '17:30', '18:00'].filter(h => h !== hour));
- const notary = G.pick(['Notaio Conti', 'Notaio Ferri']), notaryOther = notary === 'Notaio Conti' ? 'Notaio Ferri' : 'Notaio Conti';
- const amt = G.amount() * 4, amtWrong = G.typoNumber(amt);
- const fix = {ora:[hour, other], giorno:[`${days[day]} ${date}`, `${days[(day + 1) % 5]} ${date + 1}`], notaio:[notary, notaryOther], importo:[G.euro(amt), G.euro(amtWrong)]}[kind];
- const seg = (txt, key) => key === kind ? {t:fix[1], err:true, ok:fix[0], choices:G.shuffle([fix[0], fix[1], kind === 'ora' ? '13:00' : kind === 'importo' ? G.euro(G.roundUp(amt)) : kind === 'notaio' ? 'Notaio Benassi' : `sabato ${date + 2}`])} : {t:txt};
- const parts = [{t:`Buongiorno ${who.first}, confermato: firma `}, seg(`${days[day]} ${date}`, 'giorno'), {t:' alle '}, seg(hour, 'ora'), {t:' con il '}, seg(notary, 'notaio'), {t:'. Per il saldo prepari un bonifico di '}, seg(G.euro(amt), 'importo'), {t:'. Le mando un promemoria il giorno prima.'}];
- const sources = [{t:'Agenda dello studio', rows:[[`${days[day]} ${date} ottobre`, `${hour} · firma ${who.last} · ${notary}`]]}, {t:`Pratica ${who.last}`, rows:[['Saldo prezzo', G.euro(amt)]]}];
- const chat = {who:who.name, practice:`P-${G.int(205, 289)}`, text:G.pick(['Mi conferma giorno e ora della firma? E quanto devo versare di saldo?', 'Buongiorno, ci ricorda quando firmiamo e l’importo del saldo?', 'Salve! Per venerdì è tutto confermato? Quanto è il bonifico del saldo?'])};
- return {chat, mission:{kind:'proof', title:`Correggi la bozza · risposta a ${who.name}`, label:'CORREGGI LA BOZZA', ttl:170000, data:{parts, sources}, render:proofRender, handle:proofHandle}};
-}
-function proofRender(d, st) {
- const sel = st.sel, fixed = st.fixed || {};
- return `<p class="mg-ask">Otto ha scritto la risposta, ma qualcosa <b>non torna con le fonti</b>. Tocca la parte sbagliata e correggila.</p>
-  <div class="mg-sources">${d.sources.map(s => `<div class="mg-doc"><span class="mg-doc-t">${esc(s.t)}</span>${s.rows.map(r => `<div class="mg-row"><span class="mg-k">${esc(r[0])}</span><span class="mg-v">${esc(r[1])}</span></div>`).join('')}</div>`).join('')}</div>
-  <div class="mg-draft"><span class="mg-doc-t">Risposta proposta da Otto</span><p>${d.parts.map((p, i) => p.err || p.t.trim().length > 3 && i % 2 ? `<button class="mg-tok ${fixed[i] ? 'fixed' : ''} ${sel === i ? 'sel' : ''} ${st.misses?.includes(i) ? 'miss' : ''}" data-game="mg:${st.id}:tok:${i}" ${st.done || fixed[i] ? 'disabled' : ''}>${esc(fixed[i] || p.t)}</button>` : esc(p.t)).join('')}</p></div>
-  ${sel != null && !st.done ? `<div class="gc-options">${d.parts[sel].choices.map(c => `<button data-game="mg:${st.id}:fix:${encodeURIComponent(c)}">${esc(c)}</button>`).join('')}</div>` : ''}`;
-}
-function proofHandle(d, st, action, v) {
- if (action === 'tok') {
-  const i = +v;
-  if (d.parts[i].err) { st.sel = i; return {sound:'open'}; }
-  (st.misses ||= []).includes(i) || st.misses.push(i);
-  return {sound:'bad'};
- }
- if (action === 'fix') {
-  const p = d.parts[st.sel], c = decodeURIComponent(v), m = st.misses?.length || 0;
-  if (c === p.ok) { (st.fixed ||= {})[st.sel] = c; st.sel = null; return {done:true, pts:Math.max(10, 30 + (m ? 0 : 15) - m * 5), label:m ? 'Corretta, con qualche tentativo' : 'Bozza perfetta', why:`Con **${esc(c)}** la risposta coincide con agenda e pratica. Otto la invia al cliente.`}; }
-  return {done:true, pts:-15, label:'Correzione sbagliata', why:`Le fonti dicono **${esc(p.ok)}**: con ${esc(c)} il cliente avrebbe ricevuto un’informazione sbagliata.`};
- }
+// ————— Staff · Riassegna il lavoro —————
+function staffMission() {
+ const n = by(3, 4, 5);
+ const tasks = {GM:['Trascrizione compravendita', 'Modulo erogazione mutuo', 'Voltura catastale'], LB:['Deposito al Registro Imprese', 'Verbale di assemblea', 'Statuto da rivedere'], EF:['Dichiarazione di successione', 'Pubblicazione testamento', 'Atto di donazione'], SR:['Richiamare un cliente', 'Spostare una firma', 'Preparare copie conformi']};
+ const keys = G.shuffle(['GM', 'LB', 'EF', 'SR', 'GM', 'EF']).slice(0, n);
+ return mk('triage', 'RIASSEGNA IL LAVORO', 'Staff · Paolo è in ferie', {ask:'<b>Paolo Donati è in ferie</b> fino a lunedì: riassegna le sue attività a chi segue quella materia.', lanes:team, sources:[{t:'Presenze', rows:[['Paolo Donati', 'in ferie fino a lunedì'], ['Tutti gli altri', 'in studio']]}], items:keys.map(k => ({lane:k, text:G.pick(tasks[k]), sub:`scade ${G.pick(['oggi', 'domani', 'venerdì'])}`})), confirm:'Riassegna', winWhy:'Ogni attività di Paolo è a chi conosce la materia: nessun termine scade durante le ferie.'});
 }
 
-// ————— Il conto torna? —————
-// Un calcolo vero dello studio, con il tastierino o il calendario. Il risultato lo calcola il generatore.
-function calcMission() {
- const kind = G.pick(['imposta', 'saldo', 'termine']), who = G.person();
- let data, mail;
- if (kind === 'imposta') {
-  const v = G.int(28, 140) * 1000 + G.int(0, 9) * 110;
-  data = {kind, ask:'Quanto è l’<b>imposta di registro</b>?', answer:Math.max(1000, Math.round(v * .02)), sources:[{t:'Regola prima casa', rows:[['Imposta di registro', '2% del valore catastale'], ['Minimo', '€ 1.000']]}, {t:`Visura · ${who.last}`, rows:[['Valore catastale', G.euro(v)]]}]};
-  mail = {from:who.name, address:`${who.last.toLowerCase()}@mail.example`, kind:'Cliente', subject:`Quanto pago di imposte? Casa a ${G.pick(G.cities)}`, body:'Buongiorno, compro la prima casa: mi sa dire quanto pagherò di imposta di registro?', understood:'Il cliente compra la prima casa e chiede l’imposta di registro: 2% del valore catastale, con un minimo di legge.'};
- } else if (kind === 'saldo') {
-  const p = G.int(140, 420) * 1000, c = Math.round(p * G.pick([.05, .1, .1]) / 500) * 500, m = Math.round(p * G.pick([.5, .6, .7, .8]) / 1000) * 1000;
-  data = {kind, ask:'Quanto deve versare l’acquirente <b>di saldo alla firma</b>?', answer:p - c - m, sources:[{t:'Preliminare', rows:[['Prezzo', G.euro(p)], ['Caparra già versata', G.euro(c)]]}, {t:'Delibera del mutuo', rows:[['Importo erogato alla firma', G.euro(m)]]}]};
-  mail = {from:who.name, address:`${who.last.toLowerCase()}@mail.example`, kind:'Cliente', subject:`Saldo da preparare per la firma`, body:'Salve, devo preparare il bonifico del saldo: qual è la cifra esatta?', understood:'Il saldo è quello che resta del prezzo, togliendo la caparra già versata e il mutuo che la banca eroga alla firma.'};
- } else {
-  const d = new Date(2026, G.int(9, 10), G.int(1, 28)), due = new Date(d); due.setDate(due.getDate() + 30);
-  data = {kind, ask:'Entro quando vanno fatte <b>registrazione e trascrizione</b>?', answer:due.toDateString(), month:[due.getFullYear(), due.getMonth()], sources:[{t:'Regola dello studio', rows:[['Registrazione e trascrizione', 'entro 30 giorni dalla data dell’atto']]}, {t:`Repertorio · ${who.last}`, rows:[['Atto firmato il', d.toLocaleDateString('it-IT', {day:'numeric', month:'long', year:'numeric'})]]}]};
-  mail = {from:'Paolo Donati (dal telefono)', address:'p.donati@studioconti.example', kind:'Interna', subject:`Scadenza atto ${who.last}: me la segni tu?`, body:'Sono fuori studio: mi metti in agenda la scadenza per registrazione e trascrizione dell’atto?', understood:'Va calcolata la scadenza dei 30 giorni dalla data dell’atto e messa in agenda.'};
- }
- return {mail:{...mail, attachments:[]}, mission:{kind:'calc', title:`Il conto torna? · ${mail.subject}`, label:'IL CONTO TORNA?', ttl:170000, data, render:calcRender, handle:calcHandle}};
-}
-function calcRender(d, st) {
- const src = `<div class="mg-sources">${d.sources.map(s => `<div class="mg-doc"><span class="mg-doc-t">${esc(s.t)}</span>${s.rows.map(r => `<div class="mg-row"><span class="mg-k">${esc(r[0])}</span><span class="mg-v">${esc(r[1])}</span></div>`).join('')}</div>`).join('')}</div>`;
- const tries = st.tries ? ` <span class="mg-tries">Tentativi sbagliati: ${st.tries}/2</span>` : '';
- if (d.kind === 'termine') {
-  const [y, m] = d.month, first = new Date(y, m, 1), pad = (first.getDay() + 6) % 7, n = new Date(y, m + 1, 0).getDate();
-  const cells = [...Array(pad).fill(''), ...Array.from({length:n}, (_, i) => i + 1)];
-  return `<p class="mg-ask">${d.ask}${tries}</p>${src}
-   <div class="mg-cal"><span class="mg-doc-t">${first.toLocaleDateString('it-IT', {month:'long', year:'numeric'})}</span><div class="mg-cal-grid">${['L', 'M', 'M', 'G', 'V', 'S', 'D'].map(x => `<i>${x}</i>`).join('')}${cells.map(c => c ? `<button class="${st.done && new Date(y, m, c).toDateString() === d.answer ? 'sol' : ''} ${st.wrong?.includes(c) ? 'miss' : ''}" data-game="mg:${st.id}:day:${c}" ${st.done ? 'disabled' : ''}>${c}</button>` : '<span></span>').join('')}</div></div>`;
- }
- const val = st.val || '';
- return `<p class="mg-ask">${d.ask}${tries}</p>${src}
-  <div class="mg-pad"><div class="mg-display ${st.done ? 'ok' : ''}">€ ${val ? (+val).toLocaleString('it-IT') : '<span>—</span>'}</div>
-  ${st.done ? '' : `<div class="mg-keys">${[1, 2, 3, 4, 5, 6, 7, 8, 9, 'back', 0, 'ok'].map(k => `<button class="${k === 'ok' ? 'go' : ''}" data-game="mg:${st.id}:key:${k}">${k === 'back' ? '⌫' : k === 'ok' ? 'OK' : k}</button>`).join('')}</div>`}</div>`;
-}
-function calcHandle(d, st, action, v) {
- const win = () => ({done:true, pts:st.tries ? 25 : 45, label:st.tries ? 'Giusto, al secondo colpo' : 'Conto perfetto', why:d.kind === 'termine' ? 'Trenta giorni esatti dalla firma: Otto mette la scadenza in agenda con un promemoria una settimana prima.' : d.kind === 'imposta' && d.answer === 1000 ? 'Il 2% era sotto il minimo di legge: si pagano € 1.000. È la trappola classica.' : 'Il conto torna: Otto lo scrive nella risposta al cliente e nella pratica.'});
- const lose = () => ({done:true, pts:-10, label:'Il conto non torna', why:`Il risultato giusto era ${d.kind === 'termine' ? new Date(d.answer).toLocaleDateString('it-IT', {day:'numeric', month:'long'}) : G.euro(d.answer)}. ${d.kind === 'imposta' ? 'Ricorda il minimo di € 1.000.' : d.kind === 'saldo' ? 'Prezzo meno caparra meno mutuo.' : 'Trenta giorni dalla data dell’atto.'}`});
- if (action === 'day') {
-  if (new Date(d.month[0], d.month[1], +v).toDateString() === d.answer) { st.done = true; return win(); }
-  (st.wrong ||= []).push(+v); st.tries = (st.tries || 0) + 1;
-  if (st.tries >= 2) { st.done = true; return lose(); }
-  return {sound:'bad'};
- }
- if (action === 'key') {
-  if (v === 'back') { st.val = (st.val || '').slice(0, -1); return {sound:'click'}; }
-  if (v !== 'ok') { if ((st.val || '').length < 7) st.val = (st.val || '') + v; return {sound:'click'}; }
-  if (+st.val === d.answer) { st.done = true; return win(); }
-  st.tries = (st.tries || 0) + 1; st.val = '';
-  if (st.tries >= 2) { st.done = true; return lose(); }
-  return {sound:'bad'};
- }
+// ————— Scadenziario · La data giusta —————
+function scadenzeMission() {
+ const who = G.person(), k = G.pick(by(['30'], ['30', 'reg'], ['30', 'reg', 'succ']));
+ const d = new Date(2026, G.int(9, 10), G.int(1, 28)), due = new Date(d);
+ let ask, rule, label;
+ if (k === 'succ') { d.setFullYear(2025); due.setTime(d.getTime()); due.setMonth(due.getMonth() + 12); ask = `Entro quando va presentata la <b>dichiarazione di successione</b> di ${who.last}?`; rule = 'entro 12 mesi dalla data del decesso'; label = 'Data del decesso'; }
+ else { due.setDate(due.getDate() + 30); ask = k === 'reg' ? `Entro quando va fatto il <b>deposito al Registro Imprese</b> dell’atto di ${srl()}?` : `Entro quando vanno fatte <b>registrazione e trascrizione</b> dell’atto ${who.last}?`; rule = 'entro 30 giorni dalla data dell’atto'; label = 'Atto firmato il'; }
+ return mk('cal', 'LA DATA GIUSTA', `Scadenziario · ${who.last}`, {ask, answer:due.toDateString(), month:[due.getFullYear(), due.getMonth()], sources:[{t:'Regola', rows:[['Termine', rule]]}, {t:'Pratica', rows:[[label, date(d)]]}], winWhy:'Data giusta: Otto la mette in scadenziario con un promemoria una settimana prima.', hint:rule});
 }
 
-// ————— Al telefono —————
-// Una chiamata in diretta: il chiamante parla, tu scegli cosa risponde Otto. Le fonti dicono cosa si può fare.
-function phoneMission() {
- const who = G.person(), kind = G.pick(['sposta', 'privacy', 'urgenza', 'banca']);
- const d1 = G.pick(days), slotBusy = G.pick(['10:00', '11:30']), slotFree = G.pick(['15:00', '16:30']);
- let turns, sources, call, caller = who.name;
- if (kind === 'sposta') {
-  sources = [{t:`Agenda di ${d1}`, rows:[[slotBusy, 'occupato · firma Bellandi'], [slotFree, 'libero']]}];
-  turns = [{c:`Buongiorno, sono ${who.name}. Posso spostare la mia firma a ${d1}?`, o:[{t:`Certo: ${d1} alle ${slotFree} è libero, la segno?`, ok:true}, {t:`Sì, alle ${slotBusy} va benissimo.`, why:`Alle ${slotBusy} c’è già un’altra firma: guarda l’agenda.`}, {t:'Mi dispiace, le firme non si possono spostare.', why:'Si possono spostare, se c’è posto: e in agenda c’è.'}]},
-   {c:'Perfetto. Devo portare qualcosa?', o:[{t:'Solo un documento d’identità valido: il resto lo abbiamo noi.', ok:true}, {t:'Niente, non serve nulla.', why:'Il notaio deve identificare chi firma: il documento serve sempre.'}, {t:'Tutti gli atti originali di casa.', why:'Gli atti li ha già lo studio: chiederli spaventa il cliente per niente.'}]}];
-  call = {kind:'Cliente', intent:'Spostamento della firma'};
- } else if (kind === 'privacy') {
-  const rel = G.person(); caller = `${rel.first} ${who.last}`;
-  sources = [{t:`Pratica successione ${who.last}`, rows:[['Erede', who.name], ['Altri autorizzati', 'nessuno']]}];
-  turns = [{c:`Salve, sono ${rel.first} ${who.last}, il fratello di ${who.first}. A che punto è la successione?`, o:[{t:`Posso dare informazioni solo a ${who.first}: le chiedo di richiamarla lei.`, ok:true}, {t:'Manca solo la dichiarazione, poi è fatta.', why:'Nessuno lo ha autorizzato: una risposta così è una violazione della privacy.'}, {t:'Mi dica il codice fiscale e le dico tutto.', why:'Sapere un codice fiscale non dà diritto a una pratica di un altro.'}]},
-   {c:'Ma sono di famiglia!', o:[{t:`Capisco. Se ${who.first} ci autorizza per iscritto, la aggiorno volentieri.`, ok:true}, {t:'Va bene, allora le dico tutto.', why:'Essere parenti non basta: serve l’autorizzazione di chi segue la pratica.'}, {t:'Allora la richiamiamo noi tra un’ora.', why:'Senza autorizzazione non si può dire niente, nemmeno tra un’ora.'}]}];
-  call = {kind:'Terzo', intent:'Informazioni su una successione'};
- } else if (kind === 'urgenza') {
-  const s1 = G.pick(['domani alle 9:00', 'domani alle 12:00']);
-  sources = [{t:'Agenda della dott.ssa Ferri', rows:[[s1, 'libero'], ['oggi pomeriggio', 'occupato'], ['tra 10 giorni', 'libero']]}];
-  turns = [{c:`Buongiorno... è mancato mio padre la settimana scorsa e la banca ha bloccato il conto. Non so cosa fare.`, o:[{t:`Mi dispiace molto. La dott.ssa Ferri può vederla ${s1}: va bene?`, ok:true}, {t:'Le propongo tra dieci giorni.', why:'C’è un posto molto prima: con un conto bloccato ogni giorno conta.'}, {t:'Venga oggi pomeriggio.', why:'Oggi pomeriggio la dott.ssa Ferri è occupata: guarda l’agenda.'}]},
-   {c:'Grazie. Cosa devo portare?', o:[{t:'Il certificato di morte e i documenti degli eredi: le mando l’elenco su WhatsApp.', ok:true}, {t:'Il testamento originale firmato da lei.', why:'Il testamento lo firma chi lo fa, non chi eredita: e potrebbe non esserci.'}, {t:'Niente, facciamo tutto noi.', why:'Senza certificato e documenti la pratica non parte: meglio dirlo subito.'}]}];
-  call = {kind:'Nuovo cliente', intent:'Successione urgente'};
- } else {
-  const [bank] = G.pick(G.banks); caller = `${bank} · Ufficio mutui`; const num = `+39 055 ${G.int(200, 899)} ${G.int(1000, 9999)}`;
-  sources = [{t:`Anagrafica ${bank}`, rows:[['Numero registrato', num], ['Chiamata in arrivo da', num]]}];
-  turns = [{c:`Buongiorno, ${bank}, ufficio mutui. A che punto è la bozza della pratica ${who.last}?`, o:[{t:'Il numero è quello registrato: la bozza vi arriva via PEC entro mercoledì.', ok:true}, {t:'Non possiamo dire nulla alle banche.', why:'La banca è parte della pratica e chiama dal numero registrato: può essere informata.'}, {t:'Ci mandi una PEC e le rispondiamo tra una settimana.', why:'La chiamata è verificata: farla aspettare una settimana rallenta la stipula.'}]},
-   {c:'Perfetto, e la data di stipula è confermata?', o:[{t:'Sì, è in agenda: Otto vi manda la conferma scritta adesso.', ok:true}, {t:'Non lo so, richiami domani.', why:'L’agenda è lì: si può confermare subito.'}, {t:'Dipende dalla banca, ditecelo voi.', why:'La data la fissa lo studio con le parti ed è già in agenda.'}]}];
-  call = {kind:'Banca', intent:`Stato della bozza ${who.last}`};
- }
- turns.forEach(t => { t.o = G.shuffle(t.o); });
- return {call:{...call, caller, first:turns[0].c}, mission:{kind:'phone', title:`Al telefono · ${caller}`, label:'AL TELEFONO', ttl:190000, data:{turns, sources, caller}, render:phoneRender, handle:phoneHandle}};
+// ————— Antiriciclaggio · Quanto possiede davvero? —————
+function antiriciclaggioMission() {
+ const company = srl(), holding = `${G.pick(['Helix', 'Orione', 'Kappa', 'Delta'])} Holding S.r.l.`, who = G.person();
+ const a = G.pick([30, 35, 40, 45, 50, 60]), b = G.pick([40, 50, 60, 70, 80]), direct = G.pick([5, 10, 15]);
+ const k = by('uno', 'due', G.pick(['due', 'somma']));
+ if (k === 'uno') return mk('calc', 'QUANTO POSSIEDE?', `Antiriciclaggio · ${company}`, {ask:`${holding} ha il ${a}% di ${company}. ${who.name} possiede <b>il 100% di ${holding}</b>. Che percentuale di ${company} controlla?`, unit:'%', answer:a, tolerance:.05, sources:[{t:`Visura ${company}`, rows:[[holding, `${a}%`]]}, {t:`Visura ${holding}`, rows:[[who.name, '100%']]}], winWhy:`${a}%: sopra il 25%, quindi ${who.name} è titolare effettivo.`, hint:'Con il 100% della holding si controlla tutta la sua quota.'});
+ const tot = a * b / 100 + (k === 'somma' ? direct : 0);
+ return mk('calc', 'QUANTO POSSIEDE?', `Antiriciclaggio · ${company}`, {ask:`Che percentuale di <b>${company}</b> possiede ${who.name}${k === 'somma' ? ', sommando quota diretta e indiretta' : ' attraverso la holding'}?`, unit:'%', answer:tot, tolerance:.05, sources:[{t:`Visura ${company}`, rows:[[holding, `${a}%`], ...(k === 'somma' ? [[who.name, `${direct}% diretto`]] : [])]}, {t:`Visura ${holding}`, rows:[[who.name, `${b}%`]]}], winWhy:`${tot.toLocaleString('it-IT')}%: ${tot > 25 ? 'sopra' : 'sotto'} la soglia del 25%, quindi ${tot > 25 ? 'è' : 'non è'} titolare effettivo.`, hint:`Si moltiplicano le quote: ${a} × ${b}%${k === 'somma' ? ` + ${direct}` : ''}.`});
 }
-function phoneRender(d, st) {
- const at = st.turn || 0, log = st.log || [];
- return `<p class="mg-ask">La chiamata è in corso. <b>Scegli cosa risponde Otto</b>: le fonti dicono cosa si può fare.</p>
-  <div class="mg-sources">${d.sources.map(s => `<div class="mg-doc"><span class="mg-doc-t">${esc(s.t)}</span>${s.rows.map(r => `<div class="mg-row"><span class="mg-k">${esc(r[0])}</span><span class="mg-v">${esc(r[1])}</span></div>`).join('')}</div>`).join('')}</div>
-  <div class="transcript mg-call">${d.turns.slice(0, at + 1).map((t, i) => `<div class="bubble caller"><small>${esc(d.caller)}</small>${esc(t.c)}</div>${log.filter(l => l.turn === i).map(l => l.ok ? `<div class="bubble agent"><small>Otto</small>${esc(l.t)}</div>` : `<div class="mg-oops">${esc(l.why)}</div>`).join('')}`).join('')}</div>
-  ${st.done ? '' : `<div class="gc-options mg-replies">${d.turns[at].o.map((o, i) => `<button data-game="mg:${st.id}:say:${i}" ${log.some(l => l.turn === at && !l.ok && l.t === o.t) ? 'disabled' : ''}>${esc(o.t)}</button>`).join('')}</div>`}`;
-}
-function phoneHandle(d, st, action, v) {
- if (action !== 'say') return;
- const at = st.turn || 0, o = d.turns[at].o[+v];
- (st.log ||= []).push({turn:at, ok:!!o.ok, t:o.t, why:o.why});
- if (!o.ok) { st.misses = (st.misses || 0) + 1; return {sound:'bad'}; }
- if (at + 1 < d.turns.length) { st.turn = at + 1; return {sound:'good'}; }
- const m = st.misses || 0;
- return {done:true, pts:m ? Math.max(-10, 30 - m * 12) : 45, label:m ? (m > 1 ? 'Chiamata recuperata a fatica' : 'Chiamata gestita, con un inciampo') : 'Chiamata perfetta', why:m ? 'Otto ha corretto il tiro, ma al telefono la prima risposta è quella che il cliente ricorda.' : 'Risposte giuste al primo colpo: il chiamante chiude tranquillo e Otto registra tutto nella pratica.'};
+
+// ————— Compliance · Consenti o rifiuta —————
+function complianceMission() {
+ const n = by(3, 4, 5), pool = [
+  ['Banca Arno chiede la bozza della pratica di cui è parte', 'ok'], ['Il cliente chiede i suoi dati dall’email registrata', 'ok'], ['Il commercialista con delega scritta chiede l’atto della società', 'ok'], ['Il coerede chiede la dichiarazione di successione', 'ok'],
+  ['L’ex coniuge chiede copia dell’atto di acquisto dell’altro', 'no'], ['Un’agenzia immobiliare chiede il prezzo di una vendita', 'no'], ['Un indirizzo non registrato chiede l’export dei dati di un cliente', 'no'], ['Un giornalista chiede i nomi dei soci di una società cliente', 'no']];
+ const items = G.shuffle(pool).slice(0, n).map(([text, ans]) => ({text, ans}));
+ if (!items.some(i => i.ans === 'ok')) items[0] = {text:pool[0][0], ans:'ok'};
+ if (!items.some(i => i.ans === 'no')) items[n - 1] = {text:pool[4][0], ans:'no'};
+ return mk('classify', 'CONSENTI O RIFIUTA', 'Compliance · richieste di accesso', {ask:'Arrivano richieste di documenti e dati. <b>Consenti</b> solo a chi ne ha diritto.', sources:[{t:'Regola dello studio', rows:[['Si consente a', 'parti della pratica, interessati verificati, chi ha delega scritta'], ['Si rifiuta a', 'terzi, indirizzi non verificati']]}], states:[['ok', 'Consenti'], ['no', 'Rifiuta']], items, winWhy:'Accessi giusti: chi ha diritto riceve i documenti, gli altri no. Tutto finisce nel registro di audit.'});
 }
 
 // ————— regista —————
-// Fa arrivare missioni da tutto lo studio: email nella Posta, messaggi su WhatsApp, chiamate al Centralino.
-// Più il livello sale, più missioni possono essere aperte insieme e meno tempo c'è.
-const kinds = {diff:diffMission, boxes:boxesMission, triage:triageMission, calc:calcMission, proof:proofMission, phone:phoneMission};
-const rotation = ['diff', 'phone', 'boxes', 'proof', 'triage', 'calc'];
+// Gira su tutti i moduli, così ogni sezione dello studio prima o poi ha la sua missione.
+const pages = {posta:postaMission, centralino:centralinoMission, whatsapp:whatsappMission, studio:studioMission, memoria:memoriaMission, visure:visureMission, preventivi:preventiviMission, osservatorio:osservatorioMission, staff:staffMission, scadenze:scadenzeMission, antiriciclaggio:antiriciclaggioMission, compliance:complianceMission};
+const rotation = ['posta', 'visure', 'centralino', 'preventivi', 'whatsapp', 'studio', 'scadenze', 'memoria', 'antiriciclaggio', 'staff', 'compliance', 'osservatorio'];
+let open = [];
 function spawn() {
  if (!running) return;
- if (document.body.classList.contains('touring') || document.hidden) return schedule(3); // riprova appena si torna a giocare
- const lvl = gameLevel(), max = lvl === 1 ? 2 : 3;
- const open = live.missions.filter(x => x.missionOpen).length;
- if (open < max) {
-  const kind = turn < rotation.length ? rotation[turn] : G.pick(rotation); turn++;
-  const made = kinds[kind](), ttl = Math.round(made.mission.ttl * (lvl === 3 ? .7 : lvl === 2 ? .85 : 1));
-  let item, page;
-  if (made.mail) { item = spawnMail({...made.mail, priority:'alta', assignee:'GM', prepared:[], draft:'', attachments:made.mail.attachments || []}); page = 'posta'; }
-  else if (made.chat) { item = spawnChat(made.chat); page = 'whatsapp'; }
-  else { item = spawnCall(made.call); page = 'centralino'; }
-  const id = addMission({...made.mission, ttl, page, ref:item.id, onDone:() => { item.missionOpen = false; if (made.call) Object.assign(item, {duration:'2:40', outcome:'Gestita con te'}); onHandled(item.id, page); schedule(G.int(8, 16)); }});
-  item.mission = id; item.missionOpen = true;
-  live.missions.push(item);
+ if (document.body.classList.contains('touring') || document.hidden) return schedule(3);
+ const max = lvl() === 1 ? 2 : 3, nOpen = open.filter(x => x.open).length;
+ if (nOpen < max) {
+  const busy = new Set(open.filter(x => x.open).map(x => x.page));
+  const order = rotation.slice(turn % rotation.length).concat(rotation.slice(0, turn % rotation.length));
+  const page = order.find(p => !busy.has(p)) || order[0]; turn = rotation.indexOf(page) + 1;
+  const made = pages[page](), mission = made.mission || made, ttl = Math.round(mission.ttl * by(1, .85, .7)), rec = {open:true, page};
+  let item = null;
+  if (made.anchor === 'mail') item = spawnMail({...made.mail, priority:'alta', assignee:'GM', prepared:[], draft:''});
+  if (made.anchor === 'chat') item = spawnChat(made.chat);
+  if (made.anchor === 'call') item = spawnCall(made.call);
+  const id = addMission({...mission, ttl, page, ref:item?.id, onDone:() => { rec.open = false; if (item) { item.missionOpen = false; if (made.anchor === 'call') Object.assign(item, {duration:'2:40', outcome:'Gestita con te'}); } onHandled(item?.id, page); schedule(G.int(8, 16)); }});
+  if (item) { item.mission = id; item.missionOpen = true; live.missions.push(item); }
+  open.push(rec);
  }
- schedule(open + 1 < max ? G.int(25, 40) : G.int(15, 25));
+ schedule(nOpen + 1 < max ? G.int(25, 40) : G.int(15, 25));
 }
 function schedule(s) { clearTimeout(timer); timer = setTimeout(spawn, s * 1000); }
-export function startMissions(handled) { onHandled = handled || onHandled; running = true; live.game = true; turn = 0; schedule(3); }
+export function startMissions(handled) { onHandled = handled || onHandled; running = true; live.game = true; turn = 0; open = []; schedule(3); }
 export function stopMissions() { running = false; live.game = false; clearTimeout(timer); }
+// Per i test: i generatori di ogni modulo, con un livello forzato.
+export const generators = pages;
+export const setTestLevel = l => { testLevel = l; };

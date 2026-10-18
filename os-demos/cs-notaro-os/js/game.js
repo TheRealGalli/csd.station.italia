@@ -126,7 +126,7 @@ function card(c) {
 function teaser() {
  if (S.started && hooks.missionsOnly) {
   const n = openAll().length;
-  return `<div class="game-teaser"><span class="gt-face">${icon(face())}</span><p><b>La sfida di Otto · livello ${S.level}, ${S.points} punti.</b> ${n ? `${n} ${n === 1 ? 'missione aspetta' : 'missioni aspettano'}: aprile dal quadrato rosso <b class="gt-bang">!</b> in alto.` : 'Le missioni arrivano da sole: email, messaggi e chiamate. Tieni d’occhio il quadrato rosso <b class="gt-bang">!</b> in alto.'}</p></div>`;
+  return `<div class="game-teaser"><span class="gt-face">${icon(face())}</span><p><b>La sfida di Otto · livello ${S.level}, ${S.points} punti.</b> ${n ? `${n} ${n === 1 ? 'missione aspetta' : 'missioni aspettano'}: aprile dal quadrato rosso <b class="gt-bang">!</b> in alto.` : 'Le missioni arrivano da sole dal lavoro di ogni giorno. Tieni d’occhio il quadrato rosso <b class="gt-bang">!</b> in alto.'}</p></div>`;
  }
  if (!S.started) return `<div class="game-teaser"><span class="gt-face">${icon('otto-happy')}</span><p><b>Vuoi provare a gestire ${place}?</b> Con la sfida di Otto prendi tu le decisioni vere: Otto prepara, tu verifichi le fonti e approvi. Ogni scelta giusta vale punti.</p><button data-game="start">Inizia la sfida ${icon('arrow')}</button></div>`;
  const next = open()[0];
@@ -299,7 +299,7 @@ export function gameInvite() {
 function start() {
  S.started = true; openLevel(); hooks.onStart?.(); updateChip('bump'); play('level');
  refresh(location.hash.slice(1) || 'home'); markNav();
- celebrate('La sfida è iniziata', hooks.missionsOnly ? 'Email, messaggi e chiamate da gestire arrivano dal quadrato rosso “!” in alto. Ognuna ha il suo tempo.' : 'Le decisioni arrivano dal quadrato rosso “!” in alto e dai puntini rossi nel menu. Ognuna ha il suo tempo.');
+ celebrate('La sfida è iniziata', hooks.missionsOnly ? (hooks.startNote || 'Le missioni arrivano dal quadrato rosso “!” in alto. Ognuna ha il suo tempo.') : 'Le decisioni arrivano dal quadrato rosso “!” in alto e dai puntini rossi nel menu. Ognuna ha il suo tempo.');
 }
 
 let ac;
