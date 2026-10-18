@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState, useSyncExternalStore, type KeyboardEvent } from 'react';
+import { useEffect, useRef, useState, useSyncExternalStore, type KeyboardEvent, type MouseEvent } from 'react';
 import { ArrowUpRight, Monitor, Lock, Play, Gamepad2, MousePointer2, MessageCircle, type LucideIcon } from 'lucide-react';
 import { StationHeader } from './Station';
 import { Otto } from './StationExperiences';
@@ -31,6 +31,15 @@ type Choice = { key: string; label: string; note: string; icon: LucideIcon; run?
 function OttoTerminal({ name, choices }: { name: string; choices: Choice[] }) {
   const [active, setActive] = useState(0);
   const list = useRef<HTMLDivElement>(null);
+  // La freccetta a pixel la disegna il sito: il cursore di sistema qui dentro è nascosto,
+  // così su nessun sistema (Mac compreso) diventa la manina sopra pulsanti e link.
+  const screen = useRef<HTMLDivElement>(null), arrow = useRef<HTMLSpanElement>(null);
+  const moveArrow = (e: MouseEvent<HTMLDivElement>) => {
+    const r = screen.current?.getBoundingClientRect(); if (!r || !arrow.current) return;
+    arrow.current.style.transform = `translate(${e.clientX - r.left}px, ${e.clientY - r.top}px)`;
+    arrow.current.style.opacity = '1';
+  };
+  const hideArrow = () => { if (arrow.current) arrow.current.style.opacity = '0'; };
   const focusRow = (i: number) => { setActive(i); (list.current?.children[i] as HTMLElement | undefined)?.focus(); };
   const onKey = (e: KeyboardEvent) => {
     if (e.key === 'ArrowDown') { e.preventDefault(); focusRow((active + 1) % choices.length); }
@@ -39,7 +48,8 @@ function OttoTerminal({ name, choices }: { name: string; choices: Choice[] }) {
   return <div className="os-term">
     <span className="os-term-antenna" aria-hidden="true"><i/></span>
     <span className="os-term-ear left" aria-hidden="true"/><span className="os-term-ear right" aria-hidden="true"/>
-    <div className="os-term-screen">
+    <div className="os-term-screen" ref={screen} onMouseMove={moveArrow} onMouseLeave={hideArrow}>
+      <span className="os-term-cursor" ref={arrow} aria-hidden="true"><svg viewBox="0 0 11 15" width="22" height="30" shapeRendering="crispEdges"><path d="M1 1h1v1h1v1h1v1h1v1h1v1h1v1h1v1h1v1H7v1h1v2H7v1H6v-2H5v-1H4v1H3v1H2v1H1z" fill="#0b1d0f" stroke="#d6ff9f" strokeWidth="1.1"/></svg></span>
       <div className="os-term-head" aria-hidden="true"><span className="os-term-eyes"><i/><i/></span><span>OTTO-OS · {name.toUpperCase()}</span><span>SCEGLI UN PROGRAMMA</span></div>
       <div className="os-term-list" role="menu" aria-label={`Come vuoi vedere ${name}`} ref={list} onKeyDown={onKey}>
         {choices.map((c, i) => {
