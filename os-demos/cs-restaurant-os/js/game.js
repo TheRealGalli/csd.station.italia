@@ -29,11 +29,13 @@ const left = c => S.avail[c.id] ? duration(c) * 1000 - (Date.now() - S.avail[c.i
 // Ogni giornata usa una variante diversa (nomi e numeri) e mescola l'ordine delle risposte.
 let cache = {round:0, list:[]};
 const fill = (v, x) => typeof v === 'string' ? v.replace(/\{(\w+)\}/g, (m, k) => x[k] ?? m) : v;
-const seeded = str => [...str].reduce((a, ch) => (a * 31 + ch.charCodeAt(0)) >>> 0, 7);
 function resolve(c) {
  const x = c.vars?.length ? c.vars[(S.round - 1) % c.vars.length] : {};
  const f = v => fill(v, x);
- const options = c.options.map((o, i) => ({...o, label:f(o.label), why:f(o.why), _r:seeded(`${c.id}${S.round}${i}`)})).sort((a, b) => a._r - b._r);
+ const options = c.options.map(o => ({...o, label:f(o.label), why:f(o.why)}));
+ // mescolate davvero a ogni giornata, e la giusta non resta mai al primo posto due giornate di fila
+ for (let i = options.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [options[i], options[j]] = [options[j], options[i]]; }
+ if (options.length > 1 && options[0].ok && Math.random() < .7) options.push(options.shift());
  return {...c, title:f(c.title), text:f(c.text), sources:(c.sources || []).map(s => ({...s, label:f(s.label), text:f(s.text)})), options};
 }
 const list = () => { if (cache.round !== S.round) cache = {round:S.round, list:C.map(resolve)}; return cache.list; };
