@@ -16,7 +16,7 @@
 //  Brand & app      · Gli allergeni del piatto del giorno
 import * as G from './gen.js';
 import {mechanics as M} from './mg.js';
-import {addMission, gameLevel, canSpawnMission, storyBias} from './game.js';
+import {addMission, gameLevel, canSpawnMission, storyBias, rnd} from './game.js';
 import * as D from './demo.js';
 
 let testLevel = 0;
@@ -162,9 +162,41 @@ function appMission() {
 
 
 
+// ————— Magazzino · Ricevimento merce (caccia agli errori) —————
+// La merce refrigerata si controlla alla consegna, prima che entri in cella: temperatura, imballo, etichetta, lotto, scadenza.
+function ricevimentoMission() {
+ const sup = G.pick([['Caseificio Mugello', 'Burrata', 'latticini'], ['Macelleria Bartolini', 'Manzo da tagliata', 'carni'], ['Ittica Tirrena', 'Gamberi freschi', 'pesce']]);
+ const pool = [
+  ['Mezzo di trasporto', 'Furgone refrigerato, registro temperature a bordo', 'Furgone non refrigerato', 'La merce refrigerata viaggia solo in mezzi refrigerati.'],
+  ['Temperatura all’arrivo', `${G.pick(['2,4', '3,1', '3,6'])} °C (sonda al cuore)`, `${G.pick(['7,8', '8,6', '9,2'])} °C (sonda al cuore)`, 'Sopra i 4 °C la merce refrigerata si respinge.'],
+  ['Imballo', 'Integro, sigillato', 'Pellicola aperta su un lato', 'Imballo danneggiato: rischio di contaminazione.'],
+  ['Etichetta', 'In italiano, con produttore e allergeni', 'Assente sul collo n. 2', 'Senza etichetta non si sa cosa c’è dentro né gli allergeni.'],
+  ['Lotto', `L${G.int(2600, 2699)}-${G.pick([...'ABCD'])}`, 'Non indicato', 'Senza lotto la merce non è rintracciabile in caso di richiamo.'],
+  ['Scadenza', `${G.int(10, 28)}/11/2026`, `${new Date().getDate()}/${new Date().getMonth() + 1}/2026 (oggi)`, 'Scade oggi: non può entrare in magazzino.'],
+  ['Documento di trasporto', 'Presente, quantità coincidenti', 'Presente, quantità coincidenti', '']
+ ];
+ const nBad = by(2, 2, 3), bad = G.shuffle([0, 1, 2, 3, 4, 5]).slice(0, nBad);
+ // tutti i problemi estratti, più qualche riga in regola (il documento di trasporto c'è sempre)
+ const fin = [...pool.filter((r, i) => bad.includes(i)).map(r => [r[0], r[2], r[3]]), ...G.shuffle(pool.filter((r, i) => !bad.includes(i) && i < 6)).slice(0, by(2, 3, 3)).map(r => [r[0], r[1], '']), [pool[6][0], pool[6][1], '']];
+ return {event:[`Consegna · ${sup[0]}`, `${sup[1]}: controlla la merce prima della cella`], log:'magazzino', brief:{what:'Arriva un fornitore di freschi: prima che la merce entri in cella, si controllano temperatura, imballo, etichetta, lotto e scadenza. Trova tutti i problemi.', why:'Una volta in cella, la merce non conforme è tua: se qualcuno sta male, la responsabilità è del locale.'},
+  m:mk('hunt', 'RICEVIMENTO MERCE', `Magazzino · consegna ${sup[0]}`, {ask:`È arrivata la consegna di <b>${sup[1].toLowerCase()}</b> (${sup[2]}). Tocca <b>tutte le righe che non vanno</b>: sono ${nBad}.`, docTitle:`Scheda di ricevimento · ${sup[0]}`, rows:G.shuffle(fin), sources:[{t:'Procedura HACCP di ricevimento', rows:[['Refrigerati', 'arrivo a 4 °C o meno, mezzo refrigerato'], ['Imballo ed etichetta', 'integri, in italiano, con lotto'], ['Scadenza', 'non oggi né già passata']]}], winWhy:'Merce non conforme respinta e registrata: il fornitore la sostituisce, e la cella resta sicura.'}, 180000)};
+}
+
+// ————— Staff & HACCP · In fila (procedure) —————
+function proceduraMission() {
+ const procs = [
+  {name:'Sanificazione del piano di lavoro', steps:[['Togli i residui grossolani', 'con spatola e carta'], ['Lava con acqua calda e detergente'], ['Risciacqua bene'], ['Applica il disinfettante', 'e lascialo agire il tempo indicato'], ['Risciacqua di nuovo'], ['Lascia asciugare all’aria', 'niente panni']], why:'Il disinfettante funziona solo su una superficie già pulita: sporco e grasso lo bloccano.'},
+  {name:'Dalla cottura alla cella', steps:[['Cuoci il ragù', 'fino a 75 °C al cuore'], ['Mettilo nell’abbattitore', 'entro 30 minuti dalla cottura'], ['Abbatti fino a 3 °C al cuore', 'entro 90 minuti'], ['Porziona in contenitori chiusi'], ['Etichetta con data e lotto'], ['Riponi in cella', 'tra 0 e 4 °C']], why:'Tra 10 e 60 °C i batteri si moltiplicano: l’abbattitore serve a passare in fretta quella fascia.'},
+  {name:'Una porta di cella rimasta aperta', steps:[['Chiudi la porta della cella'], ['Leggi la temperatura sulla sonda'], ['Controlla da quanto è fuori norma', 'dal registro della sonda'], ['Decidi cosa tenere e cosa buttare', 'secondo la procedura'], ['Registra la non conformità', 'e l’azione correttiva']], why:'Prima si ferma il danno, poi si misura, poi si decide: e tutto finisce nel registro HACCP.'}
+ ];
+ const p = G.pick(procs), n = by(4, 5, 6), steps = (p.steps.length <= n ? p.steps : p.steps.slice(0, n)).map(([t, sub]) => ({t, sub}));
+ return {event:['Procedura HACCP', `${p.name}: in che ordine?`], brief:{what:'Le procedure HACCP sono sequenze: metti i passaggi nell’ordine giusto, dal primo all’ultimo.', why:'Un passaggio fatto nell’ordine sbagliato annulla quelli dopo: il disinfettante sullo sporco non disinfetta.'},
+  m:mk('order', 'IN FILA', `Staff & HACCP · ${p.name}`, {ask:`Il nuovo aiuto cuoco chiede: “<b>${p.name.toLowerCase()}</b>, come si fa?” Tocca i passaggi <b>dal primo all’ultimo</b>.`, steps, winWhy:p.why, sources:[{t:'Manuale HACCP del locale', rows:[['Regola', 'ogni procedura si registra con data, ora e chi l’ha fatta']]}]}, 180000)};
+}
+
 // ————— regista —————
 // Le missioni sono un bonus raro (una ogni un paio di minuti): il cuore della sfida sono i compiti veri.
-const pages = {sala:salaMission, kds:kdsMission, menu_pos:menuMission, centralino_ai:centralinoMission, recensioni_ai:recensioniMission, whatsapp:whatsappMission, fidelity_nfc:fidelityMission, magazzino:magazzinoMission, fatture:fattureMission, bandi:bandiMission, staff:staffMission, app_builder:appMission};
+const pages = {sala:salaMission, kds:kdsMission, menu_pos:menuMission, centralino_ai:centralinoMission, recensioni_ai:recensioniMission, whatsapp:whatsappMission, fidelity_nfc:fidelityMission, magazzino:() => (rnd(2) ? ricevimentoMission : magazzinoMission)(), fatture:fattureMission, bandi:bandiMission, staff:() => (rnd(2) ? proceduraMission : staffMission)(), app_builder:appMission};
 const rotation = ['kds', 'sala', 'centralino_ai', 'magazzino', 'menu_pos', 'whatsapp', 'fatture', 'recensioni_ai', 'staff', 'app_builder', 'fidelity_nfc', 'bandi'];
 // Il primo arrivo di ogni settore lo spiega un Otto di quel settore: cosa fai e perché, a tempo fermo.
 const briefs = {
@@ -181,6 +213,23 @@ const briefs = {
  staff:{where:'in cucina, con la checklist HACCP', role:'otto-inspector', name:'Otto ispettore', what:'Valida la checklist HACCP: ogni controllo è conforme o no, secondo la procedura.', why:'In un controllo dell’ASL conta quello che è scritto: una non conformità registrata con l’azione giusta protegge il locale.'},
  app_builder:{where:'all’app del locale, sul piatto del giorno', role:'otto-chef', name:'Otto cuoco', what:'Il piatto del giorno va pubblicato sul menu QR: scegli tutti gli allergeni, e nessuno in più.', why:'Per chi è allergico è una questione di salute, e per il locale un obbligo di legge.'}
 };
+// Seconde versioni delle spiegazioni: Otto non racconta il settore sempre con le stesse parole (si estrae a caso).
+const briefAlt = {
+ sala:{what:'Al tavolo il conto non è mai solo un totale: c’è chi ha già pagato dal QR, chi divide, chi ha la card. Fai i conti con la calcolatrice, documenti alla mano.', why:'Un conto sbagliato si vede subito: l’ospite che paga due volte non torna, e il documento fiscale va annullato.'},
+ kds:{what:'Una comanda grande va divisa tra le partite: antipasti, primi, secondi e dolci hanno ognuno il suo cuoco.', why:'Se un piatto finisce alla partita sbagliata, esce in ritardo e il tavolo mangia uno alla volta.'},
+ menu_pos:{what:'Il menu QR deve dire la verità: per ogni piatto guarda le porzioni rimaste e scegli disponibile, ultime o esaurito.', why:'Un piatto esaurito che resta ordinabile è un ospite deluso e un cameriere che deve chiedere scusa.'},
+ centralino_ai:{what:'Al telefono c’è una richiesta che Otto non può chiudere da solo. Leggi sala, menu e pagamenti, e scegli cosa dire.', why:'Quello che si promette al telefono, il locale lo deve mantenere: tavoli veri, allergeni veri, rimborsi veri.'},
+ recensioni_ai:{what:'È arrivata una recensione negativa, e Otto ha preparato più risposte. Scegli quella che pubblicheresti tu.', why:'Una risposta difensiva fa più danni della recensione: chi legge cerca un locale che ascolta.'},
+ whatsapp:{what:'Otto ha preparato la conferma per l’ospite, ma un dato non corrisponde al registro delle prenotazioni. Trovalo e correggilo.', why:'Il messaggio è una promessa scritta: se dice le 21 e il tavolo è per le 20, l’errore lo paga la sala.'},
+ fidelity_nfc:{what:'Al tavolo gli ospiti appoggiano la card fedeltà e chiedono un premio. Guarda i punti e la regola, e decidi.', why:'Un premio dato a chi non lo ha ancora raggiunto costa al locale; uno negato a chi lo merita costa il cliente.'},
+ magazzino:{what:'La merce è arrivata e la fattura pure. Prima di pagare, si confronta con la bolla firmata alla consegna.', why:'La fattura la scrive il fornitore, la bolla la firmi tu: in caso di differenza vale la bolla.'},
+ fatture:{what:'Per la fattura elettronica serve un codice preciso: copialo dalla fonte giusta, carattere per carattere.', why:'Un carattere sbagliato e la fattura non arriva al cliente: lo Sdi la scarta, e si ricomincia.'},
+ bandi:{what:'Il bando paga solo certe spese: per ognuna decidi se va inserita nella domanda o lasciata fuori.', why:'Basta una spesa non ammessa per far scattare un controllo, e a volte la revoca del contributo.'},
+ staff:{what:'La checklist HACCP di oggi va validata: ogni controllo, conforme o no, secondo la procedura scritta.', why:'In un controllo dell’ASL conta la registrazione: un frigo a 6 °C segnato come conforme è un problema doppio.'},
+ app_builder:{what:'Il piatto del giorno va pubblicato con i suoi allergeni: tutti quelli giusti, e nessuno di troppo.', why:'Gli allergeni sono un obbligo di legge e una questione di salute: per un celiaco non esiste il “quasi”.'}
+};
+Object.entries(briefAlt).forEach(([k, v]) => { briefs[k].alt = [v]; });
+
 const icons = {sala:'coins', kds:'chef', menu_pos:'menu', centralino_ai:'phone', recensioni_ai:'star', whatsapp:'message', fidelity_nfc:'card', magazzino:'box', fatture:'receipt', bandi:'radar', staff:'users', app_builder:'palette'};
 let open = [];
 function spawn(force) {
@@ -197,7 +246,7 @@ function spawn(force) {
   const tb = page === 'sala' ? D.tables.find(x => ['seated', 'ordered'].includes(x.status) && !['T3', 'T8'].includes(x.id) && !x.mission && x.lines.length) : null;
   const made = page === 'sala' ? salaMission(tb) : pages[page](), ttl = Math.round(made.m.ttl * by(1, .85, .7)), rec = {open:true, page};
   if (tb) tb.status = 'bill';
-  const id = addMission({...made.m, ttl, page, ref:tb?.id, brief:briefs[page], event:made.event, onDone:() => {
+  const id = addMission({...made.m, ttl, page, ref:tb?.id, brief:made.brief ? {...briefs[page], alt:null, ...made.brief} : briefs[page], event:made.event, onDone:() => {
    rec.open = false; schedule(G.int(120, 180));
    if (tb) { tb.mission = null; if (tb.status === 'bill') D.closeBill(tb.id); }
   }});
@@ -211,7 +260,9 @@ function spawn(force) {
 // Per i test e le prove a mano: fa arrivare subito la missione di una sezione.
 export const spawnNow = page => spawn(page);
 function schedule(s) { clearTimeout(timer); timer = setTimeout(spawn, s * 1000); }
-export function startMissions() { running = true;  turn = 0; open = []; schedule(30); }
+// a ogni partita l'ordine dei settori si rimescola davvero: le prime missioni non sono mai le stesse
+const reshuffle = () => { for (let i = rotation.length - 1; i > 0; i--) { const j = rnd(i + 1); [rotation[i], rotation[j]] = [rotation[j], rotation[i]]; } };
+export function startMissions() { running = true;  turn = 0; reshuffle(); open = []; schedule(30); }
 export function stopMissions() { running = false; D.service.game = false; clearTimeout(timer); }
 // Per i test: i generatori di ogni modulo, con un livello forzato.
 export const generators = Object.fromEntries(Object.entries(pages).map(([k, f]) => [k, () => f().m]));

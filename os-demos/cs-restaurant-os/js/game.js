@@ -124,7 +124,7 @@ function taskBanner(t) {
 const openAll = () => [...openTasks().map(t => ({id:t.id, title:t.title, page:t.page, ref:t.ref, left:taskLeft(t), pts:t.pts, task:true})), ...open().map(c => ({id:c.id, title:c.title, page:c.page, left:left(c), pts:maxPts(c)})), ...openMissions().map(m => ({id:m.id, title:m.title, page:m.page, ref:m.ref, left:missionLeft(m), pts:45}))];
 export function addMission(m) {
  const id = `ms${++S.mseq}`;
- const first = !!m.brief && !S.coached[`brief-${m.page}`];
+ const first = !!m.brief && !S.coached[`brief-${m.page}-${m.kind}`];
  S.missions[id] = {...m, id, created:Date.now(), st:{id}, result:null, armed:!first};
  markNav(); updateAlert();
  setTimeout(() => coach('first-mission', '.game-alert', 'Tocca a te', `È arrivato: **${m.title}**. Questa volta la decisione è tua, non mia. Premi il quadrato rosso${first ? ': quando ci sei davanti ti spiego tutto, e il tempo parte solo dopo' : ''}.`, 'otto-think'), 500);
@@ -200,7 +200,7 @@ let penBuf = 0, penTimer = 0;
 export function penalty(n, label) {
  if (!S.started || S.paused || touring() || document.hidden || !n) return;
  const take = Math.min(n, S.points); if (!take) return;
- S.points -= take; penBuf += take; updateChip();
+ S.points -= take; S.lostPts = (S.lostPts || 0) + take; penBuf += take; updateChip();
  // i punti scendono subito; il "−N" volante si mostra ogni 3 secondi, per non riempire lo schermo
  if (!penTimer) penTimer = setTimeout(() => { if (penBuf) float(-penBuf, document.querySelector('.game-chip'), label); penBuf = 0; penTimer = 0; }, 3000);
 }
@@ -259,7 +259,7 @@ export function gameChip() {
  if (!S.started) return `<button class="game-chip idle" data-game="menu" aria-label="La sfida di Otto: avviala" title="La sfida di Otto"><span class="gch-face">${icon('otto-happy')}</span><b class="gch-play">Sfida</b></button>`;
  const ch = chapterInfo();
  // in alto: "!", poi il capitolo, poi i punti
- return `${alertBtn()}${ch ? `<button class="game-chapter" data-game="menu" title="${esc(`Capitolo ${ch.n} · ${ch.title} — ${ch.goal}`)}"><small>CAP. ${ch.n}/${ch.of}</small><b class="${ch.title.length > 17 ? 'long' : ''}"><span>${esc(ch.title)}</span></b><i>${esc(ch.goal.split(' · ').pop())}</i></button>` : ''}<button class="game-chip ${S.points ? '' : 'idle'}" data-game="menu" aria-label="La sfida di Otto: ${S.points} punti, livello ${S.level}" title="${ch ? esc(`Capitolo ${ch.n} · ${ch.title} — ${ch.goal}`) : 'La sfida di Otto'}"><span class="gch-face">${icon(face())}</span><b class="gch-pts">${S.points}</b><small>pt</small><span class="gch-lvl">${[1, 2, 3].map(l => `<i class="${l < S.level ? 'done' : l === S.level ? 'on' : ''}"></i>`).join('')}</span>${S.gift ? '<i class="gch-gift" title="Otto ha un regalo per te"></i>' : ''}</button>`;
+ return `${alertBtn()}${ch ? `<button class="game-chapter" data-game="menu" title="${esc(`Capitolo ${ch.n} · ${ch.title} — ${ch.goal}`)}"><small>CAP. ${ch.n}/${ch.of}<i>${esc(ch.goal.split(' · ').pop())}</i></small><b class="${ch.title.length > 17 ? 'long' : ''}"><span>${esc(ch.title)}</span></b></button>` : ''}<button class="game-chip ${S.points ? '' : 'idle'}" data-game="menu" aria-label="La sfida di Otto: ${S.points} punti, livello ${S.level}" title="${ch ? esc(`Capitolo ${ch.n} · ${ch.title} — ${ch.goal}`) : 'La sfida di Otto'}"><span class="gch-face">${icon(face())}</span><b class="gch-pts">${S.points}</b><small>pt</small><span class="gch-lvl">${[1, 2, 3].map(l => `<i class="${l < S.level ? 'done' : l === S.level ? 'on' : ''}"></i>`).join('')}</span>${S.gift ? '<i class="gch-gift" title="Otto ha un regalo per te"></i>' : ''}</button>`;
 }
 function updateChip(bump) {
  document.querySelectorAll('.game-alert, .game-chapter').forEach(el => el.remove());
@@ -419,7 +419,7 @@ function coachMission() {
  const base = `[data-mission="${m.dataset.mission}"]`;
  // la prima missione di ogni settore la spiega un Otto di quel settore: cosa fare e perché
  const ms = S.missions[m.dataset.mission], b = ms?.brief;
- if (b && !S.coached[`brief-${ms.page}`]) return storyChat(ms, base);
+ if (b && !S.coached[`brief-${ms.page}-${ms.kind}`]) return storyChat(ms, base);
  const sel = m.querySelector('.mg-docs') ? `${base} .mg-docs` : m.querySelector('.mg-sources') ? `${base} .mg-sources` : `${base} .mg`;
  coach('inside', sel, 'Guarda i documenti', 'Qui ci sono le fonti vere. **I numeri in arancione** sono quelli da confrontare. Leggi con calma, poi decidi.', 'otto-read');
 }
@@ -597,12 +597,17 @@ export function coach(key, target, title, text, mood = 'otto-wink') {
 // succedendo davvero: dove sei, cosa è arrivato, cosa faresti nella realtà e perché conta. Il tempo parte dopo.
 function storyChat(m, sel) {
  if (coachOpen || touring()) return;
- const b = m.brief, key = `brief-${m.page}`;
+ const b0 = m.brief, key = `brief-${m.page}-${m.kind}`;
+ // la spiegazione cambia: a caso tra la versione base e le alternative, con aperture e chiusure diverse
+ const b = b0.alt?.length ? {...b0, ...pickOne([{}, ...b0.alt])} : b0;
  let el; try { el = document.querySelector(sel); } catch {}
  if (!el || !el.getClientRects().length) return;
  S.coached[key] = true; S.paused++; document.body.classList.add('game-paused');
  const ev = m.event ? `${m.event[0]}. ${m.event[1]}.` : `È arrivato: ${m.title}.`;
- const lines = [`Ciao, sono **${b.name}**. Adesso sei ${b.where}.`, ev, `Nella realtà: ${b.what.charAt(0).toLowerCase()}${b.what.slice(1)}`, `**Perché conta:** ${b.why}`, 'Prenditi il tempo che ti serve: **il cronometro parte solo quando premi “Sono pronto”**.'];
+ const hello = pickOne([`Ciao, sono **${b.name}**. Adesso sei ${b.where}.`, `Eccoci: sono **${b.name}**, e qui sei ${b.where}.`, `**${b.name}** al tuo servizio! Siamo ${b.where}.`]);
+ const real = pickOne(['Nella realtà: ', 'Nel lavoro vero: ', 'Cosa succede davvero: ']), why = pickOne(['**Perché conta:** ', '**Perché è importante:** ', '**Cosa rischi:** ']);
+ const bye = pickOne(['Prenditi il tempo che ti serve: **il cronometro parte solo quando premi “Sono pronto”**.', 'Il tempo è fermo finché non premi **“Sono pronto”**: leggi con calma.', 'Nessuna fretta: **il cronometro parte quando premi “Sono pronto”**.']);
+ const lines = [hello, ev, `${real}${b.what.charAt(0).toLowerCase()}${b.what.slice(1)}`, `${why}${b.why}`, bye];
  const box = document.createElement('div');
  box.className = 'game-coach game-story'; box.setAttribute('role', 'dialog'); box.setAttribute('aria-label', b.name);
  box.innerHTML = `<div class="gco-spot"></div><div class="gst-panel"><header><span class="gco-face">${icon(b.role)}</span><div><b>${esc(b.name)}</b><small>${icon('pause')} il tempo è fermo</small></div></header><div class="gst-msgs" aria-live="polite"></div><footer><button data-story="skip" class="gst-skip">Salta</button><button data-story="go" class="gst-go" disabled>Sono pronto</button></footer></div>`;
@@ -629,7 +634,7 @@ function storyChat(m, sel) {
   clearTimeout(timer); cancelAnimationFrame(raf); box.classList.add('out'); setTimeout(() => box.remove(), 200); coachOpen = null;
   S.paused = Math.max(0, S.paused - 1); if (!S.paused) document.body.classList.remove('game-paused');
   // spiegato il settore, parte il tempo anche delle altre missioni dello stesso settore arrivate nel frattempo
-  openMissions().filter(x => x.page === m.page).forEach(x => { x.armed = true; }); m.armed = true; refreshMission(m.id); play('level');
+  openMissions().filter(x => x.page === m.page && x.kind === m.kind).forEach(x => { x.armed = true; }); m.armed = true; refreshMission(m.id); play('level');
   const n = coachQueue.shift(); if (n) setTimeout(() => coach(...n), 450);
  };
  box.addEventListener('click', e => {
@@ -642,7 +647,12 @@ function storyChat(m, sel) {
 // Ogni partita è una giornata in capitoli (hooks.story). Ogni capitolo si apre e si chiude con la chat di un Otto,
 // ha un obiettivo (compiti, missioni vinte in certe sezioni, punti) e cambia il gioco: sposta le missioni verso
 // le sezioni dell'antagonista (bias) e stringe qualche regola (apply).
-const chapters = () => hooks.story?.chapters || [];
+// La storia ha dei posti (capitoli) e ogni posto può avere più varianti: a ogni partita se ne estrae una a caso.
+// Il caso è vero (crypto.getRandomValues), non una sequenza fissa: due partite di fila raccontano giornate diverse.
+export const rnd = n => { try { return crypto.getRandomValues(new Uint32Array(1))[0] % n; } catch { return Math.floor(Math.random() * n); } };
+export const pickOne = list => list[rnd(list.length)];
+const drawPlot = () => (hooks.story?.chapters || []).map(c => c.variants ? pickOne(c.variants) : c);
+const chapters = () => S.plot || (S.plot = drawPlot());
 export const storyBias = () => chapters()[S.chapter]?.bias || null;
 export const chapterInfo = () => { const c = chapters()[S.chapter]; return c ? {n:S.chapter + 1, of:chapters().length, title:c.title, goal:goalText(c), progress:S.chProgress} : null; };
 function goalText(c) {
@@ -652,6 +662,7 @@ function goalText(c) {
 function startChapter(i) {
  const c = chapters()[i]; if (!c || !S.started) return;
  S.chapter = i; S.chProgress = 0; S.chStart = S.points; c.done = false;
+ S.ch0 = {won:S.won, tasks:S.tasksDone, t:Date.now(), lost:S.lostPts || 0};
  try { c.apply?.(true); } catch {}
  updateChip();
  ottoChat({name:c.narrator, role:c.role, title:`Capitolo ${i + 1} · ${c.title}`, lines:[...c.intro, `**Obiettivo:** ${c.goal.label}.`], button:'Iniziamo'});
@@ -670,14 +681,48 @@ function storyProgress(kind, page) {
   try { c.apply?.(false); } catch {}
   S.points += 50; updateChip('bump'); play('level');
   const last = S.chapter >= chapters().length - 1;
-  ottoChat({name:c.narrator, role:c.role, title:`Capitolo ${S.chapter + 1} completato`, lines:[...c.outro, '**+50 punti** per il capitolo.', last ? (hooks.story.ending || 'La giornata è finita. Puoi continuare a giocare quanto vuoi.') : 'Ma la giornata non è finita…'], button:last ? 'Vedi com’è andata' : 'Avanti', onClose:() => { if (!last) setTimeout(() => startChapter(S.chapter + 1), 1200); else { S.chapter = chapters().length; updateChip(); setTimeout(finale, 500); } }});
+  stageClear(c, last, () => { if (!last) setTimeout(() => startChapter(S.chapter + 1), 700); else { S.chapter = chapters().length; updateChip(); setTimeout(finale, 400); } });
  }, 1600);
+}
+// Fine capitolo: la schermata "stage" con il racconto di chiusura, i numeri del capitolo e cosa arriva dopo.
+function stageClear(c, last, onClose) {
+ if (!S.started) return;
+ if (coachOpen || document.querySelector('.game-finale')) { setTimeout(() => stageClear(c, last, onClose), 1500); return; }
+ const z = S.ch0 || {won:0, tasks:0, t:Date.now(), lost:0}, n = S.chapter + 1, of = chapters().length, next = chapters()[S.chapter + 1];
+ const mins = Math.max(1, Math.round((Date.now() - z.t) / 60000)), gained = S.points - S.chStart - 50; // il bonus si mostra a parte
+ const stat = (v, l) => `<span><b>${v}</b><small>${l}</small></span>`, won = S.won - z.won, tasks = S.tasksDone - z.tasks, lost = (S.lostPts || 0) - z.lost;
+ S.paused++; document.body.classList.add('game-paused');
+ const box = document.createElement('div');
+ box.className = 'game-finale is-stage'; box.setAttribute('role', 'dialog'); box.setAttribute('aria-label', `Capitolo ${n} completato`);
+ box.innerHTML = `<div class="gf-card">
+  <div class="gf-screen"><small>CAPITOLO ${n}/${of} · COMPLETATO</small><b>${esc(c.title.toUpperCase())}</b><span class="gf-bar">${chapters().map((_, i) => `<i class="${i < n ? 'on' : ''}"></i>`).join('')}</span></div>
+  <div class="gf-tale"><span class="gf-face">${icon(c.role)}</span><div><b>${esc(c.narrator)}</b>${c.outro.map(l => `<p>${rich(l)}</p>`).join('')}</div></div>
+  <div class="gf-stats">${stat(`+${gained}`, 'punti nel capitolo')}${stat(won, won === 1 ? 'missione vinta' : 'missioni vinte')}${stat(tasks, tasks === 1 ? 'compito fatto' : 'compiti fatti')}${stat(lost ? `−${lost}` : '0', 'punti persi in rosso')}</div>
+  <p class="gf-bonus">${icon('otto-happy')} <b>+50 punti</b> di bonus capitolo · ${mins}′ di gioco</p>
+  ${!last && next ? `<p class="gf-next"><small>PROSSIMO CAPITOLO</small><b>${esc(next.title)}</b></p>` : ''}
+  <div class="gf-actions"><button class="gf-go" data-stage="go">${last ? 'Vedi com’è andata' : `Avanti · capitolo ${n + 1}`} ${icon('arrow')}</button></div>
+ </div>`;
+ document.body.append(box); play('level');
+ box.querySelector('.gf-go').focus({preventScroll:true});
+ box.addEventListener('click', e => {
+  if (!e.target.closest('[data-stage]')) return;
+  box.remove(); S.paused = Math.max(0, S.paused - 1); if (!S.paused) document.body.classList.remove('game-paused');
+  onClose();
+ });
+}
+// {capitoli} nel testo finale: i capitoli giocati in mezzo (non il primo né l'ultimo), "a, b e c"
+function finaleText(t) {
+ const mid = chapters().slice(1, -1).map(c => c.title.charAt(0).toLowerCase() + c.title.slice(1));
+ const list = mid.length > 1 ? `${mid.slice(0, -1).join(', ')} e ${mid[mid.length - 1]}` : mid[0] || 'la giornata';
+ const cap = x => x.charAt(0).toUpperCase() + x.slice(1);
+ // a inizio frase l'elenco prende la maiuscola
+ return cap(t.replace(/(^|[.!?]\s+)\{capitoli\}/, (m, p) => p + cap(list)).replace('{capitoli}', list));
 }
 // La schermata finale: tutti i capitoli chiusi. Il riepilogo della partita, poi si sceglie se continuare.
 function finale() {
  if (!S.started || document.querySelector('.game-finale')) return;
  if (coachOpen) { setTimeout(finale, 1500); return; }
- const f = hooks.story?.finale || {}, mins = Math.max(1, Math.round((Date.now() - (S.t0 || Date.now())) / 60000));
+ const f0 = hooks.story?.finale || {}, f = Array.isArray(f0) ? (S.fin ||= pickOne(f0)) : f0, mins = Math.max(1, Math.round((Date.now() - (S.t0 || Date.now())) / 60000));
  S.paused++; document.body.classList.add('game-paused');
  const box = document.createElement('div');
  box.className = 'game-finale'; box.setAttribute('role', 'dialog'); box.setAttribute('aria-label', f.title || 'Partita completata');
@@ -686,7 +731,7 @@ function finale() {
   <div class="gf-screen"><small>${esc(f.kicker || 'MISSIONE COMPIUTA')}</small><b>${chapters().length}/${chapters().length} CAPITOLI</b></div>
   <span class="gf-otto">${icon('otto-happy')}</span>
   <h2>${esc(f.title || 'Hai completato la giornata')}</h2>
-  <p>${rich(f.text || 'Tutti i capitoli sono chiusi.')}</p>
+  <p>${rich(finaleText(f.text || 'Tutti i capitoli sono chiusi.'))}</p>
   <div class="gf-stats">${stat(S.points, 'punti')}${stat(S.won, S.won === 1 ? 'missione vinta' : 'missioni vinte')}${stat(S.tasksDone, S.tasksDone === 1 ? 'compito fatto' : 'compiti fatti')}${stat(`${mins}′`, 'di gioco')}</div>
   <div class="gf-actions"><button class="gf-go" data-finale="go">Continua a giocare</button><button data-finale="restart">Ricomincia da capo</button>${f.wa ? `<a class="gf-wa" href="${esc(f.wa)}" target="_blank" rel="noreferrer">${esc(f.waLabel || 'Parlane con noi su WhatsApp')} ${icon('arrow')}</a>` : ''}</div>
  </div>`;
@@ -887,7 +932,7 @@ function onClick(e) {
 // Ricomincia da zero: anche la storia (capitoli già chiusi e regole del capitolo in corso).
 function restartGame() {
  const cur = chapters()[S.chapter]; if (cur && !cur.done) { try { cur.apply?.(false); } catch {} }
- chapters().forEach(c => { c.done = false; });
+ (hooks.story?.chapters || []).flatMap(c => c.variants || [c]).forEach(c => { c.done = false; });
  document.querySelector('.game-finale')?.remove(); document.body.classList.remove('game-paused'); setPressure([]);
- { hooks.onReset?.(); Object.assign(S, {won:0, t0:0, chapter:-1, chProgress:0, chStart:0, bought:{}, paused:0, coached:{}, tasksDone:0, tasks:{}, fx:{shield:0, double:0, freeHints:0, freezeUntil:0}, gifts:[], gift:null, offers:[], missions:{}, avail:{}, seenOpen:0, started:false, points:0, level:1, round:1, streak:0, last:null, solved:{}, cards:{}, showing:{}}); updateChip(); refresh(location.hash.slice(1) || 'home'); }
+ { hooks.onReset?.(); Object.assign(S, {plot:null, fin:null, ch0:null, lostPts:0, won:0, t0:0, chapter:-1, chProgress:0, chStart:0, bought:{}, paused:0, coached:{}, tasksDone:0, tasks:{}, fx:{shield:0, double:0, freeHints:0, freezeUntil:0}, gifts:[], gift:null, offers:[], missions:{}, avail:{}, seenOpen:0, started:false, points:0, level:1, round:1, streak:0, last:null, solved:{}, cards:{}, showing:{}}); updateChip(); refresh(location.hash.slice(1) || 'home'); }
 }

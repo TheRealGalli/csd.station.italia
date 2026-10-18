@@ -305,9 +305,11 @@ export function inboundTick() { if (!service.live || service.game) return; inbou
 // Fuori dalla sfida la cucina va da sola. Nella sfida la guida il giocatore, con limiti veri:
 // fornelli con un massimo di piatti insieme, tempi di cottura per piatto, un tempo per servire dal pass.
 // Se le comande aspettano troppo o i piatti restano fermi al pass, la colonna va in rosso e si perdono punti.
-export const kitchen = {cap:4, passTime:45, waitLimit:70, speed:1, auto:{cook:false, pass:false, serve:false}, autoUntil:0, handedOver:false};
+// waitBonus: secondi in più comprati nella Bottega (i capitoli cambiano waitLimit, mai il bonus)
+export const kitchen = {cap:4, passTime:45, waitLimit:70, waitBonus:0, speed:1, auto:{cook:false, pass:false, serve:false}, autoUntil:0, handedOver:false};
 // I primi minuti della sfida la cucina va da sola; poi passa al giocatore, che può ricomprare gli automatismi.
 export const AUTO_START = 300;
+export const waitMax = () => kitchen.waitLimit + (kitchen.waitBonus || 0);
 export const cookTime = d => Math.max(8, Math.round(d.prep * 2 * kitchen.speed)); // secondi
 const findLine = id => { for (const t of tables) { const l = t.lines.find(x => x.id === id); if (l) return [t, l]; } return []; };
 export const cookingNow = () => kitchenLines().filter(l => l.state === 'cooking');
@@ -330,7 +332,7 @@ export function serveLine(id) {
 }
 // All'inizio della sfida la cucina parte leggera: poche comande, che poi arrivano con il tempo.
 export function kitchenGameStart() {
- service.game = true; Object.assign(kitchen, {cap:4, passTime:45, waitLimit:70, speed:1, auto:{cook:false, pass:false, serve:false}, autoUntil:Date.now() + AUTO_START * 1000, handedOver:false});
+ service.game = true; Object.assign(kitchen, {cap:4, passTime:45, waitLimit:70, waitBonus:0, speed:1, auto:{cook:false, pass:false, serve:false}, autoUntil:Date.now() + AUTO_START * 1000, handedOver:false});
  const now = Date.now(), keep = {waiting:2, cooking:2, ready:1};
  for (const l of kitchenLines().sort((a, b) => a.at - b.at)) {
   const [, line] = findLine(l.id);
@@ -350,6 +352,8 @@ export function kitchenGameStop() { service.game = false; }
 function gameTable() {
  const seated = tables.filter(x => ['seated', 'ordered'].includes(x.status) && !x.mission && x.lines.length < 7);
  const free = tables.filter(x => x.status === 'free');
+ // con gli ospiti all'ingresso sono loro a riempire la sala: la cucina apre un tavolo da sola solo se la sala è vuota
+ if (doorOn && seated.length) return seated[Math.floor(Math.random() * seated.length)];
  if (free.length && (seated.length < 4 || Math.random() < .3)) { const f = free[Math.floor(Math.random() * free.length)]; openTable(f.id, Math.min(f.seats, 2 + Math.floor(Math.random() * 3))); return f; }
  return seated[Math.floor(Math.random() * seated.length)] || null;
 }
@@ -380,7 +384,7 @@ export function kitchenGameTick(level = 1) {
  if (changed) emit();
  const lines = kitchenLines();
  return {
-  waiting:lines.some(l => l.state === 'waiting' && now - l.at > kitchen.waitLimit * 1000),
+  waiting:lines.some(l => l.state === 'waiting' && now - l.at > waitMax() * 1000),
   pass:lines.some(l => (l.state === 'ready' && now - (l.readyAt || now) > kitchen.passTime * 1000) || (l.state === 'cooking' && l.cooked && now - (l.cookedAt || now) > kitchen.passTime * 1000)),
   handover
  };
@@ -440,3 +444,41 @@ export function fridgeTick() {
  if (changed) emit();
  return {red:fridges.filter(fridgeRed), lost};
 }
+
+// ————— Gli ospiti all'ingresso (Sala) —————
+// Nella sfida arrivano persone senza prenotazione o in anticipo: aspettano alla porta finché qualcuno non le accomoda
+// a un tavolo libero abbastanza grande. Dopo un po' l'attesa diventa rossa; se aspettano troppo, se ne vanno.
+export const door = [];
+// bonus e calm: comprati nella Bottega (secondi di pazienza in più, arrivi senza prenotazione in meno); i capitoli non li toccano
+export const doorCfg = {gap:[55, 85], wait:60, leave:130, rate:1, bonus:0, calm:1};
+let doorOn = false, nextDoorAt = 0, doorSeq = 0;
+const doorNames = ['Famiglia Bianchi', 'Sig.ra Ferri', 'Coppia Moretti', 'Amici di Luca', 'Sig. Conti', 'Famiglia Esposito', 'Colleghi Arno Tech', 'Sig.ra Galli', 'Turisti da Lione', 'Famiglia Romano'];
+export const doorWait = p => (Date.now() - p.at) / 1000;
+export const doorRed = p => doorWait(p) > doorCfg.wait + doorCfg.bonus;
+export const doorLeave = () => doorCfg.leave + doorCfg.bonus * 1.5;
+export const fits = (t, p) => t.status === 'free' && t.seats >= p.n;
+function arrive(n) {
+ const p = {id:`G${++doorSeq}`, name:doorNames[Math.floor(Math.random() * doorNames.length)], n:n || [2, 2, 2, 3, 4, 4, 5, 6][Math.floor(Math.random() * 8)], at:Date.now()};
+ door.push(p); log(`All'ingresso: ${p.name}, ${p.n} persone senza prenotazione`, 'sala'); emit(); return p;
+}
+export function doorGameStart() { doorOn = true; door.length = 0; Object.assign(doorCfg, {gap:[55, 85], wait:60, leave:130, rate:1, bonus:0, calm:1}); nextDoorAt = Date.now() + 50000; }
+export function doorGameStop() { doorOn = false; door.length = 0; }
+export function seatParty(pid, tid) {
+ const i = door.findIndex(p => p.id === pid), t = table(tid);
+ if (i < 0 || !t || !fits(t, door[i])) return null;
+ const [p] = door.splice(i, 1); openTable(tid, p.n, p.name); return p;
+}
+export function doorTick(level = 1) {
+ if (!doorOn) return {red:[], left:[]};
+ const now = Date.now(), left = [];
+ for (let i = door.length - 1; i >= 0; i--) if (doorWait(door[i]) > doorLeave()) { left.push(...door.splice(i, 1)); }
+ if (left.length) { left.forEach(p => log(`${p.name} (${p.n} persone) se ne sono andati: troppa attesa all'ingresso`, 'sala')); emit(); }
+ if (now >= nextDoorAt) {
+  const gap = [doorCfg.gap, [45, 70], [35, 60]][level - 1] || doorCfg.gap;
+  nextDoorAt = now + (gap[0] + Math.random() * (gap[1] - gap[0])) * 1000 / doorCfg.rate / doorCfg.calm;
+  if (door.length < 1 + level) arrive();
+ }
+ return {red:door.filter(doorRed), left};
+}
+// Per le prove a mano: fa arrivare subito qualcuno all'ingresso.
+export const doorArrive = n => doorOn ? arrive(n) : null;

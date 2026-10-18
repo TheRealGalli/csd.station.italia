@@ -433,3 +433,28 @@ main#main.main-studio{padding:0;max-width:none}
 }
 @media(prefers-reduced-motion:reduce){*,*:before,*:after{animation:none!important;transition:none!important}}
 .li-ai .spinner{display:inline-block;vertical-align:-2px;margin-right:6px;width:10px;height:10px}
+/* Sala d'attesa e sale riunioni (sfida) */
+.lobby .panel-title h2{display:flex;align-items:center;gap:8px}
+.lobby .panel-title h2 .icon{width:16px;height:16px}
+.lobby-grid{display:grid;grid-template-columns:minmax(0,1.2fr) minmax(0,1fr);gap:14px;padding:0 18px 18px}
+.lobby-queue{display:flex;flex-direction:column;gap:8px}
+.lb-empty{font-size:12.5px;padding:10px 0}
+.lb-guest{position:relative;overflow:hidden;display:flex;flex-direction:column;gap:3px;text-align:left;padding:10px 12px 12px;border:1.5px solid #dbe5cb;border-radius:12px;background:#fff;cursor:pointer;transition:border-color .15s,box-shadow .15s}
+.lb-guest b{font-size:13px;color:#26331f}
+.lb-guest small{font-size:11.5px;color:#5d6b52}
+.lb-guest small strong{color:#26331f}
+.lb-guest em{font-style:normal;font-size:11px;color:#8b947f}
+.lb-guest i{position:absolute;left:0;bottom:0;height:3px;background:#9cc46a;transition:width 1s linear}
+.lb-guest.on{border-color:#2f4a1d;box-shadow:0 0 0 3px #c5f47666}
+.lb-guest.red{border-color:#d8432f;background:#fdeeea}
+.lb-guest.red i{background:#d8432f}
+.lobby-rooms{display:grid;gap:8px;align-content:start}
+.lb-room{display:grid;grid-template-columns:1fr auto;gap:2px 10px;text-align:left;padding:10px 12px;border-radius:12px;border:1.5px solid #dbe5cb;background:#f7faf1;cursor:pointer}
+.lb-room b{font-size:13px;color:#26331f}
+.lb-room small{font-size:11px;color:#6d7a60;text-align:right}
+.lb-room em{grid-column:1/-1;font-style:normal;font-size:11.5px;color:#3f6a1c}
+.lb-room.busy{background:#f3f1ea;border-style:dashed}
+.lb-room.busy em{color:#8a6d2c}
+.lobby-rooms.seating .lb-room.fit{border-color:#9cc46a;box-shadow:0 0 0 3px #c5f47666;animation:kds-hot 1.4s ease-in-out infinite}
+.lobby-rooms.seating .lb-room.nofit{opacity:.45}
+@media(max-width:900px){.lobby-grid{grid-template-columns:1fr}}

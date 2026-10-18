@@ -16,7 +16,7 @@
 //  Compliance       · Consenti o rifiuta
 import * as G from './gen.js';
 import {mechanics as M} from './mg.js';
-import {addMission, gameLevel, canSpawnMission, storyBias} from './game.js';
+import {addMission, gameLevel, canSpawnMission, storyBias, rnd} from './game.js';
 import {spawnMail, spawnChat, spawnCall, live} from './live.js';
 
 let testLevel = 0;
@@ -83,6 +83,40 @@ function allegatiMission() {
   mission:mk('diff', 'CONTROLLA GLI ALLEGATI', `Controlla gli allegati · ${who.last}`, {paper:true, ask:`Apri i due allegati: <b>tocca nel primo la riga che non coincide</b> con il secondo.`, chooseAsk:'Cosa fai?', left:fa, right:fb, rows, wrongRow:w,
    options:G.shuffle([{v:`Rispondo a ${law}: “Il dato ${k.toLowerCase()} non coincide, ci mandate il documento corretto?”`, ok:true}, {v:'Approvo: la differenza non conta'}, {v:`Correggo io il dato in ${fb} senza dire niente`}]),
    winWhy:'Email di avvertimento partita: il mittente corregge alla fonte e la pratica resta pulita. È così che lavora lo studio.', loseWhy:'Un dato che non coincide tra due allegati va segnalato al mittente: non si approva e non si corregge di nascosto.'}, 200000)};
+}
+
+// ————— Posta · L'email truffa (caccia agli errori) —————
+// La frode più diffusa contro gli studi: un'email quasi uguale a quella vera chiede di cambiare l'IBAN prima del rogito.
+function frodeMission() {
+ const who = G.person(), [law, dom] = G.pick(G.lawyers), amt = G.amount();
+ const fakeDom = G.pick([`${dom}-studio`, `${dom}.legal`, dom.replace(/([a-z])/, '$1$1')]);
+ const pool = [
+  ['Mittente', `${law} <studio@${fakeDom}.example>`, `Il dominio è “${fakeDom}”, non “${dom}” come in rubrica.`],
+  ['Oggetto', `URGENTE – nuove coordinate per il saldo ${who.last}`, 'Urgenza e “nuove coordinate” insieme: il segnale tipico della truffa del bonifico.'],
+  ['IBAN indicato', `LT${G.int(10, 99)} 3250 0${G.int(100, 999)} ${G.int(1000, 9999)} ${G.int(1000, 9999)}`, 'IBAN estero (Lituania) per un venditore residente a Firenze.'],
+  ['Telefono in firma', `+44 7${G.int(100, 999)} ${G.int(100000, 999999)}`, 'Numero diverso da quello in rubrica: non va mai usato per verificare.'],
+  ['Richiesta', 'Non telefonate, sono in udienza tutto il giorno', 'Chiedere di non telefonare serve a impedire la verifica.'],
+  ['Pratica', `Compravendita ${who.last} · saldo € ${amt.toLocaleString('it-IT')}`, ''],
+  ['Data del rogito', 'Venerdì alle 10:30', ''],
+  ['Allegato', 'Coordinate_bancarie.pdf', '']
+ ];
+ const nBad = by(3, 4, 5), bad = pool.slice(0, 5).map((r, i) => i).sort(() => Math.random() - .5).slice(0, nBad);
+ const rows = G.shuffle([...pool.filter((r, i) => bad.includes(i)), ...pool.filter((r, i) => i < 5 && !bad.includes(i)).map(r => [r[0], r[0] === 'Mittente' ? `${law} <studio@${dom}.example>` : r[0] === 'Telefono in firma' ? '055 ' + G.int(200000, 299999) : r[0] === 'Oggetto' ? `Saldo ${who.last} – conferma` : r[0] === 'IBAN indicato' ? 'Quello già in pratica (IT…)' : 'Per qualsiasi dubbio chiamatemi', '']), ...pool.slice(5)]);
+ return {anchor:'mail', brief:{what:'Un’email chiede di cambiare le coordinate del bonifico prima del rogito. Trova tutti i segnali della truffa, uno per uno.', why:'Con la truffa del bonifico il saldo di una casa finisce su un conto estero in pochi minuti: e non torna più.'},
+  mail:{from:law, address:`studio@${fakeDom}.example`, kind:'Legale', subject:`URGENTE – nuove coordinate ${who.last}`, attachments:['Coordinate_bancarie.pdf'], body:`Gentile Notaio, per il saldo della compravendita ${who.last} vi preghiamo di usare le nuove coordinate in allegato. Non telefonate, sono in udienza.`, understood:'Attenzione: questa email ha più segnali di frode. Otto ha bloccato le coordinate finché non le controlli tu.'},
+  mission:mk('hunt', 'L’EMAIL TRUFFA', `Email sospetta · ${who.last}`, {ask:`Questa email chiede di <b>cambiare l’IBAN del saldo</b>. Tocca <b>tutti i segnali di truffa</b>: sono ${nBad}.`, docTitle:'Email ricevuta · PEC ordinaria', rows, sources:[{t:'Rubrica dello studio', rows:[[law, `studio@${dom}.example`], ['Telefono', '055 2…'], ['IBAN del venditore', 'già in pratica, banca italiana']]}, {t:'Regola dello studio', rows:[['Cambio IBAN', 'si verifica sempre al telefono, al numero in rubrica']]}], winWhy:'Coordinate bloccate e venditore chiamato al numero in rubrica: l’IBAN non era cambiato. Otto segnala la frode alla Polizia Postale.'}, 200000)};
+}
+
+// ————— Scadenziario · In fila (il giorno dell'atto) —————
+function proceduraMission() {
+ const procs = [
+  {name:'il giorno della compravendita', steps:[['Visure aggiornate', 'la mattina stessa'], ['Identificazione delle parti', 'documenti in corso di validità'], ['Lettura dell’atto alle parti'], ['Firme delle parti e del notaio'], ['Registrazione e trascrizione', 'con l’adempimento unico'], ['Copia dell’atto alle parti']], why:'Prima si verifica, poi si identifica, poi si legge e si firma: solo dopo l’atto va nei registri.'},
+  {name:'un testamento pubblico', steps:[['Identificazione del testatore'], ['Presenza dei due testimoni'], ['Il testatore dichiara le sue volontà', 'al notaio, a voce'], ['Il notaio le scrive nell’atto'], ['Lettura al testatore e ai testimoni'], ['Firme e iscrizione a repertorio']], why:'Nel testamento pubblico le volontà le dichiara il testatore e le scrive il notaio, davanti ai testimoni: l’ordine è la garanzia.'},
+  {name:'la costituzione di una S.r.l.', steps:[['Verifica dei soci e del titolare effettivo'], ['Statuto concordato con i soci'], ['Firma dell’atto costitutivo'], ['Deposito al Registro Imprese', 'entro 10 giorni'], ['Iscrizione: la società esiste'], ['Comunicazione della partita IVA ai soci']], why:'Una S.r.l. nasce con l’iscrizione nel Registro Imprese, non con la firma: e prima ancora vengono le verifiche.'}
+ ];
+ const p = G.pick(procs), n = by(4, 5, 6), steps = p.steps.slice(0, n).map(([t, sub]) => ({t, sub}));
+ return {brief:{what:'Le procedure dello studio hanno un ordine preciso: metti i passaggi in fila, dal primo all’ultimo.', why:'Un atto firmato prima delle verifiche, o depositato prima della firma, è un atto da rifare.'},
+  mission:mk('order', 'IN FILA', `Procedura · ${p.name}`, {ask:`Il praticante chiede: “Per <b>${p.name}</b>, in che ordine si fa?” Tocca i passaggi <b>dal primo all’ultimo</b>.`, steps, winWhy:p.why, sources:[{t:'Prassi dello studio', rows:[['Regola', 'ogni passaggio si registra in pratica con data e autore']]}]}, 200000)};
 }
 
 // ————— Centralino · Al telefono —————
@@ -268,11 +302,28 @@ const briefs = {
  antiriciclaggio:{where:'all’antiriciclaggio, con una società da verificare', role:'otto-inspector', name:'Otto antiriciclaggio', what:'Calcola quanto possiede davvero la persona dietro le società: è lei il titolare effettivo?', why:'Il notaio deve sapere chi c’è dietro una società: è un obbligo di legge, e la soglia è il 25%.'},
  compliance:{where:'al registro della privacy', role:'otto-notary', name:'Otto della privacy', what:'Sono arrivate richieste di accesso ai dati: per ognuna decidi se consentirla o rifiutarla.', why:'I dati dei clienti si danno solo a chi ne ha diritto: un accesso sbagliato è una violazione della privacy.'}
 };
+// Seconde versioni delle spiegazioni: Otto non racconta il settore sempre con le stesse parole (si estrae a caso).
+const briefAlt = {
+ posta:{what:'In casella c’è qualcosa che va guardato da una persona: allegati da controllare o email da assegnare. Leggi e decidi.', why:'Una pratica si ferma più spesso per un’email finita nel posto sbagliato che per un problema giuridico.'},
+ centralino:{what:'C’è una chiamata in linea e Otto ha bisogno di te per le risposte: guarda agenda, regole e privacy prima di parlare.', why:'Al telefono non si danno informazioni su altri clienti, e le date si danno solo se sono vere.'},
+ whatsapp:{what:'Il cliente aspetta una risposta su WhatsApp. Otto l’ha scritta, ma c’è un dato che non coincide con la pratica.', why:'Un importo o una data sbagliata in chat diventa un cliente che si presenta il giorno sbagliato, o una banca che non bonifica.'},
+ studio:{what:'Il modulo è quasi pronto: manca un dato da copiare dal documento giusto, una casella alla volta.', why:'Nei moduli bancari e catastali non esistono errori piccoli: un carattere sbagliato blocca tutto.'},
+ memoria:{what:'Otto ha trovato più atti simili in archivio. Scegli quello che risponde davvero alla domanda del notaio.', why:'Un precedente sbagliato porta con sé clausole che non c’entrano: si riparte da quello giusto.'},
+ visure:{what:'La visura è tornata dal registro: mettila accanto al documento della pratica e trova il dato che non coincide.', why:'Il registro pubblico ha sempre ragione: un dato diverso nell’atto vuol dire una trascrizione respinta.'},
+ preventivi:{what:'Il cliente vuole sapere quanto spenderà. Fai il conto, regole e aliquote sono accanto.', why:'Il preventivo è un impegno dello studio: se è sbagliato, la differenza la paga qualcuno.'},
+ osservatorio:{what:'È cambiata una regola. Per ogni pratica aperta, decidi se la novità la tocca o no.', why:'Le novità normative cambiano imposte e tempi: applicarle a metà è peggio che non saperle.'},
+ staff:{what:'Una persona del team è assente: le sue attività vanno date a chi può farle davvero.', why:'Un’attività lasciata sulla scrivania vuota è un termine che scade senza che nessuno se ne accorga.'},
+ scadenze:{what:'Dalla data dell’atto, calcola il giorno della scadenza e segnalo sul calendario.', why:'I termini di registrazione e trascrizione non perdonano: un giorno dopo è già sanzione.'},
+ antiriciclaggio:{what:'Dietro la società ci sono altre società: calcola quanto possiede davvero la persona in cima alla catena.', why:'La legge chiede al notaio di sapere chi comanda davvero: sopra il 25% è il titolare effettivo.'},
+ compliance:{what:'Ci sono richieste di accesso ai dati dei clienti: per ognuna, chi la fa ha diritto di averli?', why:'Un dato dato alla persona sbagliata è una violazione da notificare al Garante.'}
+};
+Object.entries(briefAlt).forEach(([k, v]) => { briefs[k].alt = [v]; });
+
 
 // ————— regista —————
 // Le missioni sono un bonus raro (una ogni un paio di minuti): il cuore della sfida sono i compiti veri.
 // Gira su tutti i moduli, così ogni sezione dello studio prima o poi ha la sua missione.
-const pages = {posta:() => (Math.random() < .5 ? allegatiMission : postaMission)(), centralino:centralinoMission, whatsapp:whatsappMission, studio:studioMission, memoria:memoriaMission, visure:visureMission, preventivi:preventiviMission, osservatorio:osservatorioMission, staff:staffMission, scadenze:scadenzeMission, antiriciclaggio:antiriciclaggioMission, compliance:complianceMission};
+const pages = {posta:() => [allegatiMission, postaMission, frodeMission][rnd(3)](), centralino:centralinoMission, whatsapp:whatsappMission, studio:studioMission, memoria:memoriaMission, visure:visureMission, preventivi:preventiviMission, osservatorio:osservatorioMission, staff:staffMission, scadenze:() => (rnd(2) ? proceduraMission : scadenzeMission)(), antiriciclaggio:antiriciclaggioMission, compliance:complianceMission};
 const rotation = ['posta', 'visure', 'centralino', 'preventivi', 'whatsapp', 'studio', 'scadenze', 'memoria', 'antiriciclaggio', 'staff', 'compliance', 'osservatorio'];
 let open = [];
 function spawn(force) {
@@ -290,7 +341,7 @@ function spawn(force) {
   if (made.anchor === 'mail') item = spawnMail({...made.mail, priority:'alta', assignee:'GM', prepared:[], draft:''});
   if (made.anchor === 'chat') item = spawnChat(made.chat);
   if (made.anchor === 'call') item = spawnCall(made.call);
-  const id = addMission({...mission, ttl, page, ref:item?.id, brief:briefs[page], onDone:() => { rec.open = false; if (item) { item.missionOpen = false; if (made.anchor === 'call') Object.assign(item, {duration:'2:40', outcome:'Gestita con te'}); } onHandled(item?.id, page); schedule(G.int(120, 180)); }});
+  const id = addMission({...mission, ttl, page, ref:item?.id, brief:made.brief ? {...briefs[page], alt:null, ...made.brief} : briefs[page], onDone:() => { rec.open = false; if (item) { item.missionOpen = false; if (made.anchor === 'call') Object.assign(item, {duration:'2:40', outcome:'Gestita con te'}); } onHandled(item?.id, page); schedule(G.int(120, 180)); }});
   if (item) { item.mission = id; item.missionOpen = true; live.missions.push(item); }
   open.push(rec);
  }
@@ -300,7 +351,9 @@ function spawn(force) {
 // Per i test e le prove a mano: fa arrivare subito la missione di una sezione.
 export const spawnNow = page => spawn(page);
 function schedule(s) { clearTimeout(timer); timer = setTimeout(spawn, s * 1000); }
-export function startMissions(handled) { onHandled = handled || onHandled; running = true;  turn = 0; open = []; schedule(45); }
+// a ogni partita l'ordine dei settori si rimescola davvero: le prime missioni non sono mai le stesse
+const reshuffle = () => { for (let i = rotation.length - 1; i > 0; i--) { const j = rnd(i + 1); [rotation[i], rotation[j]] = [rotation[j], rotation[i]]; } };
+export function startMissions(handled) { onHandled = handled || onHandled; running = true;  turn = 0; reshuffle(); open = []; schedule(45); }
 export function stopMissions() { running = false; live.game = false; clearTimeout(timer); }
 // Per i test: i generatori di ogni modulo, con un livello forzato.
 export const generators = pages;

@@ -133,17 +133,25 @@ function catalog() {
 }
 
 // ————— SALA —————
+// Gli ospiti all'ingresso (solo nella sfida): si tocca il gruppo, poi un tavolo libero abbastanza grande.
+function doorPanel() {
+ if (!gameOn() || !D.service.game) return '';
+ if (ui.door && !D.door.some(p => p.id === ui.door)) ui.door = null;
+ const sel = D.door.find(p => p.id === ui.door);
+ return `<div class="door-queue" data-anchor-door><span class="dq-title">${icon('users')} All’ingresso</span>${D.door.length ? D.door.map(p => { const w = D.doorWait(p); return `<button class="dq-party ${ui.door === p.id ? 'on' : ''} ${D.doorRed(p) ? 'red' : ''}" data-door="${p.id}"><b>${esc(p.name)}</b><small>${p.n} persone · aspetta da <span data-door-wait="${p.id}">${Math.floor(w)}</span> s</small><i data-door-bar="${p.id}" style="width:${Math.min(100, w / D.doorLeave() * 100)}%"></i></button>`; }).join('') : '<small class="dq-empty">Nessuno in attesa. Quando arriva qualcuno senza prenotazione, toccalo e scegli un tavolo libero abbastanza grande.</small>'}${sel ? `<span class="dq-hint">${icon('arrow')} Ora tocca un tavolo <b>libero</b> con almeno <b>${sel.n} posti</b></span>` : ''}</div>`;
+}
 function floorTables(mini=false) {
  return D.tables.map(t => {
   const total = D.tableTotal(t), ready = t.lines.some(l => l.state === 'ready');
-  return `<button class="ftable s-${t.status} ${t.shape || 'square'} ${ui.table === t.id && !mini ? 'selected' : ''}" style="left:${t.x}%;top:${t.y}%" data-table="${t.id}" aria-label="Tavolo ${t.id}, ${tableLabel[t.status]}">
+  const party = !mini && ui.door && D.door.find(p => p.id === ui.door), fit = party ? (D.fits(t, party) ? 'fit' : 'nofit') : '';
+  return `<button class="ftable s-${t.status} ${t.shape || 'square'} ${fit} ${ui.table === t.id && !mini ? 'selected' : ''}" style="left:${t.x}%;top:${t.y}%" data-table="${t.id}" aria-label="Tavolo ${t.id}, ${tableLabel[t.status]}">
    <b>${t.id.slice(1)}</b>${t.status === 'free' ? `<small>${t.seats} posti</small>` : `<small>${t.guests} ${icon('users')}${mini ? '' : ` · ${minutes(t.since)}′`}</small>${total ? `<em>${euro(total)}</em>` : ''}`}${ready ? '<i class="ready-dot" title="Piatti pronti al pass"></i>' : ''}${t.mission && gameOn() ? '<i class="table-bang" title="Il conto aspetta te">!</i>' : ''}</button>`;
  }).join('') + (mini ? '' : '<span class="floor-label bar">BANCO</span><span class="floor-label door">INGRESSO</span>');
 }
 function sala() {
  return `${heading('SALA & CUCINA · 01', 'Sala & tavoli', 'Tocca un tavolo: vedi cosa ha ordinato, a che punto è la cucina, quanto è il conto.', `<span class="live-pill"><span class="live-dot"></span>${D.tables.filter(t => t.status !== 'free').length} tavoli in servizio</span>`)}
  ${kpis()}
- <div class="sala-layout"><section class="workspace-panel floor-panel"><div class="panel-title"><h2>Sala principale</h2><div class="legend">${Object.entries(tableLabel).map(([k, v]) => `<span><i class="lg s-${k}"></i>${v}</span>`).join('')}</div></div><div class="floor">${floorTables()}</div></section>
+ <div class="sala-layout"><section class="workspace-panel floor-panel"><div class="panel-title"><h2>Sala principale</h2><div class="legend">${Object.entries(tableLabel).map(([k, v]) => `<span><i class="lg s-${k}"></i>${v}</span>`).join('')}</div></div>${doorPanel()}<div class="floor ${ui.door ? 'seating' : ''}">${floorTables()}</div></section>
  <aside class="table-panel workspace-panel" id="table-panel">${tablePanel()}</aside></div>
  <section class="workspace-panel"><div class="panel-title"><h2>Prenotazioni in arrivo</h2>${badge('Raccolte da Centralino AI e WhatsApp')}</div><div class="table-scroll"><table class="data-table"><thead><tr><th>Ora</th><th>Ospite</th><th>Coperti</th><th>Tavolo</th><th>Canale</th><th>Note</th></tr></thead><tbody>${D.bookings.map(b => `<tr><td><b>${b.time}</b></td><td>${esc(b.name)}</td><td>${b.guests}</td><td>${b.table}</td><td>${badge(b.channel, b.channel.includes('AI') ? 'badge-violet' : '')}</td><td>${esc(b.note)}</td></tr>`).join('')}</tbody></table></div></section>`;
 }
@@ -179,7 +187,7 @@ function kds() {
  const bar = (start, total, cls = '') => `<span class="tk-bar ${cls}"><i style="animation-duration:${total}s;animation-delay:-${Math.min(total, (now - start) / 1000).toFixed(1)}s"></i></span>`;
  const ticket = (l, state) => {
   const d = D.dish(l.dish), sel = ui.ticket === l.id;
-  const timer = state === 'waiting' ? bar(l.at, k.waitLimit, 'wait') : state === 'cooking' ? bar(l.cookAt || now, D.cookTime(d), 'cook') : bar(l.readyAt || now, k.passTime, 'pass');
+  const timer = state === 'waiting' ? bar(l.at, D.waitMax(), 'wait') : state === 'cooking' ? bar(l.cookAt || now, D.cookTime(d), 'cook') : bar(l.readyAt || now, k.passTime, 'pass');
   const action = state === 'waiting' ? (full ? `<span class="tk-full">Fornelli pieni · ${cooking}/${k.cap}</span>` : `<button class="tk-go" data-cook="${l.id}">Metti sui fornelli ${icon('arrow')}</button>`)
    : state === 'cooking' ? (l.cooked ? (D.autoOn('pass') ? `<span class="tk-next">${icon('check')} Cotto · va al pass da solo</span>` : `<button class="tk-go" data-pass="${l.id}">Cotto · manda al pass ${icon('arrow')}</button>`) : `<span class="tk-next">In cottura · ${D.cookTime(d)} s</span>`)
    : D.autoOn('serve') ? `<span class="tk-next">${icon('check')} Il cameriere lo porta</span>` : `<button class="tk-go" data-serve="${l.id}">Servi al tavolo ${icon('arrow')}</button>`;
@@ -430,6 +438,17 @@ document.addEventListener('click', e => {
  const t = e.target, el = s => t.closest(s); let x;
  if (el('[data-close]')) dialog.close();
  if ((x = el('[data-action]'))) return action(x.dataset.action);
+ if ((x = el('[data-door]'))) { ui.door = ui.door === x.dataset.door ? null : x.dataset.door; return render(); }
+ if ((x = el('[data-table]')) && ui.door && route() === 'sala') {
+  const id = x.dataset.table, t = D.table(id), p = D.door.find(y => y.id === ui.door);
+  if (p && t && D.fits(t, p)) {
+   // il tavolo più piccolo che basta è la scelta giusta: un tavolo da 8 dato a due persone blocca il prossimo gruppo grande
+   const best = Math.min(...D.tables.filter(x => D.fits(x, p)).map(x => x.seats)), good = t.seats === best;
+   D.seatParty(p.id, id); ecoPoints('seat', good ? 6 : 3, good ? 'Tavolo giusto' : 'Ospiti accomodati', p.id, {born:p.at}); ui.door = null; ui.table = id; ui.adding = false;
+   toast(good ? `${p.name} al tavolo ${id.slice(1)}: il tavolo giusto per ${p.n}.` : `${p.name} al tavolo ${id.slice(1)}. C’era un tavolo da ${best}: questo da ${t.seats} serviva a un gruppo più grande.`); return render();
+  }
+  toast(t?.status !== 'free' ? `Il tavolo ${id.slice(1)} è occupato.` : `Il tavolo ${id.slice(1)} ha ${t.seats} posti: ${p?.name} sono in ${p?.n}.`); return;
+ }
  if ((x = el('[data-table]'))) { if (route() !== 'sala') { ui.table = x.dataset.table; location.hash = 'sala'; return; } ui.table = x.dataset.table; ui.adding = false; return render(); }
  if ((x = el('[data-add]'))) { const ok = D.addDish(ui.table, x.dataset.add); if (ok) ecoPoints('add', 2, 'Comanda in cucina'); toast(ok ? `${D.dish(x.dataset.add).name} → cucina · conto e magazzino aggiornati` : 'Piatto esaurito: ingredienti insufficienti.'); return; }
  if ((x = el('[data-fridge-act]'))) { const f = D.fridge(x.dataset.fridgeAct), born = f?.since, no = f?.faults; if (D.fridgeAction(x.dataset.fridgeAct)) ecoPoints('fridge', 5, 'Cella sistemata', `${f.id}-${no}`, {born}); return render(); }
@@ -492,11 +511,15 @@ setInterval(() => {
   const fr = D.fridgeTick();
   fr.lost.forEach(f => { penalty(10, 'Merce buttata'); toast(`${f.name}: oltre i ${f.max + 4} °C, metà della merce va buttata.`); });
   document.querySelectorAll('[data-fridge-temp]').forEach(e => { const f = D.fridge(e.dataset.fridgeTemp); e.textContent = fridgeTemp(f); e.closest('.fridge')?.classList.toggle('red', D.fridgeRed(f)); });
+  const dr = D.doorTick(gameLevel());
+  dr.left.forEach(p => { penalty(10, 'Ospiti andati via'); toast(`${p.name} (${p.n} persone) se ne sono andati: troppa attesa all’ingresso.`); });
+  document.querySelectorAll('[data-door-wait]').forEach(e => { const p = D.door.find(y => y.id === e.dataset.doorWait); if (!p) return; e.textContent = Math.floor(D.doorWait(p)); e.closest('.dq-party')?.classList.toggle('red', D.doorRed(p)); const bar = document.querySelector(`[data-door-bar="${p.id}"]`); if (bar) bar.style.width = `${Math.min(100, D.doorWait(p) / D.doorLeave() * 100)}%`; });
+  const dsig = D.door.map(p => p.id).join(','); if (dsig !== ui.doorSig) { ui.doorSig = dsig; if (route() === 'sala') render(); }
   const h = D.kitchenGameTick(gameLevel());
  if (h.handover) ottoMessage({name:'Otto cuoco', role:'otto-chef', title:'La cucina passa a te', button:'Ho capito', lines:['Per i primi minuti ho mandato avanti io la cucina, così hai potuto guardarti intorno.', '**Da adesso la cucina è manuale**: metti i piatti sui fornelli, manda al pass quelli cotti e servili al tavolo. Se una colonna diventa rossa, perdi punti.', 'Niente paura: con i punti, nella **Bottega di Otto**, puoi comprare tre automatismi — **in cucina**, **al pass** e **al tavolo** — e non pensarci più.']});
   // ogni cosa in rosso costa 1 punto al secondo, ma al massimo 2 in tutto: si perde, senza crollare
-  const reds = fr.red.length + (h.waiting ? 1 : 0) + (h.pass ? 1 : 0);
-  if (reds) penalty(Math.min(2, reds), fr.red.length ? 'Cella fuori norma' : h.waiting ? 'Comande ferme' : 'Piatti fermi al pass');
+  const reds = fr.red.length + (h.waiting ? 1 : 0) + (h.pass ? 1 : 0) + (dr.red.length ? 1 : 0);
+  if (reds) penalty(Math.min(2, reds), fr.red.length ? 'Cella fuori norma' : h.waiting ? 'Comande ferme' : h.pass ? 'Piatti fermi al pass' : 'Ospiti in attesa');
   const was = ui.kitchenHot || {}; ui.kitchenHot = h;
   if ((was.waiting !== h.waiting || was.pass !== h.pass || h.handover) && route() === 'kds') render();
   else if (route() === 'kds' && D.kitchen.autoUntil > Date.now() && Date.now() % 5000 < 1000) liveRefresh(); // il conto alla rovescia della cucina automatica
@@ -505,8 +528,17 @@ setInterval(() => {
   if (h.waiting) pr.push({page:'kds', label:'Comande ferme in cucina'});
   if (h.pass) pr.push({page:'kds', label:'Piatti fermi al pass'});
   fr.red.forEach(f => pr.push({page:'staff', label:`${f.name} fuori temperatura`}));
+  if (dr.red.length) pr.push({page:'sala', label:dr.red.length === 1 ? `All’ingresso aspetta: ${dr.red[0].name}` : `${dr.red.length} gruppi aspettano all’ingresso`});
   setPressure(pr);
  } catch (err) { console.warn('CS Restaurant OS · errore nel battito', err); }
+}, 1000);
+// "Il tempo è fermo" vale per tutto: mentre Otto parla, le attese vive (porta, cucina, frigo, pass) non avanzano.
+setInterval(() => {
+ if (!gameOn() || !gamePaused() || !D.service.game) return;
+ D.door.forEach(p => { p.at += 1000; });
+ D.tables.forEach(t => t.lines.forEach(l => { ['at', 'cookAt', 'cookedAt', 'readyAt'].forEach(k => { if (l[k]) l[k] += 1000; }); }));
+ D.fridges.forEach(f => { if (f.since) f.since += 1000; if (f.repairUntil) f.repairUntil += 1000; });
+ if (D.kitchen.autoUntil > Date.now()) D.kitchen.autoUntil += 1000;
 }, 1000);
 (function inbound() { setTimeout(() => { if (!busy()) D.inboundTick(); inbound(); }, 14000 + Math.random() * 10000); })();
 window.addEventListener('message', e => {
@@ -524,10 +556,11 @@ initGame(challenges, {story,icon, place:'il locale', missionsOnly:true,
   D.tables.filter(t => t.status === 'bill' && t.id !== 'T8' && !t.mission).forEach(t => c.push({key:'close', ref:t.id, page:'sala', title:`Il tavolo ${t.id.slice(1)} chiede il conto`, text:`Apri il **tavolo ${t.id.slice(1)}** nella pianta e premi **Chiudi conto**.`, target:`[data-action="close:${t.id}"]`, valid:() => D.table(t.id).status === 'bill', auto:() => D.closeBill(t.id)}));
   D.tables.filter(t => t.status === 'ordered' && t.id !== 'T3' && !t.mission && t.lines.length >= 3 && t.lines.every(l => l.state === 'served')).forEach(t => c.push({key:'bill', ref:t.id, page:'sala', title:`Il tavolo ${t.id.slice(1)} ha finito di mangiare`, text:`Apri il **tavolo ${t.id.slice(1)}** e premi **Richiedi il conto**.`, target:`[data-action="bill:${t.id}"]`, valid:() => D.table(t.id).status === 'ordered', auto:() => D.requestBill(t.id)}));
   const late = D.kitchenLines().filter(l => l.state === 'waiting').sort((a, b) => a.at - b.at)[0];
-  if (late) c.push({key:'advance', urgent:D.service.game && !D.autoOn('cook') && Date.now() - late.at > D.kitchen.waitLimit * 500, ref:late.id, page:'kds', title:`Comanda in attesa · tavolo ${late.table.slice(1)}`, text:D.service.game ? `In Cucina **apri la comanda del tavolo ${late.table.slice(1)}** e premi **Metti sui fornelli**. Se i fornelli sono pieni, prima manda al pass un piatto cotto.` : `In Cucina **apri la comanda del tavolo ${late.table.slice(1)}** e premi **Avvia la preparazione**.`, target:D.service.game ? `[data-cook="${late.id}"], [data-ticket="${late.id}"]` : `[data-ticket="${late.id}"]`, valid:() => D.kitchenLines().some(l => l.id === late.id && l.state === 'waiting'), auto:() => D.service.game ? D.startCooking(late.id) : D.advance(late.id)});
+  if (late) c.push({key:'advance', urgent:D.service.game && !D.autoOn('cook') && Date.now() - late.at > D.waitMax() * 500, ref:late.id, page:'kds', title:`Comanda in attesa · tavolo ${late.table.slice(1)}`, text:D.service.game ? `In Cucina **apri la comanda del tavolo ${late.table.slice(1)}** e premi **Metti sui fornelli**. Se i fornelli sono pieni, prima manda al pass un piatto cotto.` : `In Cucina **apri la comanda del tavolo ${late.table.slice(1)}** e premi **Avvia la preparazione**.`, target:D.service.game ? `[data-cook="${late.id}"], [data-ticket="${late.id}"]` : `[data-ticket="${late.id}"]`, valid:() => D.kitchenLines().some(l => l.id === late.id && l.state === 'waiting'), auto:() => D.service.game ? D.startCooking(late.id) : D.advance(late.id)});
   const rev = D.reviews.find(r => !ui.done.reviews.includes(r.who));
   if (rev) c.push({key:'review', ref:rev.who, page:'recensioni_ai', title:`Nuova recensione di ${rev.who.trim()}`, text:'Leggi la bozza di Otto e premi **Approva e pubblica**.', target:`[data-action="review:${rev.who}"]`, valid:() => !ui.done.reviews.includes(rev.who), auto:() => ui.done.reviews.push(rev.who)});
   D.fridges.filter(f => ['door', 'fault', 'sensor'].includes(f.state)).forEach(f => c.push({key:'fridge', urgent:true, ref:`${f.id}-${f.faults}`, page:'staff', title:`${f.name}: ${f.state === 'door' ? 'porta aperta' : f.state === 'fault' ? 'compressore guasto' : 'sonda scollegata'}`, text:`In Staff & HACCP **${f.state === 'door' ? 'chiudi la porta' : f.state === 'fault' ? 'chiama il tecnico' : 'ricollega la sonda'}** della ${f.name.toLowerCase()} prima che la temperatura salga.`, target:`[data-fridge-act="${f.id}"]`, valid:() => D.fridge(f.id).state === f.state, auto:() => D.fridgeAction(f.id)}));
+  D.door.forEach(p => c.push({key:'seat', ref:p.id, page:'sala', urgent:D.doorWait(p) > 15, title:`All’ingresso: ${p.name}, ${p.n} persone`, text:`In Sala **tocca ${p.name}** nel riquadro “All’ingresso”, poi **un tavolo libero con almeno ${p.n} posti**.`, target:`[data-door="${p.id}"]`, valid:() => D.door.some(x => x.id === p.id), auto:() => { const t = D.tables.find(x => D.fits(x, p)); if (t) D.seatParty(p.id, t.id); }}));
   const o = ui.chefOrder;
   if (o) { const d = D.dish(o.dish); c.push({key:'chef', ref:o.ref, page:'menu_pos', title:o.kind === 'off' ? `Lo chef: ${d.name} è finito` : `Lo chef: ${d.name} a € ${o.price}`, text:`Apri **l’editor del menu** (o chiedilo a Otto a parole) e ${o.kind === 'off' ? `**togli ${d.name}** dal menu di stasera` : `metti **${d.name} a € ${o.price}**`}.`, target:'[data-action="menu-editor"]', valid:() => ui.chefOrder?.ref === o.ref, auto:() => { D.editDish(o.dish, o.kind === 'off' ? {visible:false} : {price:o.price}); ui.chefOrder = null; }}); }
   const h = D.haccp.findIndex((x, i) => !x.done && !ui.done.haccp.includes(i));
@@ -543,7 +576,7 @@ initGame(challenges, {story,icon, place:'il locale', missionsOnly:true,
   }
   return c;
  },
- focus:(page, ref) => { if (page === 'menu_pos' && ref && D.table(ref)) ui.qr = {table:ref, cart:{}, step:'menu', cat:ui.qr.cat, receipt:null}; if (page === 'sala') { ui.table = ref; ui.adding = false; } if (route() === page) render(); else location.hash = page; }, missionTypes:12, sections:12, placeOf:'del locale', startNote:'Fatture, comande, conti, chiamate e prenotazioni arrivano dal quadrato rosso “!” in alto, e ogni sezione del locale ha la sua missione.', onStart:() => { startMissions(); D.kitchenGameStart(); D.fridgeGameStart(); ui.chefOrder = null; nextChefAt = Date.now() + 90000; }, onReset:() => { stopMissions(); D.kitchenGameStop(); setPressure([]); },
+ focus:(page, ref) => { if (page === 'menu_pos' && ref && D.table(ref)) ui.qr = {table:ref, cart:{}, step:'menu', cat:ui.qr.cat, receipt:null}; if (page === 'sala') { ui.table = ref; ui.adding = false; } if (route() === page) render(); else location.hash = page; }, missionTypes:12, sections:12, placeOf:'del locale', startNote:'Fatture, comande, conti, chiamate e prenotazioni arrivano dal quadrato rosso “!” in alto, e ogni sezione del locale ha la sua missione.', onStart:() => { startMissions(); D.kitchenGameStart(); D.fridgeGameStart(); D.doorGameStart(); ui.door = null; ui.chefOrder = null; nextChefAt = Date.now() + 90000; }, onReset:() => { stopMissions(); D.kitchenGameStop(); D.doorGameStop(); ui.door = null; setPressure([]); },
  // potenziamenti del locale, da comprare nella Bottega di Otto
  shop:[
   {id:'auto-cook', name:'Automatismo in cucina', desc:'Le comande in attesa vanno sui fornelli da sole, appena c’è posto.', cost:60, mood:'otto-chef', use:() => { if (D.kitchen.auto.cook) return false; D.kitchen.auto.cook = true; render(); return 'Le comande vanno sui fornelli da sole.'; }},
@@ -554,6 +587,8 @@ initGame(challenges, {story,icon, place:'il locale', missionsOnly:true,
   {id:'forno', name:'Forno nuovo', desc:'Cottura più veloce del 20%.', cost:40, mood:'otto-chef', use:() => { if (D.kitchen.speed <= .5) return false; D.kitchen.speed = +(D.kitchen.speed * .8).toFixed(2); render(); return 'I piatti cuociono più in fretta.'; }},
   {id:'assistenza', name:'Contratto di assistenza', desc:'Il tecnico dei frigo arriva in 15 secondi invece di 45.', cost:30, mood:'otto-inspector', use:() => { if (D.fridgeCfg.repair <= 15) return false; D.fridgeCfg.repair = 15; return 'Il tecnico ora arriva in 15 secondi.'; }},
   {id:'allarme', name:'Allarme porta frigo', desc:'Le porte rimaste aperte si richiudono da sole dopo 20 secondi.', cost:25, mood:'otto-inspector', use:() => { if (D.fridgeCfg.autoDoor) return false; D.fridgeCfg.autoDoor = 20; return 'Allarme attivo sulle porte delle celle.'; }},
-  {id:'comis', name:'Commis in cucina', desc:'+30 secondi prima che le comande in attesa vadano in rosso.', cost:20, mood:'otto-chef', use:() => { D.kitchen.waitLimit += 30; render(); return `Le comande possono aspettare ${D.kitchen.waitLimit} secondi.`; }}
+  {id:'comis', name:'Commis in cucina', desc:'+30 secondi prima che le comande in attesa vadano in rosso.', cost:20, mood:'otto-chef', use:() => { D.kitchen.waitBonus += 30; render(); return `Le comande possono aspettare ${D.waitMax()} secondi.`; }},
+  {id:'hostess', name:'Hostess all’ingresso', desc:'Gli ospiti alla porta aspettano 30 secondi in più prima di spazientirsi.', cost:25, mood:'otto-bow', use:() => { if (D.doorCfg.bonus >= 90) return false; D.doorCfg.bonus += 30; render(); return 'All’ingresso c’è chi accoglie: gli ospiti hanno più pazienza.'; }},
+  {id:'prenota', name:'Prenotazioni online', desc:'Un terzo in meno di ospiti senza prenotazione alla porta.', cost:30, mood:'otto-phone', use:() => { if (D.doorCfg.calm > 1) return false; D.doorCfg.calm = 1.5; return 'Ora quasi tutti prenotano dal sito: meno sorprese alla porta.'; }}
  ], menuNote:'Le missioni arrivano dal locale vivo: fatture dei fornitori, comande grandi, conti, prenotazioni e chiamate. Sempre nuove.', pageName:id => moduleById(id)?.title || {home:SV.title}[id] || id});
 shell();

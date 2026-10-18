@@ -11,6 +11,8 @@
 //  classify · per ogni voce scegli uno stato (vale / non vale, approva / rifiuta…)
 //  pick     · tra più carte, quella giusta
 //  multi    · selezioni tutto ciò che vale, e niente di più
+//  hunt     · in un documento ci sono più problemi: li trovi uno per uno, e ognuno si spiega
+//  order    · metti in fila i passaggi di una procedura vera
 const esc = v => String(v ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const rich = v => esc(v).replace(/\*\*(.+?)\*\*/g, '<b>$1</b>');
 // I dati da confrontare (importi, quantità, date, orari, percentuali, codici) in arancione: l'occhio li trova subito.
@@ -235,6 +237,45 @@ const multi = {
  }
 };
 
+// ————— hunt: caccia agli errori —————
+// d.rows = [[voce, valore, perché è un problema (vuoto se va bene)]]; si tocca una riga alla volta.
+const hunt = {
+ render(d, st) {
+  const found = st.found || [], miss = st.misses || [], need = d.rows.filter(r => r[2]).length;
+  return `<p class="mg-ask">${d.ask} <span class="mg-count">Trovati <b>${found.length}</b> su <b>${need}</b></span>${miss.length ? ` <span class="mg-tries">Tocchi a vuoto: ${miss.length}/${d.maxMiss || 3}</span>` : ''}</p>${sources(d.sources)}
+   <div class="mg-hunt"><span class="mg-doc-t">${esc(d.docTitle)}</span>${d.rows.map((r, i) => { const f = found.includes(i), m = miss.includes(i), sol = st.done && r[2] && !f; return `<button class="mg-hrow ${f ? 'found' : ''} ${m ? 'miss' : ''} ${sol ? 'sol' : ''} ${st.hintRow === i && !f ? 'hinted' : ''}" data-game="mg:${st.id}:spot:${i}" ${st.done || f || m ? 'disabled' : ''}><span class="mg-k">${esc(r[0])}</span><span class="mg-v">${hl(r[1])}</span>${f || sol ? `<small class="mg-why">${esc(r[2])}</small>` : m ? '<small class="mg-why ok">Questo va bene.</small>' : ''}</button>`; }).join('')}</div>`;
+ },
+ handle(d, st, a, v) {
+  if (a !== 'spot') return;
+  const i = +v, r = d.rows[i]; if (!r) return;
+  if (r[2]) { (st.found ||= []).push(i); if (st.found.length === d.rows.filter(x => x[2]).length) { st.done = true; const m = st.misses?.length || 0; return {done:true, pts:Math.max(10, 45 - m * 8), label:m ? 'Trovati tutti, con qualche tocco a vuoto' : (d.winLabel || 'Occhio di falco'), why:d.winWhy}; } return {sound:'good'}; }
+  (st.misses ||= []).push(i);
+  if (st.misses.length >= (d.maxMiss || 3)) { st.done = true; return lose(d, d.loseWhy || 'Troppi tocchi a vuoto: in rosso i problemi che mancavano.', -10); }
+  return {sound:'bad'};
+ }
+};
+
+// ————— order: in fila —————
+// d.steps = passaggi nell'ordine giusto; si mostrano mescolati e si toccano dal primo all'ultimo.
+const order = {
+ render(d, st) {
+  const done = st.seq || [], pool = (st.pool ||= shuffleIdx(d.steps.length)).filter(i => !done.includes(i)), miss = st.misses || 0;
+  return `<p class="mg-ask">${d.ask}${miss ? ` <span class="mg-tries">Errori: ${miss}/${d.maxMiss || 3}</span>` : ''}</p>${sources(d.sources)}
+   <ol class="mg-seq">${d.steps.map((s, k) => k < done.length ? `<li class="set"><b>${k + 1}</b><span>${esc(d.steps[done[k]].t)}</span></li>` : `<li class="${st.done ? 'sol' : ''}"><b>${k + 1}</b><span>${st.done ? esc(s.t) : '…'}</span></li>`).join('')}</ol>
+   ${st.done ? '' : `<div class="mg-pool">${pool.map(i => `<button class="${st.hintStep === i ? 'hinted' : ''} ${st.wrong === i ? 'miss' : ''}" data-game="mg:${st.id}:step:${i}">${esc(d.steps[i].t)}${d.steps[i].sub ? `<small>${esc(d.steps[i].sub)}</small>` : ''}</button>`).join('')}</div>`}
+   ${st.note ? `<div class="mg-oops">${esc(st.note)}</div>` : ''}`;
+ },
+ handle(d, st, a, v) {
+  if (a !== 'step') return;
+  const i = +v, seq = st.seq ||= [], next = seq.length;
+  if (i === next) { seq.push(i); st.note = ''; st.wrong = null; if (seq.length === d.steps.length) { st.done = true; const m = st.misses || 0; return {done:true, pts:Math.max(10, 45 - m * 10), label:m ? 'In fila, con qualche inciampo' : (d.winLabel || 'Procedura perfetta'), why:d.winWhy}; } return {sound:'good'}; }
+  st.misses = (st.misses || 0) + 1; st.wrong = i; st.note = `Non ancora: prima viene un altro passaggio. ${d.steps[i].why || ''}`.trim();
+  if (st.misses >= (d.maxMiss || 3)) { st.done = true; return lose(d, d.loseWhy || 'Troppi passaggi fuori posto: qui sopra l’ordine giusto.', -10); }
+  return {sound:'bad'};
+ }
+};
+function shuffleIdx(n) { const a = Array.from({length:n}, (_, i) => i); for (let i = n - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } if (a.every((x, i) => x === i) && n > 1) [a[0], a[1]] = [a[1], a[0]]; return a; }
+
 // ————— indizi di Otto —————
 // Ogni meccanica sa dare un aiuto: evidenziare la fonte giusta, indicare dov'è l'errore o togliere una risposta sbagliata.
 // Restituiscono la frase che Otto dice; lo stato cambia in modo che render mostri l'aiuto.
@@ -254,4 +295,7 @@ multi.hint = (d, st) => { const on = st.on ||= [], i = d.chips.findIndex((c, k) 
 calc.hint = d => d.hint ? `Ecco come si fa: ${d.hint}` : 'Rileggi le fonti: tutti i numeri che servono sono lì.';
 cal.hint = d => `Regola: ${d.hint}. Conta i giorni dalla data della pratica.`;
 
-export const mechanics = {diff, boxes, triage, proof, phone, calc, cal, classify, pick, multi};
+hunt.hint = (d, st) => { const i = d.rows.findIndex((r, k) => r[2] && !(st.found || []).includes(k)); st.hintRow = i; return `Guarda bene la riga “${d.rows[i][0]}”.`; };
+order.hint = (d, st) => { const next = (st.seq || []).length; st.hintStep = next; return `Il prossimo passaggio è quello che ho evidenziato: “${d.steps[next].t}”.`; };
+
+export const mechanics = {diff, boxes, triage, proof, phone, calc, cal, classify, pick, multi, hunt, order};

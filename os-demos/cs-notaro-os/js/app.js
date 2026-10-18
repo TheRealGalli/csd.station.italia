@@ -170,10 +170,20 @@ function posta() {
 }
 
 // ————— 02 CENTRALINO —————
+// La sala d'attesa (solo nella sfida): si tocca chi è arrivato, poi una sala libera con abbastanza posti.
+function lobbyPanel() {
+ if (!gameOn()) return '';
+ if (ui.guest && !P.lobby.some(p => p.id === ui.guest)) ui.guest = null;
+ const sel = P.lobby.find(p => p.id === ui.guest);
+ return `<section class="workspace-panel lobby"><div class="panel-title"><h2>${icon('users')} Sala d’attesa</h2>${badge(sel ? `Scegli una sala con almeno ${sel.n} posti` : 'Accompagna le parti in una sala libera', sel ? 'badge-lime' : '')}</div>
+  <div class="lobby-grid"><div class="lobby-queue">${P.lobby.length ? P.lobby.map(p => `<button class="lb-guest ${ui.guest === p.id ? 'on' : ''} ${P.lobbyRed(p) ? 'red' : ''}" data-guest="${p.id}"><b>${esc(p.who)}</b><small>${esc(p.act)} · <strong>${p.n} persone</strong> (${esc(p.note)})</small><em>arrivati alle ${p.time} · aspettano da <span data-guest-wait="${p.id}">${Math.floor(P.lobbyWait(p))}</span> s</em><i data-guest-bar="${p.id}" style="width:${Math.min(100, P.lobbyWait(p) / P.lobbyLeave() * 100)}%"></i></button>`).join('') : '<p class="muted lb-empty">Nessuno in attesa. Quando arrivano le parti di un appuntamento, toccale e scegli la sala.</p>'}</div>
+  <div class="lobby-rooms ${sel ? 'seating' : ''}">${P.rooms.map(r => `<button class="lb-room ${r.with ? 'busy' : ''} ${sel ? (P.fitsRoom(r, sel) ? 'fit' : 'nofit') : ''}" data-room="${r.id}"><b>${esc(r.name)}</b><small>${r.seats} posti</small><em>${r.with ? `${esc(r.with.act)} · libera tra <span data-room-left="${r.id}">${P.roomLeft(r)}</span> s` : 'Libera'}</em></button>`).join('')}</div></div></section>`;
+}
 function centralino() {
  const c = D.calls.find(x => x.id === ui.call) || D.calls[0];
  return `${heading('CIÒ CHE ENTRA · 02', 'Centralino & segreteria', 'Otto risponde al telefono, raccoglie le richieste dei nuovi clienti e dà le prime informazioni.', `<span class="live-pill"><i></i>Assistente attivo · 24/7</span>`)}
  <div class="metrics-grid three-up">${[['phone', 'Chiamate oggi', D.calls.length], ['users', 'Nuovi clienti', 1], ['calendar', 'Appuntamenti proposti', 2], ['lock', 'Richieste rifiutate per privacy', 1]].map(([i, t, n]) => `<article class="metric"><div><span>${t}</span>${icon(i)}</div><strong class="has-value">${n}</strong></article>`).join('')}</div>
+ ${lobbyPanel()}
  <div class="split">
   <section class="list-pane">${D.calls.map(x => `<button class="list-item ${x.missionOpen ? 'has-mission' : ''} ${x.id === c.id ? 'active' : ''}" data-call="${x.id}"><span class="li-top"><b>${x.missionOpen ? '<span class="mission-flag" title="Serve il tuo aiuto">!</span>' : ''}${esc(x.caller)}</b><small>${x.time} · ${x.duration}</small></span><span class="li-subject">${esc(x.intent)}</span><span class="li-meta">${badge(esc(x.kind))}${x.live ? '<span class="badge badge-red"><span class="live-dot red"></span> In corso</span>' : badge(esc(x.outcome), x.outcome === 'Rifiutata' ? 'badge-red' : x.outcome.includes('attesa') ? 'badge-amber' : 'badge-green')}</span></button>`).join('')}</section>
   <section class="detail-pane">
@@ -547,6 +557,18 @@ document.addEventListener('click', e => {
  if ((x = el('[data-call]'))) { ui.call = x.dataset.call; return render(); }
  if ((x = el('[data-chat]'))) { ui.chat = x.dataset.chat; return render(); }
  if ((x = el('[data-category]'))) { ui.category = x.dataset.category; return render(); }
+ if ((x = el('[data-guest]'))) { ui.guest = ui.guest === x.dataset.guest ? null : x.dataset.guest; return render(); }
+ if ((x = el('[data-room]'))) {
+  const r = P.rooms.find(y => y.id === x.dataset.room), p = P.lobby.find(y => y.id === ui.guest);
+  if (!p) { toast(r?.with ? `${r.name}: ${r.with.act.toLowerCase()} in corso.` : 'Prima tocca chi aspetta in sala d’attesa.'); return; }
+  if (r && P.fitsRoom(r, p)) {
+   // la sala più piccola che basta: la Sala Arno occupata da due persone fa aspettare la prossima stipula
+   const best = Math.min(...P.rooms.filter(x => P.fitsRoom(x, p)).map(x => x.seats)), good = r.seats === best;
+   P.seatClient(p.id, r.id); ecoPoints('room', good ? 6 : 3, good ? 'Sala giusta' : 'Parti accomodate', p.id, {born:p.at}); ui.guest = null;
+   toast(good ? `${p.who} in ${r.name}: la sala giusta per ${p.n}.` : `${p.who} in ${r.name}. Bastava una sala da ${best}: questa da ${r.seats} serviva a un atto con più parti.`); return render();
+  }
+  toast(r?.with ? `${r.name} è occupata.` : `${r?.name} ha ${r?.seats} posti: sono in ${p.n}.`); return;
+ }
  if ((x = el('[data-filing-act]'))) { const id = x.dataset.filingAct, f = P.filings.find(y => y.id === id); if (P.startFiling(id)) ecoPoints('filing', 3, 'Adempimento avviato', id, {born:f?.created}); else toast(`L’addetto lavora ${P.studioCfg.cap} adempimenti alla volta: aspetta che uno finisca.`); return render(); }
  if ((x = el('[data-studio]'))) { ecoPoints('studio', 3, 'Lavoro con Otto', null, {id:x.dataset.studio}); const s = studioSuggestions.find(s => s.id === x.dataset.studio); return runStudio(s.prompt, s.id); }
  if ((x = el('[data-memory]'))) { ask(x.dataset.memory); return; }
@@ -633,8 +655,13 @@ setInterval(() => {
   if (!gameOn() || gamePaused() || document.hidden || document.body.classList.contains('touring')) return;
   const r = P.studioTick(gameLevel(), state.handled);
   // ogni cosa in rosso costa 1 punto al secondo, ma al massimo 2 in tutto
-  const reds = r.late.length + r.red.length;
-  if (reds) penalty(Math.min(2, reds), r.late.length ? 'Email in ritardo' : 'Adempimento in scadenza');
+  const reds = r.late.length + r.red.length + (r.lobbyRed.length ? 1 : 0);
+  if (reds) penalty(Math.min(2, reds), r.late.length ? 'Email in ritardo' : r.red.length ? 'Adempimento in scadenza' : 'Parti in attesa');
+  r.left.forEach(p => { penalty(10, 'Appuntamento saltato'); toast(`${p.who} se ne sono andati dopo troppa attesa: appuntamento da riprogrammare.`); });
+  r.met.forEach(p => { ecoPoints('signed', 4, `${p.act} conclusa`, p.id); toast(`${p.room} di nuovo libera: ${p.act.toLowerCase()} conclusa${p.files ? '. Nello Scadenziario è nato il suo adempimento' : ''}.`); });
+  document.querySelectorAll('[data-guest-wait]').forEach(e => { const p = P.lobby.find(y => y.id === e.dataset.guestWait); if (!p) return; e.textContent = Math.floor(P.lobbyWait(p)); e.closest('.lb-guest')?.classList.toggle('red', P.lobbyRed(p)); const b = document.querySelector(`[data-guest-bar="${p.id}"]`); if (b) b.style.width = `${Math.min(100, P.lobbyWait(p) / P.lobbyLeave() * 100)}%`; });
+  document.querySelectorAll('[data-room-left]').forEach(e => { const rm = P.rooms.find(y => y.id === e.dataset.roomLeft); if (rm) e.textContent = P.roomLeft(rm); });
+  const lsig = P.lobby.map(p => p.id).join(',') + '|' + P.rooms.map(x => x.with?.id || '').join(','); if (lsig !== ui.lobbySig) { ui.lobbySig = lsig; if (route() === 'centralino') render(); }
   r.expired.forEach(f => { penalty(15, 'Termine scaduto'); toast(`${f.what} (${f.act}): termine scaduto, sanzione per lo studio.`); });
   r.done.forEach(f => ecoPoints('filed', 6, 'Adempimento chiuso', f.id, {born:f.doneAt}));
   const sig = `${r.late.length}|${r.red.length}`, was = ui.pressure?.sig;
@@ -643,9 +670,18 @@ setInterval(() => {
   if (route() === 'scadenze' || ((r.changed || was !== sig) && route() === 'posta')) liveRefresh();
   // cosa sta facendo perdere punti, e dove andare a sistemarlo
   const n = r.late.length;
-  setPressure([...(n ? [{page:'posta', label:`${n === 1 ? 'Un’email aspetta' : `${n} email aspettano`} risposta da più di ${Math.round(P.studioCfg.mailSla / 60)} minuti`}] : []),
-   ...r.red.map(f => ({page:'scadenze', label:`${f.what} quasi scaduta`}))]);
+  setPressure([...(n ? [{page:'posta', label:`${n === 1 ? 'Un’email aspetta' : `${n} email aspettano`} risposta da più di ${Math.round(P.slaMax() / 60)} minuti`}] : []),
+   ...r.red.map(f => ({page:'scadenze', label:`${f.what} quasi scaduta`})),
+   ...(r.lobbyRed.length ? [{page:'centralino', label:r.lobbyRed.length === 1 ? `In sala d’attesa: ${r.lobbyRed[0].who}` : `${r.lobbyRed.length} appuntamenti aspettano in sala d’attesa`}] : [])]);
  } catch (err) { console.warn('CS Notaro OS · errore nel battito', err); }
+}, 1000);
+// "Il tempo è fermo" vale per tutto: mentre Otto parla, email, adempimenti, sala d'attesa e sale non avanzano.
+setInterval(() => {
+ if (!gameOn() || !gamePaused()) return;
+ D.mails.forEach(m => { if (m.slaFrom) m.slaFrom += 1000; else if (m.at) m.at += 1000; });
+ P.filings.forEach(f => { f.created += 1000; if (f.doneAt) f.doneAt += 1000; });
+ P.lobby.forEach(p => { p.at += 1000; });
+ P.rooms.forEach(r => { if (r.until) r.until += 1000; });
 }, 1000);
 // Dentro il sito la demo parte ferma (niente cicli né animazioni): si accende solo quando il visitatore la apre.
 const wake = on => { live.awake = on; document.documentElement.classList.toggle('csd-paused', !on); };
@@ -664,6 +700,7 @@ initGame(challenges, {story,icon, missionsOnly:true,
   P.filings.filter(f => f.state === 'todo' && P.filingLeft(f) < 100).forEach(f => c.push({key:'filing', urgent:true, ref:f.id, page:'scadenze', title:`${f.what} in scadenza`, text:`Nello Scadenziario **avvia ${f.what.toLowerCase()}** (${f.act}) prima che scada il termine.`, target:`[data-filing-act="${f.id}"]`, valid:() => f.state === 'todo', auto:() => P.startFiling(f.id)}));
   D.mails.filter(m => !m.reading && !m.missionOpen && !state.handled.includes(m.id)).slice(0, 4).forEach(m => c.push({key:'handle', urgent:!m.old, ref:m.id, page:'posta', title:`Email · ${m.from}`, text:`Apri **“${m.subject}”**, leggi cosa ha capito Otto e premi **${m.draft ? 'Approva e invia' : 'Approva e archivia'}**.`, target:`[data-action="handle:${m.id}"]`, valid:() => !state.handled.includes(m.id), auto:() => { if (!state.handled.includes(m.id)) state.handled.push(m.id); }}));
   D.chats.filter(ch => ch.draft && !ch.mission && !ch.thinking && !state.sent.includes(ch.id)).forEach(ch => c.push({key:'send', ref:ch.id, page:'whatsapp', title:`WhatsApp · ${ch.who}`, text:'Controlla la risposta proposta da Otto e premi **Invia**.', target:`[data-action="send:${ch.id}"]`, valid:() => !state.sent.includes(ch.id), auto:() => { if (!state.sent.includes(ch.id)) state.sent.push(ch.id); }}));
+  P.lobby.forEach(p => c.push({key:'room', ref:p.id, page:'centralino', urgent:P.lobbyWait(p) > 15, title:`In sala d’attesa: ${p.who}, ${p.n} persone`, text:`In Centralino & segreteria **tocca ${p.who}** nella sala d’attesa, poi **una sala libera con almeno ${p.n} posti**.`, target:`[data-guest="${p.id}"]`, valid:() => P.lobby.some(x => x.id === p.id), auto:() => { const rm = P.rooms.find(x => P.fitsRoom(x, p)); if (rm) P.seatClient(p.id, rm.id); }}));
   D.tasks.filter(t => !t.done && !state.done.includes(t.id)).slice(0, 3).forEach(t => c.push({key:'task', ref:t.id, page:'staff', title:`Attività · ${t.text}`, text:'In Staff & task **spunta l’attività** quando è completata.', target:`input[data-task="${t.id}"]`, valid:() => !state.done.includes(t.id), auto:() => { if (!state.done.includes(t.id)) state.done.push(t.id); }}));
   // come nella demo guidata: un lavoro da chiedere a Otto nello Studio, quello giusto
   if (Math.random() < .5) {
@@ -673,13 +710,15 @@ initGame(challenges, {story,icon, missionsOnly:true,
   return c;
  }, missionTypes:12, sections:12, placeOf:'dello studio', startNote:'Email, messaggi e chiamate da gestire arrivano dal quadrato rosso “!” in alto, e ogni sezione dello studio ha la sua missione.', menuNote:'Le missioni arrivano dallo studio vivo: email da controllare, messaggi da correggere, chiamate in diretta. Sempre nuove.',
  focus:(page, ref) => { if (page === 'posta') { ui.mail = ref; ui.mailFilter = 'all'; } if (page === 'whatsapp') ui.chat = ref; if (page === 'centralino') ui.call = ref; if (route() === page) { render(); } else location.hash = page; setTimeout(() => document.querySelector('[data-mission]')?.scrollIntoView({block:'center', behavior:'smooth'}), 120); },
- onStart:() => { P.studioGameStart(state.handled); ui.pressure = {}; startMissions((id, page) => { if (page === 'posta' && !state.handled.includes(id)) state.handled.push(id); if (route() === page) { const y = scrollY; render(); scrollTo(0, y); } }); },
+ onStart:() => { P.studioGameStart(state.handled); ui.pressure = {}; ui.guest = null; startMissions((id, page) => { if (page === 'posta' && !state.handled.includes(id)) state.handled.push(id); if (route() === page) { const y = scrollY; render(); scrollTo(0, y); } }); },
  onReset:() => { stopMissions(); P.studioGameStop(); setPressure([]); },
  // potenziamenti dello studio, da comprare nella Bottega di Otto
  shop:[
-  {id:'segretaria', name:'Segretaria in più', desc:'+60 secondi prima che un’email vada in ritardo.', cost:25, mood:'otto-cap', use:() => { P.studioCfg.mailSla += 60; return `Ora le email possono aspettare ${Math.round(P.studioCfg.mailSla / 60)} minuti.`; }},
+  {id:'segretaria', name:'Segretaria in più', desc:'+60 secondi prima che un’email vada in ritardo.', cost:25, mood:'otto-cap', use:() => { P.studioCfg.slaBonus += 60; return `Ora le email possono aspettare ${Math.round(P.slaMax() / 60)} minuti.`; }},
   {id:'addetto', name:'Secondo addetto agli adempimenti', desc:'+1 adempimento in lavorazione insieme (fino a 4).', cost:35, mood:'otto-notary', use:() => { if (P.studioCfg.cap >= 4) return false; P.studioCfg.cap++; render(); return `Ora si lavorano ${P.studioCfg.cap} adempimenti insieme.`; }},
-  {id:'firma', name:'Firma digitale remota', desc:'Ogni adempimento richiede 15 secondi invece di 25.', cost:30, mood:'otto-notary', use:() => { if (P.studioCfg.work <= 15) return false; P.studioCfg.work = 15; return 'Adempimenti più veloci: 15 secondi l’uno.'; }}
+  {id:'firma', name:'Firma digitale remota', desc:'Ogni adempimento richiede 15 secondi invece di 25.', cost:30, mood:'otto-notary', use:() => { if (P.studioCfg.work <= 15) return false; P.studioCfg.work = 15; return 'Adempimenti più veloci: 15 secondi l’uno.'; }},
+  {id:'reception', name:'Receptionist', desc:'In sala d’attesa le parti hanno 30 secondi di pazienza in più.', cost:25, mood:'otto-phone', use:() => { if (P.lobbyCfg.bonus >= 90) return false; P.lobbyCfg.bonus += 30; render(); return 'C’è chi accoglie le parti e offre un caffè: aspettano più volentieri.'; }},
+  {id:'boboli', name:'Sala riunioni in più', desc:'Apre la Sala Boboli da 6 posti: un appuntamento in più alla volta.', cost:45, mood:'otto-notary', use:() => { if (P.rooms.some(r => r.id === 'R4')) return false; P.rooms.push({id:'R4', name:'Sala Boboli', seats:6, until:0, with:null}); render(); return 'Sala Boboli aperta: ora le sale sono quattro.'; }}
  ],
  pageName:id => moduleById(id)?.title || {home:'Oggi in studio'}[id] || id});
 shell();

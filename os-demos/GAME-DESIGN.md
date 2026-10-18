@@ -92,6 +92,18 @@ La storia è sempre **il lavoro vero raccontato**: un fornitore che sbaglia le f
 8. **Fine partita**: chiuso il quinto capitolo arriva la schermata finale (“Hai completato la cena di oggi” / “Hai completato la settimana in studio”) con punti, missioni vinte, compiti fatti e minuti di gioco; si può continuare, ricominciare da capo o scrivere su WhatsApp.
 6. **Storia**: cinque capitoli per gioco con chat di apertura e chiusura, obiettivo visibile in alto, missioni spostate verso l'antagonista e regole che si stringono; +50 punti a capitolo.
 
+## 6b. Varietà, caso e nuove meccaniche
+- **Capitoli a caso**: ogni posto della storia ha tre varianti (antagonista, testo, sezioni coinvolte, regola). A ogni partita se ne estrae una con `crypto.getRandomValues`: 3⁵ = 243 serate diverse per gioco. Anche la schermata finale ha tre testi, e cita i capitoli giocati davvero.
+- **Fine capitolo**: schermata “stage” con il racconto di chiusura, la barra dei capitoli, i numeri del capitolo (punti, missioni, compiti, punti persi in rosso), il bonus e il titolo del capitolo dopo.
+- **Ordine dei settori rimescolato** a ogni partita: le prime missioni non sono più sempre Cucina e Sala.
+- **Spiegazioni di Otto variate**: per ogni settore due versioni del “cosa” e del “perché”, tre aperture, tre modi di dire “perché conta” e tre chiusure. Ogni tipo di minigioco nuovo in un settore ha la sua spiegazione.
+- **Nuovi minigiochi**: *caccia agli errori* (più problemi in un documento, ognuno si spiega quando lo trovi) e *in fila* (i passaggi di una procedura vera, dal primo all’ultimo).
+- **Nuove missioni**: Restaurant · ricevimento merce refrigerata (temperatura, imballo, etichetta, lotto, scadenza) e procedure HACCP (sanificazione, abbattimento, porta della cella); Notaro · l’email truffa del cambio IBAN e le procedure dello studio (il giorno del rogito, il testamento pubblico, la costituzione di S.r.l.).
+- **Ospiti all’ingresso** (Restaurant, Sala): arrivano gruppi senza prenotazione; si tocca il gruppo e poi un tavolo libero abbastanza grande. Il tavolo più piccolo che basta vale di più. Dopo 60 s l’attesa è rossa, dopo 130 s se ne vanno (−10).
+- **Sala d’attesa e sale riunioni** (Notaro, Centralino & segreteria): le parti di un appuntamento arrivano con il loro numero (una stipula non entra nello studio del notaio, un testamento sì con i due testimoni). Finito l’appuntamento la sala si libera, e un atto firmato fa nascere il suo adempimento nello Scadenziario.
+- **Il tempo fermo vale per tutto**: mentre Otto parla, anche porta, cucina, frigo, email, adempimenti e sale restano fermi.
+- **Bottega**: Hostess all’ingresso, Prenotazioni online (Restaurant); Receptionist, Sala riunioni in più (Notaro). I potenziamenti comprati sono bonus separati: le regole dei capitoli non li cancellano più.
+
 ## 7. Prossimi passi possibili
 - Nel riepilogo finale: punti per sezione e cosa è andato in rosso.
 - Una classifica locale delle partite.
