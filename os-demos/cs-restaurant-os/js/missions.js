@@ -159,102 +159,31 @@ function appMission() {
 }
 
 
-// ————— La coda di Otto (Game Boy) —————
-// Otto ha già fatto delle cose in automatico: tu le controlli una alla volta, un clic per carta.
-const queue = (title, label, intro, actions, pool, winWhy) => {
- const n = by(4, 5, 6), cards = [];
- const goods = G.shuffle(pool.filter(c => c.ok)), bads = G.shuffle(pool.filter(c => !c.ok));
- const nb = Math.max(1, Math.round(n * by(.3, .4, .5)));
- for (let k = 0; k < n; k++) cards.push((k < nb ? bads[k % bads.length] : goods[k % goods.length]).make());
- return mk('stack', label, title, {title:label, intro, actions, cards:G.shuffle(cards), speed:n * 6, winWhy}, 150000);
-};
-const C = (ok, make) => ({ok, make});
-const guest = () => `${G.person().first} ${G.person().last}`;
-function centralinoQueue() {
- return queue('La coda di Otto · prenotazioni dal telefono', 'PRENOTAZIONI DI OTTO', 'Otto ha preso da solo le prenotazioni al telefono. Controllale: <b>A approva</b>, <b>B correggi</b> il tavolo, <b>C avvisa la cucina</b>.', [['ok', 'Approva'], ['fix', 'Correggi'], ['chef', 'Avvisa cucina']], [
-  C(true, () => { const n = G.int(2, 4); return {title:`${guest()} · ${n} persone · ${G.pick(['20:00', '20:30', '21:00'])}`, lines:[`Tavolo ${G.pick([3, 4, 6, 11])} · 4 posti`, 'Note: nessuna'], ans:'ok'}; }),
-  C(true, () => ({title:`${guest()} · 6 persone · 21:00`, lines:['Tavolo 9 · 8 posti', 'Note: compleanno, porta la torta'], ans:'ok'})),
-  C(false, () => ({title:`${guest()} · 7 persone · 20:30`, lines:['Tavolo 12 · 4 posti', 'Note: nessuna'], ans:'fix', why:'IN 7 AL TAVOLO DA 4 NON CI STANNO'})),
-  C(false, () => ({title:`${guest()} · 4 persone · 21:00`, lines:['Tavolo 5 · occupato fino alle 22:30', 'Note: nessuna'], ans:'fix', why:'TAVOLO GIÀ OCCUPATO A QUELL’ORA'})),
-  C(false, () => ({title:`${guest()} · 2 persone · 20:00`, lines:[`Note: ${G.pick(['celiaca', 'allergia alle uova', 'allergia alla frutta a guscio'])}`, 'Cucina avvisata: NO'], ans:'chef', why:'LA CUCINA DEVE SAPERLO PRIMA'})),
-  C(false, () => ({title:`${guest()} · 3 persone · 20:30`, lines:['Note: un bambino vegano', 'Cucina avvisata: NO'], ans:'chef', why:'SEGNALA ALLA CUCINA IL MENU VEGANO'}))
- ], 'Prenotazioni controllate: tavoli giusti e cucina avvisata. Otto manda le conferme su WhatsApp.');
-}
-function kdsQueue() {
- const al = d => D.dish(d).allergens.join(', ') || 'nessuno';
- return queue('La coda di Otto · piatti al pass', 'PIATTI AL PASS', 'I piatti sono pronti al pass: Otto controlla le note dei tavoli, tu decidi. <b>A esce</b>, <b>B ferma</b>.', [['go', 'Esce'], ['stop', 'Ferma']], [
-  C(true, () => ({title:`T${G.int(1, 12)} · Tagliata di manzo`, lines:[`Allergeni: ${al('tagliata')}`, 'Note tavolo: nessuna'], ans:'go'})),
-  C(true, () => ({title:`T${G.int(1, 12)} · Bruschetta al pomodoro`, lines:[`Allergeni: ${al('bruschetta')}`, 'Note tavolo: vegani'], ans:'go'})),
-  C(true, () => ({title:`T${G.int(1, 12)} · Risotto ai porcini`, lines:[`Allergeni: ${al('risotto')}`, 'Note tavolo: celiaca'], ans:'go'})),
-  C(false, () => ({title:`T${G.int(1, 12)} · Pici al pomodoro`, lines:[`Allergeni: ${al('pici')}`, 'Note tavolo: celiaca'], ans:'stop', why:'GLUTINE A UN TAVOLO CELIACO'})),
-  C(false, () => ({title:`T${G.int(1, 12)} · Tiramisù`, lines:[`Allergeni: ${al('tiramisu')}`, 'Note tavolo: allergia alle uova'], ans:'stop', why:'UOVA A CHI È ALLERGICO'})),
-  C(false, () => ({title:`T${G.int(1, 12)} · Carbonara`, lines:[`Allergeni: ${al('carbonara')}`, 'Note tavolo: intollerante al lattosio'], ans:'stop', why:'IL PECORINO CONTIENE LATTE'}))
- ], 'Al pass sono usciti solo piatti sicuri per chi li mangia.');
-}
-function recensioniQueue() {
- return queue('La coda di Otto · risposte alle recensioni', 'RISPOSTE AUTOMATICHE', 'Otto ha preparato le risposte alle recensioni di oggi. <b>A pubblica</b>, <b>B rivedi</b>.', [['pub', 'Pubblica'], ['rev', 'Rivedi']], [
-  C(true, () => ({title:'★★★★★ · “Carbonara strepitosa”', lines:['Otto: “Grazie! La carbonara è il nostro orgoglio.”'], ans:'pub'})),
-  C(true, () => ({title:'★★★★ · “Buono, un po’ rumoroso”', lines:['Otto: “Grazie, stiamo mettendo pannelli fonoassorbenti.”'], ans:'pub'})),
-  C(true, () => ({title:'★★ · “Attesa lunga sui secondi”', lines:['Otto: “Ha ragione, abbiamo rivisto i tempi della cucina.”'], ans:'pub'})),
-  C(false, () => ({title:'★★ · “Tiramisù finito alle 21”', lines:['Otto: “La prossima cena è gratis per tutti!”'], ans:'rev', why:'PROMESSA ESAGERATA'})),
-  C(false, () => ({title:'★ · “Cameriere sgarbato”', lines:['Otto: “Il nostro staff è sempre gentile.”'], ans:'rev', why:'RISPOSTA DIFENSIVA'})),
-  C(false, () => ({title:'★★★★★ · “Risotto da 10”', lines:['Otto: “Grazie! La carbonara è il nostro orgoglio.”'], ans:'rev', why:'PARLA DEL PIATTO SBAGLIATO'}))
- ], 'Pubblicate solo risposte giuste: chi legge le recensioni vede un locale che ascolta.');
-}
-function whatsappQueue() {
- return queue('La coda di Otto · promemoria di stasera', 'PROMEMORIA', 'Otto sta per mandare i promemoria delle prenotazioni. <b>A invia</b>, <b>B non inviare</b>.', [['send', 'Invia'], ['skip', 'Non inviare']], [
-  C(true, () => ({title:`${guest()} · ${G.pick(['20:00', '20:30', '21:00'])}`, lines:['Prenotazione confermata', 'Consenso WhatsApp: sì'], ans:'send'})),
-  C(true, () => ({title:`${guest()} · 21:15`, lines:['Prenotazione confermata', 'Consenso WhatsApp: sì'], ans:'send'})),
-  C(false, () => ({title:`${guest()} · 20:30`, lines:['Prenotazione confermata', 'Consenso WhatsApp: NO'], ans:'skip', why:'SENZA CONSENSO NON SI SCRIVE'})),
-  C(false, () => ({title:`${guest()} · 20:00`, lines:['Prenotazione disdetta ieri', 'Consenso WhatsApp: sì'], ans:'skip', why:'HA GIÀ DISDETTO'}))
- ], 'Promemoria giusti: meno tavoli vuoti, nessun messaggio a chi non lo vuole.');
-}
-function magazzinoQueue() {
- return queue('La coda di Otto · riordini proposti', 'RIORDINI PROPOSTI', 'Otto propone i riordini ai fornitori. <b>A approva</b>, <b>B rimanda</b>.', [['ok', 'Approva'], ['wait', 'Rimanda']], [
-  C(true, () => ({title:'Guanciale · ordina 3 kg', lines:['In cella: 1,2 kg · minimo 1,5 kg', 'Sabato servono 1,6 kg'], ans:'ok'})),
-  C(true, () => ({title:'Chianti Classico · ordina 24 bt', lines:['In cantina: 6 bt · minimo 12 bt'], ans:'ok'})),
-  C(true, () => ({title:'Burrata · ordina 10 pz', lines:['In cella: 3 pz · minimo 6 pz'], ans:'ok'})),
-  C(false, () => ({title:'Mascarpone · ordina 2 kg', lines:['In cella: 4 kg · minimo 1 kg'], ans:'wait', why:'NE HAI PIÙ CHE ABBASTANZA'})),
-  C(false, () => ({title:'Pasta fresca · ordina 5 kg', lines:['In cella: 6 kg · scade dopodomani', 'Domani il locale è chiuso'], ans:'wait', why:'SI BUTTEREBBE: DOMANI SI È CHIUSI'}))
- ], 'Riordini giusti: niente manca e niente si butta.');
-}
-function fattureQueue() {
- return queue('La coda di Otto · corrispettivi della serata', 'CORRISPETTIVI', 'Prima della chiusura, Otto ti mostra incassi e documenti commerciali. <b>A torna</b>, <b>B verifica</b>.', [['ok', 'Torna'], ['check', 'Verifica']], [
-  C(true, () => { const a = G.int(40, 160); return {title:`Tavolo ${G.int(1, 12)} · POS ${G.euro(a)}`, lines:[`Documento: ${G.euro(a)} · trasmesso`], ans:'ok'}; }),
-  C(true, () => { const a = G.int(20, 60); return {title:`Tavolo ${G.int(1, 12)} · Stripe ${G.euro(a)}`, lines:[`Documento: ${G.euro(a)} · trasmesso`], ans:'ok'}; }),
-  C(false, () => { const a = G.int(20, 60); return {title:`Tavolo ${G.int(1, 12)} · Stripe ${G.euro(a)}`, lines:['Documento: mancante'], ans:'check', why:'MANCA IL DOCUMENTO COMMERCIALE'}; }),
-  C(false, () => { const a = G.int(60, 160); return {title:`Tavolo ${G.int(1, 12)} · POS ${G.euro(a)}`, lines:[`Documento: ${G.euro(a - G.int(10, 30))} · trasmesso`], ans:'check', why:'IMPORTI DIVERSI'}; })
- ], 'Corrispettivi in ordine: quello che arriva all’Agenzia coincide con quello che hai incassato.');
-}
 
 // ————— regista —————
+// Le missioni sono un bonus raro (una ogni un paio di minuti): il cuore della sfida sono i compiti veri.
 const pages = {sala:salaMission, kds:kdsMission, menu_pos:menuMission, centralino_ai:centralinoMission, recensioni_ai:recensioniMission, whatsapp:whatsappMission, fidelity_nfc:fidelityMission, magazzino:magazzinoMission, fatture:fattureMission, bandi:bandiMission, staff:staffMission, app_builder:appMission};
-// Moduli con una seconda missione: la coda di Otto in stile Game Boy, alternata alla prima.
-const queues = {centralino_ai:centralinoQueue, kds:kdsQueue, recensioni_ai:recensioniQueue, whatsapp:whatsappQueue, magazzino:magazzinoQueue, fatture:fattureQueue};
-const flip = {};
-const queueEvent = {centralino_ai:['Otto ha preso nuove prenotazioni', 'Da controllare prima delle conferme'], kds:['Piatti pronti al pass', 'Otto controlla le note dei tavoli'], recensioni_ai:['Nuove recensioni', 'Otto ha preparato le risposte'], whatsapp:['Promemoria in partenza', 'Da controllare prima dell’invio'], magazzino:['Riordini proposti da Otto', 'Da approvare'], fatture:['Chiusura di cassa', 'Corrispettivi da controllare']};
 const rotation = ['kds', 'sala', 'centralino_ai', 'magazzino', 'menu_pos', 'whatsapp', 'fatture', 'recensioni_ai', 'staff', 'app_builder', 'fidelity_nfc', 'bandi'];
 const icons = {sala:'coins', kds:'chef', menu_pos:'menu', centralino_ai:'phone', recensioni_ai:'star', whatsapp:'message', fidelity_nfc:'card', magazzino:'box', fatture:'receipt', bandi:'radar', staff:'users', app_builder:'palette'};
 let open = [];
 function spawn() {
  if (!running) return;
  if (document.body.classList.contains('touring') || document.hidden) return schedule(3);
- const max = lvl() === 1 ? 2 : 3, nOpen = open.filter(x => x.open).length;
+ const max = lvl() === 3 ? 2 : 1, nOpen = open.filter(x => x.open).length;
  if (nOpen < max) {
   const busy = new Set(open.filter(x => x.open).map(x => x.page));
   const order = rotation.slice(turn % rotation.length).concat(rotation.slice(0, turn % rotation.length));
   const page = order.find(p => !busy.has(p)) || order[0]; turn = rotation.indexOf(page) + 1;
-  const useQueue = queues[page] && (flip[page] = !flip[page]) === false;
-  const made = useQueue ? {event:queueEvent[page], m:queues[page]()} : pages[page](), ttl = Math.round(made.m.ttl * by(1, .85, .7)), rec = {open:true, page};
-  addMission({...made.m, ttl, page, onDone:() => { rec.open = false; schedule(G.int(8, 16)); }});
+  const made = pages[page](), ttl = Math.round(made.m.ttl * by(1, .85, .7)), rec = {open:true, page};
+  addMission({...made.m, ttl, page, onDone:() => { rec.open = false; schedule(G.int(80, 120)); }});
   open.push(rec);
   D.notify({type:'mission', title:made.event[0], text:made.event[1], icon:icons[page], go:page}, `${made.event[0]}: ${made.event[1].toLowerCase()}`, made.log || 'sala');
  }
- schedule(nOpen + 1 < max ? G.int(25, 40) : G.int(15, 25));
+ schedule(G.int(90, 140));
 }
 function schedule(s) { clearTimeout(timer); timer = setTimeout(spawn, s * 1000); }
-export function startMissions() { running = true; D.service.game = true; turn = 0; open = []; schedule(3); }
+export function startMissions() { running = true;  turn = 0; open = []; schedule(45); }
 export function stopMissions() { running = false; D.service.game = false; clearTimeout(timer); }
 // Per i test: i generatori di ogni modulo, con un livello forzato.
-export const generators = {...Object.fromEntries(Object.entries(pages).map(([k, f]) => [k, () => f().m])), ...Object.fromEntries(Object.entries(queues).map(([k, f]) => [k + '_coda', f]))};
+export const generators = Object.fromEntries(Object.entries(pages).map(([k, f]) => [k, () => f().m]));
 export const setTestLevel = l => { testLevel = l; };

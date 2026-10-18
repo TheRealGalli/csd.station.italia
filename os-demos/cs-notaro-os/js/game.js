@@ -14,7 +14,7 @@ const base = {1:10, 2:20, 3:30};
 const levelNotes = {1:'Si comincia: scelte chiare per prendere la mano.', 2:'Arrivano le prime trappole. Prima di approvare, apri le fonti.', 3:'Ultimo livello: errori sottili e un po’ di fretta.'};
 
 let C = [], icon = () => '', pageName = id => id, place = 'lo studio', timer = 0, hooks = {};
-const S = {fx:{shield:0, double:0, freeHints:0, freezeUntil:0}, gifts:[], gift:null, offers:[], missions:{}, mseq:0, avail:{}, seenOpen:0, started:false, points:0, level:1, round:1, streak:0, last:null, solved:{}, cards:{}, showing:{}, sound:true};
+const S = {tasks:{}, tseq:0, fx:{shield:0, double:0, freeHints:0, freezeUntil:0}, gifts:[], gift:null, offers:[], missions:{}, mseq:0, avail:{}, seenOpen:0, started:false, points:0, level:1, round:1, streak:0, last:null, solved:{}, cards:{}, showing:{}, sound:true};
 try { S.sound = localStorage.getItem('csd.game.sound') !== 'off'; } catch {}
 
 export function initGame(challenges, opts) {
@@ -52,7 +52,57 @@ function syncLevel() {
 // Missioni: decisioni legate a un elemento preciso (un'email), con il loro minigioco. Le crea il regista dell'app.
 const missionLeft = m => m.ttl - (Date.now() - m.created);
 const openMissions = () => Object.values(S.missions).filter(m => !m.result);
-const openAll = () => [...open().map(c => ({id:c.id, title:c.title, page:c.page, left:left(c), pts:maxPts(c)})), ...openMissions().map(m => ({id:m.id, title:m.title, page:m.page, ref:m.ref, left:missionLeft(m), pts:45}))];
+// ————— compiti dell'ecosistema —————
+// Il cuore della sfida: il sistema gira da solo e, quando serve una persona, nasce un compito vero
+// (scorte sotto il minimo, un conto da chiudere, un'email da approvare…). Si completa usando la sezione
+// vera: il tasto dell'app chiama ecoPoints con la stessa chiave. Se scade, Otto lo fa da solo.
+// Le app forniscono i candidati con hooks.tasks(): [{key, ref, page, title, text, valid(), auto()}].
+const taskTtl = () => ({1:90000, 2:70000, 3:55000})[S.level];
+const taskPts = () => ({1:15, 2:20, 3:25})[S.level];
+const openTasks = () => Object.values(S.tasks).filter(t => !t.done);
+const taskLeft = t => t.ttl - (Date.now() - t.created);
+let nextTaskAt = 0;
+function taskDirector() {
+ if (!hooks.tasks) return;
+ const now = Date.now();
+ for (const t of openTasks()) if (t.valid && !t.valid()) { delete S.tasks[t.id]; refresh(t.page); markNav(); updateAlert(); }
+ for (const t of openTasks()) if (taskLeft(t) <= 0) {
+  t.done = true; try { t.auto?.(); } catch {}
+  const pen = Math.min(5, S.points); S.points -= pen; S.streak = 0;
+  play('bad'); if (pen) float(-pen, document.querySelector('.game-chip'), 'Otto l’ha fatto da solo'); else updateChip();
+  refresh(t.page); markNav(); updateAlert();
+ }
+ if (now < nextTaskAt || openTasks().length >= {1:2, 2:3, 3:4}[S.level]) return;
+ nextTaskAt = now + (15 + Math.random() * 15) * 1000;
+ const busy = new Set(openTasks().map(t => `${t.key}:${t.ref ?? ''}`));
+ const list = (hooks.tasks() || []).filter(c => !busy.has(`${c.key}:${c.ref ?? ''}`));
+ if (!list.length) return;
+ const c = list[Math.floor(Math.random() * list.length)], id = `tk${++S.tseq}`;
+ S.tasks[id] = {...c, id, created:now, ttl:taskTtl(), pts:taskPts()};
+ refresh(c.page); markNav(); updateAlert();
+ const a = document.querySelector('.game-alert'); if (a) { a.classList.remove('ring'); void a.offsetWidth; a.classList.add('ring'); }
+}
+// Il tasto vero da premere pulsa, così si vede subito dove agire nella sezione.
+function markTargets() {
+ document.querySelectorAll('.game-target').forEach(e => e.classList.remove('game-target'));
+ if (!S.started) return;
+ const page = location.hash.slice(1) || 'home';
+ for (const t of openTasks()) if (t.page === page && t.target) { try { document.querySelector(t.target)?.classList.add('game-target'); } catch {} }
+}
+function completeTask(t) {
+ t.done = true;
+ const fast = Date.now() - t.created < 30000;
+ let pts = t.pts + (fast ? 5 : 0);
+ if (S.fx.double) { S.fx.double--; pts *= 2; }
+ S.points += pts; S.streak++; S.last = 'ok'; syncLevel(); checkGifts(); play(fast ? 'great' : 'good');
+ float(pts, document.querySelector('.game-chip'), fast ? 'Compito fatto · veloce!' : 'Compito fatto');
+ setTimeout(() => { refresh(t.page); markNav(); updateAlert(); }, 50);
+}
+function taskBanner(t) {
+ const el = (t.ttl - taskLeft(t)) / 1000;
+ return `<div class="game-task" data-task="${t.id}"><span class="gtk-ico">${icon('otto-wink')}</span><div class="gtk-body"><small>COMPITO · +${t.pts} pt${Date.now() - t.created < 30000 ? ' · +5 se lo fai subito' : ''}</small><b>${esc(t.title)}</b><span>${rich(t.text)}</span></div><span class="gtk-time"><i style="animation-duration:${t.ttl / 1000}s;animation-delay:-${el.toFixed(1)}s"></i></span></div>`;
+}
+const openAll = () => [...openTasks().map(t => ({id:t.id, title:t.title, page:t.page, ref:t.ref, left:taskLeft(t), pts:t.pts, task:true})), ...open().map(c => ({id:c.id, title:c.title, page:c.page, left:left(c), pts:maxPts(c)})), ...openMissions().map(m => ({id:m.id, title:m.title, page:m.page, ref:m.ref, left:missionLeft(m), pts:45}))];
 export function addMission(m) {
  const id = `ms${++S.mseq}`;
  S.missions[id] = {...m, id, created:Date.now(), st:{id}, result:null};
@@ -100,8 +150,10 @@ function closeAndNext(id) {
 // Azioni normali dell'ecosistema (rifornire, chiudere un conto, approvare un'email…): pochi punti, con una pausa
 // di 20 secondi per la stessa azione, così cliccare a ripetizione non conviene.
 const ecoLast = {};
-export function ecoPoints(key, pts, label) {
+export function ecoPoints(key, pts, label, ref) {
  if (!S.started || touring()) return;
+ const t = openTasks().find(x => x.key === key && (x.ref == null || ref == null || String(x.ref) === String(ref)));
+ if (t) return completeTask(t);
  const now = Date.now(); if (now - (ecoLast[key] || 0) < 20000) return;
  ecoLast[key] = now; S.points += pts; syncLevel(); checkGifts(); play('coin');
  float(pts, document.querySelector('.game-chip'), label);
@@ -179,9 +231,10 @@ function teaser() {
 function inner(page) {
  if (touring()) return '';
  if (!S.started) return page === 'home' ? teaser() : '';
- // missioni senza un elemento preciso: vivono in cima alla loro pagina, una alla volta
+ // compiti di questa sezione (si fanno con i tasti veri), poi l'eventuale missione bonus
+ const tasks = openTasks().filter(t => t.page === page).map(taskBanner).join('');
  const pm = Object.values(S.missions).filter(m => m.page === page && !m.ref && !m.closed).sort((a, b) => (a.result ? 0 : 1) - (b.result ? 0 : 1) || a.created - b.created)[0];
- if (pm) return missionPanel(pm.id);
+ if (pm || tasks) return tasks + (pm ? missionPanel(pm.id) : '');
  const showing = S.showing[page] && challenge(S.showing[page]);
  const c = showing || open().find(x => x.page === page);
  if (c) { S.showing[page] = c.id; return card(c); }
@@ -191,7 +244,9 @@ function arm() {}
 // Un solo orologio per tutte le decisioni aperte: quando una scade toglie un po' di punti, meno di una scelta sbagliata.
 function openLevel() { const t = Date.now(); open().forEach(c => { S.avail[c.id] ||= t; }); }
 function tick() {
- if (!S.started || touring() || document.hidden) { for (const id in S.avail) S.avail[id] += 1000; openMissions().forEach(m => { m.created += 1000; }); return; }
+ if (!S.started || touring() || document.hidden) { for (const id in S.avail) S.avail[id] += 1000; openMissions().forEach(m => { m.created += 1000; }); openTasks().forEach(t => { t.created += 1000; }); return; }
+ if (Date.now() < S.fx.freezeUntil) openTasks().forEach(t => { t.created += 1000; });
+ taskDirector();
  if (Date.now() < S.fx.freezeUntil) { openMissions().forEach(m => { m.created += 1000; }); for (const id in S.avail) S.avail[id] += 1000; }
  for (const m of openMissions()) if (missionLeft(m) <= 0) resolveMission(m, {pts:-8, label:'Tempo scaduto', why:'Nessuno ha deciso in tempo: Otto ha scelto da solo seguendo le regole e ti segnala il caso da ricontrollare. Una decisione lasciata a metà costa meno di una sbagliata, ma costa.'});
  for (const c of open()) {
@@ -227,7 +282,7 @@ function chooser() {
  const r = btn.getBoundingClientRect(), el = document.createElement('div');
  el.className = 'game-pop'; el.setAttribute('role', 'dialog'); el.setAttribute('aria-label', 'Decisioni da prendere');
  el.innerHTML = `<header><span>${icon('otto-think')}</span><div><b>${list.length} decisioni aspettano</b><small>Scegli da quale cominciare</small></div></header>
-  ${[...list].sort((a, b) => a.left - b.left).map(c => `<button class="gp-item ${c.ref ? 'is-mission' : ''}" data-game="go:${c.page}${c.ref ? ':' + c.ref : ''}"><b>${esc(c.title)}</b><small>${esc(pageName(c.page))} · ${Math.max(0, Math.ceil(c.left / 1000))} s · fino a +${c.pts} pt</small></button>`).join('')}`;
+  ${[...list].sort((a, b) => a.left - b.left).map(c => `<button class="gp-item ${c.task ? 'is-task' : 'is-mission'}" data-game="go:${c.page}${c.ref ? ':' + c.ref : ''}"><b>${esc(c.title)}</b><small>${esc(pageName(c.page))} · ${Math.max(0, Math.ceil(c.left / 1000))} s · fino a +${c.pts} pt</small></button>`).join('')}`;
  el.style.top = `${r.bottom + 10}px`; el.style.right = `${Math.max(12, innerWidth - r.right)}px`;
  document.body.append(el);
 }
@@ -254,7 +309,7 @@ function syncShopLabels() {
 }
 // Chiamata dall'app dopo ogni render: inserisce la sfida sotto il titolo della pagina.
 export function mountGame(page, main) {
- clearTimeout(timer); markNav(); syncShopLabels();
+ clearTimeout(timer); markNav(); syncShopLabels(); setTimeout(markTargets, 30);
  const html = inner(page); if (!html) return;
  const box = `<div class="game-slot" data-gslot="${page}">${html}</div>`;
  const head = main.querySelector(':scope > .page-heading');
@@ -268,7 +323,7 @@ function refresh(page) {
  if (!el) { if (main) mountGame(page, main); return; }
  const html = inner(page);
  if (html) { el.innerHTML = html; arm(page); } else el.remove();
- markNav();
+ markNav(); markTargets();
 }
 
 // ————— punteggio —————
@@ -358,8 +413,8 @@ export function gameIntro() {
  const types = hooks.missionTypes || 18, sections = hooks.sections || 12;
  const slides = [
   [icon('otto-happy'), 'Questa demo si gioca', `Il sistema lavora da solo: Otto legge, risponde, compila e smista. Quando trova un’incongruenza o serve una decisione, <b>ti chiama</b>. Quella chiamata è il minigioco: <b>è così che funzionerà davvero</b>.`],
-  [icon('otto-read'), `${types} tipi di missione, mai uguali`, `Le missioni arrivano da ${sections} sezioni ${esc(hooks.placeOf || 'dello studio')}: email, chiamate, conti, scadenze, documenti. <b>Nomi, numeri e documenti sono generati a caso</b> ogni volta, ma sono situazioni vere: giocando impari a usare lo strumento.`],
-  [icon('otto-wink'), 'Come si gioca', `Le missioni aperte sono nel quadrato rosso <b class="gt-bang">!</b> in alto. Ognuna ha il suo tempo: <b>se non decidi tu, Otto sceglie da solo</b> seguendo le regole e perdi qualche punto. Con i punti compri indizi e potenziamenti nella <b>Bottega di Otto</b>.`]
+  [icon('otto-read'), 'Compiti veri, e missioni bonus', `Quando serve una persona arriva un <b>compito</b>, da fare nella sezione vera, con i suoi tasti: così impari a usare lo strumento. Ogni tanto arriva anche una <b>missione bonus</b>: ${types} tipi di minigioco, uno per sezione, con nomi e numeri generati a caso.`],
+  [icon('otto-wink'), 'Come si gioca', `Compiti e missioni aperti sono nel quadrato rosso <b class="gt-bang">!</b> in alto: ti porta nel punto giusto. Ognuno ha il suo tempo: <b>se non lo fai tu, Otto lo fa da solo</b> seguendo le regole e perdi qualche punto. Più sei veloce, più punti. Con i punti compri indizi e potenziamenti nella <b>Bottega di Otto</b>.`]
  ];
  let k = 0;
  const el = document.createElement('div'); el.className = 'game-intro'; el.setAttribute('role', 'dialog'); el.setAttribute('aria-label', 'Come funziona il gioco');
@@ -379,7 +434,7 @@ export function gameIntro() {
  document.body.append(el); draw(); play('open');
 }
 function start() {
- S.started = true; openLevel(); hooks.onStart?.(); updateChip('bump'); play('level');
+ S.started = true; openLevel(); nextTaskAt = Date.now() + 4000; hooks.onStart?.(); updateChip('bump'); play('level');
  refresh(location.hash.slice(1) || 'home'); markNav();
  celebrate('La sfida è iniziata', hooks.missionsOnly ? (hooks.startNote || 'Le missioni arrivano dal quadrato rosso “!” in alto. Ognuna ha il suo tempo.') : 'Le decisioni arrivano dal quadrato rosso “!” in alto e dai puntini rossi nel menu. Ognuna ha il suo tempo.');
 }
@@ -460,7 +515,7 @@ function onKey(e) {
 // A certe soglie di punti Otto fa un regalo: tre potenziamenti a caso, se ne sceglie uno gratis.
 const urgent = () => openMissions().sort((a, b) => missionLeft(a) - missionLeft(b))[0];
 const catalog = [
- {id:'tempo', name:'Tempo extra', desc:'+60 secondi a tutte le missioni aperte.', cost:15, mood:'otto-happy', use:() => { const l = openMissions(); if (!l.length) return false; l.forEach(m => { m.ttl += 60000; refreshMission(m.id); }); return `+60 secondi a ${l.length} ${l.length === 1 ? 'missione' : 'missioni'}.`; }},
+ {id:'tempo', name:'Tempo extra', desc:'+60 secondi a compiti e missioni aperti.', cost:15, mood:'otto-happy', use:() => { const l = openMissions(), t = openTasks(); if (!l.length && !t.length) return false; l.forEach(m => { m.ttl += 60000; refreshMission(m.id); }); t.forEach(x => { x.ttl += 60000; }); refresh(location.hash.slice(1) || 'home'); return `+60 secondi a ${l.length + t.length} tra compiti e missioni.`; }},
  {id:'pausa', name:'Pausa caffè', desc:'Ferma tutti i timer per un minuto.', cost:20, mood:'otto-read', use:() => { S.fx.freezeUntil = Date.now() + 60000; return 'Timer fermi per 60 secondi: respira.'; }},
  {id:'scudo', name:'Scudo di Otto', desc:'Il prossimo errore non ti toglie punti.', cost:25, mood:'otto-wink', use:() => { S.fx.shield++; return 'Scudo attivo sul prossimo errore.'; }},
  {id:'lente', name:'Lente di Otto', desc:'I prossimi 3 indizi sono gratis.', cost:30, mood:'otto-read', use:() => { S.fx.freeHints += 3; return '3 indizi gratis pronti.'; }},
@@ -530,5 +585,5 @@ function onClick(e) {
  if (k === 'pick') return pick(id, +i, b);
  if (k === 'next') { const c = challenge(id); delete S.showing[c.page]; play('click'); return refresh(c.page); }
  if (k === 'sound') { S.sound = !S.sound; try { localStorage.setItem('csd.game.sound', S.sound ? 'on' : 'off'); } catch {} b.textContent = S.sound ? 'Suoni attivi' : 'Suoni spenti'; play('click'); return; }
- if (k === 'restart') { hooks.onReset?.(); Object.assign(S, {fx:{shield:0, double:0, freeHints:0, freezeUntil:0}, gifts:[], gift:null, offers:[], missions:{}, avail:{}, seenOpen:0, started:false, points:0, level:1, round:1, streak:0, last:null, solved:{}, cards:{}, showing:{}}); updateChip(); refresh(location.hash.slice(1) || 'home'); }
+ if (k === 'restart') { hooks.onReset?.(); Object.assign(S, {tasks:{}, fx:{shield:0, double:0, freeHints:0, freezeUntil:0}, gifts:[], gift:null, offers:[], missions:{}, avail:{}, seenOpen:0, started:false, points:0, level:1, round:1, streak:0, last:null, solved:{}, cards:{}, showing:{}}); updateChip(); refresh(location.hash.slice(1) || 'home'); }
 }

@@ -497,8 +497,8 @@ function action(a) {
  if (a === 'toggle-doc') { ui.studio.showDoc = !ui.studio.showDoc; const st = document.querySelector('.studio'); st?.classList.toggle('with-doc', ui.studio.showDoc); st?.classList.toggle('no-doc', !ui.studio.showDoc); document.querySelector('.doc-toggle')?.setAttribute('aria-pressed', ui.studio.showDoc); return refreshStudio(false); }
  if (a === 'studio-new') { stopRun(); ui.studio.messages = []; ui.studio.artifact = null; ui.studio.uploaded = null; return render(); }
  if (a === 'download-form') { ecoPoints('form', 3, 'Modulo scaricato'); return downloadForm(); }
- if (a.startsWith('handle:')) { const on = toggle('handled', a.slice(7)); if (on) ecoPoints('handle', 4, 'Email gestita'); toast(on ? 'Approvata. In anteprima nessuna email viene inviata.' : 'Email riaperta.'); return shell(); }
- if (a.startsWith('send:')) { toggle('sent', a.slice(5)); ecoPoints('send', 4, 'Messaggio inviato'); toast('Messaggio segnato come inviato. In anteprima non parte nulla.'); return shell(); }
+ if (a.startsWith('handle:')) { const on = toggle('handled', a.slice(7)); if (on) ecoPoints('handle', 4, 'Email gestita', a.slice(7)); toast(on ? 'Approvata. In anteprima nessuna email viene inviata.' : 'Email riaperta.'); return shell(); }
+ if (a.startsWith('send:')) { toggle('sent', a.slice(5)); ecoPoints('send', 4, 'Messaggio inviato', a.slice(5)); toast('Messaggio segnato come inviato. In anteprima non parte nulla.'); return shell(); }
  if (a === 'account') return show(`<span class="dialog-kicker">IL TUO STUDIO</span><h2 id="dialog-title">Andrea Conti</h2><p class="dialog-description">Notaio titolare · ${esc(D.studio.name)}. L’accesso CSD Station sarà collegato al servizio.</p>`);
  if (a === 'reset') { stopRun(); reset(); ui.studio.messages = []; ui.studio.artifact = null; ui.otto = []; toast('Demo ripristinata.'); return shell(); }
 }
@@ -543,7 +543,7 @@ document.addEventListener('input', e => {
 });
 document.addEventListener('change', e => {
  const el = e.target;
- if (el.dataset.task) { toggle('done', el.dataset.task); render(); }
+ if (el.dataset.task) { if (toggle('done', el.dataset.task)) ecoPoints('task', 3, 'Attività fatta', el.dataset.task); render(); }
  if (el.dataset.rule) { state.rules[el.dataset.rule] = el.checked; persist(); toast(el.checked ? 'Notifica attivata.' : 'Notifica disattivata.'); }
  if (el.id === 'studio-practice') { ui.studio.practice = el.value; toast('Contesto aggiornato. In demo gli scenari usano la pratica Rossi / Verdi.'); }
  if (el.id === 'studio-file' && el.files[0]) { uploadToStudio(el.files[0]); el.value = ''; }
@@ -608,7 +608,16 @@ window.addEventListener('message', e => {
  if (e.data === 'csd:resume') wake(true);
  if (e.data === 'csd:pause') wake(false);
 });
-initGame(challenges, {icon, missionsOnly:true, missionTypes:18, sections:12, placeOf:'dello studio', startNote:'Email, messaggi e chiamate da gestire arrivano dal quadrato rosso “!” in alto, e ogni sezione dello studio ha la sua missione.', menuNote:'Le missioni arrivano dallo studio vivo: email da controllare, messaggi da correggere, chiamate in diretta. Sempre nuove.',
+initGame(challenges, {icon, missionsOnly:true,
+ // compiti veri: nascono dallo stato dello studio e si fanno con i tasti delle sezioni
+ tasks:() => {
+  const c = [];
+  D.mails.filter(m => !m.reading && !m.missionOpen && !state.handled.includes(m.id)).slice(0, 4).forEach(m => c.push({key:'handle', ref:m.id, page:'posta', title:`Email · ${m.from}`, text:`Apri **“${m.subject}”**, leggi cosa ha capito Otto e premi **${m.draft ? 'Approva e invia' : 'Approva e archivia'}**.`, target:`[data-action="handle:${m.id}"]`, valid:() => !state.handled.includes(m.id), auto:() => { if (!state.handled.includes(m.id)) state.handled.push(m.id); }}));
+  D.chats.filter(ch => ch.draft && !ch.mission && !ch.thinking && !state.sent.includes(ch.id)).forEach(ch => c.push({key:'send', ref:ch.id, page:'whatsapp', title:`WhatsApp · ${ch.who}`, text:'Controlla la risposta proposta da Otto e premi **Invia**.', target:`[data-action="send:${ch.id}"]`, valid:() => !state.sent.includes(ch.id), auto:() => { if (!state.sent.includes(ch.id)) state.sent.push(ch.id); }}));
+  D.tasks.filter(t => !t.done && !state.done.includes(t.id)).slice(0, 3).forEach(t => c.push({key:'task', ref:t.id, page:'staff', title:`Attività · ${t.text}`, text:'In Staff & task **spunta l’attività** quando è completata.', target:`input[data-task="${t.id}"]`, valid:() => !state.done.includes(t.id), auto:() => { if (!state.done.includes(t.id)) state.done.push(t.id); }}));
+  if (Math.random() < .3) c.push({key:'studio', page:'studio', title:'Un modulo della banca da compilare', text:'Nello **Studio** chiedi a Otto: **“Compila il modulo di erogazione”**.', target:'[data-studio="erogazione"]'});
+  return c;
+ }, missionTypes:12, sections:12, placeOf:'dello studio', startNote:'Email, messaggi e chiamate da gestire arrivano dal quadrato rosso “!” in alto, e ogni sezione dello studio ha la sua missione.', menuNote:'Le missioni arrivano dallo studio vivo: email da controllare, messaggi da correggere, chiamate in diretta. Sempre nuove.',
  focus:(page, ref) => { if (page === 'posta') { ui.mail = ref; ui.mailFilter = 'all'; } if (page === 'whatsapp') ui.chat = ref; if (page === 'centralino') ui.call = ref; if (route() === page) { render(); } else location.hash = page; setTimeout(() => document.querySelector('[data-mission]')?.scrollIntoView({block:'center', behavior:'smooth'}), 120); },
  onStart:() => startMissions((id, page) => { if (page === 'posta' && !state.handled.includes(id)) state.handled.push(id); if (route() === page) { const y = scrollY; render(); scrollTo(0, y); } }),
  onReset:() => stopMissions(),
