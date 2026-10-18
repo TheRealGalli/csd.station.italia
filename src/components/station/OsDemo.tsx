@@ -1,5 +1,5 @@
-import { useEffect, useRef, useState, useSyncExternalStore } from 'react';
-import { ArrowUpRight, Monitor, Play, MousePointer2, Lock, Gamepad2 } from 'lucide-react';
+import { useEffect, useRef, useState, useSyncExternalStore, type KeyboardEvent } from 'react';
+import { ArrowUpRight, Monitor, Lock } from 'lucide-react';
 import { StationHeader } from './Station';
 import { Otto } from './StationExperiences';
 import type { OsProduct } from '@/seo/routes';
@@ -24,6 +24,34 @@ const products: Record<OsProduct, { name: string; sector: string; tagline: strin
 const faces = ['awake', 'happy', 'wink'] as const;
 function OttoFace({ mood }: { mood: typeof faces[number] }) {
   return <span className={`os-face os-face-${mood}`} aria-hidden="true"><i/><i/><b/></span>;
+}
+// Il menu della vetrina è lo schermo di Otto: un terminale a fosfori verdi, una scelta per riga.
+// Il mouse (o le frecce) accende la riga; clic o Invio la avvia.
+type Choice = { key: string; label: string; note: string; run?: () => void; href?: string };
+function OttoTerminal({ name, choices }: { name: string; choices: Choice[] }) {
+  const [active, setActive] = useState(0);
+  const list = useRef<HTMLDivElement>(null);
+  const focusRow = (i: number) => { setActive(i); (list.current?.children[i] as HTMLElement | undefined)?.focus(); };
+  const onKey = (e: KeyboardEvent) => {
+    if (e.key === 'ArrowDown') { e.preventDefault(); focusRow((active + 1) % choices.length); }
+    if (e.key === 'ArrowUp') { e.preventDefault(); focusRow((active - 1 + choices.length) % choices.length); }
+  };
+  return <div className="os-term">
+    <span className="os-term-antenna" aria-hidden="true"><i/></span>
+    <span className="os-term-ear left" aria-hidden="true"/><span className="os-term-ear right" aria-hidden="true"/>
+    <div className="os-term-screen">
+      <div className="os-term-head" aria-hidden="true"><span className="os-term-eyes"><i/><i/></span><span>OTTO-OS · {name.toUpperCase()}</span><span>SCEGLI UN PROGRAMMA</span></div>
+      <div className="os-term-list" role="menu" aria-label={`Come vuoi vedere ${name}`} ref={list} onKeyDown={onKey}>
+        {choices.map((c, i) => {
+          const props = { role: 'menuitem', className: `os-term-row ${i === active ? 'on' : ''}`, onMouseEnter: () => setActive(i), onFocus: () => setActive(i), tabIndex: i === active ? 0 : -1 };
+          const body = <><span className="os-term-caret" aria-hidden="true">{i === active ? '>' : ' '}</span><span className="os-term-label">{c.label}</span><span className="os-term-dots" aria-hidden="true"/><span className="os-term-key" aria-hidden="true">[{i + 1}]</span></>;
+          return c.href ? <a key={c.key} {...props} href={c.href} target="_blank" rel="noreferrer">{body}</a> : <button key={c.key} type="button" {...props} onClick={c.run}>{body}</button>;
+        })}
+      </div>
+      <div className="os-term-status" aria-live="polite"><span>&gt; {choices[active].note}</span><i className="os-term-blink" aria-hidden="true"/></div>
+      <span className="os-term-mouth" aria-hidden="true"/>
+    </div>
+  </div>;
 }
 const desktopQuery = '(min-width: 1024px)';
 const subscribe = (callback: () => void) => { const m = window.matchMedia(desktopQuery); m.addEventListener('change', callback); return () => m.removeEventListener('change', callback); };
@@ -73,12 +101,12 @@ export default function OsDemo({ product }: { product: OsProduct }) {
             <p className="os-tagline">{p.tagline}</p>
             <p className="os-text">Questa è una demo dimostrativa di come funzionano i nostri sistemi OS per {p.sector} a 360°, ancora non rilasciati e direttamente collegati con WhatsApp.</p>
             <ul>{p.points.map((point, i) => <li key={point}><OttoFace mood={faces[i % faces.length]}/>{point}</li>)}</ul>
-            <button type="button" className="os-tour" onClick={startTour}><span><Play size={17}/> Guarda la demo guidata</span><small>Otto ti accompagna passo per passo</small></button>
-            <button type="button" className="os-play" onClick={startGame}><span><Gamepad2 size={16}/> Gioca la demo</span><small>Missioni vere, generate a caso</small></button>
-            <div className="os-secondary">
-              <button type="button" onClick={() => setOpen(true)}><MousePointer2 size={15}/> Esplora da solo</button>
-              <a href={contact} target="_blank" rel="noreferrer">Più informazioni su WhatsApp <ArrowUpRight size={15}/></a>
-            </div>
+            <OttoTerminal name={p.name} choices={[
+              { key: 'tour', label: 'Guarda la demo guidata', note: 'Otto ti accompagna passo per passo.', run: startTour },
+              { key: 'play', label: 'Gioca la demo', note: 'Missioni vere, generate a caso. Si impara giocando.', run: startGame },
+              { key: 'free', label: 'Esplora da solo', note: 'Il sistema è acceso: tocca tutto quello che vuoi.', run: () => setOpen(true) },
+              { key: 'wa', label: 'Più informazioni su WhatsApp ↗', note: 'Scrivi a Carlo: risponde lui, direttamente.', href: contact },
+            ]}/>
             <small><Lock size={12}/> Dati, persone e numeri sono inventati. Il sistema dietro sta già girando.</small>
           </div>
         </div>}
