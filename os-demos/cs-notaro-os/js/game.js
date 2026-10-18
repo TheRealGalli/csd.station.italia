@@ -112,7 +112,7 @@ function completeTask(t) {
 }
 function taskBanner(t) {
  const el = (t.ttl - taskLeft(t)) / 1000;
- return `<div class="game-task ${Date.now() - t.created < 1500 ? 'fresh' : ''}" data-task="${t.id}"><span class="gtk-ico">${icon('otto-wink')}</span><div class="gtk-body"><b>${esc(t.title)}</b><span>${rich(t.text)}</span></div><span class="gtk-time"><i style="animation-duration:${t.ttl / 1000}s;animation-delay:-${el.toFixed(1)}s"></i></span></div>`;
+ return `<div class="game-task ${Date.now() - t.created < 1500 ? 'fresh' : ''}" data-task="${t.id}"><b class="game-bang" aria-label="Da fare">!</b><span class="gtk-ico">${icon('otto-wink')}</span><div class="gtk-body"><b>${esc(t.title)}</b><span>${rich(t.text)}</span></div><span class="gtk-time"><i style="animation-duration:${t.ttl / 1000}s;animation-delay:-${el.toFixed(1)}s"></i></span></div>`;
 }
 const openAll = () => [...openTasks().map(t => ({id:t.id, title:t.title, page:t.page, ref:t.ref, left:taskLeft(t), pts:t.pts, task:true})), ...open().map(c => ({id:c.id, title:c.title, page:c.page, left:left(c), pts:maxPts(c)})), ...openMissions().map(m => ({id:m.id, title:m.title, page:m.page, ref:m.ref, left:missionLeft(m), pts:45}))];
 export function addMission(m) {
@@ -127,11 +127,11 @@ export function missionPanel(id) {
  const m = S.missions[id]; if (!m || m.closed) return '';
  const r = m.result, elapsed = (m.ttl - missionLeft(m)) / 1000;
  return `<section class="game-card mission l2 ${r ? (r.pts < 0 ? 'is-ko' : 'is-ok') : ''}" data-mission="${id}">
-  <div class="gc-top"><span class="gc-tag">${icon(r ? (r.pts < 0 ? 'otto-think' : 'otto-happy') : m.brief?.role || 'otto-read')} ${esc(m.title)}</span>${!r && m.hint ? hintBtn(id) : ''}</div>
+  <div class="gc-top">${r ? '' : '<b class="game-bang" aria-label="Da fare">!</b>'}<span class="gc-tag">${icon(r ? (r.pts < 0 ? 'otto-think' : 'otto-happy') : m.brief?.role || 'otto-read')} ${esc(m.title)}</span>${!r && m.hint ? hintBtn(id) : ''}</div>
   ${r ? '' : `<div class="gc-timer ${m.armed ? '' : 'waiting'}"><i style="animation-duration:${m.ttl / 1000}s;animation-delay:-${elapsed.toFixed(1)}s"></i></div>`}
   ${!r && m.st.hintMsg ? `<p class="gc-hintmsg">${icon('otto-wink')}<span>${esc(m.st.hintMsg)}</span></p>` : ''}
   <div class="mg">${m.render(m.data, m.st)}</div>
-  ${r ? `<div class="gc-result"><b class="${r.pts < 0 ? 'neg' : ''}">${r.pts > 0 ? '+' : ''}${r.pts} pt · ${esc(r.label)}</b><p>${rich(r.why)}</p>${nextAfter(id) ? `<button class="gc-nextm" data-game="mclose:${id}">Prossima missione ${icon('arrow')}<i class="gc-auto"></i></button>` : `<button data-game="mclose:${id}">Fatto ${icon('check')}</button>`}</div>` : ''}
+  ${r ? `<div class="gc-result"><b class="${r.pts < 0 ? 'neg' : ''}">${r.pts > 0 ? '+' : ''}${r.pts} pt · ${esc(r.label)}</b><p>${rich(r.why)}</p>${nextAfter(id) ? `<button class="gc-nextm" data-game="mclose:${id}">Prossima missione ${icon('arrow')}</button>` : `<button data-game="mclose:${id}">Fatto ${icon('check')}</button>`}</div>` : ''}
  </section>`;
 }
 // L'indizio di Otto costa punti, una volta per missione: più il livello è alto, più costa.
@@ -222,7 +222,6 @@ function resolveMission(m, r, from) {
  markNav(); updateAlert();
  m.onDone?.();
  clearTimeout(autoNext);
- if (nextAfter(m.id)) autoNext = setTimeout(() => { if (!m.closed && (location.hash.slice(1) || 'home') === m.page) closeAndNext(m.id); }, 5000);
 }
 const keySources = c => (c.sources || []).map((s, i) => s.key ? i : -1).filter(i => i >= 0);
 const maxPts = c => base[c.level] + (keySources(c).length ? base[c.level] / 2 : 0);
@@ -234,7 +233,7 @@ const challenge = id => list().find(c => c.id === id);
 export function gameChip() {
  if (!S.started) return `<button class="game-chip idle" data-game="menu" aria-label="La sfida di Otto: avviala" title="La sfida di Otto"><span class="gch-face">${icon('otto-happy')}</span><b class="gch-play">Sfida</b></button>`;
  const ch = chapterInfo();
- return `<button class="game-chip ${S.points ? '' : 'idle'}" data-game="menu" aria-label="La sfida di Otto: ${S.points} punti, livello ${S.level}" title="${ch ? esc(`Capitolo ${ch.n} · ${ch.title} — ${ch.goal}`) : 'La sfida di Otto'}"><span class="gch-face">${icon(face())}</span><b class="gch-pts">${S.points}</b><small>pt</small><span class="gch-lvl">${[1, 2, 3].map(l => `<i class="${l < S.level ? 'done' : l === S.level ? 'on' : ''}"></i>`).join('')}</span>${S.gift ? '<i class="gch-gift" title="Otto ha un regalo per te"></i>' : ''}</button>${ch ? `<button class="game-chapter" data-game="menu" title="${esc(ch.goal)}"><small>CAP. ${ch.n}/${ch.of}</small><b>${esc(ch.title)}</b><i>${esc(ch.goal.split(' · ').pop())}</i></button>` : ''}${alertBtn()}`;
+ return `<button class="game-chip ${S.points ? '' : 'idle'}" data-game="menu" aria-label="La sfida di Otto: ${S.points} punti, livello ${S.level}" title="${ch ? esc(`Capitolo ${ch.n} · ${ch.title} — ${ch.goal}`) : 'La sfida di Otto'}"><span class="gch-face">${icon(face())}</span><b class="gch-pts">${S.points}</b><small>pt</small><span class="gch-lvl">${[1, 2, 3].map(l => `<i class="${l < S.level ? 'done' : l === S.level ? 'on' : ''}"></i>`).join('')}</span>${S.gift ? '<i class="gch-gift" title="Otto ha un regalo per te"></i>' : ''}</button>${alertBtn()}${ch ? `<button class="game-chapter" data-game="menu" title="${esc(ch.goal)}"><small>CAP. ${ch.n}/${ch.of}</small><b>${esc(ch.title)}</b><i>${esc(ch.goal.split(' · ').pop())}</i></button>` : ''}`;
 }
 function updateChip(bump) {
  document.querySelectorAll('.game-alert, .game-chapter').forEach(el => el.remove());

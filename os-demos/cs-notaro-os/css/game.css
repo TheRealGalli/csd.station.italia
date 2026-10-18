@@ -411,3 +411,14 @@ body.game-paused .game-kds .tk-bar i{animation-play-state:paused}
 .game-story.no-spot{background:#0b140e8c}
 .gp-chapter{background:#f4f8ec;border:1px solid #dfeacb;border-radius:8px;padding:9px 11px;font-size:12px;line-height:1.5}
 @media(max-width:1180px){.game-chapter i{display:none}}
+/* ——— leggibilità e riconoscibilità ——— */
+.gp-chapter{background:#1d2b20;border-color:#2f4029;color:#fff}
+.gp-chapter b{color:#c5f476}
+.game-chapter{width:178px}
+.game-chapter b{max-width:158px}
+/* quello che è da fare porta lo stesso segno del quadrato rosso: contorno rosso e "!" */
+.game-bang{display:inline-grid;place-items:center;flex:none;width:24px;height:24px;border-radius:7px;background:#d8432f;color:#fff;font:800 14px/1 Inter,-apple-system,sans-serif;box-shadow:0 3px 10px #d8432f55}
+.game-task{border:2px solid #d8432f;box-shadow:0 0 0 3px #d8432f22,0 6px 18px #1b2a1222}
+.game-card.mission:not(.is-ok):not(.is-ko){border:2px solid #d8432f;box-shadow:0 0 0 3px #d8432f1f}
+.game-card .gc-top .game-bang{margin-right:8px}
+.gc-auto{display:none}
