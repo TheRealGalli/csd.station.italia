@@ -2,7 +2,7 @@ import {icon, otto} from './icons.js';
 import {modules, groups, groupNotes, moduleById} from './modules.js';
 import * as D from './demo.js';
 import {startTour} from './tour.js';
-import {initGame, gameChip, mountGame, gameInvite} from './game.js';
+import {initGame, gameChip, mountGame, gameInvite, gameOn, openShop} from './game.js';
 import {challenges} from './challenges.js';
 import {startMissions, stopMissions} from './missions.js';
 import {restaurantTour} from './tour-steps.js';
@@ -334,7 +334,8 @@ function action(a) {
  const [k, x, y] = a.split(':');
  if (a === 'close') return dialog.close();
  if (a === 'sidebar') { document.body.classList.toggle('sidebar-open'); return syncNavigation(); }
- if (a === 'otto') return toggleOtto();
+ // con la sfida avviata, Chiedi a Otto apre la sua bottega
+ if (a === 'otto') return gameOn() ? openShop() : toggleOtto();
  if (a === 'search') return searchDialog();
  if (a === 'tour') return startTour(restaurantTour({toggleOtto, ui, D}), {otto, name:'Demo interattiva CS Restaurant OS', onEnd:() => { toggleOtto(false); gameInvite(); }});
  if (a === 'live') { D.service.live = !D.service.live; toast(D.service.live ? 'Servizio live: la cucina avanza e arrivano ordini.' : 'Servizio in pausa.'); return shell(); }

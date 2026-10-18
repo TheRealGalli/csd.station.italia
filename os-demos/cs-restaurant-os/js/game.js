@@ -14,7 +14,7 @@ const base = {1:10, 2:20, 3:30};
 const levelNotes = {1:'Si comincia: scelte chiare per prendere la mano.', 2:'Arrivano le prime trappole. Prima di approvare, apri le fonti.', 3:'Ultimo livello: errori sottili e un po’ di fretta.'};
 
 let C = [], icon = () => '', pageName = id => id, place = 'lo studio', timer = 0, hooks = {};
-const S = {missions:{}, mseq:0, avail:{}, seenOpen:0, started:false, points:0, level:1, round:1, streak:0, last:null, solved:{}, cards:{}, showing:{}, sound:true};
+const S = {fx:{shield:0, double:0, freeHints:0, freezeUntil:0}, gifts:[], gift:null, offers:[], missions:{}, mseq:0, avail:{}, seenOpen:0, started:false, points:0, level:1, round:1, streak:0, last:null, solved:{}, cards:{}, showing:{}, sound:true};
 try { S.sound = localStorage.getItem('csd.game.sound') !== 'off'; } catch {}
 
 export function initGame(challenges, opts) {
@@ -65,7 +65,7 @@ export function missionPanel(id) {
  return `<section class="game-card mission l2 ${r ? (r.pts < 0 ? 'is-ko' : 'is-ok') : ''}" data-mission="${id}">
   <div class="gc-top"><span class="gc-tag">${icon(r ? (r.pts < 0 ? 'otto-think' : 'otto-happy') : 'otto-read')} MISSIONE · ${esc(m.label)}</span>${r ? '' : '<span class="gc-worth">fino a +45 pt</span>'}</div>
   ${r ? '' : `<div class="gc-timer"><i style="animation-duration:${m.ttl / 1000}s;animation-delay:-${elapsed.toFixed(1)}s"></i></div>`}
-  ${!r && m.hint ? `<div class="gc-hintbar">${m.st.hintMsg ? `<p class="gc-hintmsg">${icon('otto-wink')}<span>${esc(m.st.hintMsg)}</span></p>` : `<button class="gc-hint" data-game="hint:${id}" ${S.points < hintCost() ? 'disabled title="Servono più punti"' : ''}>${icon('otto-wink')} Indizio di Otto <b>−${hintCost()} pt</b></button>${S.points < hintCost() ? `<small>servono ${hintCost()} punti</small>` : ''}`}</div>` : ''}
+  ${!r && m.hint ? `<div class="gc-hintbar">${m.st.hintMsg ? `<p class="gc-hintmsg">${icon('otto-wink')}<span>${esc(m.st.hintMsg)}</span></p>` : `<button class="gc-hint" data-game="hint:${id}" ${!S.fx.freeHints && S.points < hintCost() ? 'disabled title="Servono più punti"' : ''}>${icon('otto-wink')} Indizio di Otto <b>${S.fx.freeHints ? 'gratis' : `−${hintCost()} pt`}</b></button>${!S.fx.freeHints && S.points < hintCost() ? `<small>servono ${hintCost()} punti</small>` : ''}`}</div>` : ''}
   <div class="mg">${m.render(m.data, m.st)}</div>
   ${r ? `<div class="gc-result"><b class="${r.pts < 0 ? 'neg' : ''}">${r.pts > 0 ? '+' : ''}${r.pts} pt · ${esc(r.label)}</b><p>${rich(r.why)}</p><button data-game="mclose:${id}">Fatto ${icon('check')}</button></div>` : ''}
  </section>`;
@@ -74,8 +74,9 @@ export function missionPanel(id) {
 const hintCost = () => ({1:10, 2:15, 3:20})[S.level];
 function useHint(id, from) {
  const m = S.missions[id]; if (!m || m.result || m.st.hintMsg) return;
- const cost = hintCost();
+ const cost = S.fx.freeHints ? 0 : hintCost();
  if (S.points < cost) { play('bad'); return; }
+ if (S.fx.freeHints) S.fx.freeHints--;
  S.points -= cost; m.st.hintMsg = m.hint(m.data, m.st) || 'Rileggi bene le fonti.';
  play('open'); refreshMission(id);
  float(-cost, document.querySelector(`[data-mission="${id}"] .gc-hintmsg`) || from);
@@ -87,8 +88,10 @@ function refreshMission(id) {
 function resolveMission(m, r, from) {
  m.st.done = true;
  let pts = Math.max(r.pts, -S.points);
- if (pts > 0) { S.streak++; S.last = 'ok'; if (S.streak % 3 === 0) { pts += 15; r.why += ` **Serie di ${S.streak}: +15 bonus.**`; } } else { S.streak = 0; S.last = 'ko'; }
- S.points += pts; m.result = {...r, pts}; syncLevel();
+ if (pts < 0 && S.fx.shield) { S.fx.shield--; pts = 0; r = {...r, label:`${r.label} · fermato dallo scudo`, why:`${r.why} **Lo scudo di Otto ha parato i punti persi.**`}; }
+ if (pts > 0 && S.fx.double && !r.delegated) { S.fx.double--; pts *= 2; r = {...r, why:`${r.why} **Punti doppi!**`}; }
+ if (pts > 0 && !r.delegated) { S.streak++; S.last = 'ok'; if (S.streak % 3 === 0) { pts += 15; r.why += ` **Serie di ${S.streak}: +15 bonus.**`; } } else { S.streak = 0; S.last = 'ko'; }
+ S.points += pts; m.result = {...r, pts}; syncLevel(); checkGifts();
  play(pts > 0 ? (pts >= 30 ? 'great' : 'good') : 'bad');
  refreshMission(m.id);
  float(pts, document.querySelector(`[data-mission="${m.id}"] .gc-result b`) || from);
@@ -104,7 +107,7 @@ const challenge = id => list().find(c => c.id === id);
 // ————— barra in alto —————
 export function gameChip() {
  if (!S.started) return `<button class="game-chip idle" data-game="menu" aria-label="La sfida di Otto: avviala" title="La sfida di Otto"><span class="gch-face">${icon('otto-happy')}</span><b class="gch-play">Sfida</b></button>`;
- return `<button class="game-chip ${S.points ? '' : 'idle'}" data-game="menu" aria-label="La sfida di Otto: ${S.points} punti, livello ${S.level}" title="La sfida di Otto"><span class="gch-face">${icon(face())}</span><b class="gch-pts">${S.points}</b><small>pt</small><span class="gch-lvl">${[1, 2, 3].map(l => `<i class="${l < S.level ? 'done' : l === S.level ? 'on' : ''}"></i>`).join('')}</span></button>${alertBtn()}`;
+ return `<button class="game-chip ${S.points ? '' : 'idle'}" data-game="menu" aria-label="La sfida di Otto: ${S.points} punti, livello ${S.level}" title="La sfida di Otto"><span class="gch-face">${icon(face())}</span><b class="gch-pts">${S.points}</b><small>pt</small><span class="gch-lvl">${[1, 2, 3].map(l => `<i class="${l < S.level ? 'done' : l === S.level ? 'on' : ''}"></i>`).join('')}</span>${S.gift ? '<i class="gch-gift" title="Otto ha un regalo per te"></i>' : ''}</button>${alertBtn()}`;
 }
 function updateChip(bump) {
  document.querySelectorAll('.game-alert').forEach(el => el.remove());
@@ -162,6 +165,7 @@ function arm() {}
 function openLevel() { const t = Date.now(); open().forEach(c => { S.avail[c.id] ||= t; }); }
 function tick() {
  if (!S.started || touring() || document.hidden) { for (const id in S.avail) S.avail[id] += 1000; openMissions().forEach(m => { m.created += 1000; }); return; }
+ if (Date.now() < S.fx.freezeUntil) { openMissions().forEach(m => { m.created += 1000; }); for (const id in S.avail) S.avail[id] += 1000; }
  for (const m of openMissions()) if (missionLeft(m) <= 0) resolveMission(m, {pts:-8, label:'Tempo scaduto', why:'L’email è rimasta senza risposta: Otto l’ha rimessa in coda. Una decisione presa tardi costa meno di una sbagliata, ma costa.'});
  for (const c of open()) {
   if (left(c) > 0) continue;
@@ -326,7 +330,8 @@ const sfx = {
  good:() => { tone(784, 0, .14); tone(1175, .08, .26); },
  great:() => { tone(784, 0, .12); tone(988, .07, .12); tone(1319, .14, .34, 'sine', .07); },
  bad:() => tone(330, 0, .28, 'triangle', .05, 170),
- level:() => [523, 659, 784, 1047].forEach((f, i) => tone(f, i * .09, .3, 'sine', .055))
+ level:() => [523, 659, 784, 1047].forEach((f, i) => tone(f, i * .09, .3, 'sine', .055)),
+ coin:() => { tone(988, 0, .07, 'square', .03); tone(1319, .07, .16, 'square', .03); }
 };
 function play(name) {
  if (!S.sound) return;
@@ -350,6 +355,7 @@ function menu() {
   <p>Gestisci il lavoro come se fosse tuo. <b>Otto prepara, tu verifichi:</b> apri le fonti, poi approva la scelta giusta.</p>
   <ul class="gp-rules"><li><i class="ok"></i>Giusto e verificato alla fonte <b>pieno + bonus</b></li><li><i class="mid"></i>Giusto ma alla cieca <b>metà</b></li><li><i class="ko"></i>Scelta sbagliata <b>punti in meno</b></li></ul>
   ${list.length ? `<span class="gp-label">DECISIONI APERTE</span>${list.map(c => `<button class="gp-item" data-game="go:${c.page}"><b>${esc(c.title)}</b><small>${esc(pageName(c.page))} · ${Math.max(0, Math.ceil(left(c) / 1000))} s · fino a +${maxPts(c)} pt</small></button>`).join('')}` : ''}
+  <button class="gp-start shop" data-game="shop">${S.gift ? 'Apri il regalo di Otto' : 'Bottega di Otto'}</button>
   <footer><button data-game="sound">${S.sound ? 'Suoni attivi' : 'Suoni spenti'}</button><button data-game="restart">Ricomincia da zero</button></footer>`;
  el.style.top = `${r.bottom + 10}px`; el.style.right = `${Math.max(12, innerWidth - r.right)}px`;
  document.body.append(el);
@@ -382,6 +388,60 @@ function onKey(e) {
  if (e.key === 'Backspace' && !t.value && i > 0) { boxes[i - 1].focus(); e.preventDefault(); }
  if (e.key === 'Enter') { e.preventDefault(); missionAction(t.dataset.mgInput.split(':')[0], 'confirm', '0', t); }
 }
+// ————— la Bottega di Otto —————
+// Con la sfida avviata, "Chiedi a Otto" diventa il mercante: con i punti si comprano potenziamenti per questa partita.
+// A certe soglie di punti Otto fa un regalo: tre potenziamenti a caso, se ne sceglie uno gratis.
+const urgent = () => openMissions().sort((a, b) => missionLeft(a) - missionLeft(b))[0];
+const catalog = [
+ {id:'tempo', name:'Tempo extra', desc:'+60 secondi a tutte le missioni aperte.', cost:15, mood:'otto-happy', use:() => { const l = openMissions(); if (!l.length) return false; l.forEach(m => { m.ttl += 60000; refreshMission(m.id); }); return `+60 secondi a ${l.length} ${l.length === 1 ? 'missione' : 'missioni'}.`; }},
+ {id:'pausa', name:'Pausa caffè', desc:'Ferma tutti i timer per un minuto.', cost:20, mood:'otto-read', use:() => { S.fx.freezeUntil = Date.now() + 60000; return 'Timer fermi per 60 secondi: respira.'; }},
+ {id:'scudo', name:'Scudo di Otto', desc:'Il prossimo errore non ti toglie punti.', cost:25, mood:'otto-wink', use:() => { S.fx.shield++; return 'Scudo attivo sul prossimo errore.'; }},
+ {id:'lente', name:'Lente di Otto', desc:'I prossimi 3 indizi sono gratis.', cost:30, mood:'otto-read', use:() => { S.fx.freeHints += 3; return '3 indizi gratis pronti.'; }},
+ {id:'meta', name:'Metà lavoro', desc:'Otto fa metà della missione più urgente.', cost:30, mood:'otto-think', use:() => { const m = urgent(); if (!m) return false; halfWork(m); return `Otto ha fatto metà di “${m.title}”.`; }},
+ {id:'doppio', name:'Punti doppi', desc:'Raddoppia le prossime 3 missioni vinte.', cost:40, mood:'otto-happy', use:() => { S.fx.double += 3; return 'Le prossime 3 missioni vinte valgono doppio.'; }},
+ {id:'delega', name:'Delega a Otto', desc:'Otto chiude per te la missione più urgente (+15 pt).', cost:25, mood:'otto-wink', use:() => { const m = urgent(); if (!m) return false; resolveMission(m, {pts:15, delegated:true, label:'Delegata a Otto', why:'Otto l’ha chiusa al posto tuo: meno punti, ma tempo risparmiato per le altre.'}); return `Otto ha chiuso “${m.title}”.`; }}
+];
+function halfWork(m) {
+ const st = m.st, n = Math.max(1, Math.ceil((m.data.items?.length || m.data.chips?.filter(c => c.ok).length || 2) / 2));
+ let msg = '';
+ for (let k = 0; k < (['triage', 'classify', 'multi'].includes(m.kind) ? n : 1); k++) msg = m.hint?.(m.data, st) || msg;
+ st.hintMsg = `Metà lavoro fatto da Otto. ${msg}`;
+ refreshMission(m.id);
+}
+const sample = (n, not = []) => [...catalog].filter(c => !not.includes(c.id)).sort(() => Math.random() - .5).slice(0, n);
+function checkGifts() {
+ for (const t of [100, 250, 450, 700, 1000]) if (S.points >= t && !S.gifts.includes(t)) {
+  S.gifts.push(t); S.gift = sample(3);
+  setTimeout(() => celebrate('Otto ha un regalo per te', `Hai superato ${t} punti: apri la Bottega di Otto e scegli un potenziamento gratis.`), 1400);
+  updateChip();
+  break;
+ }
+}
+export const gameOn = () => S.started;
+export function openShop() {
+ document.querySelector('.game-pop')?.remove();
+ if (S.offers.length < 4) S.offers = sample(4).map(c => c.id);
+ let el = document.querySelector('.otto-shop');
+ if (!el) { el = document.createElement('aside'); el.className = 'otto-shop'; el.setAttribute('aria-label', 'Bottega di Otto'); document.body.append(el); }
+ const active = [S.fx.shield && `Scudo ×${S.fx.shield}`, S.fx.double && `Punti doppi ×${S.fx.double}`, S.fx.freeHints && `Indizi gratis ×${S.fx.freeHints}`, Date.now() < S.fx.freezeUntil && 'Timer fermi'].filter(Boolean);
+ el.innerHTML = `<header><span class="shop-otto">${icon('otto-happy')}</span><div><b>Bottega di Otto</b><small>Hai <strong>${S.points}</strong> punti da spendere</small></div><button class="icon-btn" data-game="shopclose" aria-label="Chiudi la bottega">×</button></header>
+  ${S.gift ? `<section class="shop-gift"><span class="gp-label">REGALO · SCEGLINE UNO</span>${S.gift.map(c => `<button class="shop-item gift" data-game="gift:${c.id}">${icon(c.mood)}<span><b>${esc(c.name)}</b><small>${esc(c.desc)}</small></span><em>gratis</em></button>`).join('')}</section>` : ''}
+  <span class="gp-label">IN VENDITA OGGI</span>
+  <div class="shop-list">${S.offers.map(id => catalog.find(c => c.id === id)).map(c => `<button class="shop-item" data-game="buy:${c.id}" ${S.points < c.cost ? 'disabled' : ''}>${icon(c.mood)}<span><b>${esc(c.name)}</b><small>${esc(c.desc)}</small></span><em>${c.cost} pt</em></button>`).join('')}</div>
+  ${active.length ? `<div class="shop-active"><span class="gp-label">ATTIVI ORA</span>${active.map(a => `<i>${a}</i>`).join('')}</div>` : ''}
+  <p class="shop-note">${S.shopNote ? esc(S.shopNote) : 'Le offerte cambiano ogni volta che compri. A 100, 250, 450, 700 e 1.000 punti Otto ti fa un regalo.'}</p>`;
+}
+function buy(id, free) {
+ const c = catalog.find(x => x.id === id); if (!c) return;
+ if (!free && S.points < c.cost) { play('bad'); return; }
+ const res = c.use();
+ if (res === false) { S.shopNote = 'Non ci sono missioni aperte su cui usarlo: tienilo per dopo.'; play('bad'); return openShop(); }
+ if (!free) { S.points -= c.cost; S.offers = S.offers.filter(x => x !== id); S.offers.push(sample(1, S.offers.concat(id))[0]?.id || id); }
+ else S.gift = null;
+ S.shopNote = `${free ? 'Regalo usato' : `Comprato: ${c.name}`}. ${res}`;
+ play('level'); updateChip(free ? 'bump' : 'bump-bad'); markNav(); openShop();
+}
+
 function onClick(e) {
  const b = e.target.closest('[data-game]');
  if (!b) { if (!e.target.closest('.game-pop')) document.querySelector('.game-pop')?.remove(); return; }
@@ -393,10 +453,14 @@ function onClick(e) {
  if (k === 'go') return go(id, i);
  if (k === 'mg') return missionAction(id, i, b.dataset.game.split(':').slice(3).join(':'), b);
  if (k === 'hint') return useHint(id, b);
+ if (k === 'shop') return openShop();
+ if (k === 'shopclose') { document.querySelector('.otto-shop')?.remove(); S.shopNote = ''; return; }
+ if (k === 'buy') return buy(id);
+ if (k === 'gift') return buy(id, true);
  if (k === 'mclose') { const m = S.missions[id]; m.closed = true; m.ref ? refreshMission(id) : refresh(m.page); return; }
  if (k === 'src') { const c = S.cards[id]; if (c && !c.opened.includes(+i)) c.opened.push(+i); play('open'); return refresh(challenge(id).page); }
  if (k === 'pick') return pick(id, +i, b);
  if (k === 'next') { const c = challenge(id); delete S.showing[c.page]; play('click'); return refresh(c.page); }
  if (k === 'sound') { S.sound = !S.sound; try { localStorage.setItem('csd.game.sound', S.sound ? 'on' : 'off'); } catch {} b.textContent = S.sound ? 'Suoni attivi' : 'Suoni spenti'; play('click'); return; }
- if (k === 'restart') { hooks.onReset?.(); Object.assign(S, {missions:{}, avail:{}, seenOpen:0, started:false, points:0, level:1, round:1, streak:0, last:null, solved:{}, cards:{}, showing:{}}); updateChip(); refresh(location.hash.slice(1) || 'home'); }
+ if (k === 'restart') { hooks.onReset?.(); Object.assign(S, {fx:{shield:0, double:0, freeHints:0, freezeUntil:0}, gifts:[], gift:null, offers:[], missions:{}, avail:{}, seenOpen:0, started:false, points:0, level:1, round:1, streak:0, last:null, solved:{}, cards:{}, showing:{}}); updateChip(); refresh(location.hash.slice(1) || 'home'); }
 }

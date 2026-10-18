@@ -230,9 +230,76 @@ function complianceMission() {
  return mk('classify', 'CONSENTI O RIFIUTA', 'Compliance · richieste di accesso', {ask:'Arrivano richieste di documenti e dati. <b>Consenti</b> solo a chi ne ha diritto.', sources:[{t:'Regola dello studio', rows:[['Si consente a', 'parti della pratica, interessati verificati, chi ha delega scritta'], ['Si rifiuta a', 'terzi, indirizzi non verificati']]}], states:[['ok', 'Consenti'], ['no', 'Rifiuta']], items, winWhy:'Accessi giusti: chi ha diritto riceve i documenti, gli altri no. Tutto finisce nel registro di audit.'});
 }
 
+
+// ————— La coda di Otto (Game Boy) —————
+// Otto ha già fatto delle cose in automatico: tu le controlli una alla volta, un clic per carta.
+const queue = (title, label, intro, actions, pool, winWhy) => {
+ const n = by(4, 5, 6), cards = [];
+ const goods = G.shuffle(pool.filter(c => c.ok)), bads = G.shuffle(pool.filter(c => !c.ok));
+ const nb = Math.max(1, Math.round(n * by(.3, .4, .5)));
+ for (let k = 0; k < n; k++) cards.push((k < nb ? bads[k % bads.length] : goods[k % goods.length]).make());
+ return mk('stack', label, title, {title:label, intro, actions, cards:G.shuffle(cards), speed:n * 6, winWhy}, 150000);
+};
+const C = (ok, make) => ({ok, make});
+function centralinoQueue() {
+ const busy = G.pick(['10:00', '11:30']), free = G.pick(['15:00', '16:30']);
+ return queue('La coda di Otto · esiti delle chiamate', 'ESITI DELLE CHIAMATE', 'Otto ha risposto da solo al telefono. Controlla cosa ha fatto: <b>A conferma</b>, <b>B correggi</b>.', [['ok', 'Conferma'], ['fix', 'Correggi']], [
+  C(true, () => { const p = G.person(); return {title:`${p.name} · nuovo cliente`, lines:['Chiede i costi della prima casa', `Otto: stima indicativa e appuntamento alle ${free} (libero)`], ans:'ok'}; }),
+  C(true, () => { const [b] = G.pick(G.banks); return {title:`${b} · numero registrato`, lines:['Chiede lo stato della bozza', 'Otto: bozza via PEC entro mercoledì'], ans:'ok'}; }),
+  C(true, () => { const p = G.person(); return {title:`${p.name} · cliente`, lines:['Chiede cosa portare alla firma', 'Otto: documento d’identità valido'], ans:'ok'}; }),
+  C(false, () => { const p = G.person(); return {title:`${G.person().first} ${p.last} · fratello`, lines:[`Chiede la successione di ${p.first}`, 'Otto: “manca solo la dichiarazione”'], ans:'fix', why:'INFO A UN TERZO NON AUTORIZZATO'}; }),
+  C(false, () => { const p = G.person(); return {title:`${p.name} · cliente`, lines:['Chiede di spostare la firma', `Otto: spostata alle ${busy} · agenda: occupato`], ans:'fix', why:`ALLE ${busy} C’È GIÀ UN’ALTRA FIRMA`}; }),
+  C(false, () => { const [b] = G.pick(G.banks); return {title:`${b} · numero sconosciuto`, lines:['Chiede lo stato della bozza', 'Otto: ha dato i dettagli della pratica'], ans:'fix', why:'NUMERO NON VERIFICATO: NIENTE DETTAGLI'}; })
+ ], 'Esiti controllati: quelli sbagliati tornano a Otto con la tua correzione e lui impara la regola.');
+}
+function postaQueue() {
+ return queue('La coda di Otto · risposte automatiche', 'RISPOSTE AUTOMATICHE', 'Otto ha preparato le risposte standard alla posta di oggi. <b>A invia</b>, <b>B blocca</b> quelle che non devono partire.', [['send', 'Invia'], ['block', 'Blocca']], [
+  C(true, () => ({title:'A: Avv. Lorenzi', lines:['“Ricevuto, grazie: lo inoltro alla pratica.”', 'Allegati: nessuno'], ans:'send'})),
+  C(true, () => { const [b, d] = G.pick(G.banks); return {title:`A: ${b} <mutui@${d}.example>`, lines:['“In allegato il modulo compilato.”', 'Allegato: Modulo_erogazione.pdf'], ans:'send'}; }),
+  C(true, () => { const p = G.person(); return {title:`A: ${p.name}`, lines:['“Confermiamo l’appuntamento di giovedì.”', 'Indirizzo: quello in anagrafica'], ans:'send'}; }),
+  C(false, () => { const [b, d] = G.pick(G.banks); return {title:`A: sicurezza@${d}-verifica.example`, lines:['“Ecco i dati del conto dello studio.”', `Il mittente finge di essere ${b}`], ans:'block', why:'È PHISHING: NON SI RISPONDE'}; }),
+  C(false, () => { const p = G.person(), q = G.person(); return {title:`A: ${p.name}`, lines:['“In allegato la sua bozza d’atto.”', `Allegato: Bozza_${q.last}.pdf`], ans:'block', why:'ALLEGATO DI UN ALTRO CLIENTE'}; }),
+  C(false, () => ({title:'A: tutti i clienti della pratica + agenzia', lines:['“Ecco il prezzo concordato e l’IBAN.”', 'In copia: Agenzia immobiliare'], ans:'block', why:'DATI RISERVATI A UN TERZO IN COPIA'}))
+ ], 'Partono solo le risposte giuste: phishing e allegati sbagliati sono stati fermati da te.');
+}
+function whatsappQueue() {
+ return queue('La coda di Otto · promemoria di domani', 'PROMEMORIA DI DOMANI', 'Otto sta per mandare i promemoria delle firme di domani. <b>A invia</b>, <b>B non inviare</b>.', [['send', 'Invia'], ['skip', 'Non inviare']], [
+  C(true, () => { const p = G.person(); return {title:p.name, lines:[`Firma domani alle ${G.pick(['9:30', '10:30', '15:00'])}`, 'Consenso WhatsApp: sì'], ans:'send'}; }),
+  C(true, () => { const p = G.person(); return {title:p.name, lines:['Firma domani, porti il documento', 'Consenso WhatsApp: sì'], ans:'send'}; }),
+  C(false, () => { const p = G.person(); return {title:p.name, lines:['Firma domani alle 11:00', 'Consenso WhatsApp: NO'], ans:'skip', why:'SENZA CONSENSO NON SI SCRIVE'}; }),
+  C(false, () => { const p = G.person(); return {title:p.name, lines:['Promemoria: firma domani', 'Agenda: firma spostata a venerdì'], ans:'skip', why:'LA FIRMA NON È PIÙ DOMANI'}; }),
+  C(false, () => { const p = G.person(); return {title:p.name, lines:['Promemoria: firma domani', 'Pratica: annullata ieri'], ans:'skip', why:'PRATICA ANNULLATA'}; })
+ ], 'Promemoria giusti alle persone giuste: nessun messaggio a chi non lo vuole o non firma più.');
+}
+function scadenzeQueue() {
+ const mk1 = ok => () => { const d = new Date(2026, G.int(8, 10), G.int(1, 28)), due = new Date(d); due.setDate(due.getDate() + (ok ? 30 : G.pick([45, 60, 20]))); return {title:`Atto ${G.person().last} del ${dm(d)}`, lines:['Regola: registrazione entro 30 giorni', `Otto: scadenza il ${dm(due)}`], ans:ok ? 'ok' : 'fix', why:'NON SONO 30 GIORNI'}; };
+ return queue('La coda di Otto · scadenze calcolate', 'SCADENZE CALCOLATE', 'Otto ha calcolato le scadenze degli atti della settimana. <b>A giusta</b>, <b>B sbagliata</b>.', [['ok', 'Giusta'], ['fix', 'Sbagliata']], [C(true, mk1(true)), C(true, mk1(true)), C(false, mk1(false))], 'Scadenze controllate: in agenda ci sono solo date giuste.');
+}
+function staffQueue() {
+ const tasks = {EF:'Dichiarazione di successione', LB:'Statuto da rivedere', GM:'Modulo di erogazione', SR:'Spostare una firma'}, names = {EF:'Elena', LB:'Luca', GM:'Giulia', SR:'Sara'};
+ return queue('La coda di Otto · assegnazioni automatiche', 'ASSEGNAZIONI', 'Otto ha distribuito il lavoro nuovo. <b>A va bene</b>, <b>B riassegna</b>.', [['ok', 'Va bene'], ['move', 'Riassegna']], [
+  C(true, () => { const k = G.pick(Object.keys(tasks)); return {title:`${tasks[k]} → ${names[k]}`, lines:['Materia giusta', `Carico di ${names[k]}: ${G.int(40, 75)}%`], ans:'ok'}; }),
+  C(false, () => ({title:`${G.pick(Object.values(tasks))} → Paolo`, lines:['Paolo Donati', 'Presenze: in ferie fino a lunedì'], ans:'move', why:'PAOLO È IN FERIE'})),
+  C(false, () => ({title:`${tasks.LB} → Giulia`, lines:['Giulia segue compravendite', 'La materia è societaria'], ans:'move', why:'È LAVORO DI LUCA'})),
+  C(false, () => { const k = G.pick(Object.keys(tasks)); return {title:`${tasks[k]} → ${names[k]}`, lines:['Materia giusta', `Carico di ${names[k]}: ${G.int(94, 99)}%`], ans:'move', why:'SOVRACCARICO: OLTRE IL 90%'}; })
+ ], 'Lavoro distribuito bene: nessuno sovraccarico e niente a chi è in ferie.');
+}
+function complianceQueue() {
+ return queue('La coda di Otto · registro degli accessi', 'REGISTRO ACCESSI', 'Otto segnala gli accessi di oggi al gestionale. <b>A regolare</b>, <b>B segnala</b>.', [['ok', 'Regolare'], ['flag', 'Segnala']], [
+  C(true, () => ({title:'Giulia · pratica Rossi', lines:['È la sua pratica', 'Ore 10:12 · dallo studio'], ans:'ok'})),
+  C(true, () => ({title:'Luca · statuto Lumen Tech', lines:['È la sua pratica', 'Ore 15:40 · dallo studio'], ans:'ok'})),
+  C(false, () => ({title:'Sara · 312 documenti scaricati', lines:['Pratiche non sue', 'Ore 23:40 · da casa'], ans:'flag', why:'SCARICO ANOMALO DI NOTTE'})),
+  C(false, () => ({title:'Accesso al gestionale', lines:['Credenziali di Elena', 'Ore 3:15 · da un paese estero'], ans:'flag', why:'ACCESSO SOSPETTO DALL’ESTERO'})),
+  C(false, () => ({title:'Stagista · pratica successione', lines:['Non assegnata a lui', 'Ore 12:05 · dallo studio'], ans:'flag', why:'PRATICA NON DI SUA COMPETENZA'}))
+ ], 'Registro controllato: gli accessi anomali sono segnalati al titolare del trattamento.');
+}
+
 // ————— regista —————
 // Gira su tutti i moduli, così ogni sezione dello studio prima o poi ha la sua missione.
 const pages = {posta:postaMission, centralino:centralinoMission, whatsapp:whatsappMission, studio:studioMission, memoria:memoriaMission, visure:visureMission, preventivi:preventiviMission, osservatorio:osservatorioMission, staff:staffMission, scadenze:scadenzeMission, antiriciclaggio:antiriciclaggioMission, compliance:complianceMission};
+// Moduli con una seconda missione: la coda di Otto in stile Game Boy, alternata alla prima.
+const queues = {posta:postaQueue, centralino:centralinoQueue, whatsapp:whatsappQueue, scadenze:scadenzeQueue, staff:staffQueue, compliance:complianceQueue};
+const flip = {};
 const rotation = ['posta', 'visure', 'centralino', 'preventivi', 'whatsapp', 'studio', 'scadenze', 'memoria', 'antiriciclaggio', 'staff', 'compliance', 'osservatorio'];
 let open = [];
 function spawn() {
@@ -243,7 +310,8 @@ function spawn() {
   const busy = new Set(open.filter(x => x.open).map(x => x.page));
   const order = rotation.slice(turn % rotation.length).concat(rotation.slice(0, turn % rotation.length));
   const page = order.find(p => !busy.has(p)) || order[0]; turn = rotation.indexOf(page) + 1;
-  const made = pages[page](), mission = made.mission || made, ttl = Math.round(mission.ttl * by(1, .85, .7)), rec = {open:true, page};
+  const useQueue = queues[page] && (flip[page] = !flip[page]) === false;
+  const made = useQueue ? queues[page]() : pages[page](), mission = made.mission || made, ttl = Math.round(mission.ttl * by(1, .85, .7)), rec = {open:true, page};
   let item = null;
   if (made.anchor === 'mail') item = spawnMail({...made.mail, priority:'alta', assignee:'GM', prepared:[], draft:''});
   if (made.anchor === 'chat') item = spawnChat(made.chat);
@@ -258,5 +326,5 @@ function schedule(s) { clearTimeout(timer); timer = setTimeout(spawn, s * 1000);
 export function startMissions(handled) { onHandled = handled || onHandled; running = true; live.game = true; turn = 0; open = []; schedule(3); }
 export function stopMissions() { running = false; live.game = false; clearTimeout(timer); }
 // Per i test: i generatori di ogni modulo, con un livello forzato.
-export const generators = pages;
+export const generators = {...pages, ...Object.fromEntries(Object.entries(queues).map(([k, f]) => [k + '_coda', f]))};
 export const setTestLevel = l => { testLevel = l; };

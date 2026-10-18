@@ -5,7 +5,7 @@ import * as D from './demo.js';
 import {studioScenario, studioSuggestions, askOtto, ottoSuggestions, proposeValues} from './agent.js';
 import {inspect, fillNative, formPdf} from './pdf-core.js';
 import {startTour} from './tour.js';
-import {initGame, gameChip, mountGame, gameInvite, missionPanel} from './game.js';
+import {initGame, gameChip, mountGame, gameInvite, missionPanel, gameOn, openShop} from './game.js';
 import {startMissions, stopMissions} from './missions.js';
 import {challenges} from './challenges.js';
 import {notaroTour} from './tour-steps.js';
@@ -485,7 +485,8 @@ function toast(s) { const el = document.querySelector('#toast'); el.textContent 
 function action(a) {
  if (a === 'close') return dialog.close();
  if (a === 'sidebar') { document.body.classList.toggle('sidebar-open'); return syncNavigation(); }
- if (a === 'otto') return toggleOtto();
+ // con la sfida avviata, Chiedi a Otto apre la sua bottega
+ if (a === 'otto') return gameOn() ? openShop() : toggleOtto();
  if (a === 'search') return searchDialog();
  if (a === 'live') { live.on = !live.on; toast(live.on ? 'Studio live: email, chiamate e messaggi arrivano da soli.' : 'Studio in pausa.'); return shell(); }
  if (a === 'tour') return startTour(notaroTour({toggleOtto}), {otto, name:'Demo interattiva CS Notaro OS', onEnd: () => { toggleOtto(false); gameInvite(); }});

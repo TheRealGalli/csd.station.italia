@@ -11,6 +11,7 @@
 //  classify · per ogni voce scegli uno stato (vale / non vale, approva / rifiuta…)
 //  pick     · tra più carte, quella giusta
 //  multi    · selezioni tutto ciò che vale, e niente di più
+//  stack    · la coda di Otto, stile Game Boy: un clic per carta (A approva, B corregge)
 const esc = v => String(v ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const rich = v => esc(v).replace(/\*\*(.+?)\*\*/g, '<b>$1</b>');
 export const sources = (list, hint = -1) => list?.length ? `<div class="mg-sources">${list.map((s, i) => `<div class="mg-doc ${s.official ? 'official' : ''} ${i === hint ? 'hinted' : ''}"><span class="mg-doc-t">${esc(s.t)}</span>${s.rows.map(r => `<div class="mg-row"><span class="mg-k">${esc(r[0])}</span><span class="mg-v ${r[2] ? 'mono' : ''}">${esc(r[1])}</span></div>`).join('')}</div>`).join('')}</div>` : '';
@@ -232,6 +233,52 @@ const multi = {
  }
 };
 
+// ————— stack: la coda di Otto, in stile Game Boy —————
+// Otto ha già fatto delle cose in automatico; ti passano davanti una alla volta e per ognuna basta un clic:
+// A per approvare, B (o C) per correggere. Combo per le risposte giuste di fila, bonus se finisci in fretta.
+// Dati: {intro, actions:[[id, etichetta]], cards:[{title, lines:[…], ans, why}], speed:secondi}
+export const pixelOtto = (mood = 'ok') => {
+ const eyes = {ok:'M4 5h1v2H4zM8 5h1v2H8z', happy:'M3 6h1v1H3zM4 5h1v1H4zM5 6h1v1H5zM7 6h1v1H7zM8 5h1v1H8zM9 6h1v1H9z', sad:'M4 6h1v1H4zM8 6h1v1H8zM3 4h2v1H3zM8 4h2v1H8z', wow:'M4 4h1v3H4zM8 4h1v3H8z'}[mood];
+ const mouth = {ok:'M5 9h3v1H5z', happy:'M4 8h1v1H4zM5 9h3v1H5zM8 8h1v1H8z', sad:'M5 9h3v1H5zM4 10h1v1H4zM8 10h1v1H8z', wow:'M5 8h3v2H5z'}[mood];
+ return `<svg class="gb-otto" viewBox="0 0 13 14" shape-rendering="crispEdges" aria-hidden="true"><path fill="var(--gb3)" d="M6 0h1v2H6zM1 2h11v10H1zM0 5h1v4H0zM12 5h1v4h-1zM3 12h2v2H3zM8 12h2v2H8z"/><path fill="var(--gb1)" d="M2 3h9v8H2z"/><path fill="var(--gb4)" d="${eyes}"/><path fill="var(--gb4)" d="${mouth}"/></svg>`;
+};
+const stack = {
+ render(d, st) {
+  const i = st.i || 0, card = d.cards[i], done = st.done, ok = (st.res || []).filter(Boolean).length;
+  st.t0 ||= Date.now();
+  const mood = done ? (ok === d.cards.length ? 'happy' : ok >= d.cards.length / 2 ? 'ok' : 'sad') : st.last === false ? 'sad' : st.last === true ? (st.combo >= 2 ? 'wow' : 'happy') : 'ok';
+  const pips = d.cards.map((_, k) => `<i class="${k < i || done ? (st.res[k] ? 'y' : 'n') : k === i ? 'now' : ''}"></i>`).join('');
+  const screen = done
+   ? `<div class="gb-end"><b>${ok === d.cards.length ? 'PERFETTO!' : ok >= d.cards.length / 2 ? 'BEN FATTO' : 'DA RIVEDERE'}</b><span>${ok}/${d.cards.length} GIUSTE${st.fast ? ' · VELOCE!' : ''}</span></div>`
+   : `<div class="gb-card"><b>${esc(card.title)}</b>${card.lines.map(l => `<span>${esc(l)}</span>`).join('')}</div>`;
+  return `<p class="mg-ask">${d.intro}</p>
+   <div class="gb ${st.flash ? 'flash-' + st.flash : ''}">
+    <div class="gb-screen">
+     <div class="gb-top"><span>${esc(d.title || 'CODA DI OTTO')}</span><span>${done ? 'FINE' : `${i + 1}/${d.cards.length}`}${st.combo > 1 ? ` · COMBO x${st.combo}` : ''}</span></div>
+     <div class="gb-body">${pixelOtto(mood)}${screen}</div>
+     <div class="gb-pips">${pips}</div>
+     ${st.note ? `<div class="gb-note">${esc(st.note)}</div>` : ''}
+    </div>
+    ${done ? '' : `<div class="gb-pad">${d.actions.map(([id, label], k) => `<button class="gb-btn ${st.hintCard === i && card.ans === id ? 'hinted' : ''}" data-game="mg:${st.id}:act:${id}"><i>${'ABC'[k]}</i><span>${esc(label)}</span></button>`).join('')}</div>`}
+   </div>`;
+ },
+ handle(d, st, a, v) {
+  if (a !== 'act' || st.done) return;
+  const i = st.i || 0, card = d.cards[i], right = card.ans === v;
+  (st.res ||= [])[i] = right; st.last = right; st.combo = right ? (st.combo || 0) + 1 : 0; st.flash = right ? 'ok' : 'ko';
+  st.note = right ? (st.combo > 1 ? `GIUSTO! COMBO x${st.combo}` : 'GIUSTO!') : card.why;
+  st.i = i + 1;
+  if (st.i < d.cards.length) return {sound:right ? 'coin' : 'bad'};
+  st.done = true; st.note = '';
+  const ok = st.res.filter(Boolean).length, t = d.cards.length;
+  st.fast = (Date.now() - st.t0) / 1000 <= (d.speed || 25);
+  if (ok === t) return {done:true, pts:45 + (st.fast ? 10 : 0), label:st.fast ? 'Coda perfetta e veloce' : 'Coda perfetta', why:(d.winWhy || 'Tutto controllato: Otto può andare avanti da solo.') + (st.fast ? ' **Bonus velocità: +10.**' : '')};
+  if (ok >= t / 2) return {done:true, pts:Math.round(30 * ok / t), label:`${ok} su ${t} giuste`, why:d.partWhy || 'Le carte sbagliate tornano a Otto con la tua correzione.'};
+  return {done:true, pts:-10, label:`Solo ${ok} su ${t}`, why:d.partWhy || 'Troppe decisioni sbagliate: Otto ha messo la coda in attesa.'};
+ }
+};
+stack.hint = (d, st) => { st.hintCard = st.i || 0; return 'Per questa carta ti ho evidenziato il tasto giusto. Le altre sono tue!'; };
+
 // ————— indizi di Otto —————
 // Ogni meccanica sa dare un aiuto: evidenziare la fonte giusta, indicare dov'è l'errore o togliere una risposta sbagliata.
 // Restituiscono la frase che Otto dice; lo stato cambia in modo che render mostri l'aiuto.
@@ -251,4 +298,4 @@ multi.hint = (d, st) => { const on = st.on ||= [], i = d.chips.findIndex((c, k) 
 calc.hint = d => d.hint ? `Ecco come si fa: ${d.hint}` : 'Rileggi le fonti: tutti i numeri che servono sono lì.';
 cal.hint = d => `Regola: ${d.hint}. Conta i giorni dalla data della pratica.`;
 
-export const mechanics = {diff, boxes, triage, proof, phone, calc, cal, classify, pick, multi};
+export const mechanics = {diff, boxes, triage, proof, phone, calc, cal, classify, pick, multi, stack};
