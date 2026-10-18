@@ -714,11 +714,11 @@ initGame(challenges, {story,icon, missionsOnly:true,
  onReset:() => { stopMissions(); P.studioGameStop(); setPressure([]); },
  // potenziamenti dello studio, da comprare nella Bottega di Otto
  shop:[
-  {id:'segretaria', name:'Segretaria in più', desc:'+60 secondi prima che un’email vada in ritardo.', cost:25, mood:'otto-cap', use:() => { P.studioCfg.slaBonus += 60; return `Ora le email possono aspettare ${P.slaText()}.`; }},
-  {id:'addetto', name:'Secondo addetto agli adempimenti', desc:'+1 adempimento in lavorazione insieme (fino a 4).', cost:35, mood:'otto-notary', use:() => { if (P.studioCfg.cap >= 4) return false; P.studioCfg.cap++; render(); return `Ora si lavorano ${P.studioCfg.cap} adempimenti insieme.`; }},
-  {id:'firma', name:'Firma digitale remota', desc:'Ogni adempimento richiede 15 secondi invece di 25.', cost:30, mood:'otto-notary', use:() => { if (P.studioCfg.work <= 15) return false; P.studioCfg.work = 15; return 'Adempimenti più veloci: 15 secondi l’uno.'; }},
-  {id:'reception', name:'Receptionist', desc:'In sala d’attesa le parti hanno 30 secondi di pazienza in più.', cost:25, mood:'otto-phone', use:() => { if (P.lobbyCfg.bonus >= 90) return false; P.lobbyCfg.bonus += 30; render(); return 'C’è chi accoglie le parti e offre un caffè: aspettano più volentieri.'; }},
-  {id:'boboli', name:'Sala riunioni in più', desc:'Apre la Sala Boboli da 6 posti: un appuntamento in più alla volta.', cost:45, mood:'otto-notary', use:() => { if (P.rooms.some(r => r.id === 'R4')) return false; P.rooms.push({id:'R4', name:'Sala Boboli', seats:6, until:0, with:null}); render(); return 'Sala Boboli aperta: ora le sale sono quattro.'; }}
+  {id:'segretaria', name:'Segretaria in più', desc:'+60 secondi prima che un’email vada in ritardo.', cost:500, fixed:true, max:2, mood:'otto-cap', use:() => { P.studioCfg.slaBonus += 60; return `Ora le email possono aspettare ${P.slaText()}.`; }},
+  {id:'addetto', name:'Secondo addetto agli adempimenti', desc:'+1 adempimento in lavorazione insieme (fino a 4).', cost:600, fixed:true, max:2, mood:'otto-notary', use:() => { if (P.studioCfg.cap >= 4) return false; P.studioCfg.cap++; render(); return `Ora si lavorano ${P.studioCfg.cap} adempimenti insieme.`; }},
+  {id:'firma', name:'Firma digitale remota', desc:'Ogni adempimento richiede 15 secondi invece di 25.', cost:800, fixed:true, max:1, mood:'otto-notary', use:() => { if (P.studioCfg.work <= 15) return false; P.studioCfg.work = 15; return 'Adempimenti più veloci: 15 secondi l’uno.'; }},
+  {id:'reception', name:'Receptionist', desc:'In sala d’attesa le parti hanno 30 secondi di pazienza in più.', cost:500, fixed:true, max:2, mood:'otto-phone', use:() => { if (P.lobbyCfg.bonus >= 90) return false; P.lobbyCfg.bonus += 30; render(); return 'C’è chi accoglie le parti e offre un caffè: aspettano più volentieri.'; }},
+  {id:'boboli', name:'Sala riunioni in più', desc:'Apre la Sala Boboli da 6 posti: un appuntamento in più alla volta.', cost:1200, fixed:true, max:1, mood:'otto-notary', use:() => { if (P.rooms.some(r => r.id === 'R4')) return false; P.rooms.push({id:'R4', name:'Sala Boboli', seats:6, until:0, with:null}); render(); return 'Sala Boboli aperta: ora le sale sono quattro.'; }}
  ],
  pageName:id => moduleById(id)?.title || {home:'Oggi in studio'}[id] || id});
 shell();

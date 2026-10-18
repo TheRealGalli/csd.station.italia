@@ -546,3 +546,9 @@ body:has(.game-pressure) .live-stack{top:136px}
 /* schermi bassi: la scheda finale e di fine capitolo si può scorrere, e resta centrata quando ci sta */
 .game-finale{place-items:normal;overflow-y:auto;overscroll-behavior:contain}
 .game-finale .gf-card{margin:auto}
+/* Bottega: fissi (sempre in vetrina) e temporanei (a caso); la vetrina scorre se è lunga */
+.otto-shop{max-height:calc(100vh - 110px);overflow-y:auto;overscroll-behavior:contain}
+.shop-list.fixed .shop-item{padding-block:9px}
+.shop-list.fixed .shop-item small{font-size:11.5px}
+.shop-item.owned{opacity:.55;cursor:default}
+.shop-item.owned em{color:#c5f476;font-style:normal;text-transform:uppercase;font-size:10.5px;letter-spacing:1px}

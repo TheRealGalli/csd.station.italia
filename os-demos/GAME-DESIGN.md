@@ -102,6 +102,7 @@ La storia è sempre **il lavoro vero raccontato**: un fornitore che sbaglia le f
 - **Ospiti all’ingresso** (Restaurant, Sala): arrivano gruppi senza prenotazione; si tocca il gruppo e poi un tavolo libero abbastanza grande. Il tavolo più piccolo che basta vale di più. Dopo 60 s l’attesa è rossa, dopo 130 s se ne vanno (−10).
 - **Sala d’attesa e sale riunioni** (Notaro, Centralino & segreteria): le parti di un appuntamento arrivano con il loro numero (una stipula non entra nello studio del notaio, un testamento sì con i due testimoni). Finito l’appuntamento la sala si libera, e un atto firmato fa nascere il suo adempimento nello Scadenziario.
 - **Il tempo fermo vale per tutto**: mentre Otto parla, anche porta, cucina, frigo, email, adempimenti e sale restano fermi.
+- **Bottega in due parti**: *potenziamenti fissi* (sempre in vetrina, durano tutta la partita, 300–1.200 punti, +40% se si ricomprano: automatismi, cuoco, forno, maître che accomoda da solo, prenotazioni online, sale…) e *temporanei* (in vendita oggi, a caso, +25% a ogni acquisto). I regali sono solo temporanei. Ospiti alla porta meno frequenti (uno ogni 85–125 s al livello 1).
 - **Bottega**: Hostess all’ingresso, Prenotazioni online (Restaurant); Receptionist, Sala riunioni in più (Notaro). I potenziamenti comprati sono bonus separati: le regole dei capitoli non li cancellano più.
 
 ## 7. Prossimi passi possibili

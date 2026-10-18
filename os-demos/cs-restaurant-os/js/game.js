@@ -225,7 +225,10 @@ function markAlarms() {
 // Bottega: oltre ai potenziamenti comuni, ogni app aggiunge i suoi (hooks.shop).
 const allItems = () => [...catalog, ...(hooks.shop || [])];
 // La Bottega costa davvero: prezzi base ×2, e ogni acquisto dello stesso potenziamento lo rincara del 2%.
-const price = c => Math.round(c.cost * 2 * Math.pow(1.02, S.bought[c.id] || 0));
+// Due tipi di potenziamenti. Temporanei (in vendita oggi, a caso): costo ×2 e +25% a ogni acquisto, così si sente.
+// Fissi (sempre in vetrina, durano tutta la partita): prezzo pieno, e se si possono ricomprare +40% ogni volta.
+const owned = c => (S.bought[c.id] || 0) >= (c.max || 1);
+const price = c => c.fixed ? Math.round(c.cost * Math.pow(1.4, S.bought[c.id] || 0)) : Math.round(c.cost * 2 * Math.pow(1.25, S.bought[c.id] || 0));
 function refreshMission(id) {
  const el = document.querySelector(`[data-mission="${id}"]`);
  if (el) el.outerHTML = missionPanel(id);
@@ -898,7 +901,7 @@ function halfWork(m) {
  st.hintMsg = `Metà lavoro fatto da Otto. ${msg}`;
  refreshMission(m.id);
 }
-const sample = (n, not = []) => allItems().filter(c => !not.includes(c.id)).sort(() => Math.random() - .5).slice(0, n);
+const sample = (n, not = []) => allItems().filter(c => !c.fixed && !not.includes(c.id)).sort(() => Math.random() - .5).slice(0, n);
 function checkGifts() {
  for (const t of [100, 250, 450, 700, 1000]) if (S.points >= t && !S.gifts.includes(t)) {
   S.gifts.push(t); S.gift = sample(3);
@@ -918,17 +921,19 @@ export function openShop() {
  const active = [S.fx.shield && `Scudo ×${S.fx.shield}`, S.fx.double && `Punti doppi ×${S.fx.double}`, S.fx.freeHints && `Indizi gratis ×${S.fx.freeHints}`, Date.now() < S.fx.freezeUntil && 'Timer fermi'].filter(Boolean);
  el.innerHTML = `<header><span class="shop-otto">${icon('otto-happy')}</span><div><b>Bottega di Otto</b><small>Hai <strong>${S.points}</strong> punti da spendere</small></div><button class="icon-btn" data-game="shopclose" aria-label="Chiudi la bottega">×</button></header>
   ${S.gift ? `<section class="shop-gift"><span class="gp-label">REGALO · SCEGLINE UNO</span>${S.gift.map(c => `<button class="shop-item gift" data-game="gift:${c.id}">${icon(c.mood)}<span><b>${esc(c.name)}</b><small>${esc(c.desc)}</small></span><em>gratis</em></button>`).join('')}</section>` : ''}
-  <span class="gp-label">IN VENDITA OGGI</span>
+  ${allItems().some(c => c.fixed) ? `<span class="gp-label">POTENZIAMENTI FISSI · DURANO TUTTA LA PARTITA</span>
+  <div class="shop-list fixed">${allItems().filter(c => c.fixed).map(c => owned(c) ? `<button class="shop-item owned" disabled>${icon(c.mood)}<span><b>${esc(c.name)}</b><small>${esc(c.desc)}</small></span><em>attivo</em></button>` : `<button class="shop-item" data-game="buy:${c.id}" ${S.points < price(c) ? 'disabled' : ''}>${icon(c.mood)}<span><b>${esc(c.name)}</b><small>${esc(c.desc)}${S.bought[c.id] ? ` · livello ${S.bought[c.id] + 1} di ${c.max}` : ''}</small></span><em>${price(c)} pt</em></button>`).join('')}</div>` : ''}
+  <span class="gp-label">IN VENDITA OGGI · TEMPORANEI</span>
   <div class="shop-list">${S.offers.map(id => allItems().find(c => c.id === id)).filter(Boolean).map(c => `<button class="shop-item" data-game="buy:${c.id}" ${S.points < price(c) ? 'disabled' : ''}>${icon(c.mood)}<span><b>${esc(c.name)}</b><small>${esc(c.desc)}${S.bought[c.id] ? ` · comprato ${S.bought[c.id]} ${S.bought[c.id] === 1 ? 'volta' : 'volte'}` : ''}</small></span><em>${price(c)} pt</em></button>`).join('')}</div>
   ${active.length ? `<div class="shop-active"><span class="gp-label">ATTIVI ORA</span>${active.map(a => `<i>${a}</i>`).join('')}</div>` : ''}
   <p class="shop-note">${S.shopNote ? esc(S.shopNote) : 'Le offerte cambiano ogni volta che compri. A 100, 250, 450, 700 e 1.000 punti Otto ti fa un regalo.'}</p>`;
 }
 function buy(id, free) {
  const c = allItems().find(x => x.id === id); if (!c) return;
- if (!free && S.points < price(c)) { play('bad'); return; }
+ if (!free && (S.points < price(c) || (c.fixed && owned(c)))) { play('bad'); return; }
  const res = c.use();
  if (res === false) { S.shopNote = 'Non ci sono missioni aperte su cui usarlo: tienilo per dopo.'; play('bad'); return openShop(); }
- if (!free) { S.points -= price(c); S.bought[c.id] = (S.bought[c.id] || 0) + 1; S.offers = S.offers.filter(x => x !== id); S.offers.push(sample(1, S.offers.concat(id))[0]?.id || id); }
+ if (!free) { S.points -= price(c); S.bought[c.id] = (S.bought[c.id] || 0) + 1; if (!c.fixed) { S.offers = S.offers.filter(x => x !== id); S.offers.push(sample(1, S.offers.concat(id))[0]?.id || id); } }
  else S.gift = null;
  S.shopNote = `${free ? 'Regalo usato' : `Comprato: ${c.name}`}. ${res}`;
  play('level'); updateChip(free ? 'bump' : 'bump-bad'); markNav(); openShop();

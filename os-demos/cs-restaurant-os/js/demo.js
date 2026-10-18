@@ -451,7 +451,7 @@ export function fridgeTick() {
 // a un tavolo libero abbastanza grande. Dopo un po' l'attesa diventa rossa; se aspettano troppo, se ne vanno.
 export const door = [];
 // bonus e calm: comprati nella Bottega (secondi di pazienza in più, arrivi senza prenotazione in meno); i capitoli non li toccano
-export const doorCfg = {gap:[55, 85], wait:60, leave:130, rate:1, bonus:0, calm:1};
+export const doorCfg = {gap:[85, 125], wait:60, leave:130, rate:1, bonus:0, calm:1, autoSeat:false};
 let doorOn = false, nextDoorAt = 0, doorSeq = 0;
 const doorNames = ['Famiglia Bianchi', 'Sig.ra Ferri', 'Coppia Moretti', 'Amici di Luca', 'Sig. Conti', 'Famiglia Esposito', 'Colleghi Arno Tech', 'Sig.ra Galli', 'Turisti da Lione', 'Famiglia Romano'];
 export const doorWait = p => (Date.now() - p.at) / 1000;
@@ -462,7 +462,7 @@ function arrive(n) {
  const p = {id:`G${++doorSeq}`, name:doorNames[Math.floor(Math.random() * doorNames.length)], n:n || [2, 2, 2, 3, 4, 4, 5, 6][Math.floor(Math.random() * 8)], at:Date.now()};
  door.push(p); log(`All'ingresso: ${p.name}, ${p.n} persone senza prenotazione`, 'sala'); emit(); return p;
 }
-export function doorGameStart() { doorOn = true; door.length = 0; Object.assign(doorCfg, {gap:[55, 85], wait:60, leave:130, rate:1, bonus:0, calm:1}); nextDoorAt = Date.now() + 50000; }
+export function doorGameStart() { doorOn = true; door.length = 0; Object.assign(doorCfg, {gap:[85, 125], wait:60, leave:130, rate:1, bonus:0, calm:1, autoSeat:false}); nextDoorAt = Date.now() + 80000; }
 export function doorGameStop() { doorOn = false; door.length = 0; }
 export function seatParty(pid, tid) {
  const i = door.findIndex(p => p.id === pid), t = table(tid);
@@ -475,10 +475,12 @@ export function doorTick(level = 1) {
  for (let i = door.length - 1; i >= 0; i--) if (doorWait(door[i]) > doorLeave()) { left.push(...door.splice(i, 1)); }
  if (left.length) { left.forEach(p => log(`${p.name} (${p.n} persone) se ne sono andati: troppa attesa all'ingresso`, 'sala')); emit(); }
  if (now >= nextDoorAt) {
-  const gap = [doorCfg.gap, [45, 70], [35, 60]][level - 1] || doorCfg.gap;
+  const gap = [doorCfg.gap, [70, 100], [55, 85]][level - 1] || doorCfg.gap;
   nextDoorAt = now + (gap[0] + Math.random() * (gap[1] - gap[0])) * 1000 / doorCfg.rate / doorCfg.calm;
   if (door.length < 1 + level) arrive();
  }
+ // il maître (Bottega): dopo 20 secondi accomoda da solo al tavolo più piccolo che basta
+ if (doorCfg.autoSeat) for (const p of [...door]) { if (doorWait(p) < 20) continue; const t = tables.filter(x => fits(x, p)).sort((a, b) => a.seats - b.seats)[0]; if (t) seatParty(p.id, t.id); }
  return {red:door.filter(doorRed), left};
 }
 // Per le prove a mano: fa arrivare subito qualcuno all'ingresso.
