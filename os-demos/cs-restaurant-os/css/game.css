@@ -527,3 +527,12 @@ body:has(.game-finale) .game-pressure{display:none}
 .mg-pool button.miss{border-color:#efc2b7;background:#fbe8e3;animation:game-shake .35s ease}
 .mg-pool button.hinted{box-shadow:0 0 0 2px #e2b14f;background:#fdf6dc}
 .game-finale .gf-next,.game-finale .gf-bonus{max-width:none}
+/* Prestazioni: le pulsazioni continue (ombre) avanzano a scatti morbidi invece che a 60 fotogrammi al secondo.
+   Stesso effetto a vista, ma circa 8 ridisegni per ciclo invece di 70: leggero su Mac, Windows e computer modesti.
+   Queste regole sostituiscono le animazioni omonime definite prima (game.css si carica per ultimo). */
+@keyframes kds-hot{0%,100%{box-shadow:inset 0 0 0 0 #d8432f00;animation-timing-function:steps(4)}50%{box-shadow:inset 0 0 0 2px #d8432fcc;animation-timing-function:steps(4)}}
+@keyframes game-target{0%,100%{box-shadow:0 0 0 0 #d8432f00;animation-timing-function:steps(4)}50%{box-shadow:0 0 0 4px #d8432f88;animation-timing-function:steps(4)}}
+@keyframes gst-ready{0%,100%{box-shadow:0 0 0 0 #c5f47600;animation-timing-function:steps(4)}50%{box-shadow:0 0 0 6px #c5f47633;animation-timing-function:steps(4)}}
+@keyframes lu-live{0%{box-shadow:0 0 0 0 #6fbf3a90;animation-timing-function:steps(6)}70%{box-shadow:0 0 0 7px #6fbf3a00;animation-timing-function:steps(2)}100%{box-shadow:0 0 0 0 #6fbf3a00}}
+@keyframes lu-live-red{0%{box-shadow:0 0 0 0 #d8432f90;animation-timing-function:steps(6)}70%{box-shadow:0 0 0 6px #d8432f00;animation-timing-function:steps(2)}100%{box-shadow:0 0 0 0 #d8432f00}}
+@keyframes pulse{0%,100%{box-shadow:0 0 0 3px #7fbf3a33;animation-timing-function:steps(4)}50%{box-shadow:0 0 0 6px #7fbf3a00;animation-timing-function:steps(4)}}
