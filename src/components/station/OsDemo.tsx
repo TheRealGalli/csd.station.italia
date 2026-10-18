@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState, useSyncExternalStore, type KeyboardEvent } from 'react';
-import { ArrowUpRight, Monitor, Lock } from 'lucide-react';
+import { ArrowUpRight, Monitor, Lock, Play, Gamepad2, MousePointer2, MessageCircle, type LucideIcon } from 'lucide-react';
 import { StationHeader } from './Station';
 import { Otto } from './StationExperiences';
 import type { OsProduct } from '@/seo/routes';
@@ -27,7 +27,7 @@ function OttoFace({ mood }: { mood: typeof faces[number] }) {
 }
 // Il menu della vetrina è lo schermo di Otto: un terminale a fosfori verdi, una scelta per riga.
 // Il mouse (o le frecce) accende la riga; clic o Invio la avvia.
-type Choice = { key: string; label: string; note: string; run?: () => void; href?: string };
+type Choice = { key: string; label: string; note: string; icon: LucideIcon; run?: () => void; href?: string };
 function OttoTerminal({ name, choices }: { name: string; choices: Choice[] }) {
   const [active, setActive] = useState(0);
   const list = useRef<HTMLDivElement>(null);
@@ -44,7 +44,7 @@ function OttoTerminal({ name, choices }: { name: string; choices: Choice[] }) {
       <div className="os-term-list" role="menu" aria-label={`Come vuoi vedere ${name}`} ref={list} onKeyDown={onKey}>
         {choices.map((c, i) => {
           const props = { role: 'menuitem', className: `os-term-row ${i === active ? 'on' : ''}`, onMouseEnter: () => setActive(i), onFocus: () => setActive(i), tabIndex: i === active ? 0 : -1 };
-          const body = <><span className="os-term-caret" aria-hidden="true">{i === active ? '>' : ' '}</span><span className="os-term-label">{c.label}</span><span className="os-term-dots" aria-hidden="true"/><span className="os-term-key" aria-hidden="true">[{i + 1}]</span></>;
+          const body = <><span className="os-term-caret" aria-hidden="true">{i === active ? '>' : ' '}</span><span className="os-term-label">{c.label}</span><span className="os-term-icon" aria-hidden="true"><c.icon size={16} strokeWidth={2.2}/></span><span className="os-term-dots" aria-hidden="true"/><span className="os-term-key" aria-hidden="true">[{i + 1}]</span></>;
           return c.href ? <a key={c.key} {...props} href={c.href} target="_blank" rel="noreferrer">{body}</a> : <button key={c.key} type="button" {...props} onClick={c.run}>{body}</button>;
         })}
       </div>
@@ -102,10 +102,10 @@ export default function OsDemo({ product }: { product: OsProduct }) {
             <p className="os-text">Questa è una demo dimostrativa di come funzionano i nostri sistemi OS per {p.sector} a 360°, ancora non rilasciati e direttamente collegati con WhatsApp.</p>
             <ul>{p.points.map((point, i) => <li key={point}><OttoFace mood={faces[i % faces.length]}/>{point}</li>)}</ul>
             <OttoTerminal name={p.name} choices={[
-              { key: 'tour', label: 'Guarda la demo guidata', note: 'Otto ti accompagna passo per passo.', run: startTour },
-              { key: 'play', label: 'Gioca la demo', note: 'Missioni vere, generate a caso. Si impara giocando.', run: startGame },
-              { key: 'free', label: 'Esplora da solo', note: 'Il sistema è acceso: tocca tutto quello che vuoi.', run: () => setOpen(true) },
-              { key: 'wa', label: 'Più informazioni su WhatsApp ↗', note: 'Scrivi a Carlo: risponde lui, direttamente.', href: contact },
+              { key: 'tour', icon: Play, label: 'Guarda la demo guidata', note: 'Otto ti accompagna passo per passo.', run: startTour },
+              { key: 'play', icon: Gamepad2, label: 'Gioca la demo', note: 'Missioni vere, generate a caso. Si impara giocando.', run: startGame },
+              { key: 'free', icon: MousePointer2, label: 'Esplora da solo', note: 'Il sistema è acceso: tocca tutto quello che vuoi.', run: () => setOpen(true) },
+              { key: 'wa', icon: MessageCircle, label: 'Più informazioni su WhatsApp', note: 'Scrivi a Carlo: risponde lui, direttamente.', href: contact },
             ]}/>
             <small><Lock size={12}/> Dati, persone e numeri sono inventati. Il sistema dietro sta già girando.</small>
           </div>
