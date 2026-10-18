@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState, useSyncExternalStore } from 'react';
-import { ArrowUpRight, Monitor, Play, MousePointer2, Lock } from 'lucide-react';
+import { ArrowUpRight, Monitor, Play, MousePointer2, Lock, Gamepad2 } from 'lucide-react';
 import { StationHeader } from './Station';
 import { Otto } from './StationExperiences';
 import type { OsProduct } from '@/seo/routes';
@@ -54,6 +54,11 @@ export default function OsDemo({ product }: { product: OsProduct }) {
     setOpen(true);
     setTimeout(() => tell('csd:start-tour'), 250);
   };
+  // la demo da giocare: Otto spiega in tre passaggi e poi parte la sfida con le missioni
+  const startGame = () => {
+    setOpen(true);
+    setTimeout(() => tell('csd:start-game'), 250);
+  };
 
   return <div className="station-site os-site">
     <StationHeader/>
@@ -62,13 +67,14 @@ export default function OsDemo({ product }: { product: OsProduct }) {
         <iframe ref={frame} className={`os-frame ${open ? 'is-open' : ''}`} src={p.src} title={`${p.name}, demo dimostrativa`} onLoad={() => tell(open ? 'csd:resume' : 'csd:pause')} tabIndex={open ? 0 : -1} aria-hidden={!open}/>
         {!open && <div className="os-veil">
           <div className="os-card">
-            <div className="os-otto"><Otto mood="happy"/></div>
+            <div className={`os-otto os-otto-${product}`}><Otto mood="happy"/>{product === 'restaurant' ? <span className="os-prop os-plate" aria-hidden="true"><i/></span> : <><span className="os-prop os-glasses" aria-hidden="true"/><span className="os-prop os-book" aria-hidden="true"/></>}</div>
             <span className="os-eyebrow"><i/> DEMO DIMOSTRATIVA · NON ANCORA RILASCIATO</span>
             <h1>{p.name}</h1>
             <p className="os-tagline">{p.tagline}</p>
             <p className="os-text">Questa è una demo dimostrativa di come funzionano i nostri sistemi OS per {p.sector} a 360°, ancora non rilasciati e direttamente collegati con WhatsApp.</p>
             <ul>{p.points.map((point, i) => <li key={point}><OttoFace mood={faces[i % faces.length]}/>{point}</li>)}</ul>
             <button type="button" className="os-tour" onClick={startTour}><span><Play size={17}/> Guarda la demo guidata</span><small>Otto ti accompagna passo per passo</small></button>
+            <button type="button" className="os-play" onClick={startGame}><span><Gamepad2 size={16}/> Gioca la demo</span><small>Missioni vere, generate a caso</small></button>
             <div className="os-secondary">
               <button type="button" onClick={() => setOpen(true)}><MousePointer2 size={15}/> Esplora da solo</button>
               <a href={contact} target="_blank" rel="noreferrer">Più informazioni su WhatsApp <ArrowUpRight size={15}/></a>

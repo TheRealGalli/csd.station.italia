@@ -261,3 +261,18 @@
 .shop-active{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:10px}.shop-active .gp-label{width:100%}
 .shop-active i{font-style:normal;font-size:11px;background:#c5f47622;color:#c5f476;border-radius:10px;padding:3px 9px}
 .shop-note{font-size:11.5px;line-height:1.5;color:#a9bb98;margin:0}
+/* introduzione al gioco */
+.game-intro{position:fixed;inset:0;z-index:130;display:grid;place-items:center;padding:20px;background:#0b120d66;animation:game-in .25s ease both}
+.gi-card{width:min(440px,100%);background:#173022;color:#eef4e4;border:1px solid #2f4a2c;border-radius:18px;padding:20px 22px 18px;box-shadow:0 30px 80px #0008}
+.gi-top{display:flex;align-items:center;gap:10px}
+.gi-face{width:42px;height:42px;border-radius:50%;background:#c5f476;color:#1d2b20;display:grid;place-items:center}
+.gi-face .icon{width:28px;height:28px}
+.gi-step{flex:1;font-size:10.5px;letter-spacing:1.6px;font-weight:700;color:#c5f476}
+.gi-x{border:0;background:transparent;color:#a9bb98;font-size:20px;line-height:1}
+.gi-card h3{font-size:20px;margin:14px 0 6px;letter-spacing:-.3px}
+.gi-card p{font-size:13.5px;line-height:1.65;color:#cfdcc3;margin:0}
+.gi-card p b{color:#c5f476}
+.gi-foot{display:flex;align-items:center;justify-content:space-between;margin-top:18px}
+.gi-dots{display:flex;gap:5px}.gi-dots i{width:7px;height:7px;border-radius:50%;background:#3b5236}.gi-dots i.on{width:20px;border-radius:4px;background:#c5f476}.gi-dots i.done{background:#7fb045}
+.gi-next{border:0;border-radius:10px;background:#c5f476;color:#173022;font-weight:700;font-size:13px;padding:10px 16px}
+.gi-next:hover{background:#d4fa90}

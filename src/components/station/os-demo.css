@@ -5,16 +5,16 @@
 .os-frame.is-open{pointer-events:auto;filter:none;transform:none}
 .os-veil{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;padding:28px 32px;background:radial-gradient(ellipse at 50% 45%,#0f1a1299,#0b120dd9 70%);animation:os-fade .5s ease both}
 @keyframes os-fade{from{opacity:0}}
-.os-card{position:relative;display:flex;flex-direction:column;width:min(580px,100%);height:min(var(--os-card-h,556px),calc(100% - 8px));overflow:visible;background:#152016f2;border:1px solid #2f4029;border-radius:18px;padding:34px 36px 26px;box-shadow:0 40px 120px #000a;backdrop-filter:blur(8px);animation:os-rise .6s cubic-bezier(.2,.8,.3,1) .1s both}
+.os-card{position:relative;display:flex;flex-direction:column;width:min(580px,100%);height:min(var(--os-card-h,556px),calc(100% - 8px));overflow:visible;background:#152016f2;border:1px solid #2f4029;border-radius:18px;padding:26px 34px 20px;box-shadow:0 40px 120px #000a;backdrop-filter:blur(8px);animation:os-rise .6s cubic-bezier(.2,.8,.3,1) .1s both}
 @keyframes os-rise{from{opacity:0;transform:translateY(14px)}}
 .os-eyebrow{display:inline-flex;align-items:center;gap:8px;font-size:10px;letter-spacing:1.8px;font-weight:600;color:#c5f476}
 .os-eyebrow i{width:7px;height:7px;border-radius:50%;background:#d8432f;box-shadow:0 0 0 0 #d8432f99;animation:os-ping 1.6s infinite}
 @keyframes os-ping{70%{box-shadow:0 0 0 7px #d8432f00}100%{box-shadow:0 0 0 0 #d8432f00}}
-.os-card h1{white-space:nowrap;font-size:46px;line-height:1.05;letter-spacing:-1.8px;font-weight:600;margin:14px 0 0;color:#f4f8ec}
-.os-tagline{font-size:16px;color:#c5f476;margin-top:10px;line-height:1.5;min-height:3em;text-wrap:balance}
-.os-text{font-size:14px;line-height:1.7;color:#c3cfb8;margin-top:14px}
-.os-card ul{list-style:none;padding:0;margin:18px 0 auto;display:grid;gap:10px}
-.os-card ul+.os-tour{margin-top:22px}
+.os-card h1{white-space:nowrap;font-size:42px;line-height:1.05;letter-spacing:-1.8px;font-weight:600;margin:14px 0 0;color:#f4f8ec}
+.os-tagline{font-size:16px;color:#c5f476;margin-top:10px;line-height:1.5;min-height:1.5em;text-wrap:balance}
+.os-text{font-size:14px;line-height:1.65;color:#c3cfb8;margin-top:10px}
+.os-card ul{list-style:none;padding:0;margin:14px 0 auto;display:grid;gap:8px}
+.os-card ul+.os-tour{margin-top:16px}
 .os-card li{display:flex;align-items:center;gap:11px;font-size:13px;color:#dfe8d5}
 /* Otto sbuca dall'angolo del cartellino */
 .os-otto{position:absolute;top:16px;right:24px;width:72px;height:94px;pointer-events:none}
@@ -40,7 +40,7 @@
 .os-secondary>button:hover{border-color:#c5f476;background:#1d2b1b}
 .os-secondary>a{color:#7fe3a4;border-color:#25d36655}
 .os-secondary>a:hover{background:#25d36614;border-color:#25d366}
-.os-card small{display:flex;align-items:center;gap:6px;justify-content:center;font-size:11px;color:#8fa385;margin-top:16px}
+.os-card small{display:flex;align-items:center;gap:6px;justify-content:center;font-size:11px;color:#8fa385;margin-top:12px}
 .os-bar{position:absolute;right:18px;bottom:18px;display:flex;align-items:center;gap:14px;background:#152016f2;border:1px solid #2f4029;border-radius:30px;padding:8px 8px 8px 16px;box-shadow:0 14px 40px #0007;font-size:12px;color:#d7e3cc;z-index:5;white-space:nowrap;animation:os-rise .4s ease both}
 .os-bar>span{display:flex;align-items:center;gap:8px}
 .os-bar>span i{width:7px;height:7px;border-radius:50%;background:#7fbf3a}
@@ -56,3 +56,19 @@
 @media(max-width:1023px){.station-links .nav-os{display:none!important}}
 @media(prefers-reduced-motion:reduce){.os-frame,.os-veil,.os-card,.os-bar{animation:none!important;transition:none!important}}
 .os-whatsapp{display:flex;align-items:center;justify-content:space-between;gap:14px;width:100%;background:#25d366;color:#08240f;font-weight:650;font-size:14px;border-radius:10px;padding:15px 18px;box-shadow:0 10px 30px #25d36640}
+.os-play{display:flex;align-items:center;justify-content:center;gap:10px;width:100%;margin-top:8px;background:#1f3a1f;color:#c5f476;border:1px solid #4e7a2c;border-radius:10px;padding:9px 16px;cursor:pointer;transition:background .2s,border-color .2s,transform .2s}
+.os-play span{display:flex;align-items:center;gap:8px;font-size:13.5px;font-weight:650}
+.os-card .os-play small{display:inline;margin:0;font-size:11px;color:#9fc27a;font-weight:400}
+.os-card .os-play small:before{content:'·';margin-right:8px;opacity:.7}
+.os-play:hover{background:#27492a;border-color:#7fb045;transform:translateY(-1px)}
+/* Otto con l'accessorio del settore: un piatto per il ristorante, occhiali e libro per il notaio */
+.os-prop{position:absolute;pointer-events:none}
+.os-plate{right:-16px;top:27px;width:30px;height:9px;border-radius:50%;background:#f4f6ee;box-shadow:0 2px 0 #b9c3a8,0 4px 6px #0005;transform:rotate(-8deg)}
+.os-plate i{position:absolute;left:8px;top:-7px;width:14px;height:9px;border-radius:7px 7px 2px 2px;background:linear-gradient(#e2b14f,#c98a2e);box-shadow:inset 0 -2px 0 #a8701f}
+.os-plate i:before{content:'';position:absolute;left:5px;top:-3px;width:4px;height:4px;border-radius:50%;background:#7fb045}
+.os-glasses{left:19px;top:25px;width:34px;height:12px}
+.os-glasses:before,.os-glasses:after{content:'';position:absolute;top:0;width:12px;height:11px;border:2px solid #e9d8a6;border-radius:50%;box-sizing:border-box}
+.os-glasses:before{left:0}.os-glasses:after{right:0}
+.os-glasses{background:linear-gradient(#e9d8a6,#e9d8a6) center 5px/8px 2px no-repeat}
+.os-book{left:-6px;top:56px;width:22px;height:27px;border-radius:2px 4px 4px 2px;background:linear-gradient(90deg,#5b3a1f 0 3px,#8a5a2e 3px);box-shadow:0 3px 6px #0006;transform:rotate(-14deg)}
+.os-book:after{content:'';position:absolute;left:7px;top:6px;width:10px;height:2px;background:#e9d8a6;box-shadow:0 4px 0 #e9d8a6aa}

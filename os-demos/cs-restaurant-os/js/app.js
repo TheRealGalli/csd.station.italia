@@ -2,7 +2,7 @@ import {icon, otto} from './icons.js';
 import {modules, groups, groupNotes, moduleById} from './modules.js';
 import * as D from './demo.js';
 import {startTour} from './tour.js';
-import {initGame, gameChip, mountGame, gameInvite, gameOn, openShop} from './game.js';
+import {initGame, gameChip, mountGame, gameInvite, gameOn, openShop, gameIntro} from './game.js';
 import {challenges} from './challenges.js';
 import {startMissions, stopMissions} from './missions.js';
 import {restaurantTour} from './tour-steps.js';
@@ -416,8 +416,9 @@ setInterval(() => { if (!busy()) D.tick(); }, 3500);
 window.addEventListener('message', e => {
  if (e.origin !== location.origin) return;
  if (e.data === 'csd:start-tour') { wake(true); action('tour'); }
+ if (e.data === 'csd:start-game') { wake(true); gameIntro(); }
  if (e.data === 'csd:resume') wake(true);
  if (e.data === 'csd:pause') wake(false);
 });
-initGame(challenges, {icon, place:'il locale', missionsOnly:true, startNote:'Fatture, comande, conti, chiamate e prenotazioni arrivano dal quadrato rosso “!” in alto, e ogni sezione del locale ha la sua missione.', onStart:startMissions, onReset:stopMissions, menuNote:'Le missioni arrivano dal locale vivo: fatture dei fornitori, comande grandi, conti, prenotazioni e chiamate. Sempre nuove.', pageName:id => moduleById(id)?.title || {home:SV.title}[id] || id});
+initGame(challenges, {icon, place:'il locale', missionsOnly:true, missionTypes:18, sections:12, placeOf:'del locale', startNote:'Fatture, comande, conti, chiamate e prenotazioni arrivano dal quadrato rosso “!” in alto, e ogni sezione del locale ha la sua missione.', onStart:startMissions, onReset:stopMissions, menuNote:'Le missioni arrivano dal locale vivo: fatture dei fornitori, comande grandi, conti, prenotazioni e chiamate. Sempre nuove.', pageName:id => moduleById(id)?.title || {home:SV.title}[id] || id});
 shell();

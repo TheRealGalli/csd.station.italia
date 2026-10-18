@@ -5,7 +5,7 @@ import * as D from './demo.js';
 import {studioScenario, studioSuggestions, askOtto, ottoSuggestions, proposeValues} from './agent.js';
 import {inspect, fillNative, formPdf} from './pdf-core.js';
 import {startTour} from './tour.js';
-import {initGame, gameChip, mountGame, gameInvite, missionPanel, gameOn, openShop} from './game.js';
+import {initGame, gameChip, mountGame, gameInvite, missionPanel, gameOn, openShop, gameIntro} from './game.js';
 import {startMissions, stopMissions} from './missions.js';
 import {challenges} from './challenges.js';
 import {notaroTour} from './tour-steps.js';
@@ -604,10 +604,11 @@ wake(live.awake);
 window.addEventListener('message', e => {
  if (e.origin !== location.origin) return;
  if (e.data === 'csd:start-tour') { wake(true); action('tour'); }
+ if (e.data === 'csd:start-game') { wake(true); gameIntro(); }
  if (e.data === 'csd:resume') wake(true);
  if (e.data === 'csd:pause') wake(false);
 });
-initGame(challenges, {icon, missionsOnly:true, startNote:'Email, messaggi e chiamate da gestire arrivano dal quadrato rosso “!” in alto, e ogni sezione dello studio ha la sua missione.', menuNote:'Le missioni arrivano dallo studio vivo: email da controllare, messaggi da correggere, chiamate in diretta. Sempre nuove.',
+initGame(challenges, {icon, missionsOnly:true, missionTypes:18, sections:12, placeOf:'dello studio', startNote:'Email, messaggi e chiamate da gestire arrivano dal quadrato rosso “!” in alto, e ogni sezione dello studio ha la sua missione.', menuNote:'Le missioni arrivano dallo studio vivo: email da controllare, messaggi da correggere, chiamate in diretta. Sempre nuove.',
  focus:(page, ref) => { if (page === 'posta') { ui.mail = ref; ui.mailFilter = 'all'; } if (page === 'whatsapp') ui.chat = ref; if (page === 'centralino') ui.call = ref; if (route() === page) { render(); } else location.hash = page; setTimeout(() => document.querySelector('[data-mission]')?.scrollIntoView({block:'center', behavior:'smooth'}), 120); },
  onStart:() => startMissions((id, page) => { if (page === 'posta' && !state.handled.includes(id)) state.handled.push(id); if (route() === page) { const y = scrollY; render(); scrollTo(0, y); } }),
  onReset:() => stopMissions(),

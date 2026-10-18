@@ -166,7 +166,7 @@ function openLevel() { const t = Date.now(); open().forEach(c => { S.avail[c.id]
 function tick() {
  if (!S.started || touring() || document.hidden) { for (const id in S.avail) S.avail[id] += 1000; openMissions().forEach(m => { m.created += 1000; }); return; }
  if (Date.now() < S.fx.freezeUntil) { openMissions().forEach(m => { m.created += 1000; }); for (const id in S.avail) S.avail[id] += 1000; }
- for (const m of openMissions()) if (missionLeft(m) <= 0) resolveMission(m, {pts:-8, label:'Tempo scaduto', why:'L’email è rimasta senza risposta: Otto l’ha rimessa in coda. Una decisione presa tardi costa meno di una sbagliata, ma costa.'});
+ for (const m of openMissions()) if (missionLeft(m) <= 0) resolveMission(m, {pts:-8, label:'Tempo scaduto', why:'Nessuno ha deciso in tempo: Otto ha scelto da solo seguendo le regole e ti segnala il caso da ricontrollare. Una decisione lasciata a metà costa meno di una sbagliata, ma costa.'});
  for (const c of open()) {
   if (left(c) > 0) continue;
   const b = base[c.level], k = S.cards[c.id] ||= {opened:[], seen:true};
@@ -311,6 +311,34 @@ export function gameInvite() {
  if (S.started) return;
  setTimeout(() => celebrate('Ora prova tu', 'Avvia la sfida di Otto da “Sfida” in alto: le decisioni vere passano a te.'), 500);
 }
+// Introduzione in tre passaggi, prima della prima partita: spiega che il gioco è il funzionamento reale del sistema.
+let introSeen = false;
+export function gameIntro() {
+ if (S.started) return;
+ document.querySelector('.game-pop')?.remove();
+ const types = hooks.missionTypes || 18, sections = hooks.sections || 12;
+ const slides = [
+  [icon('otto-happy'), 'Questa demo si gioca', `Il sistema lavora da solo: Otto legge, risponde, compila e smista. Quando trova un’incongruenza o serve una decisione, <b>ti chiama</b>. Quella chiamata è il minigioco: <b>è così che funzionerà davvero</b>.`],
+  [icon('otto-read'), `${types} tipi di missione, mai uguali`, `Le missioni arrivano da ${sections} sezioni ${esc(hooks.placeOf || 'dello studio')}: email, chiamate, conti, scadenze, documenti. <b>Nomi, numeri e documenti sono generati a caso</b> ogni volta, ma sono situazioni vere: giocando impari a usare lo strumento.`],
+  [icon('otto-wink'), 'Come si gioca', `Le missioni aperte sono nel quadrato rosso <b class="gt-bang">!</b> in alto. Ognuna ha il suo tempo: <b>se non decidi tu, Otto sceglie da solo</b> seguendo le regole e perdi qualche punto. Con i punti compri indizi e potenziamenti nella <b>Bottega di Otto</b>.`]
+ ];
+ let k = 0;
+ const el = document.createElement('div'); el.className = 'game-intro'; el.setAttribute('role', 'dialog'); el.setAttribute('aria-label', 'Come funziona il gioco');
+ const draw = () => {
+  const [ic, t, x] = slides[k], last = k === slides.length - 1;
+  el.innerHTML = `<div class="gi-card"><div class="gi-top"><span class="gi-face">${ic}</span><span class="gi-step">${k + 1} DI ${slides.length}</span><button class="gi-x" data-intro="close" aria-label="Chiudi">×</button></div>
+   <h3>${esc(t)}</h3><p>${x}</p>
+   <div class="gi-foot"><span class="gi-dots">${slides.map((_, i) => `<i class="${i === k ? 'on' : i < k ? 'done' : ''}"></i>`).join('')}</span><button class="gi-next" data-intro="${last ? 'go' : 'next'}">${last ? 'Inizia a giocare' : 'Avanti'} <span aria-hidden="true">→</span></button></div></div>`;
+  el.querySelector('.gi-next').focus({preventScroll:true});
+ };
+ el.addEventListener('click', e => {
+  const b = e.target.closest('[data-intro]'); if (!b) return;
+  if (b.dataset.intro === 'next') { k++; play('click'); draw(); }
+  else if (b.dataset.intro === 'go') { el.remove(); introSeen = true; start(); }
+  else el.remove();
+ });
+ document.body.append(el); draw(); play('open');
+}
 function start() {
  S.started = true; openLevel(); hooks.onStart?.(); updateChip('bump'); play('level');
  refresh(location.hash.slice(1) || 'home'); markNav();
@@ -448,7 +476,7 @@ function onClick(e) {
  const [k, id, i] = b.dataset.game.split(':');
  if (k !== 'menu' && k !== 'sound' && k !== 'alert') document.querySelector('.game-pop')?.remove();
  if (k === 'menu') { play('click'); return menu(); }
- if (k === 'start') return start();
+ if (k === 'start') return introSeen ? start() : gameIntro();
  if (k === 'alert') { play('click'); return chooser(); }
  if (k === 'go') return go(id, i);
  if (k === 'mg') return missionAction(id, i, b.dataset.game.split(':').slice(3).join(':'), b);
