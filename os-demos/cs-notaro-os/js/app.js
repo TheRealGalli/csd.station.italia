@@ -81,9 +81,15 @@ function render() {
  const main = document.querySelector('#main');
  main.className = (id === 'studio' ? 'main-studio' : '') + (id !== lastRoute ? ' enter' : '');
  lastRoute = id;
+ try {
  main.innerHTML = pages[id] ? pages[id]() : `<div class="empty-state"><span class="empty-icon">${icon('search')}</span><h2>Questo spazio non esiste.</h2><p>Torna a “Oggi in studio”.</p><a class="btn btn-primary" href="#home">Torna a oggi${icon('arrow')}</a></div>`;
  mountGame(id, main);
  if (id === 'studio') afterStudioRender();
+ } catch (err) {
+  // mai una pagina bianca: lo diciamo, e si riparte da uno stato pulito
+  console.warn('CS Notaro OS · errore nella sezione', err);
+  main.innerHTML = `<div class="empty-state"><span class="empty-icon">${icon('otto-think')}</span><h2>Questa sezione si è inceppata.</h2><p>Il resto dello studio continua a lavorare. Riprova: Otto riparte da uno stato pulito.</p><a class="btn btn-primary" href="#home">Torna a oggi${icon('arrow')}</a></div>`;
+ }
 }
 
 // ————— OGGI IN STUDIO —————
@@ -623,19 +629,21 @@ onLive(ev => {
 });
 // Le sezioni vive dello studio nella sfida: un battito al secondo.
 setInterval(() => {
- if (!gameOn() || gamePaused() || document.hidden || document.body.classList.contains('touring')) return;
- const r = P.studioTick(gameLevel(), state.handled);
- // ogni cosa in rosso costa 1 punto al secondo, ma al massimo 2 in tutto
- const reds = r.late.length + r.red.length;
- if (reds) penalty(Math.min(2, reds), r.late.length ? 'Email in ritardo' : 'Adempimento in scadenza');
- r.expired.forEach(f => { penalty(15, 'Termine scaduto'); toast(`${f.what} (${f.act}): termine scaduto, sanzione per lo studio.`); });
- r.done.forEach(f => ecoPoints('filing', 6, 'Adempimento chiuso', f.id, {born:f.created}));
- const sig = `${r.late.length}|${r.red.length}`, was = ui.pressure?.sig;
- ui.pressure = {...r, sig};
- // nello Scadenziario i secondi scorrono a vista; in Posta si ridisegna solo quando cambia qualcosa
- if (route() === 'scadenze' || ((r.changed || was !== sig) && route() === 'posta')) liveRefresh();
- document.querySelector('.sidebar a[href="#posta"]')?.classList.toggle('kds-alarm', r.late.length > 0);
- document.querySelector('.sidebar a[href="#scadenze"]')?.classList.toggle('kds-alarm', r.red.length > 0);
+ try {
+  if (!gameOn() || gamePaused() || document.hidden || document.body.classList.contains('touring')) return;
+  const r = P.studioTick(gameLevel(), state.handled);
+  // ogni cosa in rosso costa 1 punto al secondo, ma al massimo 2 in tutto
+  const reds = r.late.length + r.red.length;
+  if (reds) penalty(Math.min(2, reds), r.late.length ? 'Email in ritardo' : 'Adempimento in scadenza');
+  r.expired.forEach(f => { penalty(15, 'Termine scaduto'); toast(`${f.what} (${f.act}): termine scaduto, sanzione per lo studio.`); });
+  r.done.forEach(f => ecoPoints('filing', 6, 'Adempimento chiuso', f.id, {born:f.created}));
+  const sig = `${r.late.length}|${r.red.length}`, was = ui.pressure?.sig;
+  ui.pressure = {...r, sig};
+  // nello Scadenziario i secondi scorrono a vista; in Posta si ridisegna solo quando cambia qualcosa
+  if (route() === 'scadenze' || ((r.changed || was !== sig) && route() === 'posta')) liveRefresh();
+  document.querySelector('.sidebar a[href="#posta"]')?.classList.toggle('kds-alarm', r.late.length > 0);
+  document.querySelector('.sidebar a[href="#scadenze"]')?.classList.toggle('kds-alarm', r.red.length > 0);
+ } catch (err) { console.warn('CS Notaro OS · errore nel battito', err); }
 }, 1000);
 // Dentro il sito la demo parte ferma (niente cicli né animazioni): si accende solo quando il visitatore la apre.
 const wake = on => { live.awake = on; document.documentElement.classList.toggle('csd-paused', !on); };

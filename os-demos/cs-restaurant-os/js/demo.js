@@ -173,9 +173,9 @@ seed();
 // Servizio live: la cucina avanza e arrivano nuovi ordini.
 export function tick() {
  if (!service.live) return;
+ tidy(); // il riordino (elenchi corti, consegne del fornitore) gira sempre, anche nella sfida
  // nella sfida la cucina la guida il giocatore: la simulazione fa solo girare i tavoli
  if (service.game) { if (Math.random() < .3) turnover(); return; }
- tidy();
  if (Math.random() < .25 && turnover()) return;
  const r = Math.random();
  const lines = kitchenLines();
@@ -305,7 +305,9 @@ export function inboundTick() { if (!service.live || service.game) return; inbou
 // Fuori dalla sfida la cucina va da sola. Nella sfida la guida il giocatore, con limiti veri:
 // fornelli con un massimo di piatti insieme, tempi di cottura per piatto, un tempo per servire dal pass.
 // Se le comande aspettano troppo o i piatti restano fermi al pass, la colonna va in rosso e si perdono punti.
-export const kitchen = {cap:4, passTime:45, waitLimit:70, speed:1};
+export const kitchen = {cap:4, passTime:45, waitLimit:70, speed:1, auto:{cook:false, pass:false, serve:false}, autoUntil:0, handedOver:false};
+// I primi minuti della sfida la cucina va da sola; poi passa al giocatore, che può ricomprare gli automatismi.
+export const AUTO_START = 300;
 export const cookTime = d => Math.max(8, Math.round(d.prep * 2 * kitchen.speed)); // secondi
 const findLine = id => { for (const t of tables) { const l = t.lines.find(x => x.id === id); if (l) return [t, l]; } return []; };
 export const cookingNow = () => kitchenLines().filter(l => l.state === 'cooking');
@@ -315,6 +317,12 @@ export function startCooking(id) {
  l.state = 'cooking'; l.cookAt = Date.now();
  log(`${t.id} · ${dish(l.dish).name} sui fornelli`, 'cucina'); emit(); return true;
 }
+export function passLine(id) {
+ const [t, l] = findLine(id);
+ if (!l || l.state !== 'cooking' || !l.cooked) return false;
+ l.state = 'ready'; l.readyAt = Date.now(); log(`${t.id} · ${dish(l.dish).name} al pass`, 'cucina'); emit(); return true;
+}
+export const autoOn = k => kitchen.auto[k] || Date.now() < kitchen.autoUntil;
 export function serveLine(id) {
  const [t, l] = findLine(id);
  if (!l || l.state !== 'ready') return false;
@@ -322,7 +330,7 @@ export function serveLine(id) {
 }
 // All'inizio della sfida la cucina parte leggera: poche comande, che poi arrivano con il tempo.
 export function kitchenGameStart() {
- service.game = true; Object.assign(kitchen, {cap:4, passTime:45, waitLimit:70, speed:1});
+ service.game = true; Object.assign(kitchen, {cap:4, passTime:45, waitLimit:70, speed:1, auto:{cook:false, pass:false, serve:false}, autoUntil:Date.now() + AUTO_START * 1000, handedOver:false});
  const now = Date.now(), keep = {waiting:2, cooking:2, ready:1};
  for (const l of kitchenLines().sort((a, b) => a.at - b.at)) {
   const [, line] = findLine(l.id);
@@ -339,12 +347,19 @@ export function kitchenGameStop() { service.game = false; }
 let nextOrderAt = 0;
 // Un battito al secondo: la cottura finisce, le comande nuove arrivano, si controlla cosa è in rosso.
 export function kitchenGameTick(level = 1) {
- if (!service.game) return {waiting:false, pass:false};
+ if (!service.game) return {waiting:false, pass:false, handover:false};
  const now = Date.now(); let changed = false;
  for (const l of kitchenLines()) {
   const [t, line] = findLine(l.id);
-  if (line.state === 'cooking' && now - (line.cookAt || now) >= cookTime(dish(line.dish)) * 1000) { line.state = 'ready'; line.readyAt = now; log(`${t.id} · ${dish(line.dish).name} pronto al pass`, 'cucina'); changed = true; }
+  // cotto: con l'automatismo va al pass da solo, altrimenti aspetta sui fornelli che qualcuno lo porti
+  if (line.state === 'cooking' && !line.cooked && now - (line.cookAt || now) >= cookTime(dish(line.dish)) * 1000) { line.cooked = true; line.cookedAt = now; changed = true; }
+  if (line.state === 'cooking' && line.cooked && autoOn('pass')) { line.state = 'ready'; line.readyAt = now; log(`${t.id} · ${dish(line.dish).name} pronto al pass`, 'cucina'); changed = true; }
+  else if (line.state === 'ready' && autoOn('serve') && now - (line.readyAt || now) > 6000) { line.state = 'served'; log(`${t.id} · ${dish(line.dish).name} servito`, 'sala'); changed = true; }
  }
+ if (autoOn('cook')) for (const l of kitchenLines().filter(x => x.state === 'waiting').sort((a, b) => a.at - b.at)) { if (cookingNow().length >= kitchen.cap) break; const [, line] = findLine(l.id); line.state = 'cooking'; line.cookAt = now; changed = true; }
+ // finiti i primi minuti, la cucina passa nelle mani del giocatore (una volta sola)
+ let handover = false;
+ if (!kitchen.handedOver && now >= kitchen.autoUntil) { kitchen.handedOver = true; handover = true; changed = true; }
  const waiting = kitchenLines().filter(l => l.state === 'waiting');
  if (now >= nextOrderAt && waiting.length < 3 + level * 2) {
   const gap = [[35, 55], [25, 40], [18, 30]][level - 1] || [35, 55];
@@ -357,7 +372,8 @@ export function kitchenGameTick(level = 1) {
  const lines = kitchenLines();
  return {
   waiting:lines.some(l => l.state === 'waiting' && now - l.at > kitchen.waitLimit * 1000),
-  pass:lines.some(l => l.state === 'ready' && now - (l.readyAt || now) > kitchen.passTime * 1000)
+  pass:lines.some(l => (l.state === 'ready' && now - (l.readyAt || now) > kitchen.passTime * 1000) || (l.state === 'cooking' && l.cooked && now - (l.cookedAt || now) > kitchen.passTime * 1000)),
+  handover
  };
 }
 

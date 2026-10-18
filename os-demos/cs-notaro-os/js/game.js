@@ -310,7 +310,9 @@ function tick() {
  }
  updateAlert();
 }
-setInterval(tick, 1000);
+// i battiti del gioco non devono mai fermare la pagina: un errore si registra e si va avanti
+const safe = (fn, name) => () => { try { fn(); } catch (err) { console.warn(`Sfida di Otto · ${name}`, err); } };
+setInterval(safe(tick, 'tempo'), 1000);
 // Consigli casuali di Otto, a tempo fermo, solo quando non c'è niente di urgente.
 const tips = [
  ['tip-sources', '.game-chip', 'Un consiglio', 'Nei documenti **i numeri in arancione** sono quelli da confrontare: guardali prima di decidere.'],
@@ -327,7 +329,7 @@ function tipDirector() {
  const t = tips.find(x => !S.coached[x[0]]); if (!t) return;
  idleSince = Date.now(); coach(t[0], t[1], t[2], t[3], 'otto-wink');
 }
-setInterval(tipDirector, 5000);
+setInterval(safe(tipDirector, 'consigli'), 5000);
 // Il quadrato rosso con il punto esclamativo: quante decisioni aspettano, e ci porta lì.
 function alertBtn() {
  const n = S.started ? openAll().length : 0;
@@ -669,6 +671,8 @@ function ottoChat({name, role, title, lines, button = 'Ho capito', onClose}) {
   const n = coachQueue.shift(); if (n) setTimeout(() => coach(...n), 450);
  });
 }
+// le app possono far parlare Otto in chat (per esempio quando la cucina passa al giocatore)
+export const ottoMessage = opts => ottoChat(opts);
 export const gamePaused = () => S.paused > 0;
 export const isReserved = ref => ref != null && (openTasks().some(t => t.ref != null && String(t.ref) === String(ref)) || openMissions().some(m => m.ref != null && String(m.ref) === String(ref)));
 // Le missioni arrivano solo dopo due compiti fatti, e mai oltre il numero di cose aperte del livello.

@@ -2,7 +2,7 @@ import {icon, otto} from './icons.js';
 import {modules, groups, groupNotes, moduleById} from './modules.js';
 import * as D from './demo.js';
 import {startTour} from './tour.js';
-import {initGame, gameChip, mountGame, gameInvite, gameOn, openShop, gameIntro, ecoPoints, missionPanel, gamePaused, isReserved, penalty, gameLevel} from './game.js';
+import {initGame, gameChip, mountGame, gameInvite, gameOn, openShop, gameIntro, ecoPoints, missionPanel, gamePaused, isReserved, penalty, gameLevel, ottoMessage} from './game.js';
 import {story} from './story.js';
 import {challenges} from './challenges.js';
 import {startMissions, stopMissions} from './missions.js';
@@ -60,9 +60,17 @@ function render() {
  document.querySelector('#crumb').textContent = title; document.title = `${title} · CS Restaurant OS`;
  const main = document.querySelector('#main');
  main.className = id !== lastRoute ? 'enter' : ''; lastRoute = id;
- main.innerHTML = pages[id] ? pages[id]() : `<div class="empty-state"><h2>Questo spazio non esiste.</h2><a class="btn btn-primary" href="#home">Torna al servizio${icon('arrow')}</a></div>`;
- mountGame(id, main);
+ try {
+  main.innerHTML = pages[id] ? pages[id]() : `<div class="empty-state"><h2>Questo spazio non esiste.</h2><a class="btn btn-primary" href="#home">Torna al servizio${icon('arrow')}</a></div>`;
+  mountGame(id, main);
+ } catch (err) { main.innerHTML = sectionError(err); }
  syncCounts();
+}
+// Mai una pagina bianca: se una sezione si rompe lo diciamo, e si riparte da uno stato pulito.
+function sectionError(err) {
+ console.warn('CS Restaurant OS · errore nella sezione', err);
+ ui.qr = {table:'T1', cart:{}, step:'menu', cat:ui.qr?.cat, receipt:null}; ui.ticket = null; ui.adding = false;
+ return `<div class="empty-state"><span class="empty-icon">${icon('otto-think')}</span><h2>Questa sezione si è inceppata.</h2><p>Il resto del locale continua a lavorare. Riprova: Otto riparte da uno stato pulito.</p><button class="btn btn-primary" data-action="retry">Riprova${icon('arrow')}</button></div>`;
 }
 // Aggiorna solo ciò che vive: chiamato a ogni evento del servizio.
 function liveRefresh() {
@@ -173,11 +181,13 @@ function kds() {
   const d = D.dish(l.dish), sel = ui.ticket === l.id;
   const timer = state === 'waiting' ? bar(l.at, k.waitLimit, 'wait') : state === 'cooking' ? bar(l.cookAt || now, D.cookTime(d), 'cook') : bar(l.readyAt || now, k.passTime, 'pass');
   const action = state === 'waiting' ? (full ? `<span class="tk-full">Fornelli pieni · ${cooking}/${k.cap}</span>` : `<button class="tk-go" data-cook="${l.id}">Metti sui fornelli ${icon('arrow')}</button>`)
-   : state === 'cooking' ? `<span class="tk-next">In cottura · ${D.cookTime(d)} s</span>` : `<button class="tk-go" data-serve="${l.id}">Servi al tavolo ${icon('arrow')}</button>`;
-  return `<article class="ticket ${now - l.at < 2500 ? 'row-in' : ''} ${sel ? 'selected' : ''}" data-ticket="${l.id}" tabindex="0" role="button" aria-expanded="${sel}"><span class="tk-top"><b>${l.table}</b><small>${state === 'cooking' ? icon('clock') : ''}</small></span><span class="tk-dish">${l.qty}× ${esc(d.name)}</span>${d.allergens.length ? `<span class="tk-all">${d.allergens.map(a => `<i>${a}</i>`).join('')}</span>` : ''}${timer}${sel || state === 'ready' ? action : state === 'cooking' ? action : '<span class="tk-next">Tocca per aprire</span>'}</article>`;
+   : state === 'cooking' ? (l.cooked ? (D.autoOn('pass') ? `<span class="tk-next">${icon('check')} Cotto · va al pass da solo</span>` : `<button class="tk-go" data-pass="${l.id}">Cotto · manda al pass ${icon('arrow')}</button>`) : `<span class="tk-next">In cottura · ${D.cookTime(d)} s</span>`)
+   : D.autoOn('serve') ? `<span class="tk-next">${icon('check')} Il cameriere lo porta</span>` : `<button class="tk-go" data-serve="${l.id}">Servi al tavolo ${icon('arrow')}</button>`;
+  return `<article class="ticket ${now - l.at < 2500 ? 'row-in' : ''} ${sel ? 'selected' : ''}" data-ticket="${l.id}" tabindex="0" role="button" aria-expanded="${sel}"><span class="tk-top"><b>${l.table}</b><small>${state === 'cooking' ? icon('clock') : ''}</small></span><span class="tk-dish">${l.qty}× ${esc(d.name)}</span>${d.allergens.length ? `<span class="tk-all">${d.allergens.map(a => `<i>${a}</i>`).join('')}</span>` : ''}${l.cooked && state === 'cooking' ? '' : timer}${sel || state !== 'waiting' ? action : D.autoOn('cook') ? '<span class="tk-next">Va sui fornelli da solo</span>' : '<span class="tk-next">Tocca per aprire</span>'}</article>`;
  };
- const col = (state, title, extra = '') => { const ls = lines.filter(l => l.state === state).sort((a, b) => a.at - b.at); const red = (state === 'waiting' && hot.waiting) || (state === 'ready' && hot.pass); return `<section class="kds-col k-${state} ${red ? 'hot' : ''}"><header><b>${title}</b><span>${extra || ls.length}</span></header>${red ? `<p class="kds-hot">${icon('alert')} ${state === 'waiting' ? 'Comande ferme troppo a lungo' : 'Piatti fermi al pass'} · −1 pt al secondo</p>` : ''}${ls.map(l => ticket(l, state)).join('') || '<p class="muted pad-s">Niente qui.</p>'}</section>`; };
- return `${heading('SALA & CUCINA · 02', 'Cucina & comande', `I fornelli reggono <b>${k.cap} piatti insieme</b>: ogni piatto ha il suo tempo di cottura e va al pass da solo. Dal pass si serve entro ${k.passTime} secondi.`, `<span class="live-pill"><span class="live-dot"></span>Fornelli ${cooking}/${k.cap}</span>`)}
+ const autoLeft = Math.max(0, Math.ceil((k.autoUntil - now) / 1000)), autoTag = key => D.autoOn(key) ? '<i class="kds-auto">AUTO</i>' : '';
+ const col = (state, title, extra = '') => { const ls = lines.filter(l => l.state === state).sort((a, b) => a.at - b.at); const red = (state === 'waiting' && hot.waiting) || (state === 'ready' && hot.pass); return `<section class="kds-col k-${state} ${red ? 'hot' : ''}"><header><b>${title} ${autoTag({waiting:'cook', cooking:'pass', ready:'serve'}[state])}</b><span>${extra || ls.length}</span></header>${red ? `<p class="kds-hot">${icon('alert')} ${state === 'waiting' ? 'Comande ferme troppo a lungo' : 'Piatti fermi al pass'} · −1 pt al secondo</p>` : ''}${ls.map(l => ticket(l, state)).join('') || '<p class="muted pad-s">Niente qui.</p>'}</section>`; };
+ return `${heading('SALA & CUCINA · 02', 'Cucina & comande', `I fornelli reggono <b>${k.cap} piatti insieme</b>: ogni piatto ha il suo tempo di cottura e va al pass da solo. Dal pass si serve entro ${k.passTime} secondi.`, `${autoLeft ? `<span class="live-pill kds-autopill">${icon('clock')} Cucina automatica ancora ${Math.floor(autoLeft / 60)}:${String(autoLeft % 60).padStart(2, '0')}</span>` : ''}<span class="live-pill"><span class="live-dot"></span>Fornelli ${cooking}/${k.cap}</span>`)}
  <div data-anchor="kds"></div>
  <div class="kds-board game-kds">${col('waiting', 'In attesa')}${col('cooking', 'Sui fornelli', `${cooking}/${k.cap}`)}${col('ready', 'Pronti al pass')}</div>`;
 }
@@ -194,6 +204,8 @@ function qrSvg(seed) {
 }
 const dishState = d => !d.visible ? ['Tolto da Otto', ''] : d.paused ? ['In pausa · cucina piena', 'badge-amber'] : D.portions(d) < 1 ? ['Esaurito', 'badge-red'] : D.portions(d) <= 3 ? [`Ultime ${D.portions(d)}`, 'badge-amber'] : ['Disponibile', 'badge-green'];
 function guestPhone() {
+ // un riferimento non valido (per esempio quello di un compito) non deve rompere la pagina
+ if (!D.table(ui.qr.table)) ui.qr = {table:'T1', cart:{}, step:'menu', cat:ui.qr.cat, receipt:null};
  const q = ui.qr, t = D.table(q.table);
  const cart = Object.entries(q.cart).filter(([, n]) => n > 0);
  const count = cart.reduce((n, [, k]) => n + k, 0), total = cart.reduce((n, [id, k]) => n + D.dish(id).price * k, 0);
@@ -393,6 +405,7 @@ function action(a) {
  if (a === 'search') return searchDialog();
  if (a === 'tour') return startTour(restaurantTour({toggleOtto, ui, D}), {otto, name:'Demo interattiva CS Restaurant OS', onEnd:() => { toggleOtto(false); gameInvite(); }});
  if (a === 'live') { D.service.live = !D.service.live; toast(D.service.live ? 'Servizio live: la cucina avanza e arrivano ordini.' : 'Servizio in pausa.'); return shell(); }
+ if (a === 'retry') return render();
  if (k === 'toast') return toast(a.slice(6));
  if (k === 'go') { location.hash = a.slice(3); return; }
  if (a === 'adding') { ui.adding = !ui.adding; return render(); }
@@ -421,6 +434,7 @@ document.addEventListener('click', e => {
  if ((x = el('[data-add]'))) { const ok = D.addDish(ui.table, x.dataset.add); if (ok) ecoPoints('add', 2, 'Comanda in cucina'); toast(ok ? `${D.dish(x.dataset.add).name} → cucina · conto e magazzino aggiornati` : 'Piatto esaurito: ingredienti insufficienti.'); return; }
  if ((x = el('[data-fridge-act]'))) { const f = D.fridge(x.dataset.fridgeAct), born = f?.since, no = f?.faults; if (D.fridgeAction(x.dataset.fridgeAct)) ecoPoints('fridge', 5, 'Cella sistemata', `${f.id}-${no}`, {born}); return render(); }
  if ((x = el('[data-cook]'))) { const id = x.dataset.cook, l = D.kitchenLines().find(y => y.id === id); if (D.startCooking(id)) { ecoPoints('advance', 3, 'Sui fornelli', id, {born:l?.at}); ui.ticket = null; } else toast(`Fornelli pieni: aspetta che un piatto vada al pass (${D.kitchen.cap} insieme).`); return; }
+ if ((x = el('[data-pass]'))) { const id = x.dataset.pass, l = D.kitchenLines().find(y => y.id === id); if (D.passLine(id)) { ecoPoints('pass', 3, 'Al pass', id, {born:l?.cookedAt}); ui.ticket = null; } return; }
  if ((x = el('[data-serve]'))) { const id = x.dataset.serve, l = D.kitchenLines().find(y => y.id === id); if (D.serveLine(id)) { ecoPoints('serve', 4, 'Servito', id, {born:l?.readyAt}); ui.ticket = null; } return; }
  if ((x = el('[data-advance]'))) { D.advance(x.dataset.advance); ecoPoints('advance', 2, 'Comanda avanti', x.dataset.advance); ui.ticket = null; return; }
  if ((x = el('[data-ticket]'))) { ui.ticket = ui.ticket === x.dataset.ticket ? null : x.dataset.ticket; return render(); }
@@ -470,20 +484,24 @@ let awake = window.parent === window;
 const busy = () => !awake || document.hidden || document.body.classList.contains('touring') || gamePaused();
 const wake = on => { awake = on; document.documentElement.classList.toggle('csd-paused', !on); };
 wake(awake);
-setInterval(() => { if (!busy()) D.tick(); }, 3500);
+setInterval(() => { try { if (!busy()) D.tick(); } catch (err) { console.warn('CS Restaurant OS · errore nel servizio', err); } }, 3500);
 setInterval(() => {
- if (busy() || !gameOn() || !D.service.game) return;
- chefDirector();
- const fr = D.fridgeTick();
- fr.lost.forEach(f => { penalty(10, 'Merce buttata'); toast(`${f.name}: oltre i ${f.max + 4} °C, metà della merce va buttata.`); });
- document.querySelectorAll('[data-fridge-temp]').forEach(e => { const f = D.fridge(e.dataset.fridgeTemp); e.textContent = fridgeTemp(f); e.closest('.fridge')?.classList.toggle('red', D.fridgeRed(f)); });
- const h = D.kitchenGameTick(gameLevel());
- // ogni cosa in rosso costa 1 punto al secondo, ma al massimo 2 in tutto: si perde, senza crollare
- const reds = fr.red.length + (h.waiting ? 1 : 0) + (h.pass ? 1 : 0);
- if (reds) penalty(Math.min(2, reds), fr.red.length ? 'Cella fuori norma' : h.waiting ? 'Comande ferme' : 'Piatti fermi al pass');
- const was = ui.kitchenHot || {}; ui.kitchenHot = h;
- if ((was.waiting !== h.waiting || was.pass !== h.pass) && route() === 'kds') render();
- if (h.waiting || h.pass) document.querySelector('.sidebar a[href="#kds"]')?.classList.add('kds-alarm'); else document.querySelector('.sidebar a[href="#kds"]')?.classList.remove('kds-alarm');
+ try {
+  if (busy() || !gameOn() || !D.service.game) return;
+  chefDirector();
+  const fr = D.fridgeTick();
+  fr.lost.forEach(f => { penalty(10, 'Merce buttata'); toast(`${f.name}: oltre i ${f.max + 4} °C, metà della merce va buttata.`); });
+  document.querySelectorAll('[data-fridge-temp]').forEach(e => { const f = D.fridge(e.dataset.fridgeTemp); e.textContent = fridgeTemp(f); e.closest('.fridge')?.classList.toggle('red', D.fridgeRed(f)); });
+  const h = D.kitchenGameTick(gameLevel());
+ if (h.handover) ottoMessage({name:'Otto cuoco', role:'otto-chef', title:'La cucina passa a te', button:'Ho capito', lines:['Per i primi minuti ho mandato avanti io la cucina, così hai potuto guardarti intorno.', '**Da adesso la cucina è manuale**: metti i piatti sui fornelli, manda al pass quelli cotti e servili al tavolo. Se una colonna diventa rossa, perdi punti.', 'Niente paura: con i punti, nella **Bottega di Otto**, puoi comprare tre automatismi — **in cucina**, **al pass** e **al tavolo** — e non pensarci più.']});
+  // ogni cosa in rosso costa 1 punto al secondo, ma al massimo 2 in tutto: si perde, senza crollare
+  const reds = fr.red.length + (h.waiting ? 1 : 0) + (h.pass ? 1 : 0);
+  if (reds) penalty(Math.min(2, reds), fr.red.length ? 'Cella fuori norma' : h.waiting ? 'Comande ferme' : 'Piatti fermi al pass');
+  const was = ui.kitchenHot || {}; ui.kitchenHot = h;
+  if ((was.waiting !== h.waiting || was.pass !== h.pass || h.handover) && route() === 'kds') render();
+  else if (route() === 'kds' && D.kitchen.autoUntil > Date.now() && Date.now() % 5000 < 1000) liveRefresh(); // il conto alla rovescia della cucina automatica
+  if (h.waiting || h.pass) document.querySelector('.sidebar a[href="#kds"]')?.classList.add('kds-alarm'); else document.querySelector('.sidebar a[href="#kds"]')?.classList.remove('kds-alarm');
+ } catch (err) { console.warn('CS Restaurant OS · errore nel battito', err); }
 }, 1000);
 (function inbound() { setTimeout(() => { if (!busy()) D.inboundTick(); inbound(); }, 14000 + Math.random() * 10000); })();
 window.addEventListener('message', e => {
@@ -520,9 +538,12 @@ initGame(challenges, {story,icon, place:'il locale', missionsOnly:true,
   }
   return c;
  },
- focus:(page, ref) => { if (page === 'menu_pos' && ref) ui.qr = {table:ref, cart:{}, step:'menu', cat:ui.qr.cat, receipt:null}; if (page === 'sala') { ui.table = ref; ui.adding = false; } if (route() === page) render(); else location.hash = page; }, missionTypes:12, sections:12, placeOf:'del locale', startNote:'Fatture, comande, conti, chiamate e prenotazioni arrivano dal quadrato rosso “!” in alto, e ogni sezione del locale ha la sua missione.', onStart:() => { startMissions(); D.kitchenGameStart(); D.fridgeGameStart(); ui.chefOrder = null; nextChefAt = Date.now() + 90000; }, onReset:() => { stopMissions(); D.kitchenGameStop(); },
+ focus:(page, ref) => { if (page === 'menu_pos' && ref && D.table(ref)) ui.qr = {table:ref, cart:{}, step:'menu', cat:ui.qr.cat, receipt:null}; if (page === 'sala') { ui.table = ref; ui.adding = false; } if (route() === page) render(); else location.hash = page; }, missionTypes:12, sections:12, placeOf:'del locale', startNote:'Fatture, comande, conti, chiamate e prenotazioni arrivano dal quadrato rosso “!” in alto, e ogni sezione del locale ha la sua missione.', onStart:() => { startMissions(); D.kitchenGameStart(); D.fridgeGameStart(); ui.chefOrder = null; nextChefAt = Date.now() + 90000; }, onReset:() => { stopMissions(); D.kitchenGameStop(); },
  // potenziamenti del locale, da comprare nella Bottega di Otto
  shop:[
+  {id:'auto-cook', name:'Automatismo in cucina', desc:'Le comande in attesa vanno sui fornelli da sole, appena c’è posto.', cost:60, mood:'otto-chef', use:() => { if (D.kitchen.auto.cook) return false; D.kitchen.auto.cook = true; render(); return 'Le comande vanno sui fornelli da sole.'; }},
+  {id:'auto-pass', name:'Automatismo al pass', desc:'I piatti cotti vanno al pass da soli.', cost:50, mood:'otto-chef', use:() => { if (D.kitchen.auto.pass) return false; D.kitchen.auto.pass = true; render(); return 'I piatti cotti vanno al pass da soli.'; }},
+  {id:'auto-serve', name:'Automatismo al tavolo', desc:'Un cameriere serve da solo i piatti pronti al pass.', cost:70, mood:'otto-bow', use:() => { if (D.kitchen.auto.serve) return false; D.kitchen.auto.serve = true; render(); return 'I piatti pronti arrivano al tavolo da soli.'; }},
   {id:'cuoco', name:'Secondo cuoco', desc:'+1 piatto sui fornelli insieme (fino a 7).', cost:35, mood:'otto-chef', use:() => { if (D.kitchen.cap >= 7) return false; D.kitchen.cap++; render(); return `Ora i fornelli reggono ${D.kitchen.cap} piatti insieme.`; }},
   {id:'cameriere', name:'Cameriere al pass', desc:'+20 secondi prima che il pass vada in rosso.', cost:25, mood:'otto-bow', use:() => { D.kitchen.passTime += 20; render(); return `Dal pass si serve entro ${D.kitchen.passTime} secondi.`; }},
   {id:'forno', name:'Forno nuovo', desc:'Cottura più veloce del 20%.', cost:40, mood:'otto-chef', use:() => { if (D.kitchen.speed <= .5) return false; D.kitchen.speed = +(D.kitchen.speed * .8).toFixed(2); render(); return 'I piatti cuociono più in fretta.'; }},

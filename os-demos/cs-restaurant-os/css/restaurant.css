@@ -249,3 +249,6 @@
 .fridge.red{background:#fdeeea;border-color:#efb3a5;animation:kds-hot 1.2s ease-in-out infinite}
 .fridge.red strong{color:#b2412d}
 @media(max-width:1100px){.fridge-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+.kds-auto{font-style:normal;font-size:8.5px;letter-spacing:.8px;font-weight:700;color:#2f5a14;background:#dff2c4;border-radius:4px;padding:2px 5px;margin-left:6px;vertical-align:1px}
+.kds-autopill{background:#f3eef9;border-color:#e2d7f0;color:#6a4f92;margin-right:8px}
+.kds-autopill .icon{width:13px;height:13px}
