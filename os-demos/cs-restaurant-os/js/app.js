@@ -2,7 +2,7 @@ import {icon, otto} from './icons.js';
 import {modules, groups, groupNotes, moduleById} from './modules.js';
 import * as D from './demo.js';
 import {startTour} from './tour.js';
-import {initGame, gameChip, mountGame, gameInvite, gameOn, openShop, gameIntro, ecoPoints, missionPanel, gamePaused} from './game.js';
+import {initGame, gameChip, mountGame, gameInvite, gameOn, openShop, gameIntro, ecoPoints, missionPanel, gamePaused, isReserved} from './game.js';
 import {challenges} from './challenges.js';
 import {startMissions, stopMissions} from './missions.js';
 import {restaurantTour} from './tour-steps.js';
@@ -66,13 +66,19 @@ function render() {
 // Aggiorna solo ciò che vive: chiamato a ogni evento del servizio.
 function liveRefresh() {
  if (renderQueued) return; renderQueued = true;
- requestAnimationFrame(() => {
+ let ran = false;
+ const run = () => {
+  if (ran) return; ran = true;
   renderQueued = false;
-  const busy = document.activeElement?.matches?.('input,textarea,select') || dialog.open || gamePaused();
+  // con una nuvoletta di Otto aperta la pagina resta ferma: l'aggiornamento si fa appena si chiude
+  if (gamePaused()) { setTimeout(liveRefresh, 600); return; }
+  const busy = document.activeElement?.matches?.('input,textarea,select') || dialog.open;
   if (['home', 'sala', 'kds', 'menu_pos', 'magazzino', 'centralino_ai', 'recensioni_ai', 'fatture'].includes(route()) && !busy) {
    const y = scrollY; render(); scrollTo(0, y);
   } else syncCounts();
- });
+ };
+ // rAF per restare fluidi; il timeout copre le schede in background, dove rAF non scatta
+ requestAnimationFrame(run); setTimeout(run, 300);
 }
 function syncCounts() {
  const c = navCounts();
@@ -371,7 +377,7 @@ document.addEventListener('click', e => {
  if ((x = el('[data-action]'))) return action(x.dataset.action);
  if ((x = el('[data-table]'))) { if (route() !== 'sala') { ui.table = x.dataset.table; location.hash = 'sala'; return; } ui.table = x.dataset.table; ui.adding = false; return render(); }
  if ((x = el('[data-add]'))) { const ok = D.addDish(ui.table, x.dataset.add); if (ok) ecoPoints('add', 2, 'Comanda in cucina'); toast(ok ? `${D.dish(x.dataset.add).name} → cucina · conto e magazzino aggiornati` : 'Piatto esaurito: ingredienti insufficienti.'); return; }
- if ((x = el('[data-advance]'))) { D.advance(x.dataset.advance); ecoPoints('advance', 2, 'Comanda avanti'); ui.ticket = null; return; }
+ if ((x = el('[data-advance]'))) { D.advance(x.dataset.advance); ecoPoints('advance', 2, 'Comanda avanti', x.dataset.advance); ui.ticket = null; return; }
  if ((x = el('[data-ticket]'))) { ui.ticket = ui.ticket === x.dataset.ticket ? null : x.dataset.ticket; return render(); }
  if ((x = el('[data-category]'))) { ui.category = x.dataset.category; return render(); }
  if ((x = el('[data-otto]'))) return askGlobal(x.dataset.otto);
@@ -412,6 +418,7 @@ function liveToast(ev) {
  setTimeout(() => { card.classList.add('out'); setTimeout(() => card.remove(), 300); }, 6500);
 }
 D.onInbound(liveToast);
+D.setReserved(isReserved);
 D.subscribe(liveRefresh);
 // Dentro il sito la demo parte ferma (niente cicli né animazioni): si accende solo quando il visitatore la apre.
 let awake = window.parent === window;
@@ -435,7 +442,7 @@ initGame(challenges, {icon, place:'il locale', missionsOnly:true,
   D.tables.filter(t => t.status === 'bill' && t.id !== 'T8' && !t.mission).forEach(t => c.push({key:'close', ref:t.id, page:'sala', title:`Il tavolo ${t.id.slice(1)} chiede il conto`, text:`Apri il **tavolo ${t.id.slice(1)}** nella pianta e premi **Chiudi conto**.`, target:`[data-action="close:${t.id}"]`, valid:() => D.table(t.id).status === 'bill', auto:() => D.closeBill(t.id)}));
   D.tables.filter(t => t.status === 'ordered' && t.id !== 'T3' && !t.mission && t.lines.length >= 3 && t.lines.every(l => l.state === 'served')).forEach(t => c.push({key:'bill', ref:t.id, page:'sala', title:`Il tavolo ${t.id.slice(1)} ha finito di mangiare`, text:`Apri il **tavolo ${t.id.slice(1)}** e premi **Richiedi il conto**.`, target:`[data-action="bill:${t.id}"]`, valid:() => D.table(t.id).status === 'ordered', auto:() => D.requestBill(t.id)}));
   const late = D.kitchenLines().filter(l => l.state === 'waiting').sort((a, b) => a.at - b.at)[0];
-  if (late) c.push({key:'advance', page:'kds', title:`Comanda in attesa · tavolo ${late.table.slice(1)}`, text:`In Cucina **apri la comanda del tavolo ${late.table.slice(1)}** e premi **Avvia la preparazione**.`, target:'.k-waiting .ticket', valid:() => D.kitchenLines().some(l => l.state === 'waiting'), auto:() => D.advance(late.id)});
+  if (late) c.push({key:'advance', ref:late.id, page:'kds', title:`Comanda in attesa · tavolo ${late.table.slice(1)}`, text:`In Cucina **apri la comanda del tavolo ${late.table.slice(1)}** e premi **Avvia la preparazione**.`, target:`[data-ticket="${late.id}"]`, valid:() => D.kitchenLines().some(l => l.id === late.id && l.state === 'waiting'), auto:() => D.advance(late.id)});
   const rev = D.reviews.find(r => !ui.done.reviews.includes(r.who));
   if (rev) c.push({key:'review', ref:rev.who, page:'recensioni_ai', title:`Nuova recensione di ${rev.who.trim()}`, text:'Leggi la bozza di Otto e premi **Approva e pubblica**.', target:`[data-action="review:${rev.who}"]`, valid:() => !ui.done.reviews.includes(rev.who), auto:() => ui.done.reviews.push(rev.who)});
   const h = D.haccp.findIndex((x, i) => !x.done && !ui.done.haccp.includes(i));

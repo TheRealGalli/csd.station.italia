@@ -571,12 +571,18 @@ const livePages = ['home', 'posta', 'centralino', 'whatsapp', 'visure', 'staff',
 let refreshQueued = false;
 function liveRefresh() {
  if (refreshQueued) return; refreshQueued = true;
- requestAnimationFrame(() => {
+ let ran = false;
+ const run = () => {
+  if (ran) return; ran = true;
   refreshQueued = false;
-  const busy = document.activeElement?.matches?.('input,textarea,select') || dialog.open || ui.studio.running || gamePaused();
+  // con una nuvoletta di Otto aperta la pagina resta ferma: l'aggiornamento si fa appena si chiude
+  if (gamePaused()) { setTimeout(liveRefresh, 600); return; }
+  const busy = document.activeElement?.matches?.('input,textarea,select') || dialog.open || ui.studio.running;
   if (livePages.includes(route()) && !busy) { const y = scrollY; render(); scrollTo(0, y); }
   syncNavCounts();
- });
+ };
+ // rAF per restare fluidi; il timeout copre le schede in background, dove rAF non scatta
+ requestAnimationFrame(run); setTimeout(run, 300);
 }
 function syncNavCounts() {
  const c = counts();

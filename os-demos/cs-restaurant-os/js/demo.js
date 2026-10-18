@@ -177,10 +177,11 @@ export function tick() {
  if (Math.random() < .25 && turnover()) return;
  const r = Math.random();
  const lines = kitchenLines();
- if (r < .5 && lines.length) { const l = lines.sort((a, b) => a.at - b.at).find(x => x.state !== 'ready') || lines[0]; advance(l.id); return; }
+ const free2 = lines.filter(x => !reserved(x.id));
+ if (r < .5 && free2.length) { const l = free2.sort((a, b) => a.at - b.at).find(x => x.state !== 'ready') || free2[0]; advance(l.id); return; }
  if (r < .6) { if (guestOrder()) return; }
  if (r < .72) { const t = tables.filter(t => (t.status === 'seated' || t.status === 'ordered') && t.lines.length < 8 && t.id !== 'T7')[Math.floor(Math.random() * 4)]; if (t) { const d = menu.filter(available)[Math.floor(Math.random() * menu.length)]; if (d) addDish(t.id, d.id); } return; }
- if (r < .82) { const ready = lines.find(x => x.state === 'ready'); if (ready) advance(ready.id); return; }
+ if (r < .82) { const ready = lines.find(x => x.state === 'ready' && !reserved(x.id)); if (ready) advance(ready.id); return; }
  const free = tables.filter(t => t.status === 'free'); if (free.length > 3) openTable(free[0].id, Math.min(free[0].seats, 2 + Math.floor(Math.random() * 2)));
 }
 
@@ -188,10 +189,14 @@ export function tick() {
 // chi ha finito chiede il conto e se ne va, il fornitore consegna, le liste hanno un tetto.
 // T3, T7 e T8 restano come sono perché la demo guidata ci passa sopra.
 const guided = ['T3', 'T7', 'T8'];
+// Ciò che il giocatore sta per fare (un compito o una missione aperti) non lo fa la simulazione al posto suo:
+// altrimenti il compito sparisce o cambia sotto gli occhi. L'app collega qui il gioco.
+let reserved = () => false;
+export const setReserved = fn => { reserved = fn; };
 function turnover() {
- const paying = tables.find(t => t.status === 'bill' && !t.mission && !guided.includes(t.id) && Date.now() - (t.billAt || 0) > 25000); // un conto con la sua missione aspetta il giocatore
+ const paying = tables.find(t => t.status === 'bill' && !t.mission && !reserved(t.id) && !guided.includes(t.id) && Date.now() - (t.billAt || 0) > 25000); // un conto con la sua missione aspetta il giocatore
  if (paying) { closeBill(paying.id, Math.random() < .7 ? 'Carta' : 'Contanti'); return true; }
- const finished = tables.find(t => t.status === 'ordered' && !guided.includes(t.id) && t.lines.length >= 4 && t.lines.every(l => l.state === 'served'));
+ const finished = tables.find(t => t.status === 'ordered' && !reserved(t.id) && !guided.includes(t.id) && t.lines.length >= 4 && t.lines.every(l => l.state === 'served'));
  if (finished) { requestBill(finished.id); return true; }
  return false;
 }

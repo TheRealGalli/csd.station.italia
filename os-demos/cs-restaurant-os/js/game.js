@@ -95,7 +95,7 @@ function markTargets() {
  for (const t of openTasks()) if (t.page === page && t.target) {
   let el = null; try { el = document.querySelector(t.target); } catch {}
   if (!el) continue;
-  el.classList.add('game-target');
+  el.classList.add('game-target'); el.style.animationDelay = `-${(Date.now() % 1400) / 1000}s`;
   coach('target', t.target, 'Il tasto che lampeggia', 'Fai come faresti davvero, con i tasti di questa sezione: **quello che lampeggia** è il prossimo passo.', 'otto-read');
  }
 }
@@ -111,14 +111,15 @@ function completeTask(t) {
 }
 function taskBanner(t) {
  const el = (t.ttl - taskLeft(t)) / 1000;
- return `<div class="game-task" data-task="${t.id}"><span class="gtk-ico">${icon('otto-wink')}</span><div class="gtk-body"><b>${esc(t.title)}</b><span>${rich(t.text)}</span></div><span class="gtk-time"><i style="animation-duration:${t.ttl / 1000}s;animation-delay:-${el.toFixed(1)}s"></i></span></div>`;
+ return `<div class="game-task ${Date.now() - t.created < 1500 ? 'fresh' : ''}" data-task="${t.id}"><span class="gtk-ico">${icon('otto-wink')}</span><div class="gtk-body"><b>${esc(t.title)}</b><span>${rich(t.text)}</span></div><span class="gtk-time"><i style="animation-duration:${t.ttl / 1000}s;animation-delay:-${el.toFixed(1)}s"></i></span></div>`;
 }
 const openAll = () => [...openTasks().map(t => ({id:t.id, title:t.title, page:t.page, ref:t.ref, left:taskLeft(t), pts:t.pts, task:true})), ...open().map(c => ({id:c.id, title:c.title, page:c.page, left:left(c), pts:maxPts(c)})), ...openMissions().map(m => ({id:m.id, title:m.title, page:m.page, ref:m.ref, left:missionLeft(m), pts:45}))];
 export function addMission(m) {
  const id = `ms${++S.mseq}`;
- S.missions[id] = {...m, id, created:Date.now(), st:{id}, result:null};
+ const first = !!m.brief && !S.coached[`brief-${m.page}`];
+ S.missions[id] = {...m, id, created:Date.now(), st:{id}, result:null, armed:!first};
  markNav(); updateAlert();
- setTimeout(() => coach('first-mission', '.game-alert', 'Tocca a te', `È arrivato: **${m.title}**. Questa volta la decisione è tua, non mia. Premi il quadrato rosso.`, 'otto-think'), 500);
+ setTimeout(() => coach('first-mission', '.game-alert', 'Tocca a te', `È arrivato: **${m.title}**. Questa volta la decisione è tua, non mia. Premi il quadrato rosso${first ? ': quando ci sei davanti ti spiego tutto, e il tempo parte solo dopo' : ''}.`, 'otto-think'), 500);
  return id;
 }
 export function missionPanel(id) {
@@ -126,7 +127,7 @@ export function missionPanel(id) {
  const r = m.result, elapsed = (m.ttl - missionLeft(m)) / 1000;
  return `<section class="game-card mission l2 ${r ? (r.pts < 0 ? 'is-ko' : 'is-ok') : ''}" data-mission="${id}">
   <div class="gc-top"><span class="gc-tag">${icon(r ? (r.pts < 0 ? 'otto-think' : 'otto-happy') : m.brief?.role || 'otto-read')} ${esc(m.title)}</span>${!r && m.hint ? hintBtn(id) : ''}</div>
-  ${r ? '' : `<div class="gc-timer"><i style="animation-duration:${m.ttl / 1000}s;animation-delay:-${elapsed.toFixed(1)}s"></i></div>`}
+  ${r ? '' : `<div class="gc-timer ${m.armed ? '' : 'waiting'}"><i style="animation-duration:${m.ttl / 1000}s;animation-delay:-${elapsed.toFixed(1)}s"></i></div>`}
   ${!r && m.st.hintMsg ? `<p class="gc-hintmsg">${icon('otto-wink')}<span>${esc(m.st.hintMsg)}</span></p>` : ''}
   <div class="mg">${m.render(m.data, m.st)}</div>
   ${r ? `<div class="gc-result"><b class="${r.pts < 0 ? 'neg' : ''}">${r.pts > 0 ? '+' : ''}${r.pts} pt · ${esc(r.label)}</b><p>${rich(r.why)}</p>${nextAfter(id) ? `<button class="gc-nextm" data-game="mclose:${id}">Prossima missione ${icon('arrow')}<i class="gc-auto"></i></button>` : `<button data-game="mclose:${id}">Fatto ${icon('check')}</button>`}</div>` : ''}
@@ -271,6 +272,7 @@ function tick() {
  if (Date.now() < S.fx.freezeUntil) openTasks().forEach(t => { t.created += 1000; });
  taskDirector();
  if (Date.now() < S.fx.freezeUntil) { openMissions().forEach(m => { m.created += 1000; }); for (const id in S.avail) S.avail[id] += 1000; }
+ openMissions().forEach(m => { if (!m.armed) m.created += 1000; });
  for (const m of openMissions()) if (missionLeft(m) <= 0) resolveMission(m, {pts:-8, label:'Tempo scaduto', why:'Nessuno ha deciso in tempo: Otto ha scelto da solo seguendo le regole e ti segnala il caso da ricontrollare. Una decisione lasciata a metà costa meno di una sbagliata, ma costa.'});
  for (const c of open()) {
   if (left(c) > 0) continue;
@@ -365,7 +367,7 @@ function coachMission() {
  const base = `[data-mission="${m.dataset.mission}"]`;
  // la prima missione di ogni settore la spiega un Otto di quel settore: cosa fare e perché
  const ms = S.missions[m.dataset.mission], b = ms?.brief;
- if (b && !S.coached[`brief-${ms.page}`]) return coach(`brief-${ms.page}`, base, b.name, `${b.what} **Perché?** ${b.why}`, b.role);
+ if (b && !S.coached[`brief-${ms.page}`]) return storyChat(ms, base);
  const sel = m.querySelector('.mg-docs') ? `${base} .mg-docs` : m.querySelector('.mg-sources') ? `${base} .mg-sources` : `${base} .mg`;
  coach('inside', sel, 'Guarda i documenti', 'Qui ci sono le fonti vere. **I numeri in arancione** sono quelli da confrontare. Leggi con calma, poi decidi.', 'otto-read');
 }
@@ -537,7 +539,53 @@ export function coach(key, target, title, text, mood = 'otto-wink') {
  box.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === 'Escape') { e.preventDefault(); close(); } });
  box.querySelector('[data-coach]').focus({preventScroll:true});
 }
+// ————— la chat di Otto di settore —————
+// La prima volta che hai davanti un tipo di missione, l'Otto di quel settore ti racconta in chat cosa sta
+// succedendo davvero: dove sei, cosa è arrivato, cosa faresti nella realtà e perché conta. Il tempo parte dopo.
+function storyChat(m, sel) {
+ if (coachOpen || touring()) return;
+ const b = m.brief, key = `brief-${m.page}`;
+ let el; try { el = document.querySelector(sel); } catch {}
+ if (!el || !el.getClientRects().length) return;
+ S.coached[key] = true; S.paused++; document.body.classList.add('game-paused');
+ const ev = m.event ? `${m.event[0]}. ${m.event[1]}.` : `È arrivato: ${m.title}.`;
+ const lines = [`Ciao, sono **${b.name}**. Adesso sei ${b.where}.`, ev, `Nella realtà: ${b.what.charAt(0).toLowerCase()}${b.what.slice(1)}`, `**Perché conta:** ${b.why}`, 'Prenditi il tempo che ti serve: **il cronometro parte solo quando premi “Sono pronto”**.'];
+ const box = document.createElement('div');
+ box.className = 'game-coach game-story'; box.setAttribute('role', 'dialog'); box.setAttribute('aria-label', b.name);
+ box.innerHTML = `<div class="gco-spot"></div><div class="gst-panel"><header><span class="gco-face">${icon(b.role)}</span><div><b>${esc(b.name)}</b><small>${icon('pause')} il tempo è fermo</small></div></header><div class="gst-msgs" aria-live="polite"></div><footer><button data-story="skip" class="gst-skip">Salta</button><button data-story="go" class="gst-go" disabled>Sono pronto</button></footer></div>`;
+ document.body.append(box); play('open');
+ const spot = box.querySelector('.gco-spot'), panel = box.querySelector('.gst-panel'), msgs = box.querySelector('.gst-msgs'), goBtn = box.querySelector('.gst-go');
+ let raf = 0, timer = 0, k = 0;
+ const follow = () => {
+  if (!el.isConnected) { try { el = document.querySelector(sel) || el; } catch {} }
+  const r = el.getBoundingClientRect(), p = 6;
+  Object.assign(spot.style, {left:`${r.left - p}px`, top:`${r.top - p}px`, width:`${r.width + p * 2}px`, height:`${r.height + p * 2}px`});
+  raf = requestAnimationFrame(follow);
+ };
+ const r0 = el.getBoundingClientRect();
+ if (r0.top < 80 || r0.top > innerHeight * .55) el.scrollIntoView({block:'start', behavior:calm.matches ? 'auto' : 'smooth'});
+ follow(); coachOpen = box;
+ const next = () => {
+  if (k >= lines.length) { goBtn.disabled = false; goBtn.focus({preventScroll:true}); return; }
+  const typing = document.createElement('div'); typing.className = 'gst-msg typing'; typing.innerHTML = '<i></i><i></i><i></i>';
+  msgs.append(typing); msgs.scrollTop = msgs.scrollHeight;
+  timer = setTimeout(() => { typing.remove(); const d = document.createElement('div'); d.className = 'gst-msg'; d.innerHTML = rich(lines[k++]); msgs.append(d); msgs.scrollTop = msgs.scrollHeight; play('click'); timer = setTimeout(next, calm.matches ? 50 : 420); }, calm.matches ? 50 : Math.min(1400, 450 + lines[k].length * 12));
+ };
+ next();
+ const close = () => {
+  clearTimeout(timer); cancelAnimationFrame(raf); box.classList.add('out'); setTimeout(() => box.remove(), 200); coachOpen = null;
+  S.paused = Math.max(0, S.paused - 1); if (!S.paused) document.body.classList.remove('game-paused');
+  m.armed = true; refreshMission(m.id); play('level');
+  const n = coachQueue.shift(); if (n) setTimeout(() => coach(...n), 450);
+ };
+ box.addEventListener('click', e => {
+  const t = e.target.closest('[data-story]'); if (!t) return;
+  if (t.dataset.story === 'skip') { clearTimeout(timer); msgs.querySelector('.typing')?.remove(); while (k < lines.length) { const d = document.createElement('div'); d.className = 'gst-msg'; d.innerHTML = rich(lines[k++]); msgs.append(d); } msgs.scrollTop = msgs.scrollHeight; goBtn.disabled = false; t.remove(); goBtn.focus({preventScroll:true}); return; }
+  close();
+ });
+}
 export const gamePaused = () => S.paused > 0;
+export const isReserved = ref => ref != null && (openTasks().some(t => t.ref != null && String(t.ref) === String(ref)) || openMissions().some(m => m.ref != null && String(m.ref) === String(ref)));
 // Le missioni arrivano solo dopo due compiti fatti, e mai oltre il numero di cose aperte del livello.
 export const canSpawnMission = () => S.started && !S.paused && S.tasksDone >= 2 && openAll().length < maxOpen();
 
