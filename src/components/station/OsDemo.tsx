@@ -70,10 +70,12 @@ export default function OsDemo({ product }: { product: OsProduct }) {
   const p = products[product];
   const desktop = useSyncExternalStore(subscribe, () => window.matchMedia(desktopQuery).matches, () => true);
   const [open, setOpen] = useState(false);
+  // la X chiude solo la barra in basso, non la demo né il gioco
+  const [barClosed, setBarClosed] = useState(false);
   const frame = useRef<HTMLIFrameElement>(null);
   const contact = whatsapp(`Ciao Carlo! Vorrei avere più informazioni su ${p.name}.`);
 
-  useEffect(() => { setOpen(false); setTouring(false); }, [product]);
+  useEffect(() => { setOpen(false); setTouring(false); setBarClosed(false); }, [product]);
   useEffect(() => {
     document.documentElement.style.backgroundColor = '#101510';
     document.body.style.backgroundColor = '#101510';
@@ -120,10 +122,10 @@ export default function OsDemo({ product }: { product: OsProduct }) {
             <small><Lock size={12}/> Dati, persone e numeri sono inventati. Il sistema dietro sta già girando.</small>
           </div>
         </div>}
-        {open && !touring && <div className="os-bar">
+        {open && !touring && !barClosed && <div className="os-bar">
           <span><i/> {p.name} · demo con dati inventati</span>
           <a href={contact} target="_blank" rel="noreferrer">Vorrei più informazioni <ArrowUpRight size={15}/></a>
-          <button type="button" onClick={() => setOpen(false)}>Chiudi</button>
+          <button type="button" className="os-bar-x" onClick={() => setBarClosed(true)} aria-label="Chiudi questa barra (la demo resta aperta)" title="Chiudi la barra">×</button>
         </div>}
       </> : <div className="os-mobile">
         <Monitor size={34}/>
