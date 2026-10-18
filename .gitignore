@@ -11,3 +11,6 @@ dist
 # Demo OS generate da os-demos/ (npm run sync:os)
 public/os/
 
+
+# file generati dai test delle demo
+os-demos/*/tmp/
