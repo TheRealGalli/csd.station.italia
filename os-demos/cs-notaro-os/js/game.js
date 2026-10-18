@@ -67,7 +67,7 @@ export function missionPanel(id) {
   ${r ? '' : `<div class="gc-timer"><i style="animation-duration:${m.ttl / 1000}s;animation-delay:-${elapsed.toFixed(1)}s"></i></div>`}
   ${!r && m.hint ? `<div class="gc-hintbar">${m.st.hintMsg ? `<p class="gc-hintmsg">${icon('otto-wink')}<span>${esc(m.st.hintMsg)}</span></p>` : `<button class="gc-hint" data-game="hint:${id}" ${!S.fx.freeHints && S.points < hintCost() ? 'disabled title="Servono più punti"' : ''}>${icon('otto-wink')} Indizio di Otto <b>${S.fx.freeHints ? 'gratis' : `−${hintCost()} pt`}</b></button>${!S.fx.freeHints && S.points < hintCost() ? `<small>servono ${hintCost()} punti</small>` : ''}`}</div>` : ''}
   <div class="mg">${m.render(m.data, m.st)}</div>
-  ${r ? `<div class="gc-result"><b class="${r.pts < 0 ? 'neg' : ''}">${r.pts > 0 ? '+' : ''}${r.pts} pt · ${esc(r.label)}</b><p>${rich(r.why)}</p><button data-game="mclose:${id}">Fatto ${icon('check')}</button></div>` : ''}
+  ${r ? `<div class="gc-result"><b class="${r.pts < 0 ? 'neg' : ''}">${r.pts > 0 ? '+' : ''}${r.pts} pt · ${esc(r.label)}</b><p>${rich(r.why)}</p>${nextAfter(id) ? `<button class="gc-nextm" data-game="mclose:${id}">Prossima missione ${icon('arrow')}<i class="gc-auto"></i></button>` : `<button data-game="mclose:${id}">Fatto ${icon('check')}</button>`}</div>` : ''}
  </section>`;
 }
 // L'indizio di Otto costa punti, una volta per missione: più il livello è alto, più costa.
@@ -80,6 +80,22 @@ function useHint(id, from) {
  S.points -= cost; m.st.hintMsg = m.hint(m.data, m.st) || 'Rileggi bene le fonti.';
  play('open'); refreshMission(id);
  float(-cost, document.querySelector(`[data-mission="${id}"] .gc-hintmsg`) || from);
+}
+// Dopo una missione si passa da soli alla più urgente, con una dissolvenza leggera.
+const nextAfter = id => openAll().filter(x => x.id !== id).sort((a, b) => a.left - b.left)[0];
+let autoNext = 0;
+function closeAndNext(id) {
+ clearTimeout(autoNext);
+ const m = S.missions[id]; if (!m) return;
+ m.closed = true;
+ const next = nextAfter(id), main = document.querySelector('#main');
+ if (!next || !main) { m.ref ? refreshMission(id) : refresh(m.page); return; }
+ play('click');
+ main.classList.add('game-fadeout');
+ setTimeout(() => {
+  go(next.page, next.ref);
+  setTimeout(() => { const el = document.querySelector('#main'); el?.classList.remove('game-fadeout'); el?.classList.add('game-fadein'); setTimeout(() => el?.classList.remove('game-fadein'), 300); }, 60);
+ }, 170);
 }
 function refreshMission(id) {
  const el = document.querySelector(`[data-mission="${id}"]`);
@@ -97,6 +113,8 @@ function resolveMission(m, r, from) {
  float(pts, document.querySelector(`[data-mission="${m.id}"] .gc-result b`) || from);
  markNav(); updateAlert();
  m.onDone?.();
+ clearTimeout(autoNext);
+ if (nextAfter(m.id)) autoNext = setTimeout(() => { if (!m.closed && (location.hash.slice(1) || 'home') === m.page) closeAndNext(m.id); }, 5000);
 }
 const keySources = c => (c.sources || []).map((s, i) => s.key ? i : -1).filter(i => i >= 0);
 const maxPts = c => base[c.level] + (keySources(c).length ? base[c.level] / 2 : 0);
@@ -471,6 +489,7 @@ function buy(id, free) {
 }
 
 function onClick(e) {
+ if (!e.target.closest('.gc-nextm')) { clearTimeout(autoNext); document.querySelectorAll('.gc-auto').forEach(x => x.remove()); }
  const b = e.target.closest('[data-game]');
  if (!b) { if (!e.target.closest('.game-pop')) document.querySelector('.game-pop')?.remove(); return; }
  const [k, id, i] = b.dataset.game.split(':');
@@ -485,7 +504,7 @@ function onClick(e) {
  if (k === 'shopclose') { document.querySelector('.otto-shop')?.remove(); S.shopNote = ''; return; }
  if (k === 'buy') return buy(id);
  if (k === 'gift') return buy(id, true);
- if (k === 'mclose') { const m = S.missions[id]; m.closed = true; m.ref ? refreshMission(id) : refresh(m.page); return; }
+ if (k === 'mclose') return closeAndNext(id);
  if (k === 'src') { const c = S.cards[id]; if (c && !c.opened.includes(+i)) c.opened.push(+i); play('open'); return refresh(challenge(id).page); }
  if (k === 'pick') return pick(id, +i, b);
  if (k === 'next') { const c = challenge(id); delete S.showing[c.page]; play('click'); return refresh(c.page); }

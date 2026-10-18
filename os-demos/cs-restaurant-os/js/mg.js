@@ -136,12 +136,12 @@ const calc = {
   const e = st.expr || '', v = e ? evaluate(e) : null;
   const keys = ['C', '(', ')', '⌫', '7', '8', '9', '÷', '4', '5', '6', '×', '1', '2', '3', '−', '0', ',', '%', '+', '='];
   const key = k => `<button class="${'C⌫'.includes(k) ? 'fn' : k === '=' ? 'eq' : '÷×−+%()'.includes(k) ? 'op' : ''}" data-game="mg:${st.id}:key:${encodeURIComponent(k)}">${k}</button>`;
-  return `${ask(d, st)}${sources(d.sources)}
+  return `<div class="mg-split"><div class="mg-split-src">${ask(d, st)}${sources(d.sources)}</div>
    <div class="mg-calc ${st.done ? 'done' : ''}">
     <div class="mg-screen"><small>${esc(e) || '&nbsp;'}</small><b>${st.done ? `${d.unit ? d.unit + ' ' : ''}${fmt(d.answer)}` : v != null ? `${d.unit ? d.unit + ' ' : ''}${fmt(v)}` : '<span>0</span>'}</b></div>
     ${st.done ? '' : `<div class="mg-ckeys">${keys.map(key).join('')}</div>
     <button class="mg-submit" data-game="mg:${st.id}:submit:0" ${v == null ? 'disabled' : ''}>Conferma il risultato</button>`}
-   </div>`;
+   </div></div>`;
  },
  handle(d, st, a, v) {
   if (a === 'key') {
@@ -167,8 +167,8 @@ const cal = {
  render(d, st) {
   const [y, m] = d.month, first = new Date(y, m, 1), pad = (first.getDay() + 6) % 7, n = new Date(y, m + 1, 0).getDate();
   const cells = [...Array(pad).fill(''), ...Array.from({length:n}, (_, i) => i + 1)];
-  return `${ask(d, st)}${sources(d.sources)}
-   <div class="mg-cal"><span class="mg-doc-t">${first.toLocaleDateString('it-IT', {month:'long', year:'numeric'})}</span><div class="mg-cal-grid">${['L', 'M', 'M', 'G', 'V', 'S', 'D'].map(x => `<i>${x}</i>`).join('')}${cells.map(c => c ? `<button class="${st.done && new Date(y, m, c).toDateString() === d.answer ? 'sol' : ''} ${st.wrong?.includes(c) ? 'miss' : ''}" data-game="mg:${st.id}:day:${c}" ${st.done ? 'disabled' : ''}>${c}</button>` : '<span></span>').join('')}</div></div>`;
+  return `<div class="mg-split"><div class="mg-split-src">${ask(d, st)}${sources(d.sources)}</div>
+   <div class="mg-cal"><span class="mg-doc-t">${first.toLocaleDateString('it-IT', {month:'long', year:'numeric'})}</span><div class="mg-cal-grid">${['L', 'M', 'M', 'G', 'V', 'S', 'D'].map(x => `<i>${x}</i>`).join('')}${cells.map(c => c ? `<button class="${st.done && new Date(y, m, c).toDateString() === d.answer ? 'sol' : ''} ${st.wrong?.includes(c) ? 'miss' : ''}" data-game="mg:${st.id}:day:${c}" ${st.done ? 'disabled' : ''}>${c}</button>` : '<span></span>').join('')}</div></div></div>`;
  },
  handle(d, st, a, v) {
   if (a !== 'day') return;
