@@ -201,3 +201,12 @@
 .mk-grid>a svg{position:absolute;top:.3em;right:.3em;color:#fff;filter:drop-shadow(0 0 .2em #0008)}
 .web-preview>div:not(.on){pointer-events:none}
 
+
+/* Modelli 3D in loop: casa che cresce, razzo che si scompone */
+.model-loop{width:100%;height:100%}
+.model-loop canvas{width:100%;height:100%;display:block}
+.mk-loop-house{width:12em;height:10em;margin:-.5em -1em -.5em 0}
+.mk-model{width:100%;height:100%;align-content:center}
+.mk-loop-rocket{width:34em;height:18em;position:relative;z-index:1}
+.mk-model .mk-orbit{width:26em;margin-left:-13em;margin-top:-5.5em}
+.mk-model>span{position:absolute;bottom:1.6em}
