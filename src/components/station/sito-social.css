@@ -215,16 +215,13 @@
 .web-card-head .mk-browser:has(.mk-shop){transform:rotate(-4deg) translateY(-1.3em) scale(1.22);box-shadow:1.4em 1.8em 3.4em #0009}
 .web-card:hover .web-card-head .mk-browser:has(.mk-shop){transform:rotate(-2.5deg) translateY(-1.7em) scale(1.26)}
 
-/* Montaggio e drone: editor con inquadratura aerea e timeline che scorre */
+/* Montaggio e clipping: editor con anteprima e timeline che scorre */
 .mk-editor{width:30em;background:#0e150e;border-radius:.8em;overflow:hidden;box-shadow:1.2em 1.4em 3.5em #0008;transform:rotate(-3deg);text-align:left;border:.08em solid #2d3e24}
 .mk-editor .mk-bar{background:#1b261a}
 .mk-editor .mk-bar span{background:#0e150e;color:#8ea07e}
 .mk-ed-view{position:relative;height:10.5em;margin:.7em .8em .5em;border-radius:.4em;overflow:hidden}
-.mk-drone{position:absolute;inset:-20%;background:
- linear-gradient(115deg,transparent 46%,#d9cfae 46.5% 48.5%,transparent 49%),
- linear-gradient(20deg,transparent 60%,#5b8ac0 60.5% 64%,transparent 64.5%),
- repeating-linear-gradient(35deg,#7fa34a 0 2.2em,#8fb35a 2.2em 4.4em,#a6c06a 4.4em 6em,#6e9440 6em 8em);
- animation:mk-pan 14s linear infinite alternate}
+.mk-shot{position:absolute;inset:-12%;background:radial-gradient(ellipse at 30% 20%,#6b4a2c,#3d2a17 55%,#24180c);animation:mk-pan 14s linear infinite alternate}
+.mk-plate{position:absolute;left:50%;top:52%;width:9em;height:9em;margin:-4.5em 0 0 -4.5em;border-radius:50%;background:radial-gradient(circle,#c9853a 0 22%,#e3b36a 23% 30%,#7fa34a 31% 34%,#f6f3ea 35% 62%,#e3dfd3 63% 66%,#f6f3ea 67%);box-shadow:.6em .9em 1.4em #0008}
 .mk-frame{position:absolute;inset:.6em;border:.1em solid #f3ffd999;border-radius:.2em;box-shadow:0 0 0 999em #0000}
 .mk-frame:before,.mk-frame:after{content:'';position:absolute;left:50%;top:50%;width:1.2em;height:.1em;background:#f3ffd9cc;transform:translate(-50%,-50%)}
 .mk-frame:after{width:.1em;height:1.2em}
@@ -242,7 +239,7 @@
 @keyframes mk-pan{from{transform:translate(0,0) scale(1.05)}to{transform:translate(-8%,-6%) scale(1.12)}}
 @keyframes mk-play{from{left:2%}to{left:95%}}
 @keyframes mk-blink{50%{opacity:0}}
-@media(prefers-reduced-motion:reduce){.mk-drone,.mk-playhead,.mk-rec i{animation:none}}
+@media(prefers-reduced-motion:reduce){.mk-shot,.mk-playhead,.mk-rec i{animation:none}}
 
 /* Prezzo sempre su una riga: la nota scende sotto se manca spazio */
 .web-card .price-row{flex-wrap:wrap;row-gap:2px}

@@ -19,11 +19,17 @@ const furniture: [string, number, number, number, number, number?, number?][] = 
   ['kitchenStove', .2, FLOOR, .355, Math.PI], ['kitchenCabinet', .35, FLOOR, .355, Math.PI], ['kitchenFridge', .5, FLOOR, .37, Math.PI],
   ['tableRound', .38, FLOOR, .0, 0], ['chair', .2, FLOOR, .0, Math.PI / 2], ['chair', .56, FLOOR, .0, -Math.PI / 2],
   ['pottedPlant', .66, FLOOR, -.24, 0],
+  ['plantSmall1', .38, FLOOR + 3.67 * S, .0, 0], ['books', .31, FLOOR + 3.67 * S, .05, .4],
+  ['kitchenCoffeeMachine', .32, FLOOR + 4.5 * S, .37, Math.PI], ['kitchenBlender', .39, FLOOR + 4.5 * S, .37, Math.PI],
+  ['lampRoundFloor', -.7, FLOOR, .08, 0], ['books', -.45, FLOOR + 2.3 * S, .19, -.3],
+  ['speaker', -.63, FLOOR, .39, Math.PI], ['speaker', -.27, FLOOR, .39, Math.PI],
   // piano di sopra: muro divisorio e due camere
   ['wall', .15, UP, .045, Math.PI / 2, 1.9, .8],
   ['bedDouble', -.16, UP, .165, 0], ['bookcaseClosedDoors', -.36, UP, -.21, 0], ['lampSquareTable', -.41, UP, .32, 0],
   ['bedSingle', .55, UP, .165, 0], ['sideTable', .33, UP, .31, Math.PI], ['lampSquareTable', .33, UP + 3.84 * S, .31, 0],
-  ['bookcaseClosedDoors', .64, UP, -.21, 0], ['pottedPlant', .25, UP, -.2, 0],
+  ['bookcaseClosedDoors', .64, UP, -.21, 0], ['plantSmall2', .22, UP, -.22, 0],
+  ['rugRound', -.16, UP, -.1, 0], ['books', .27, UP + 3.84 * S, .31, .5],
+  ['desk', .42, UP, -.2, 0], ['computerScreen', .42, UP + 3.84 * S, -.23, 0], ['chairDesk', .42, UP, -.08, Math.PI],
 ];
 
 async function buildHouse(THREE: Three, pivot: T.Group, camera: T.PerspectiveCamera) {
@@ -64,10 +70,12 @@ async function buildHouse(THREE: Three, pivot: T.Group, camera: T.PerspectiveCam
   camera.position.set(2.5, 1.9, 3.3); camera.lookAt(0, -.15, 0);
 
   return (t: number) => {
-    const c = t % 8; // 0-3.6 cresce · 3.6-5.6 ferma · 5.6-7 rientra · pausa
-    const k = c < 3.6 ? ease(c / 3.6) : c < 5.6 ? 1 : c < 7 ? 1 - ease((c - 5.6) / 1.4) : 0;
+    // intera · scende sulle camere (52%) · pausa · scende sul piano terra (27%) · pausa · ricresce fino al tetto.
+    // Il taglio non arriva mai a terra: lì le superfici del pavimento si sovrapporrebbero (i puntini).
+    const c = t % 12, lerp = (a: number, b: number, x: number) => a + (b - a) * ease(x);
+    const k = c < 1.6 ? 1 : c < 3 ? lerp(1, .52, (c - 1.6) / 1.4) : c < 5.2 ? .52 : c < 6.4 ? lerp(.52, .27, (c - 5.2) / 1.2) : c < 8.8 ? .27 : c < 11 ? lerp(.27, 1, (c - 8.8) / 2.2) : 1;
     const y = bottom + k * (h + .02); plane.constant = y; ring.position.y = y;
-    (ring.material as T.LineBasicMaterial).opacity = k > 0 && k < 1 ? 1 : 0;
+    (ring.material as T.LineBasicMaterial).opacity = k < .999 ? 1 : 0;
     pivot.rotation.y = .55 + t * .22;
   };
 }
@@ -99,7 +107,7 @@ export default function ModelLoop({ kind }: { kind: Kind }) {
 
       const update = await buildHouse(THREE, pivot, camera);
       if (disposed) return;
-      update(still ? 4.6 : 0); renderer.render(scene, camera);
+      update(still ? 4 : 0); renderer.render(scene, camera);
 
       let visible = true, raf = 0; const t0 = performance.now();
       const io = new IntersectionObserver(([e]) => { visible = e.isIntersecting; if (visible && !raf && !still) raf = requestAnimationFrame(frame); }, { rootMargin: '100px' });

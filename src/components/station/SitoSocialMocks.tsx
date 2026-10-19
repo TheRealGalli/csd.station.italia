@@ -28,11 +28,11 @@ export function SiteMock({ three = false }: { three?: boolean }) {
   </div>;
 }
 
-// Montaggio e riprese: un editor con l'inquadratura da drone e la timeline che scorre.
+// Montaggio e clipping: un editor con l'anteprima di un piatto e la timeline che scorre.
 export function VideoMock() {
   return <div className="mk-editor" aria-hidden="true">
     <div className="mk-bar"><i/><i/><i/><span>montaggio-finale.mp4</span></div>
-    <div className="mk-ed-view"><div className="mk-drone"/><span className="mk-rec"><i/> DRONE · 4K</span><span className="mk-frame"/></div>
+    <div className="mk-ed-view"><div className="mk-shot"><i className="mk-plate"/></div><span className="mk-rec"><i/> REC · 4K</span><span className="mk-frame"/></div>
     <div className="mk-ed-tracks">
       <div><b className="v1" style={{ left: '2%', width: '30%' }}/><b className="v2" style={{ left: '34%', width: '22%' }}/><b className="v1" style={{ left: '58%', width: '36%' }}/></div>
       <div><b className="c1" style={{ left: '10%', width: '14%' }}/><b className="c1" style={{ left: '40%', width: '10%' }}/><b className="c1" style={{ left: '70%', width: '16%' }}/></div>

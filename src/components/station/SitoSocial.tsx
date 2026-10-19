@@ -21,7 +21,7 @@ const previews = [
 const sites = [
   { name: 'Sito standard', price: 'da 344 €', unit: 'una tantum', mock: 'site', description: 'Un sito moderno e veloce. Chi ti cerca trova subito quello che serve.', points: ['Ottimizzato per smartphone', 'Menu, orari, mappa e WhatsApp', 'SEO locale e scheda Google collegata'] },
   { name: 'Sito motion capture', price: 'da 744 €', unit: 'una tantum', mock: '3d', description: 'Il sito standard con animazioni in movimento: le sezioni prendono vita mentre scorri.', points: ['Animazioni e transizioni in movimento', 'Scene animate con il modello che hai già', 'Più sezioni: storia, eventi, galleria'] },
-  { name: 'Montaggio, clipping e drone', price: 'Su preventivo', unit: 'in base al progetto', mock: 'video', description: 'Video montati, clip verticali e riprese con il drone, anche per il sito e i social.', points: ['Montaggio video completo', 'Clipping da interviste, eventi e dirette', 'Riprese con il drone del locale e della zona'] },
+  { name: 'Montaggio e clipping video', price: 'Su preventivo', unit: 'in base al progetto', mock: 'video', description: 'Video montati e clip verticali pronte per il sito e per i social.', points: ['Montaggio video completo', 'Clipping da interviste, eventi e dirette', 'Animazioni e grafiche dentro il video'] },
 ];
 
 const plans = [
@@ -114,7 +114,7 @@ export default function SitoSocial({ children }: { children?: React.ReactNode })
           <ul className="web-points">{p.points.map(point => <li key={point}><Check size={14}/>{point}</li>)}</ul>
           <a className="text-link" href={whatsapp(`Ciao Carlo! Mi interessa il piano ${p.name} (${p.price} al mese) per i social della mia attività.`)} target="_blank" rel="noreferrer">Richiedi {p.name} <ArrowUpRight size={16}/></a>
         </article>)}
-          <article className="web-plan web-plan-extra"><Clapperboard size={22}/><div><h3>Montaggio e clipping video</h3><p>Montaggi completi, clip verticali da interviste, eventi o dirette, e riprese con il drone. Su preventivo.</p></div></article>
+          <article className="web-plan web-plan-extra"><Clapperboard size={22}/><div><h3>Montaggio e clipping video</h3><p>Montaggi completi e clip verticali da interviste, eventi o dirette. Su preventivo.</p></div></article>
         </div>
         <OttoChat/>
       </div>
