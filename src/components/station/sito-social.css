@@ -244,3 +244,29 @@
 /* Prezzo sempre su una riga: la nota scende sotto se manca spazio */
 .web-card .price-row{flex-wrap:wrap;row-gap:2px}
 .web-card .price-row strong{white-space:nowrap}
+
+/* WhatsApp Business: sezione a parte dai social */
+.web-wa{padding-block:90px 70px;border-top:1px solid #dce1d4}
+.web-wa h2>span{color:#7b9262}
+.web-wa-foot{display:flex;justify-content:space-between;align-items:center;gap:20px;flex-wrap:wrap;margin-top:40px;padding:22px 28px;border:1px solid #cfdcc1;border-radius:8px;background:#eaf0e2;font-size:12px;color:#758565}
+@media(max-width:767px){.web-wa{padding-block:60px 50px}.web-wa .included-grid{grid-template-columns:1fr;gap:30px}.web-wa .section-heading{flex-direction:column;align-items:flex-start;gap:16px}.web-wa h2{font-size:32px}}
+
+/* Otto al portatile sopra "Preferisco seguire bene poche attività…" */
+.web-desk-wrap{position:relative;max-width:335px}
+.web-desk{position:absolute;left:-4px;bottom:calc(100% + 4px);display:flex;align-items:flex-end;gap:6px;pointer-events:none}
+.web-desk-otto{position:relative;width:84px;height:110px}
+.web-desk-otto>.otto{position:absolute;top:0;left:0;scale:1;transform:scale(.56);transform-origin:top left;filter:drop-shadow(0 6px 6px #101a1630)}
+.web-laptop{position:relative;width:156px;margin-bottom:6px}
+.web-laptop-screen{position:relative;height:96px;border-radius:7px 7px 2px 2px;background:#0e150e;border:3px solid #2d3e24;padding:6px;display:grid;grid-template-rows:1fr auto auto;gap:3px;overflow:hidden;transform:perspective(300px) rotateY(18deg);transform-origin:right center;box-shadow:0 0 18px #c5f47633}
+.wl-view{border-radius:3px;background:radial-gradient(circle at 50% 55%,#f6f3ea 0 22%,#c9853a 23% 30%,#6b4a2c 31%)}
+.wl-track{display:flex;gap:2px;height:5px}
+.wl-track b{height:100%;border-radius:2px;background:#c5f476}
+.wl-track b.b2{background:#e3e9da}
+.wl-track b.b3{background:repeating-linear-gradient(90deg,#3b5a1f 0 2px,#5f8a36 2px 4px)}
+.wl-head{position:absolute;left:10%;bottom:4px;width:2px;height:16px;background:#ff5a4a;box-shadow:0 0 4px #ff5a4a;animation:wl-play 4s linear infinite}
+.web-laptop-base{display:block;height:6px;margin:0 -10px;border-radius:0 0 8px 8px;background:linear-gradient(#c9d6b0,#9fb187);box-shadow:0 4px 8px #101a1625}
+@keyframes wl-play{from{left:10%}to{left:88%}}
+@media(max-width:767px){.web-desk{position:static;justify-content:flex-end;margin-bottom:8px}}
+@media(prefers-reduced-motion:reduce){.wl-head{animation:none}}
+
+.web-desk-wrap>p{color:#777e70;font-size:13px;padding-bottom:3px}

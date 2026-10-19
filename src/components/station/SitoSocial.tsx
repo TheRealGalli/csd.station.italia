@@ -1,8 +1,9 @@
 import { useEffect, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { ArrowDown, ArrowUpRight, Camera, Check, ChevronLeft, ChevronRight, Clapperboard, Globe, Images, Nfc, ShieldCheck, Users } from 'lucide-react';
+import { ArrowDown, ArrowUpRight, Camera, Check, ChevronLeft, ChevronRight, Clapperboard, Globe, Images, MessageCircle, Nfc, ShieldCheck, Users, Zap } from 'lucide-react';
 import { servicePaths } from '@/seo/routes';
 import { OttoIcon } from './OttoIcon';
+import { Otto } from './StationExperiences';
 import { SiteMock, SocialMock, VideoMock } from './SitoSocialMocks';
 import { webIntro } from '@/seo/content';
 import './sito-social.css';
@@ -21,12 +22,12 @@ const previews = [
 const sites = [
   { name: 'Sito standard', price: 'da 344 €', unit: 'una tantum', mock: 'site', description: 'Un sito moderno e veloce. Chi ti cerca trova subito quello che serve.', points: ['Ottimizzato per smartphone', 'Menu, orari, mappa e WhatsApp', 'SEO locale e scheda Google collegata'] },
   { name: 'Sito motion capture', price: 'da 744 €', unit: 'una tantum', mock: '3d', description: 'Il sito standard con animazioni in movimento: le sezioni prendono vita mentre scorri.', points: ['Animazioni e transizioni in movimento', 'Scene animate con il modello che hai già', 'Più sezioni: storia, eventi, galleria'] },
-  { name: 'Montaggio e clipping video', price: 'Su preventivo', unit: 'in base al progetto', mock: 'video', description: 'Video montati e clip verticali pronte per il sito e per i social.', points: ['Montaggio video completo', 'Clipping da interviste, eventi e dirette', 'Animazioni e grafiche dentro il video'] },
+  { name: 'Montaggio e clipping video', price: 'Su preventivo', unit: 'in base al progetto', mock: 'video', description: 'Dall’idea al video finito: animazioni in motion e montaggio di video anche molto lunghi.', points: ['Ideazione e animazioni in motion fino a 3 minuti', 'Montaggio di video lunghi, anche podcast oltre l’ora', 'Clip verticali pronte per Instagram e TikTok'] },
 ];
 
 const plans = [
-  { name: 'Social Base', price: '149 €', points: ['8 caroselli al mese', '4 reel o short al mese', 'Contenuti da approvare su WhatsApp', 'Un giro di modifiche incluso'] },
-  { name: 'Social Plus', price: '249 €', points: ['12 caroselli al mese', '8 reel, short o clip al mese', 'Stories ogni settimana', 'Una campagna al mese, anche WhatsApp'] },
+  { name: 'Social Base', price: '149 €', points: ['8 caroselli al mese, da 1 a 5 immagini', '4 reel al mese, da 15 a 30 secondi', 'Formati pronti per Instagram e TikTok', 'Da approvare su WhatsApp, un giro di modifiche'] },
+  { name: 'Social Plus', price: '249 €', points: ['16 caroselli al mese, da 1 a 5 immagini', '8 reel al mese, da 15 a 30 secondi', '10 stories al mese, inviate come materiale', 'Formati pronti per Instagram e TikTok'] },
 ];
 
 const slides = [1, 2, 3, 4, 5].map(n => `/sito-social/car-${n}.jpg`);
@@ -114,7 +115,7 @@ export default function SitoSocial({ children }: { children?: React.ReactNode })
           <ul className="web-points">{p.points.map(point => <li key={point}><Check size={14}/>{point}</li>)}</ul>
           <a className="text-link" href={whatsapp(`Ciao Carlo! Mi interessa il piano ${p.name} (${p.price} al mese) per i social della mia attività.`)} target="_blank" rel="noreferrer">Richiedi {p.name} <ArrowUpRight size={16}/></a>
         </article>)}
-          <article className="web-plan web-plan-extra"><Clapperboard size={22}/><div><h3>Montaggio e clipping video</h3><p>Montaggi completi e clip verticali da interviste, eventi o dirette. Su preventivo.</p></div></article>
+          <article className="web-plan web-plan-extra"><Clapperboard size={22}/><div><h3>Montaggio e clipping video</h3><p>Dall’idea al video finito: animazioni in motion fino a 3 minuti, montaggio di video lunghi e podcast anche oltre l’ora, clip verticali da interviste, eventi o dirette. Su preventivo, in base a durata e lavoro.</p></div></article>
         </div>
         <OttoChat/>
       </div>
@@ -126,18 +127,35 @@ export default function SitoSocial({ children }: { children?: React.ReactNode })
       </ol>
     </Reveal>
 
+    <Reveal as="section" className="web-wa wrap" id="whatsapp-business">
+      <div className="section-heading"><div><Eyebrow>03 / WHATSAPP BUSINESS</Eyebrow><h2>I clienti ti scrivono già.<br/><span>Rispondi meglio.</span></h2></div><p>Un servizio a parte dai social: prepariamo il tuo WhatsApp Business perché lavori per te, dalle risposte alle campagne.</p></div>
+      <div className="included-grid">{[
+        { icon: MessageCircle, title: 'Profilo e catalogo', text: 'Configuriamo WhatsApp Business: descrizione, orari, posizione e catalogo con i tuoi piatti o prodotti.' },
+        { icon: Zap, title: 'Risposte automatiche', text: 'Messaggio di benvenuto, di assenza e risposte rapide per prenotazioni, orari e domande frequenti.' },
+        { icon: Images, title: 'Materiale per le campagne', text: 'Testi e immagini pronti per le campagne WhatsApp. L’invio parte dal tuo account: numero e contatti restano tuoi.' },
+      ].map(v => <article key={v.title}><v.icon size={28}/><h3>{v.title}</h3><p>{v.text}</p></article>)}</div>
+      <div className="web-wa-foot"><span>Su preventivo, separato dai piani social.</span><a className="text-link" href={whatsapp('Ciao Carlo! Vorrei informazioni sul servizio WhatsApp Business per la mia attività.')} target="_blank" rel="noreferrer">Parliamo di WhatsApp Business <ArrowUpRight size={16}/></a></div>
+    </Reveal>
+
     <section className="web-bundle" id="pacchetto"><div className="wrap web-bundle-inner">
-      <div><Eyebrow>03 / IL PACCHETTO PRESENZA</Eyebrow><h2>Sito nuovo e social.<br/><span>Un solo canone.</span></h2><p>Il Sito standard è compreso nel canone. Paghi l’attivazione una volta, poi una quota fissa al mese per un anno.</p></div>
+      <div><Eyebrow>04 / IL PACCHETTO PRESENZA</Eyebrow><h2>Sito nuovo e social.<br/><span>Un solo canone.</span></h2><p>Il Sito standard è compreso nel canone. Paghi l’attivazione una volta, poi una quota fissa al mese. Nessun vincolo: puoi interrompere quando vuoi.</p></div>
       <div className="web-bundle-card">
         <span className="web-bundle-tag">SITO STANDARD + SOCIAL BASE</span>
-        <div className="web-bundle-price"><strong>590 €</strong><span>al mese · 12 mesi</span></div>
-        <small>+ 490 € di attivazione, una sola volta</small>
-        <ul className="web-points">{['Sito standard incluso nel canone', '8 caroselli e 4 reel ogni mese', 'Dominio intestato alla tua attività', 'Se interrompi prima dei 12 mesi, saldi la quota restante del sito'].map(point => <li key={point}><Check size={14}/>{point}</li>)}</ul>
+        <div className="web-bundle-price"><strong>290 €</strong><span>al mese</span></div>
+        <small>+ 90 € di attivazione, una sola volta</small>
+        <ul className="web-points">{['Sito standard incluso nel canone', 'Social Base: 8 caroselli e 4 reel al mese', 'Dominio gestito da noi e intestato alla tua attività', 'Puoi interrompere in qualsiasi momento'].map(point => <li key={point}><Check size={14}/>{point}</li>)}</ul>
         <a className="station-button" href={whatsapp('Ciao Carlo! Mi interessa il Pacchetto Presenza (Sito standard + Social Base). Possiamo parlarne?')} target="_blank" rel="noreferrer">Richiedi il pacchetto <ArrowUpRight size={17}/></a>
       </div>
     </div></section>
 
-    <section className="nfc-included wrap" id="regole"><div className="section-heading"><div><Eyebrow>COME LAVORO</Eyebrow><h2>Poche regole chiare.<br/>Da entrambe le parti.</h2></div><p>Preferisco seguire bene poche attività che promettere a tutti risultati che non dipendono solo da me.</p></div>
+    <section className="nfc-included wrap" id="regole"><div className="section-heading"><div><Eyebrow>COME LAVORO</Eyebrow><h2>Poche regole chiare.<br/>Da entrambe le parti.</h2></div><div className="web-desk-wrap">
+        {/* Otto al lavoro sul portatile, seduto sopra la frase: monta un video */}
+        <div className="web-desk" aria-hidden="true">
+          <div className="web-laptop"><div className="web-laptop-screen"><span className="wl-view"/><span className="wl-track"><b style={{ width: '38%' }}/><b className="b2" style={{ width: '22%' }}/><b style={{ width: '30%' }}/></span><span className="wl-track"><b className="b3" style={{ width: '70%' }}/></span><i className="wl-head"/></div><span className="web-laptop-base"/></div>
+          <div className="web-desk-otto"><Otto mood="busy"/></div>
+        </div>
+        <p>Preferisco seguire bene poche attività che promettere a tutti risultati che non dipendono solo da me.</p>
+      </div></div>
       <div className="included-grid">{[
         { icon: Users, title: 'Posti limitati', text: 'Seguo al massimo 6 attività per volta. Così ognuna ha il tempo e l’attenzione che merita.' },
         { icon: Camera, title: 'Solo materiale vero', text: 'I tuoi piatti, il tuo locale, le tue persone. L’AI aiuta a montare e animare, non a inventare.' },
