@@ -429,14 +429,20 @@ function markNav() {
 // salgono da sotto come una leva meccanica che scatta. La scritta cambia quando il tasto è nascosto.
 function mechRun(el, cls, delay = 0) {
  if (calm.matches) return;
- el.classList.remove('mech-in', 'mech-swap'); void el.offsetWidth; el.style.animationDelay = `${delay}ms`; el.classList.add(cls);
- el.addEventListener('animationend', () => { el.classList.remove(cls); el.style.animationDelay = ''; }, {once:true});
+ el.classList.remove('mech-in', 'mech-swap'); el.querySelector(':scope > .mech-scan')?.remove(); void el.offsetWidth;
+ el.style.animationDelay = `${delay}ms`; el.classList.add(cls);
+ // la riga di luce passa sul vetro quando lo schermo si accende (al 70% circa dell'animazione)
+ const scan = document.createElement('i'); scan.className = 'mech-scan'; scan.style.animationDelay = `${delay + (cls === 'mech-swap' ? 1200 : 850)}ms`; el.append(scan);
+ const done = e => { if (e && e.target !== el) return; clearTimeout(safety); el.removeEventListener('animationend', done); el.classList.remove(cls); el.style.animationDelay = ''; scan.remove(); };
+ // se l'evento di fine non arriva (scheda in background), si pulisce comunque
+ const safety = setTimeout(done, delay + 1900);
+ el.addEventListener('animationend', done);
 }
 function mechIn() {
  if (calm.matches) return;
  const run = mechRun;
  document.querySelectorAll('.topbar .ask-otto').forEach(b => {
-  const sp = b.querySelector('span'); if (sp) { sp.textContent = 'Chiedi a Otto'; setTimeout(() => { sp.textContent = 'Bottega di Otto'; }, 300); }
+  const sp = b.querySelector('span'); if (sp) { sp.textContent = 'Chiedi a Otto'; setTimeout(() => { sp.textContent = 'Bottega di Otto'; }, 500); }
   run(b, 'mech-swap', 0);
  });
  [...document.querySelectorAll('.topbar .game-alert, .topbar .game-chapter, .topbar .game-chip')].forEach((el, i) => run(el, 'mech-in', 180 + i * 110));

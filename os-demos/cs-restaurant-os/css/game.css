@@ -655,9 +655,31 @@ body:has(.game-pressure) .live-stack{top:136px}
 /* una fila a colonne subito dopo una scheda ha la stessa aria di tutte le altre */
 @media(min-width:761px){:is(.workspace-panel,.metrics-grid,.registry-grid,.board,.kds-board,.dlv-board)+:is(.quote-layout,.split,.fid-layout,.app-layout,.qr-layout,.sala-layout,.rule-grid,.flag-grid){margin-top:16px}}
 
-/* Ingresso in sfida: tasti che si ripiegano e risalgono da sotto, come una leva meccanica */
-.mech-in{animation:mech-in .75s cubic-bezier(.3,1.35,.5,1) both;transform-origin:50% 100%}
-.mech-swap{animation:mech-swap .85s cubic-bezier(.3,1.2,.5,1) both;transform-origin:50% 100%}
-@keyframes mech-in{0%{transform:perspective(420px) translateY(130%) rotateX(-100deg);opacity:0}45%{opacity:1}68%{transform:perspective(420px) translateY(-8%) rotateX(14deg)}84%{transform:perspective(420px) translateY(2%) rotateX(-5deg)}100%{transform:none;opacity:1}}
-@keyframes mech-swap{0%{transform:none}32%{transform:perspective(420px) translateY(130%) rotateX(100deg);opacity:0}38%{transform:perspective(420px) translateY(130%) rotateX(-100deg);opacity:0}72%{transform:perspective(420px) translateY(-8%) rotateX(14deg);opacity:1}88%{transform:perspective(420px) translateY(2%) rotateX(-4deg)}100%{transform:none;opacity:1}}
-@media(prefers-reduced-motion:reduce){.mech-in,.mech-swap{animation:none}}
+/* Ingresso in sfida: i display LCD escono da una fessura nella barra come un cassetto, poi lo schermo si accende
+   a sfarfallio e una riga di luce attraversa il vetro. "Chiedi a Otto" prima rientra nella fessura, poi riesce come Bottega. */
+.mech-in{animation:mech-rise 1.25s cubic-bezier(.25,1,.4,1) both;transform-origin:50% 100%;will-change:transform,clip-path,filter}
+.mech-swap{animation:mech-swap 1.6s cubic-bezier(.25,1,.4,1) both;transform-origin:50% 100%;will-change:transform,clip-path,filter}
+.mech-in>:not(.mech-scan),.mech-swap>:not(.mech-scan){animation:mech-text 1.25s steps(1,end) both;animation-delay:inherit}
+.mech-swap>:not(.mech-scan){animation-duration:1.6s;animation-name:mech-text-swap}
+.mech-scan{position:absolute;left:-10%;right:-10%;top:-40%;height:40%;pointer-events:none;z-index:2;background:linear-gradient(180deg,transparent,#d8ff9a55 45%,#f3ffd9aa 50%,#d8ff9a55 55%,transparent);mix-blend-mode:screen;animation:mech-scan .55s ease-in both}
+@keyframes mech-rise{
+ 0%{clip-path:inset(100% 0 0 0 round 12px);transform:translateY(70%) scaleY(.55);filter:brightness(.15)}
+ 42%{clip-path:inset(0 0 0 0 round 12px);transform:translateY(-12%) scaleY(1.08);filter:brightness(.2)}
+ 56%{transform:translateY(4%) scaleY(.97)}
+ 66%{transform:none;filter:brightness(.2)}
+ 70%{filter:brightness(1.9)}74%{filter:brightness(.35)}78%{filter:brightness(1.6)}84%{filter:brightness(.7)}
+ 100%{clip-path:inset(0 0 0 0 round 12px);transform:none;filter:none}}
+@keyframes mech-swap{
+ 0%{clip-path:inset(0 0 0 0 round 12px);transform:none;filter:none}
+ 10%{transform:translateY(-6%) scaleY(1.04)}
+ 28%{clip-path:inset(100% 0 0 0 round 12px);transform:translateY(70%) scaleY(.55);filter:brightness(.15)}
+ 34%{clip-path:inset(100% 0 0 0 round 12px);transform:translateY(70%) scaleY(.55)}
+ 56%{clip-path:inset(0 0 0 0 round 12px);transform:translateY(-12%) scaleY(1.08);filter:brightness(.2)}
+ 66%{transform:translateY(4%) scaleY(.97)}
+ 74%{transform:none;filter:brightness(.2)}
+ 77%{filter:brightness(1.9)}80%{filter:brightness(.35)}84%{filter:brightness(1.6)}89%{filter:brightness(.7)}
+ 100%{clip-path:inset(0 0 0 0 round 12px);transform:none;filter:none}}
+@keyframes mech-text{0%,72%{opacity:0}74%{opacity:1}77%{opacity:.15}81%{opacity:1}85%{opacity:.5}88%,100%{opacity:1}}
+@keyframes mech-text-swap{0%,8%{opacity:1}12%,78%{opacity:0}80%{opacity:1}83%{opacity:.15}86%{opacity:1}90%{opacity:.5}93%,100%{opacity:1}}
+@keyframes mech-scan{from{top:-40%}to{top:110%}}
+@media(prefers-reduced-motion:reduce){.mech-in,.mech-swap,.mech-in>*,.mech-swap>*{animation:none}.mech-scan{display:none}}
