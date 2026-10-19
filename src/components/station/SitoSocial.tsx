@@ -13,14 +13,14 @@ export const webContact = whatsapp('Ciao Carlo! Vorrei informazioni su sito e so
 function Eyebrow({ children }: { children: React.ReactNode }) { return <div className="station-eyebrow"><span/>{children}</div>; }
 
 const previews = [
-  { key: 'site', label: 'Sito', name: 'Sito React', price: 'da 345 €', tag: 'REACT' },
-  { key: '3d', label: 'Sito 3D', name: 'Sito 3D / VFX', price: 'da 745 €', tag: 'REACT + 3D' },
+  { key: 'site', label: 'Sito', name: 'Sito React', price: 'da 344 €', tag: 'REACT' },
+  { key: '3d', label: 'Sito 3D', name: 'Sito 3D / VFX', price: 'da 744 €', tag: 'REACT + 3D' },
   { key: 'social', label: 'Social', name: 'Gestione social', price: 'da 149 €/mese', tag: 'CAROSELLI + REEL' },
 ] as const;
 
 const sites = [
-  { name: 'Sito React', price: 'da 345 €', unit: 'una tantum', mock: 'site', description: 'Un sito moderno e veloce, in React. Chi ti cerca trova subito quello che serve.', points: ['Ottimizzato per smartphone', 'Menu, orari, mappa e WhatsApp', 'SEO locale e scheda Google collegata'] },
-  { name: 'Sito 3D / VFX', price: 'da 745 €', unit: 'una tantum', mock: '3d', description: 'Il Sito React con animazioni in motion e una scena 3D costruita sul modello che hai già.', points: ['Modello 3D che hai già', 'Animazioni e transizioni in motion', 'Più sezioni: storia, eventi, galleria'] },
+  { name: 'Sito React', price: 'da 344 €', unit: 'una tantum', mock: 'site', description: 'Un sito moderno e veloce, in React. Chi ti cerca trova subito quello che serve.', points: ['Ottimizzato per smartphone', 'Menu, orari, mappa e WhatsApp', 'SEO locale e scheda Google collegata'] },
+  { name: 'Sito 3D / VFX', price: 'da 744 €', unit: 'una tantum', mock: '3d', description: 'Il Sito React con animazioni in motion e una scena 3D costruita sul modello che hai già.', points: ['Modello 3D che hai già', 'Animazioni e transizioni in motion', 'Più sezioni: storia, eventi, galleria'] },
   { name: 'Modello 3D / VFX su misura', price: 'Su preventivo', unit: 'in base al soggetto', mock: 'model', description: 'Creiamo il modello del tuo piatto, del locale o di un prodotto. Da usare nel sito e nei video.', points: ['Piatto, ambiente o prodotto', 'Riutilizzabile nei contenuti social', 'Si aggiunge a qualsiasi formato'] },
 ];
 

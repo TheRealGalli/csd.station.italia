@@ -1,5 +1,4 @@
 import { useEffect, useRef } from 'react';
-import type { BufferAttribute } from 'three';
 
 // Stella "aliena" in 3D: tante punte arrotondate che pulsano in modo irregolare e si piegano verso il mouse,
 // come limatura di ferro vicino a una calamita. three.js si carica solo qui, quando il componente compare.
@@ -13,8 +12,7 @@ export default function AlienStar({ className = '' }: { className?: string }) {
     let disposed = false, stop = () => {};
     const still = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-    import('three').then(async THREE => {
-      const { mergeVertices } = await import('three/examples/jsm/utils/BufferGeometryUtils.js');
+    import('three').then(THREE => {
       if (disposed) return;
       const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
       renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.5));
@@ -23,21 +21,38 @@ export default function AlienStar({ className = '' }: { className?: string }) {
       const scene = new THREE.Scene(), camera = new THREE.PerspectiveCamera(32, 1, .1, 50);
       camera.position.set(0, 0, 13);
 
-      // Base: una sfera fitta; ogni frame i vertici si spostano lungo la normale in base alle punte.
-      const geo = mergeVertices(new THREE.IcosahedronGeometry(1, 24));
-      const pos = geo.attributes.position as BufferAttribute, base = Float32Array.from(pos.array as Float32Array);
+      // La forma si calcola sulla scheda grafica: il processore aggiorna solo direzione e ampiezza delle punte.
+      const geo = new THREE.IcosahedronGeometry(1, 40);
       const spikes = Array.from({ length: SPIKES }, (_, i) => {
         const y = 1 - (i + .5) * 2 / SPIKES, r = Math.sqrt(1 - y * y), a = i * 2.39996;
         return { dir: new THREE.Vector3(Math.cos(a) * r, y, Math.sin(a) * r), now: new THREE.Vector3(), f: .6 + Math.random() * 1.1, p: Math.random() * 6.28, len: .5 + Math.random() * .22, amp: 0 };
       });
-      // Per ogni vertice, solo le punte che possono toccarlo: il calcolo per frame scende da ~46 a 1-2 punte.
-      const near: number[][] = [];
-      for (let i = 0; i < base.length; i += 3) {
-        const list: number[] = [];
-        spikes.forEach((sp, k) => { if (base[i] * sp.dir.x + base[i + 1] * sp.dir.y + base[i + 2] * sp.dir.z > .82) list.push(k); });
-        near.push(list);
-      }
+      const uSp = { value: spikes.map(() => new THREE.Vector4()) }, uTime = { value: 0 };
       const mat = new THREE.MeshPhysicalMaterial({ color: 0xb9ec62, emissive: 0x2c4a0c, roughness: .32, metalness: .08, clearcoat: 1, clearcoatRoughness: .25, sheen: 1, sheenColor: new THREE.Color(0xe3f7b8) });
+      mat.onBeforeCompile = shader => {
+        shader.uniforms.uSp = uSp; shader.uniforms.uTime = uTime;
+        shader.vertexShader = shader.vertexShader
+          .replace('#include <common>', `#include <common>
+uniform vec4 uSp[${SPIKES}];
+uniform float uTime;
+float starShape(vec3 p) {
+  float r = 1.0 + 0.03 * sin(uTime * 1.3 + p.x * 3.0);
+  for (int i = 0; i < ${SPIKES}; i++) { float d = dot(p, uSp[i].xyz); if (d > 0.88) r += uSp[i].w * exp(34.0 * (d - 1.0)); }
+  return r;
+}`)
+          // Normale dalla forma stessa (due punti vicini sulla superficie): luce corretta anche mentre pulsa.
+          .replace('#include <beginnormal_vertex>', `vec3 sDir = normalize(position);
+vec3 sTa = normalize(cross(sDir, abs(sDir.y) < 0.99 ? vec3(0.0, 1.0, 0.0) : vec3(1.0, 0.0, 0.0)));
+vec3 sTb = cross(sDir, sTa);
+vec3 sP0 = sDir * starShape(sDir);
+vec3 sD1 = normalize(sDir + sTa * 0.006), sD2 = normalize(sDir + sTb * 0.006);
+vec3 objectNormal = normalize(cross(sD1 * starShape(sD1) - sP0, sD2 * starShape(sD2) - sP0));
+if (dot(objectNormal, sDir) < 0.0) objectNormal = -objectNormal;
+#ifdef USE_TANGENT
+vec3 objectTangent = vec3(tangent.xyz);
+#endif`)
+          .replace('#include <begin_vertex>', 'vec3 transformed = sP0;');
+      };
       const mesh = new THREE.Mesh(geo, mat); scene.add(mesh);
       scene.add(new THREE.HemisphereLight(0xeaffc8, 0x1a2715, 1.6));
       const key = new THREE.DirectionalLight(0xffffff, 2.4); key.position.set(3, 4, 5); scene.add(key);
@@ -66,7 +81,6 @@ export default function AlienStar({ className = '' }: { className?: string }) {
       const io = new IntersectionObserver(([e]) => { visible = e.isIntersecting; if (visible && !raf) raf = requestAnimationFrame(frame); }, { rootMargin: '100px' });
       io.observe(el);
 
-      const v = new THREE.Vector3();
       function frame(now: number) {
         raf = 0; if (disposed) return;
         if (el.closest('.web-preview>div:not(.on)')) { raf = requestAnimationFrame(frame); return; }
@@ -82,14 +96,8 @@ export default function AlienStar({ className = '' }: { className?: string }) {
           s.now.copy(s.dir).lerp(local, pull * near2 * .22).normalize();
           s.amp = s.len * beat * (1 + pull * near2 * .7);
         }
-        const arr = pos.array as Float32Array;
-        for (let i = 0, n = 0; i < arr.length; i += 3, n++) {
-          v.set(base[i], base[i + 1], base[i + 2]);
-          let r = 1 + .03 * Math.sin(t * 1.3 + base[i] * 3);
-          for (const k of near[n]) { const sp = spikes[k], d = v.dot(sp.now); if (d > .9) r += sp.amp * Math.exp(34 * (d - 1)); }
-          arr[i] = v.x * r; arr[i + 1] = v.y * r; arr[i + 2] = v.z * r;
-        }
-        pos.needsUpdate = true; geo.computeVertexNormals();
+        spikes.forEach((sp, k) => uSp.value[k].set(sp.now.x, sp.now.y, sp.now.z, sp.amp));
+        uTime.value = t;
         renderer.render(scene, camera);
         if (visible && !still) raf = requestAnimationFrame(frame);
       }
