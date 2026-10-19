@@ -84,7 +84,7 @@ export default function SitoSocial({ children }: { children?: React.ReactNode })
       <div className="nfc-benefits"><span><Check size={15}/> Contenuti approvati da te</span><span><Check size={15}/> Prezzi chiari, quantità fisse</span></div>
     </div><div className="nfc-display">
       <div className="product-orbit"/><span className="product-overline">LA TUA ATTIVITÀ. ANCHE ONLINE.</span>
-      <div className="web-preview"><div className={preview.key === 'site' ? 'on' : ''}><SiteMock/></div><div className={preview.key === '3d' ? 'on' : ''}><SiteMock three/></div><div className={preview.key === 'social' ? 'on' : ''}><SocialMock/></div></div>
+      <div className="web-preview" data-star-zone><div className={preview.key === 'site' ? 'on' : ''}><SiteMock/></div><div className={preview.key === '3d' ? 'on' : ''}><SiteMock three/></div><div className={preview.key === 'social' ? 'on' : ''}><SocialMock/></div></div>
       <span className="product-float">{preview.key === 'social' ? <Images size={18}/> : <Globe size={18}/>} {preview.tag}</span>
       <div className="product-selector" role="group" aria-label="Anteprima del servizio">{previews.map((p, i) => <button key={p.key} type="button" aria-pressed={selected === i} onClick={() => setSelected(i)} className={selected === i ? 'selected' : ''}>{p.label}</button>)}</div>
       <div className="product-caption"><span>{preview.name}</span><b>{preview.price}</b></div>
@@ -95,7 +95,7 @@ export default function SitoSocial({ children }: { children?: React.ReactNode })
     <Reveal as="section" className="product-section" id="siti"><div className="wrap">
       <div className="section-heading"><div><Eyebrow>01 / IL SITO</Eyebrow><h2>La tua vetrina.<br/>Tre modi di costruirla.</h2></div><p>Siti moderni e veloci, pensati prima di tutto per chi ti cerca dallo smartphone. Il 3D e il VFX sono un passo in più, non un obbligo.</p></div>
       <div className="products-grid">{sites.map((s, i) => <article className="product-card web-card" key={s.name}>
-        <div className="web-card-head">{s.mock === 'model' ? <ModelMock/> : <SiteMock three={s.mock === '3d'}/>}<span>0{i + 1}</span></div>
+        <div className="web-card-head" data-star-zone>{s.mock === 'model' ? <ModelMock/> : <SiteMock three={s.mock === '3d'}/>}<span>0{i + 1}</span></div>
         <div className="product-card-content"><h3>{s.name}</h3><p>{s.description}</p>
           <ul className="web-points">{s.points.map(point => <li key={point}><Check size={14}/>{point}</li>)}</ul>
           <div className="price-row"><strong>{s.price}</strong><span>{s.unit}</span></div>
