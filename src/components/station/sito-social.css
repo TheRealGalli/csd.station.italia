@@ -188,3 +188,15 @@
 .mk-grid img{width:100%;height:100%;object-fit:cover;display:block}
 .mk-grid svg{position:absolute;top:.3em;right:.3em;color:#fff;filter:drop-shadow(0 0 .2em #0008)}
 @media(prefers-reduced-motion:reduce){.mk-cube,.mk-shadow{animation:none}}
+
+/* Chat: già alla misura finale, i messaggi compaiono al loro posto */
+.wa-body{position:relative}
+.wa-msg.wa-later{visibility:hidden;animation:none}
+.wa-typing{position:absolute;left:16px;top:44px;z-index:1}
+/* Profilo: avatar dritto nonostante il telefono inclinato, tutto cliccabile verso Instagram */
+.mk-ig-head img{transform:rotate(4deg)}
+.mk-ig-head a,.mk-grid>a{display:block}
+.mk-grid>a{position:relative;aspect-ratio:4/5;overflow:hidden;background:#eef2e7;transition:opacity .2s}
+.mk-grid>a:hover{opacity:.85}
+.mk-grid>a svg{position:absolute;top:.3em;right:.3em;color:#fff;filter:drop-shadow(0 0 .2em #0008)}
+.web-preview>div:not(.on){pointer-events:none}

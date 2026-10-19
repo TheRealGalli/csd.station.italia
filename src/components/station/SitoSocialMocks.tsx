@@ -36,11 +36,12 @@ export function ModelMock() {
   return <div className="mk-model" aria-hidden="true"><div className="mk-orbit"/><Cube/><span>IL TUO PRODOTTO · 360°</span></div>;
 }
 
-// Social: il profilo Instagram di CSD Station, con i caroselli veri.
+// Social: il profilo Instagram di CSD Station, con i caroselli veri. Avatar e caroselli aprono il profilo.
+const instagram = 'https://www.instagram.com/carlogalli.ai';
 export function SocialMock() {
-  return <div className="mk-phone" aria-hidden="true">
-    <div className="mk-ig-head"><img src="/sito-social/avatar.jpg" alt=""/><div><b>csd-station</b><span><em>12</em> post</span><span><em>9</em> caroselli</span></div></div>
+  return <div className="mk-phone">
+    <div className="mk-ig-head"><a href={instagram} target="_blank" rel="noreferrer" aria-label="Il profilo Instagram di CSD Station"><img src="/sito-social/avatar.jpg" alt=""/></a><div><b>csd-station</b><span><em>12</em> post</span><span><em>9</em> caroselli</span></div></div>
     <div className="mk-ig-tabs"><Grid3x3 size={11}/><Clapperboard size={11}/></div>
-    <div className="mk-grid">{[1, 2, 3, 4, 5, 6, 7, 8, 9].map(n => <span key={n}><img src={`/sito-social/ig-${n}.jpg`} alt="" loading="lazy"/><Copy size={9}/></span>)}</div>
+    <div className="mk-grid">{[1, 2, 3, 4, 5, 6, 7, 8, 9].map(n => <a key={n} href={instagram} target="_blank" rel="noreferrer" aria-label={`Carosello ${n} su Instagram`}><img src={`/sito-social/ig-${n}.jpg`} alt="" loading="lazy"/><Copy size={9}/></a>)}</div>
   </div>;
 }

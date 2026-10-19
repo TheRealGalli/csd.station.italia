@@ -13,14 +13,14 @@ export const webContact = whatsapp('Ciao Carlo! Vorrei informazioni su sito e so
 function Eyebrow({ children }: { children: React.ReactNode }) { return <div className="station-eyebrow"><span/>{children}</div>; }
 
 const previews = [
-  { key: 'site', label: 'Sito', name: 'Sito React', price: 'da 690 €', tag: 'REACT' },
-  { key: '3d', label: 'Sito 3D', name: 'Sito 3D / VFX', price: 'da 1.490 €', tag: 'REACT + 3D' },
+  { key: 'site', label: 'Sito', name: 'Sito React', price: 'da 345 €', tag: 'REACT' },
+  { key: '3d', label: 'Sito 3D', name: 'Sito 3D / VFX', price: 'da 745 €', tag: 'REACT + 3D' },
   { key: 'social', label: 'Social', name: 'Gestione social', price: 'da 149 €/mese', tag: 'CAROSELLI + REEL' },
 ] as const;
 
 const sites = [
-  { name: 'Sito React', price: 'da 690 €', unit: 'una tantum', mock: 'site', description: 'Un sito moderno e veloce, in React. Chi ti cerca trova subito quello che serve.', points: ['Ottimizzato per smartphone', 'Menu, orari, mappa e WhatsApp', 'SEO locale e scheda Google collegata'] },
-  { name: 'Sito 3D / VFX', price: 'da 1.490 €', unit: 'una tantum', mock: '3d', description: 'Il Sito React con animazioni in motion e una scena 3D costruita sul modello che hai già.', points: ['Modello 3D che hai già', 'Animazioni e transizioni in motion', 'Più sezioni: storia, eventi, galleria'] },
+  { name: 'Sito React', price: 'da 345 €', unit: 'una tantum', mock: 'site', description: 'Un sito moderno e veloce, in React. Chi ti cerca trova subito quello che serve.', points: ['Ottimizzato per smartphone', 'Menu, orari, mappa e WhatsApp', 'SEO locale e scheda Google collegata'] },
+  { name: 'Sito 3D / VFX', price: 'da 745 €', unit: 'una tantum', mock: '3d', description: 'Il Sito React con animazioni in motion e una scena 3D costruita sul modello che hai già.', points: ['Modello 3D che hai già', 'Animazioni e transizioni in motion', 'Più sezioni: storia, eventi, galleria'] },
   { name: 'Modello 3D / VFX su misura', price: 'Su preventivo', unit: 'in base al soggetto', mock: 'model', description: 'Creiamo il modello del tuo piatto, del locale o di un prodotto. Da usare nel sito e nei video.', points: ['Piatto, ambiente o prodotto', 'Riutilizzabile nei contenuti social', 'Si aggiunge a qualsiasi formato'] },
 ];
 
@@ -54,16 +54,16 @@ function OttoChat() {
     <div className="wa-head"><span className="wa-avatar"><OttoIcon mood="happy" size={20}/></span><div><b>Otto · CSD Station</b><small>{seen && step < 2 ? 'sta scrivendo…' : 'online'}</small></div><em>ESEMPIO</em></div>
     <div className="wa-body">
       <span className="wa-day">OGGI</span>
-      {step >= 1 && <div className="wa-msg in"><p>Ciao Marco! Ecco il carosello di lunedì. Sfoglialo e dimmi se va bene 👇</p><time>10:02</time></div>}
-      {step >= 2 && <div className="wa-msg in wa-attach">
+      {seen && step < 2 && <div className="wa-msg in wa-typing"><i/><i/><i/></div>}
+      <div className={`wa-msg in ${step >= 1 ? '' : 'wa-later'}`}><p>Ciao Marco! Ecco il carosello di lunedì. Sfoglialo e dimmi se va bene 👇</p><time>10:02</time></div>
+      <div className={`wa-msg in wa-attach ${step >= 2 ? '' : 'wa-later'}`}>
         <div className="wa-slide"><img src={slides[slide]} alt={`Slide ${slide + 1} del carosello d’esempio`}/><span className="wa-count">{slide + 1}/{slides.length}</span>
           <button type="button" className="wa-arrow l" aria-label="Slide precedente" disabled={slide === 0} onClick={() => setSlide(slide - 1)}><ChevronLeft size={16}/></button>
           <button type="button" className="wa-arrow r" aria-label="Slide successiva" disabled={slide === slides.length - 1} onClick={() => setSlide(slide + 1)}><ChevronRight size={16}/></button>
         </div>
         <div className="wa-dots">{slides.map((_, i) => <i key={i} className={i === slide ? 'on' : ''}/>)}</div>
         <p><Images size={13}/> Carosello · 5 slide · <b>lun 12:30</b></p><time>10:02</time>
-      </div>}
-      {seen && step < 2 && <div className="wa-msg in wa-typing"><i/><i/><i/></div>}
+      </div>
     </div>
   </div>;
 }
