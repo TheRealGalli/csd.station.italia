@@ -45,7 +45,7 @@ export function getPageMeta(pathname: string, search = '') {
   if (service) graph.push({
     '@type': 'Service', '@id': `${url}#service`, name: name.replace(' | CSD Station', ''), description, url,
     provider: { '@id': organization['@id'] }, areaServed: { '@type': 'Country', name: 'Italia' },
-    serviceType: mode === 'training' ? ['Training AI aziendale', 'Formazione AI per PMI'] : mode === 'web' ? ['Realizzazione siti web', 'Siti web 3D', 'Modelli 3D', 'Gestione social media', 'Clipping video'] : mode === 'nfc' ? ['Card NFC per recensioni Google', 'Plate adesive NFC', 'Stand NFC'] : ['Consulenza AI', 'Consulenza informatica', 'Automazioni aziendali', 'Consulenza hardware e NFC'],
+    serviceType: mode === 'training' ? ['Training AI aziendale', 'Formazione AI per PMI'] : mode === 'web' ? ['Siti web in React', 'Siti 3D e VFX', 'Modelli 3D su misura', 'Gestione social media', 'Clipping e montaggio video'] : mode === 'nfc' ? ['Card NFC per recensioni Google', 'Plate adesive NFC', 'Stand NFC'] : ['Consulenza AI', 'Consulenza informatica', 'Automazioni aziendali', 'Consulenza hardware e NFC'],
   });
   if (service && canonicalPath !== '/') graph.push({
     '@type': 'BreadcrumbList', itemListElement: [

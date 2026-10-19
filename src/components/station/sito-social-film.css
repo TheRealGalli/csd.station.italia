@@ -1,0 +1,91 @@
+/* Film "Accendi la Station": tutto si misura sul fotogramma 1920×1080 (1cqw = 19,2 px del video). */
+html.film-lock,html.film-lock body{overflow:hidden;overscroll-behavior:none}
+.film{--film-top:88px;position:relative;height:calc(100vh - var(--film-top));min-height:480px;display:grid;place-items:center;background:#0b110a;transition:background .6s;user-select:none;-webkit-user-select:none;-webkit-touch-callout:none;touch-action:manipulation}
+.film.is-outro,.film.is-live{background:#f0f3e9}
+.film.is-tap,.film.is-hold{cursor:pointer}
+.film-box{position:relative;width:min(100%,calc((100vh - var(--film-top))*16/9));aspect-ratio:16/9;container-type:inline-size;overflow:hidden}
+.film-video{position:absolute;inset:0;width:100%;height:100%;display:block;transition:opacity .5s}
+.is-live .film-video{opacity:0}
+
+/* 1° gesto: il pulsante Accendi del video (centro al 65,8% dell'altezza) */
+.film-power{position:absolute;left:50%;top:65.8%;width:13.4cqw;aspect-ratio:1;transform:translate(-50%,-50%);border:0;border-radius:50%;background:transparent;cursor:pointer;animation:film-pulse 1.8s ease-out infinite}
+.film-power span{position:absolute;left:50%;top:calc(100% + 1.2cqw);transform:translateX(-50%);white-space:nowrap;font:500 .8cqw ui-monospace,monospace;letter-spacing:.25em;text-transform:uppercase;color:#c5f476;opacity:.9}
+.film-power:focus-visible{outline:2px solid #c5f476;outline-offset:6px}
+@keyframes film-pulse{0%{box-shadow:0 0 0 0 #c5f47666}100%{box-shadow:0 0 0 2.4cqw #c5f47600}}
+
+/* 2° gesto: tieni premuto Trasmetti (centro all'80,5%) */
+.film-transmit{position:absolute;left:50%;top:80.5%;width:9cqw;aspect-ratio:1;transform:translate(-50%,-50%);border:0;border-radius:50%;background:transparent;cursor:pointer;animation:film-pulse 1.8s ease-out infinite}
+.film-transmit:focus-visible{outline:2px solid #c5f476;outline-offset:6px}
+.film-hold{position:absolute;left:50%;top:92.2%;transform:translateX(-50%);display:flex;flex-direction:column;align-items:center;gap:.7cqw;padding:.7cqw 1.6cqw .9cqw;background:#0b110a;border-radius:.4cqw;pointer-events:none}
+.film-hold span{font:500 .75cqw ui-monospace,monospace;letter-spacing:.3em;text-transform:uppercase;color:#d7e8c0}
+.film-hold i{display:block;width:14cqw;height:.2cqw;background:#2b3a24;border-radius:1cqw;overflow:hidden}
+.film-hold b{display:block;height:100%;background:#c5f476;transform-origin:left;box-shadow:0 0 .8cqw #c5f476}
+.film-hold.done span{color:#c5f476}
+
+.film-tools{position:absolute;right:20px;bottom:18px;display:flex;gap:8px}
+.film-tools button,.film-replay{display:inline-flex;align-items:center;gap:7px;min-height:32px;padding:6px 12px;border:1px solid #ffffff26;border-radius:6px;background:#0b110acc;color:#b9c8a8;font-size:11px;cursor:pointer}
+.film-tools button:hover{color:#f0f5e8;border-color:#ffffff55}
+.film-replay{position:absolute;right:5.208cqw;top:48.3cqw;background:#f0f3e9;border-color:#cdd6c1;color:#5d6e4f;opacity:0;animation:fh-in .6s 2.2s forwards}
+
+/* La hero vera, sovrapposta all'ultimo fotogramma: identica, poi prende vita */
+.film-hero{position:absolute;inset:0;color:#1e3217;opacity:0;pointer-events:none;transition:opacity .5s;font-family:'Helvetica Neue',Helvetica,Arial,sans-serif}
+.is-outro .film-hero,.is-live .film-hero{opacity:1}
+.is-live .film-hero{pointer-events:auto}
+.fh-brand{position:absolute;left:5.208cqw;top:2.604cqw;display:flex;align-items:center;gap:.73cqw}
+.fh-mark{width:2.917cqw;height:2.917cqw;border-radius:.55cqw;overflow:hidden;display:block}
+.fh-mark img{width:100%;height:100%;display:block}
+.fh-brand b{display:block;font-size:1.12cqw;font-weight:700;letter-spacing:.08em;line-height:1}
+.fh-brand small{display:block;margin-top:.55cqw;font-size:.55cqw;letter-spacing:.42em;color:#55684a;line-height:1}
+.fh-nav{position:absolute;right:5.208cqw;top:3.35cqw;display:flex;gap:1.25cqw;font-size:.88cqw;line-height:1}
+.fh-nav a{color:#46573d;display:inline-flex;align-items:center;gap:.25cqw;transition:color .2s}
+.fh-nav a:hover{color:#1e3217}
+.fh-nav svg{width:1cqw;height:1cqw;stroke-width:1.5}
+.fh-eyebrow{position:absolute;left:5.208cqw;top:11.55cqw;font:.78cqw ui-monospace,SFMono-Regular,Menlo,monospace;letter-spacing:.16em;color:#6d8758;line-height:1}
+.fh-title{position:absolute;left:5cqw;top:13.15cqw;margin:0;font-size:6.78cqw;line-height:.952;font-weight:600;letter-spacing:-.068em;color:#1e3217}
+.fh-title span{color:#7d9862}
+.film .fh-lead{position:absolute;left:5.208cqw;top:35.45cqw;margin:0;font-size:1.25cqw;line-height:1.5;color:#677a58}
+.fh-cta{position:absolute;left:5.208cqw;top:40.78cqw;width:17.4cqw;height:3.49cqw;display:flex;align-items:center;justify-content:space-between;padding:0 1.56cqw;box-sizing:border-box;background:#1f3218;color:#c5f476;font-size:.94cqw;transition:background .2s}
+.fh-cta svg{width:1.2cqw;height:1.2cqw;stroke-width:1.5;transition:transform .3s}
+.fh-cta:hover{background:#2a4220}
+.fh-cta:hover svg{transform:translate(.2cqw,-.2cqw)}
+.fh-card{--rx:0deg;--ry:0deg;position:absolute;left:55.208cqw;top:12.76cqw;width:36.458cqw;height:34.375cqw;border-radius:1.15cqw;background:#1a2715;transform:perspective(120cqw) rotateX(var(--rx)) rotateY(var(--ry));transition:transform .4s ease-out}
+.fh-shot{position:absolute;border-radius:1.15cqw;opacity:0;transition:opacity .45s,transform .6s}
+.fh-shot.on{opacity:1}
+.fh-shot-3d{inset:0;width:100%;height:100%;object-fit:cover}
+.fh-shot-flat{left:6%;top:9%;width:88%;height:72%;object-fit:cover;border-radius:.6cqw;transform:scale(.97)}
+.fh-shot-flat.on{transform:none}
+.fh-pick{position:absolute;left:50%;top:86.9%;transform:translateX(-50%);display:flex;gap:1cqw;align-items:center;padding:.1cqw .4cqw;background:#1a2715}
+.fh-pick button{font:.73cqw ui-monospace,SFMono-Regular,Menlo,monospace;letter-spacing:.17em;padding:.42cqw .6cqw .42cqw .75cqw;border:0;border-radius:.2cqw;background:transparent;color:#9fb08f;cursor:pointer;transition:background .25s,color .25s}
+.fh-pick button[aria-pressed=true]{background:#c5f476;color:#1f3a00}
+.fh-pick button:hover:not([aria-pressed=true]){color:#e4f1d2}
+.fh-chip{position:absolute;font:.62cqw ui-monospace,monospace;letter-spacing:.2em;padding:.55cqw .8cqw;border-radius:.35cqw;background:#2d3e24;border:1px solid #78925a;color:#d2eab9;opacity:0;white-space:nowrap}
+.fh-chip-1{left:-3.2cqw;top:16%;transform:rotate(-5deg)}
+.fh-chip-2{right:-2.6cqw;top:8%;transform:rotate(6deg);background:#c5f476;color:#1f3a00;border-color:#c5f476}
+.fh-chip-3{right:-3.6cqw;bottom:22%;transform:rotate(-4deg)}
+.fh-scroll{position:absolute;left:50%;top:48.8cqw;transform:translateX(-50%);display:flex;align-items:center;gap:.5cqw;font:.62cqw ui-monospace,monospace;letter-spacing:.25em;text-transform:uppercase;color:#6d8758;opacity:0}
+.fh-scroll svg{width:.9cqw;height:.9cqw;animation:fh-bob 1.6s ease-in-out infinite}
+.fh-rule{position:absolute;left:5.208cqw;right:5.208cqw;top:52.34cqw;border-top:1px solid #d5dccb;display:flex;justify-content:space-between;padding-top:1.05cqw;font:.625cqw ui-monospace,SFMono-Regular,Menlo,monospace;letter-spacing:.2em;color:#6d8758}
+
+/* Prende vita: la scheda respira, compaiono le note, il resto della pagina si sviluppa */
+.is-live .fh-card{animation:fh-float 7s ease-in-out 1s infinite}
+.is-live .fh-chip-1{animation:fh-in .6s .5s forwards}
+.is-live .fh-chip-2{animation:fh-in .6s .8s forwards}
+.is-live .fh-chip-3{animation:fh-in .6s 1.1s forwards}
+.is-live .fh-scroll{animation:fh-in .6s 1.6s forwards}
+.is-live .fh-title span{background:linear-gradient(90deg,#7d9862 0 40%,#a9c97a 50%,#7d9862 60% 100%);background-size:250% 100%;background-position:100% 0;-webkit-background-clip:text;background-clip:text;color:transparent;animation:fh-shine 2.4s .3s ease-out forwards}
+@keyframes fh-in{from{opacity:0;translate:0 .6cqw}to{opacity:1;translate:0 0}}
+@keyframes fh-float{0%,100%{translate:0 0}50%{translate:0 -.5cqw}}
+@keyframes fh-bob{0%,100%{transform:translateY(0)}50%{transform:translateY(.25cqw)}}
+@keyframes fh-shine{to{background-position:0 0}}
+
+/* Sezioni sotto: si sviluppano solo quando la hero è viva */
+.web-after{opacity:0;transform:translateY(40px);transition:opacity .8s .3s,transform .8s .3s}
+.web-after.on{opacity:1;transform:none}
+
+/* Su telefono la sezione non è ancora disponibile */
+.web-desktop-only{min-height:calc(100vh - 160px);display:flex;flex-direction:column;justify-content:center;gap:18px;padding:40px 24px;background:#152016;color:#f0f4e9}
+.web-desktop-only h1{font-size:36px;line-height:1.1}
+.web-desktop-only h1 span{color:#c5f476}
+.web-desktop-only p{color:#a1b292;font-size:14px;max-width:420px}
+.web-desktop-only .station-button{align-self:flex-start}
+@media(prefers-reduced-motion:reduce){.film-power,.film-transmit,.is-live .fh-card,.fh-scroll svg{animation:none}.is-live .fh-title span{animation:none;background:none;color:#7d9862}}

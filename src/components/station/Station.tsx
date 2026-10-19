@@ -14,7 +14,7 @@ import NfcTapDemo from './NfcTapDemo';
 import { MobileConsulting, MobileNfc } from './MobileLanding';
 import Training, { trainingContact } from './Training';
 import { OttoIcon } from './OttoIcon';
-import SitoSocial, { webContact } from './SitoSocial';
+import SitoSocial, { SitoSocialMobile, webContact } from './SitoSocial';
 const OttoGlyph = ({ size = 18 }: { size?: number }) => <OttoIcon mood="read" size={size}/>;
 
 const whatsapp = (message: string) => `https://wa.me/393518628203?text=${encodeURIComponent(message)}`;
@@ -57,7 +57,7 @@ export function StationHeader() {
       <Link className={mode === 'automazioni' ? 'active' : ''} aria-current={mode === 'automazioni' ? 'page' : undefined} to={servicePaths.automazioni}>Consulenza AI</Link>
       <Link className={mode === 'training' ? 'active' : ''} aria-current={mode === 'training' ? 'page' : undefined} to={servicePaths.training}>Training</Link>
       <Link className={mode === 'nfc' ? 'active' : ''} aria-current={mode === 'nfc' ? 'page' : undefined} to={servicePaths.nfc}>Card NFC <span className="nav-dot"/></Link>
-      <Link className={mode === 'web' ? 'active' : ''} aria-current={mode === 'web' ? 'page' : undefined} to={servicePaths.web}>Sito & Social</Link>
+      <Link className={`nav-web ${mode === 'web' ? 'active' : ''}`} aria-current={mode === 'web' ? 'page' : undefined} to={servicePaths.web}>SITO & SOCIAL</Link>
       <DemoMenu active={os}/>
     </nav>
     <a className="station-button small nav-contact" href={contactHref} target="_blank" rel="noreferrer">Parliamone <ArrowUpRight size={16}/></a>
@@ -129,5 +129,5 @@ export default function Station() {
    document.documentElement.style.backgroundColor = bg;
    document.body.style.backgroundColor = bg;
  }, [compact, mode]);
- return <div className={`station-site ${mode === 'nfc' ? 'nfc-site' : mode === 'web' ? 'nfc-site web-site' : mode === 'training' ? 'training-site' : ''} ${compact ? 'compact-site' : ''}`}><a className="station-skip" href="#main-content">Vai al contenuto</a><StationHeader/><main id="main-content">{mode === 'training' ? <Training/> : mode === 'web' ? <><SitoSocial/><FAQ mode="web"/><Contact mode="web"/></> : compact ? mode === 'nfc' ? <MobileNfc products={products} whatsapp={whatsapp}/> : <MobileConsulting contact={processContact} skills={skills}/> : mode === 'nfc' ? <NfcPage/> : <Home/>}</main><StationFooter/></div>;
+ return <div className={`station-site ${mode === 'nfc' ? 'nfc-site' : mode === 'web' ? 'nfc-site web-site' : mode === 'training' ? 'training-site' : ''} ${compact ? 'compact-site' : ''}`}><a className="station-skip" href="#main-content">Vai al contenuto</a><StationHeader/><main id="main-content">{mode === 'training' ? <Training/> : mode === 'web' ? compact ? <SitoSocialMobile/> : <SitoSocial><FAQ mode="web"/><Contact mode="web"/></SitoSocial> : compact ? mode === 'nfc' ? <MobileNfc products={products} whatsapp={whatsapp}/> : <MobileConsulting contact={processContact} skills={skills}/> : mode === 'nfc' ? <NfcPage/> : <Home/>}</main><StationFooter/></div>;
 }

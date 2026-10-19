@@ -14,3 +14,7 @@ public/os/
 
 # file generati dai test delle demo
 os-demos/*/tmp/
+
+# Sorgenti del film "Accendi la Station" (il video per il web è in public/sito-social/)
+/sito react/
+/accendi-la-station.mp4
