@@ -28,5 +28,4 @@ export const webFaq = [
   ['Chi realizza foto e video?', 'Si lavora con materiale reale dell’attività: video girati con il telefono e inviati su WhatsApp, oppure una mezza giornata di riprese su accordo. L’AI aiuta nel montaggio, nelle animazioni e nelle clip; non crea piatti o ambienti presentati come veri.'],
   ['Garantite follower, prenotazioni o vendite?', 'No. Il servizio garantisce i contenuti concordati e la loro pubblicazione. Nel riepilogo mensile trovi i dati che le piattaforme rendono disponibili, come visualizzazioni e interazioni: non equivalgono a clienti o vendite.'],
   ['Come funziona il Pacchetto Presenza?', 'Un’attivazione da 90 € una sola volta e un canone di 290 € al mese, con Sito standard e piano Social Base inclusi. Il dominio lo gestiamo noi ed è intestato alla tua attività. Nessun vincolo: puoi interrompere in qualsiasi momento.'],
-  ['Gestite anche le campagne WhatsApp?', 'Le campagne partono dal tuo account WhatsApp Business: prepariamo profilo, risposte automatiche, testi e immagini, ma l’invio, il numero e i contatti restano tuoi. È un servizio separato dai piani social, su preventivo.'],
 ];

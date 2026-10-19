@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { ArrowDown, ArrowUpRight, Camera, Check, ChevronLeft, ChevronRight, Clapperboard, Globe, Images, MessageCircle, Nfc, ShieldCheck, Users, Zap } from 'lucide-react';
+import { ArrowDown, ArrowUpRight, Camera, Check, ChevronLeft, ChevronRight, Clapperboard, Globe, Images, Nfc, ShieldCheck, Users } from 'lucide-react';
 import { servicePaths } from '@/seo/routes';
 import { OttoIcon } from './OttoIcon';
 import { Otto } from './StationExperiences';
@@ -127,18 +127,8 @@ export default function SitoSocial({ children }: { children?: React.ReactNode })
       </ol>
     </Reveal>
 
-    <Reveal as="section" className="web-wa wrap" id="whatsapp-business">
-      <div className="section-heading"><div><Eyebrow>03 / WHATSAPP BUSINESS</Eyebrow><h2>I clienti ti scrivono già.<br/><span>Rispondi meglio.</span></h2></div><p>Un servizio a parte dai social: prepariamo il tuo WhatsApp Business perché lavori per te, dalle risposte alle campagne.</p></div>
-      <div className="included-grid">{[
-        { icon: MessageCircle, title: 'Profilo e catalogo', text: 'Configuriamo WhatsApp Business: descrizione, orari, posizione e catalogo con i tuoi piatti o prodotti.' },
-        { icon: Zap, title: 'Risposte automatiche', text: 'Messaggio di benvenuto, di assenza e risposte rapide per prenotazioni, orari e domande frequenti.' },
-        { icon: Images, title: 'Materiale per le campagne', text: 'Testi e immagini pronti per le campagne WhatsApp. L’invio parte dal tuo account: numero e contatti restano tuoi.' },
-      ].map(v => <article key={v.title}><v.icon size={28}/><h3>{v.title}</h3><p>{v.text}</p></article>)}</div>
-      <div className="web-wa-foot"><span>Su preventivo, separato dai piani social.</span><a className="text-link" href={whatsapp('Ciao Carlo! Vorrei informazioni sul servizio WhatsApp Business per la mia attività.')} target="_blank" rel="noreferrer">Parliamo di WhatsApp Business <ArrowUpRight size={16}/></a></div>
-    </Reveal>
-
     <section className="web-bundle" id="pacchetto"><div className="wrap web-bundle-inner">
-      <div><Eyebrow>04 / IL PACCHETTO PRESENZA</Eyebrow><h2>Sito nuovo e social.<br/><span>Un solo canone.</span></h2><p>Il Sito standard è compreso nel canone. Paghi l’attivazione una volta, poi una quota fissa al mese. Nessun vincolo: puoi interrompere quando vuoi.</p></div>
+      <div><Eyebrow>03 / IL PACCHETTO PRESENZA</Eyebrow><h2>Sito nuovo e social.<br/><span>Un solo canone.</span></h2><p>Il Sito standard è compreso nel canone. Paghi l’attivazione una volta, poi una quota fissa al mese. Nessun vincolo: puoi interrompere quando vuoi.</p></div>
       <div className="web-bundle-card">
         <span className="web-bundle-tag">SITO STANDARD + SOCIAL BASE</span>
         <div className="web-bundle-price"><strong>290 €</strong><span>al mese</span></div>

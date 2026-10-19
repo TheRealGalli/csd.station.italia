@@ -245,12 +245,6 @@
 .web-card .price-row{flex-wrap:wrap;row-gap:2px}
 .web-card .price-row strong{white-space:nowrap}
 
-/* WhatsApp Business: sezione a parte dai social */
-.web-wa{padding-block:90px 70px;border-top:1px solid #dce1d4}
-.web-wa h2>span{color:#7b9262}
-.web-wa-foot{display:flex;justify-content:space-between;align-items:center;gap:20px;flex-wrap:wrap;margin-top:40px;padding:22px 28px;border:1px solid #cfdcc1;border-radius:8px;background:#eaf0e2;font-size:12px;color:#758565}
-@media(max-width:767px){.web-wa{padding-block:60px 50px}.web-wa .included-grid{grid-template-columns:1fr;gap:30px}.web-wa .section-heading{flex-direction:column;align-items:flex-start;gap:16px}.web-wa h2{font-size:32px}}
-
 /* Otto al portatile sopra "Preferisco seguire bene poche attività…" */
 .web-desk-wrap{position:relative;display:flex;align-items:flex-end;gap:22px;max-width:600px}
 .web-desk{flex:none;display:flex;align-items:flex-end;gap:6px;pointer-events:none}
@@ -264,12 +258,7 @@
 .wl-track b.b2{background:#e3e9da}
 .wl-track b.b3{background:repeating-linear-gradient(90deg,#3b5a1f 0 2px,#5f8a36 2px 4px)}
 .wl-head{position:absolute;left:10%;bottom:4px;width:2px;height:16px;background:#ff5a4a;box-shadow:0 0 4px #ff5a4a;animation:wl-play 4s linear infinite}
-.web-laptop-base{display:block;position:relative;height:26px;margin:0 -16px;background:
- radial-gradient(ellipse 18% 22% at 50% 80%,#b9c6aa 98%,transparent 100%),
- repeating-linear-gradient(90deg,transparent 0 3px,#8fa077 3px 4px) 14% 18%/72% 46% no-repeat,
- repeating-linear-gradient(0deg,transparent 0 3px,#8fa077 3px 4px) 14% 18%/72% 46% no-repeat,
- linear-gradient(#dfe8cf,#b6c49e);clip-path:polygon(9% 0,91% 0,100% 82%,100% 100%,0 100%,0 82%);border-radius:0 0 6px 6px;filter:drop-shadow(0 4px 6px #101a1630)}
-.web-laptop-base:after{content:'';position:absolute;left:0;right:0;bottom:0;height:4px;background:#9fb187}
+.web-laptop-base{display:block;height:9px;margin:0 -12px;border-radius:0 0 9px 9px;background:linear-gradient(#d9ddd5,#a8afa2 70%,#8d9488);box-shadow:0 4px 8px #101a1630}
 @keyframes wl-play{from{left:10%}to{left:88%}}
 @media(max-width:767px){.web-desk-wrap{flex-direction:column;align-items:flex-start;gap:10px}}
 @media(prefers-reduced-motion:reduce){.wl-head{animation:none}}
