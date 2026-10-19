@@ -17,19 +17,26 @@ export default function AlienStar({ className = '' }: { className?: string }) {
       const { mergeVertices } = await import('three/examples/jsm/utils/BufferGeometryUtils.js');
       if (disposed) return;
       const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
-      renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+      renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.5));
       renderer.outputColorSpace = THREE.SRGBColorSpace;
       el.appendChild(renderer.domElement);
       const scene = new THREE.Scene(), camera = new THREE.PerspectiveCamera(32, 1, .1, 50);
-      camera.position.set(0, 0, 7.2);
+      camera.position.set(0, 0, 13);
 
       // Base: una sfera fitta; ogni frame i vertici si spostano lungo la normale in base alle punte.
-      const geo = mergeVertices(new THREE.IcosahedronGeometry(1, 30));
+      const geo = mergeVertices(new THREE.IcosahedronGeometry(1, 24));
       const pos = geo.attributes.position as BufferAttribute, base = Float32Array.from(pos.array as Float32Array);
       const spikes = Array.from({ length: SPIKES }, (_, i) => {
         const y = 1 - (i + .5) * 2 / SPIKES, r = Math.sqrt(1 - y * y), a = i * 2.39996;
         return { dir: new THREE.Vector3(Math.cos(a) * r, y, Math.sin(a) * r), now: new THREE.Vector3(), f: .6 + Math.random() * 1.1, p: Math.random() * 6.28, len: .5 + Math.random() * .22, amp: 0 };
       });
+      // Per ogni vertice, solo le punte che possono toccarlo: il calcolo per frame scende da ~46 a 1-2 punte.
+      const near: number[][] = [];
+      for (let i = 0; i < base.length; i += 3) {
+        const list: number[] = [];
+        spikes.forEach((sp, k) => { if (base[i] * sp.dir.x + base[i + 1] * sp.dir.y + base[i + 2] * sp.dir.z > .82) list.push(k); });
+        near.push(list);
+      }
       const mat = new THREE.MeshPhysicalMaterial({ color: 0xb9ec62, emissive: 0x2c4a0c, roughness: .32, metalness: .08, clearcoat: 1, clearcoatRoughness: .25, sheen: 1, sheenColor: new THREE.Color(0xe3f7b8) });
       const mesh = new THREE.Mesh(geo, mat); scene.add(mesh);
       scene.add(new THREE.HemisphereLight(0xeaffc8, 0x1a2715, 1.6));
@@ -62,6 +69,7 @@ export default function AlienStar({ className = '' }: { className?: string }) {
       const v = new THREE.Vector3();
       function frame(now: number) {
         raf = 0; if (disposed) return;
+        if (el.closest('.web-preview>div:not(.on)')) { raf = requestAnimationFrame(frame); return; }
         const t = (now - t0) / 1000;
         pull += (want - pull) * .08;
         mesh.rotation.y = t * .35; mesh.rotation.x = Math.sin(t * .23) * .35;
@@ -69,15 +77,16 @@ export default function AlienStar({ className = '' }: { className?: string }) {
         for (const s of spikes) {
           // Pulsazione irregolare: due onde sfasate per punta.
           const beat = .75 + .25 * Math.sin(t * s.f + s.p) + .12 * Math.sin(t * s.f * 2.7 + s.p * 1.7);
-          const near = Math.max(0, s.dir.dot(local));
-          s.now.copy(s.dir).lerp(local, pull * near * near * .55).normalize();
-          s.amp = s.len * beat * (1 + pull * near * near * 1.1);
+          const facing = Math.max(0, s.dir.dot(local)), near2 = facing * facing;
+          // Piegatura dolce verso il mouse: oltre un certo angolo le punte si accartoccerebbero (le zone scure).
+          s.now.copy(s.dir).lerp(local, pull * near2 * .22).normalize();
+          s.amp = s.len * beat * (1 + pull * near2 * .7);
         }
         const arr = pos.array as Float32Array;
-        for (let i = 0; i < arr.length; i += 3) {
+        for (let i = 0, n = 0; i < arr.length; i += 3, n++) {
           v.set(base[i], base[i + 1], base[i + 2]);
           let r = 1 + .03 * Math.sin(t * 1.3 + base[i] * 3);
-          for (const s of spikes) { const d = v.dot(s.now); if (d > .9) r += s.amp * Math.exp(34 * (d - 1)); }
+          for (const k of near[n]) { const sp = spikes[k], d = v.dot(sp.now); if (d > .9) r += sp.amp * Math.exp(34 * (d - 1)); }
           arr[i] = v.x * r; arr[i + 1] = v.y * r; arr[i + 2] = v.z * r;
         }
         pos.needsUpdate = true; geo.computeVertexNormals();

@@ -208,3 +208,11 @@
 .mk-star-stage .mk-shadow{bottom:-.2em;width:calc(var(--s)*.7);animation:none}
 .mk-model .mk-star-stage{--s:15em}
 .mk-3d-hero{min-height:10.5em}
+
+/* La stella può uscire dai bordi: tela più grande e sopra le schede, senza bloccare i clic */
+.alien-star{inset:-48%;pointer-events:none;z-index:3}
+.web-card:has(.mk-model){overflow:visible;position:relative;z-index:2}
+.web-card-head:has(.mk-model){overflow:visible;border-radius:8px 8px 0 0}
+.mk-browser:has(.alien-star){overflow:visible}
+.mk-browser:has(.alien-star) .mk-bar{border-radius:.8em .8em 0 0}
+.mk-browser:has(.alien-star) .mk-page{border-radius:0 0 .8em .8em}
