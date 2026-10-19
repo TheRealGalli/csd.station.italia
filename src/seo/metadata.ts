@@ -6,7 +6,7 @@ const titles: Record<ServiceMode, string> = {
   automazioni: 'Consulenza AI, informatica e automazioni per PMI | CSD Station',
   nfc: 'Card, plate e stand NFC per recensioni Google | CSD Station',
   training: 'Training AI aziendale e formazione per PMI | CSD Station',
-  web: 'Siti web, siti 3D e gestione social per attività locali | CSD Station',
+  web: 'Siti web, video con drone e gestione social per attività locali | CSD Station',
 };
 const descriptions = { automazioni: consultingIntro, nfc: nfcIntro, training: trainingIntro, web: webIntro };
 const legalNames = ['Privacy consulenza', 'Termini consulenza', 'Privacy NFC', 'Termini NFC', 'Cookie policy'];
@@ -45,7 +45,7 @@ export function getPageMeta(pathname: string, search = '') {
   if (service) graph.push({
     '@type': 'Service', '@id': `${url}#service`, name: name.replace(' | CSD Station', ''), description, url,
     provider: { '@id': organization['@id'] }, areaServed: { '@type': 'Country', name: 'Italia' },
-    serviceType: mode === 'training' ? ['Training AI aziendale', 'Formazione AI per PMI'] : mode === 'web' ? ['Siti web in React', 'Siti 3D e VFX', 'Modelli 3D su misura', 'Gestione social media', 'Clipping e montaggio video'] : mode === 'nfc' ? ['Card NFC per recensioni Google', 'Plate adesive NFC', 'Stand NFC'] : ['Consulenza AI', 'Consulenza informatica', 'Automazioni aziendali', 'Consulenza hardware e NFC'],
+    serviceType: mode === 'training' ? ['Training AI aziendale', 'Formazione AI per PMI'] : mode === 'web' ? ['Siti web', 'Siti con animazioni (motion)', 'Montaggio e clipping video', 'Riprese con drone', 'Gestione social media'] : mode === 'nfc' ? ['Card NFC per recensioni Google', 'Plate adesive NFC', 'Stand NFC'] : ['Consulenza AI', 'Consulenza informatica', 'Automazioni aziendali', 'Consulenza hardware e NFC'],
   });
   if (service && canonicalPath !== '/') graph.push({
     '@type': 'BreadcrumbList', itemListElement: [

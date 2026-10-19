@@ -207,11 +207,43 @@
 .model-loop canvas{width:100%;height:100%;display:block}
 .mk-loop-house{width:12em;height:10em;margin:-.5em -1em -.5em 0}
 .mk-model{width:100%;height:100%;align-content:center}
-.mk-loop-otto{width:34em;height:19em;position:relative;z-index:1;margin-top:-1em}
 .mk-model>span{position:absolute;bottom:1.6em}
 
-/* Sito React: il browser esce dalla scheda, sopra e sotto, come appoggiato sopra */
+/* Sito standard: il browser esce dalla scheda, sopra e sotto, come appoggiato sopra */
 .web-card:has(.mk-shop){overflow:visible;position:relative;z-index:2}
 .web-card-head:has(.mk-shop){overflow:visible;border-radius:8px 8px 0 0}
 .web-card-head .mk-browser:has(.mk-shop){transform:rotate(-4deg) translateY(-1.3em) scale(1.22);box-shadow:1.4em 1.8em 3.4em #0009}
 .web-card:hover .web-card-head .mk-browser:has(.mk-shop){transform:rotate(-2.5deg) translateY(-1.7em) scale(1.26)}
+
+/* Montaggio e drone: editor con inquadratura aerea e timeline che scorre */
+.mk-editor{width:30em;background:#0e150e;border-radius:.8em;overflow:hidden;box-shadow:1.2em 1.4em 3.5em #0008;transform:rotate(-3deg);text-align:left;border:.08em solid #2d3e24}
+.mk-editor .mk-bar{background:#1b261a}
+.mk-editor .mk-bar span{background:#0e150e;color:#8ea07e}
+.mk-ed-view{position:relative;height:10.5em;margin:.7em .8em .5em;border-radius:.4em;overflow:hidden}
+.mk-drone{position:absolute;inset:-20%;background:
+ linear-gradient(115deg,transparent 46%,#d9cfae 46.5% 48.5%,transparent 49%),
+ linear-gradient(20deg,transparent 60%,#5b8ac0 60.5% 64%,transparent 64.5%),
+ repeating-linear-gradient(35deg,#7fa34a 0 2.2em,#8fb35a 2.2em 4.4em,#a6c06a 4.4em 6em,#6e9440 6em 8em);
+ animation:mk-pan 14s linear infinite alternate}
+.mk-frame{position:absolute;inset:.6em;border:.1em solid #f3ffd999;border-radius:.2em;box-shadow:0 0 0 999em #0000}
+.mk-frame:before,.mk-frame:after{content:'';position:absolute;left:50%;top:50%;width:1.2em;height:.1em;background:#f3ffd9cc;transform:translate(-50%,-50%)}
+.mk-frame:after{width:.1em;height:1.2em}
+.mk-rec{position:absolute;left:1.1em;top:1em;display:flex;align-items:center;gap:.4em;font:.55em ui-monospace,monospace;letter-spacing:.15em;color:#fff;background:#0009;padding:.3em .6em;border-radius:.3em}
+.mk-rec i{width:.6em;height:.6em;border-radius:50%;background:#ff5a4a;animation:mk-blink 1.2s steps(1) infinite}
+.mk-ed-tracks{position:relative;margin:0 .8em .9em;display:grid;gap:.3em}
+.mk-ed-tracks>div{position:relative;height:1.1em;background:#151f14;border-radius:.2em}
+.mk-ed-tracks b{position:absolute;top:.12em;bottom:.12em;border-radius:.2em}
+.mk-ed-tracks .v1{background:linear-gradient(90deg,#c5f476,#9fc35c)}
+.mk-ed-tracks .v2{background:linear-gradient(90deg,#e3e9da,#b9c6aa)}
+.mk-ed-tracks .c1{background:#5b8ac0}
+.mk-ed-tracks .a1{background:repeating-linear-gradient(90deg,#3b5a1f 0 .2em,#4f7a2a .2em .4em)}
+.mk-playhead{position:absolute;top:-.3em;bottom:-.3em;left:2%;width:.12em;background:#ff5a4a;box-shadow:0 0 .4em #ff5a4a;animation:mk-play 6s linear infinite}
+.mk-playhead:before{content:'';position:absolute;top:-.25em;left:50%;width:.6em;height:.5em;background:#ff5a4a;transform:translateX(-50%);clip-path:polygon(0 0,100% 0,50% 100%)}
+@keyframes mk-pan{from{transform:translate(0,0) scale(1.05)}to{transform:translate(-8%,-6%) scale(1.12)}}
+@keyframes mk-play{from{left:2%}to{left:95%}}
+@keyframes mk-blink{50%{opacity:0}}
+@media(prefers-reduced-motion:reduce){.mk-drone,.mk-playhead,.mk-rec i{animation:none}}
+
+/* Prezzo sempre su una riga: la nota scende sotto se manca spazio */
+.web-card .price-row{flex-wrap:wrap;row-gap:2px}
+.web-card .price-row strong{white-space:nowrap}

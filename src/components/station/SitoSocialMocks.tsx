@@ -3,7 +3,7 @@ import ModelLoop from './ModelLoop';
 
 // Mockup della sezione Sito & Social. Misure in em: la scala la decide chi li ospita.
 
-// Sito React: una pagina negozio standard, senza marchio.
+// Sito standard: una pagina negozio, senza marchio.
 function Shop() {
   return <div className="mk-page mk-shop">
     <div className="mk-nav"><i className="mk-logo"/><span/><span/><span/><b className="mk-cart"/></div>
@@ -12,7 +12,7 @@ function Shop() {
   </div>;
 }
 
-// Sito 3D: la stessa idea di pagina, con un modello che ruota nella hero.
+// Sito motion capture: la stessa idea di pagina, con la casa animata nella hero.
 function Page3D() {
   return <div className="mk-page mk-3d">
     <div className="mk-nav"><i className="mk-logo"/><span/><span/><span/></div>
@@ -28,8 +28,18 @@ export function SiteMock({ three = false }: { three?: boolean }) {
   </div>;
 }
 
-export function ModelMock() {
-  return <div className="mk-model" aria-hidden="true"><div className="mk-loop-otto"><ModelLoop kind="otto"/></div><span>OTTO · PEZZO PER PEZZO</span></div>;
+// Montaggio e riprese: un editor con l'inquadratura da drone e la timeline che scorre.
+export function VideoMock() {
+  return <div className="mk-editor" aria-hidden="true">
+    <div className="mk-bar"><i/><i/><i/><span>montaggio-finale.mp4</span></div>
+    <div className="mk-ed-view"><div className="mk-drone"/><span className="mk-rec"><i/> DRONE · 4K</span><span className="mk-frame"/></div>
+    <div className="mk-ed-tracks">
+      <div><b className="v1" style={{ left: '2%', width: '30%' }}/><b className="v2" style={{ left: '34%', width: '22%' }}/><b className="v1" style={{ left: '58%', width: '36%' }}/></div>
+      <div><b className="c1" style={{ left: '10%', width: '14%' }}/><b className="c1" style={{ left: '40%', width: '10%' }}/><b className="c1" style={{ left: '70%', width: '16%' }}/></div>
+      <div><b className="a1" style={{ left: '2%', width: '92%' }}/></div>
+      <span className="mk-playhead"/>
+    </div>
+  </div>;
 }
 
 // Social: il profilo Instagram di CSD Station, con i caroselli veri. Avatar e caroselli aprono il profilo.

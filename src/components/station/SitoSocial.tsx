@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import { ArrowDown, ArrowUpRight, Camera, Check, ChevronLeft, ChevronRight, Clapperboard, Globe, Images, Nfc, ShieldCheck, Users } from 'lucide-react';
 import { servicePaths } from '@/seo/routes';
 import { OttoIcon } from './OttoIcon';
-import { ModelMock, SiteMock, SocialMock } from './SitoSocialMocks';
+import { SiteMock, SocialMock, VideoMock } from './SitoSocialMocks';
 import { webIntro } from '@/seo/content';
 import './sito-social.css';
 
@@ -13,15 +13,15 @@ export const webContact = whatsapp('Ciao Carlo! Vorrei informazioni su sito e so
 function Eyebrow({ children }: { children: React.ReactNode }) { return <div className="station-eyebrow"><span/>{children}</div>; }
 
 const previews = [
-  { key: 'site', label: 'Sito', name: 'Sito React', price: 'da 344 €', tag: 'REACT' },
-  { key: '3d', label: 'Sito 3D', name: 'Sito 3D / VFX', price: 'da 744 €', tag: 'REACT + 3D' },
+  { key: 'site', label: 'Sito', name: 'Sito standard', price: 'da 344 €', tag: 'SITO STANDARD' },
+  { key: '3d', label: 'Motion', name: 'Sito motion capture', price: 'da 744 €', tag: 'MOTION' },
   { key: 'social', label: 'Social', name: 'Gestione social', price: 'da 149 €/mese', tag: 'CAROSELLI + REEL' },
 ] as const;
 
 const sites = [
-  { name: 'Sito React', price: 'da 344 €', unit: 'una tantum', mock: 'site', description: 'Un sito moderno e veloce, in React. Chi ti cerca trova subito quello che serve.', points: ['Ottimizzato per smartphone', 'Menu, orari, mappa e WhatsApp', 'SEO locale e scheda Google collegata'] },
-  { name: 'Sito 3D / VFX', price: 'da 744 €', unit: 'una tantum', mock: '3d', description: 'Il Sito React con animazioni in motion e una scena 3D costruita sul modello che hai già.', points: ['Modello 3D che hai già', 'Animazioni e transizioni in motion', 'Più sezioni: storia, eventi, galleria'] },
-  { name: 'Modello 3D / VFX su misura', price: 'Su preventivo', unit: 'in base al soggetto', mock: 'model', description: 'Creiamo il modello del tuo piatto, del locale o di un prodotto. Da usare nel sito e nei video.', points: ['Piatto, ambiente o prodotto', 'Riutilizzabile nei contenuti social', 'Si aggiunge a qualsiasi formato'] },
+  { name: 'Sito standard', price: 'da 344 €', unit: 'una tantum', mock: 'site', description: 'Un sito moderno e veloce. Chi ti cerca trova subito quello che serve.', points: ['Ottimizzato per smartphone', 'Menu, orari, mappa e WhatsApp', 'SEO locale e scheda Google collegata'] },
+  { name: 'Sito motion capture', price: 'da 744 €', unit: 'una tantum', mock: '3d', description: 'Il sito standard con animazioni in movimento: le sezioni prendono vita mentre scorri.', points: ['Animazioni e transizioni in movimento', 'Scene animate con il modello che hai già', 'Più sezioni: storia, eventi, galleria'] },
+  { name: 'Montaggio, clipping e drone', price: 'Su preventivo', unit: 'in base al progetto', mock: 'video', description: 'Video montati, clip verticali e riprese con il drone, anche per il sito e i social.', points: ['Montaggio video completo', 'Clipping da interviste, eventi e dirette', 'Riprese con il drone del locale e della zona'] },
 ];
 
 const plans = [
@@ -93,9 +93,9 @@ export default function SitoSocial({ children }: { children?: React.ReactNode })
     <div className="expertise-strip nfc-strip web-strip"><div className="wrap"><span>UN PERCORSO COMPLETO</span><b><Nfc size={18}/> Ti trovano su Maps</b><b><Globe size={18}/> Arrivano sul tuo sito</b><b><Images size={18}/> Ti seguono sui social</b><b><Users size={18}/> Tornano da te</b></div></div>
 
     <Reveal as="section" className="product-section" id="siti"><div className="wrap">
-      <div className="section-heading"><div><Eyebrow>01 / IL SITO</Eyebrow><h2>La tua vetrina.<br/>Tre modi di costruirla.</h2></div><p>Siti moderni e veloci, pensati prima di tutto per chi ti cerca dallo smartphone. Il 3D e il VFX sono un passo in più, non un obbligo.</p></div>
+      <div className="section-heading"><div><Eyebrow>01 / IL SITO</Eyebrow><h2>La tua vetrina.<br/>Tre modi di costruirla.</h2></div><p>Siti moderni e veloci, pensati prima di tutto per chi ti cerca dallo smartphone. Le animazioni sono un passo in più, non un obbligo.</p></div>
       <div className="products-grid">{sites.map((s, i) => <article className="product-card web-card" key={s.name}>
-        <div className="web-card-head">{s.mock === 'model' ? <ModelMock/> : <SiteMock three={s.mock === '3d'}/>}<span>0{i + 1}</span></div>
+        <div className="web-card-head">{s.mock === 'video' ? <VideoMock/> : <SiteMock three={s.mock === '3d'}/>}<span>0{i + 1}</span></div>
         <div className="product-card-content"><h3>{s.name}</h3><p>{s.description}</p>
           <ul className="web-points">{s.points.map(point => <li key={point}><Check size={14}/>{point}</li>)}</ul>
           <div className="price-row"><strong>{s.price}</strong><span>{s.unit}</span></div>
@@ -114,7 +114,7 @@ export default function SitoSocial({ children }: { children?: React.ReactNode })
           <ul className="web-points">{p.points.map(point => <li key={point}><Check size={14}/>{point}</li>)}</ul>
           <a className="text-link" href={whatsapp(`Ciao Carlo! Mi interessa il piano ${p.name} (${p.price} al mese) per i social della mia attività.`)} target="_blank" rel="noreferrer">Richiedi {p.name} <ArrowUpRight size={16}/></a>
         </article>)}
-          <article className="web-plan web-plan-extra"><Clapperboard size={22}/><div><h3>Clipping e montaggio video</h3><p>Clip verticali da interviste, eventi o dirette, e montaggi completi con animazioni in motion e grafiche React dentro il video. Su preventivo.</p></div></article>
+          <article className="web-plan web-plan-extra"><Clapperboard size={22}/><div><h3>Montaggio e clipping video</h3><p>Montaggi completi, clip verticali da interviste, eventi o dirette, e riprese con il drone. Su preventivo.</p></div></article>
         </div>
         <OttoChat/>
       </div>
@@ -127,13 +127,13 @@ export default function SitoSocial({ children }: { children?: React.ReactNode })
     </Reveal>
 
     <section className="web-bundle" id="pacchetto"><div className="wrap web-bundle-inner">
-      <div><Eyebrow>03 / IL PACCHETTO PRESENZA</Eyebrow><h2>Sito nuovo e social.<br/><span>Un solo canone.</span></h2><p>Il Sito React è compreso nel canone. Paghi l’attivazione una volta, poi una quota fissa al mese per un anno.</p></div>
+      <div><Eyebrow>03 / IL PACCHETTO PRESENZA</Eyebrow><h2>Sito nuovo e social.<br/><span>Un solo canone.</span></h2><p>Il Sito standard è compreso nel canone. Paghi l’attivazione una volta, poi una quota fissa al mese per un anno.</p></div>
       <div className="web-bundle-card">
-        <span className="web-bundle-tag">SITO REACT + SOCIAL BASE</span>
+        <span className="web-bundle-tag">SITO STANDARD + SOCIAL BASE</span>
         <div className="web-bundle-price"><strong>590 €</strong><span>al mese · 12 mesi</span></div>
         <small>+ 490 € di attivazione, una sola volta</small>
-        <ul className="web-points">{['Sito React incluso nel canone', '8 caroselli e 4 reel ogni mese', 'Dominio intestato alla tua attività', 'Se interrompi prima dei 12 mesi, saldi la quota restante del sito'].map(point => <li key={point}><Check size={14}/>{point}</li>)}</ul>
-        <a className="station-button" href={whatsapp('Ciao Carlo! Mi interessa il Pacchetto Presenza (Sito React + Social Base). Possiamo parlarne?')} target="_blank" rel="noreferrer">Richiedi il pacchetto <ArrowUpRight size={17}/></a>
+        <ul className="web-points">{['Sito standard incluso nel canone', '8 caroselli e 4 reel ogni mese', 'Dominio intestato alla tua attività', 'Se interrompi prima dei 12 mesi, saldi la quota restante del sito'].map(point => <li key={point}><Check size={14}/>{point}</li>)}</ul>
+        <a className="station-button" href={whatsapp('Ciao Carlo! Mi interessa il Pacchetto Presenza (Sito standard + Social Base). Possiamo parlarne?')} target="_blank" rel="noreferrer">Richiedi il pacchetto <ArrowUpRight size={17}/></a>
       </div>
     </div></section>
 

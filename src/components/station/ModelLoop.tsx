@@ -1,10 +1,9 @@
 import { useEffect, useRef } from 'react';
 import type * as T from 'three';
 
-// Modelli 3D in loop, con three.js caricato solo qui quando la scheda compare.
+// Modello 3D in loop, con three.js caricato solo qui quando la scheda compare.
 // Casa: Kenney City Kit Suburban + Furniture Kit (CC0), cresce dalle fondamenta e dentro è arredata.
-// Otto: costruito in codice, si apre pezzo per pezzo e mostra cosa c'è dentro.
-type Kind = 'house' | 'otto';
+type Kind = 'house';
 type Three = typeof import('three');
 const ease = (x: number) => x < 0 ? 0 : x > 1 ? 1 : x * x * (3 - 2 * x);
 
@@ -73,55 +72,6 @@ async function buildHouse(THREE: Three, pivot: T.Group, camera: T.PerspectiveCam
   };
 }
 
-function buildOtto(THREE: Three, pivot: T.Group, camera: T.PerspectiveCamera, RoundedBoxGeometry: typeof import('three/examples/jsm/geometries/RoundedBoxGeometry.js').RoundedBoxGeometry) {
-  const shell = new THREE.MeshPhysicalMaterial({ color: 0xeef0e2, roughness: .35, clearcoat: 1, clearcoatRoughness: .2 });
-  const dark = new THREE.MeshStandardMaterial({ color: 0x121a12, roughness: .3, metalness: .2 });
-  const glow = new THREE.MeshStandardMaterial({ color: 0xc5f476, emissive: 0xb4f05a, emissiveIntensity: 1.6 });
-  const pcb = new THREE.MeshStandardMaterial({ color: 0x2f5a24, roughness: .6 }), chip = new THREE.MeshStandardMaterial({ color: 0x1b1f1b, roughness: .4, metalness: .5 });
-  const cell = new THREE.MeshStandardMaterial({ color: 0x3b4a33, roughness: .4, metalness: .6 }), metal = new THREE.MeshStandardMaterial({ color: 0xb9c2b0, roughness: .25, metalness: .9 });
-  const parts: { o: T.Object3D; base: T.Vector3; out: T.Vector3; delay: number }[] = [];
-  const add = (o: T.Object3D, x: number, y: number, z: number, out: [number, number, number], delay = 0) => { o.position.set(x, y, z); pivot.add(o); parts.push({ o, base: o.position.clone(), out: new THREE.Vector3(...out), delay }); return o; };
-  const mesh = (g: T.BufferGeometry, m: T.Material) => new THREE.Mesh(g, m);
-
-  // Testa: guscio, schermo, occhi e sorriso luminosi, orecchie, antenna.
-  add(mesh(new RoundedBoxGeometry(1.6, 1.2, 1.1, 6, .32), shell), 0, .55, -.05, [0, .25, -.55], .1);
-  add(mesh(new RoundedBoxGeometry(1.3, .85, .12, 4, .2), dark), 0, .55, .52, [0, .05, .7], .25);
-  const eyes = new THREE.Group();
-  [-.26, .26].forEach(x => { const e = mesh(new THREE.CapsuleGeometry(.075, .16, 6, 12), glow); e.position.x = x; eyes.add(e); });
-  const smile = mesh(new THREE.TorusGeometry(.13, .025, 8, 24, Math.PI), glow); smile.rotation.z = Math.PI; smile.position.y = -.2; eyes.add(smile);
-  add(eyes, 0, .6, .6, [0, .05, 1.15], .35);
-  [-1, 1].forEach(s => { const ear = mesh(new THREE.CylinderGeometry(.2, .2, .16, 24), shell); ear.rotation.z = Math.PI / 2; const ring = mesh(new THREE.TorusGeometry(.13, .025, 8, 24), glow); ring.rotation.y = Math.PI / 2; ring.position.x = s * .085; ear.add(ring); add(ear, s * .86, .55, -.05, [s * .55, 0, 0], .2); });
-  const antenna = new THREE.Group(); const rod = mesh(new THREE.CylinderGeometry(.03, .03, .35, 12), metal); rod.position.y = .17; antenna.add(rod);
-  const bulb = mesh(new THREE.SphereGeometry(.09, 20, 16), glow); bulb.position.y = .38; antenna.add(bulb);
-  add(antenna, 0, 1.15, -.05, [0, .75, 0], .05);
-  // Dentro la testa: la scheda con i chip.
-  const board = mesh(new THREE.BoxGeometry(1.05, .6, .05), pcb);
-  [[-.3, .1], [.05, .12], [.32, -.05], [-.1, -.15]].forEach(([x, y], i) => { const c = mesh(new THREE.BoxGeometry(i ? .16 : .26, i ? .12 : .2, .05), chip); c.position.set(x, y, .04); board.add(c); });
-  add(board, 0, .55, .22, [0, .35, .35], .3);
-
-  // Corpo: guscio, nucleo luminoso, batteria, braccia, pannello frontale con il led.
-  add(mesh(new RoundedBoxGeometry(1.05, .85, .8, 6, .26), shell), 0, -.55, -.02, [0, -.35, -.45], .5);
-  const panel = mesh(new RoundedBoxGeometry(.6, .38, .06, 4, .1), dark); const led = mesh(new THREE.SphereGeometry(.05, 16, 12), glow); led.position.set(0, -.06, .04); panel.add(led);
-  add(panel, 0, -.5, .4, [0, -.1, .75], .6);
-  add(mesh(new THREE.IcosahedronGeometry(.16, 1), glow), 0, -.5, .1, [0, 0, .45], .55);
-  const battery = new THREE.Group(); const bodyCell = mesh(new THREE.CylinderGeometry(.13, .13, .5, 20), cell); bodyCell.rotation.z = Math.PI / 2; battery.add(bodyCell);
-  const cap = mesh(new THREE.CylinderGeometry(.06, .06, .06, 16), glow); cap.rotation.z = Math.PI / 2; cap.position.x = .28; battery.add(cap);
-  add(battery, 0, -.6, -.2, [0, -.2, -.85], .65);
-  [-1, 1].forEach(s => { const arm = mesh(new THREE.CapsuleGeometry(.12, .4, 6, 14), shell); arm.rotation.z = s * .35; add(arm, s * .68, -.55, 0, [s * .5, -.05, 0], .45); });
-
-  pivot.scale.setScalar(.95); pivot.position.y = .08;
-  camera.position.set(0, .2, 6.2); camera.lookAt(0, .05, 0);
-  return (t: number) => {
-    const c = t % 8; // 0-1.6 intero · 1.6-3.8 si apre · 3.8-5.6 aperto · 5.6-7.6 si richiude
-    parts.forEach(p => {
-      const k = c < 1.6 ? 0 : c < 3.8 ? ease((c - 1.6 - p.delay) / 1.3) : c < 5.6 ? 1 : c < 7.6 ? 1 - ease((c - 5.6 - (.7 - p.delay)) / 1.3) : 0;
-      p.o.position.copy(p.base).addScaledVector(p.out, k);
-    });
-    pivot.rotation.y = Math.sin(t * .45) * .75;
-    glow.emissiveIntensity = 1.3 + .4 * Math.sin(t * 3);
-  };
-}
-
 export default function ModelLoop({ kind }: { kind: Kind }) {
   const host = useRef<HTMLDivElement>(null);
 
@@ -130,7 +80,7 @@ export default function ModelLoop({ kind }: { kind: Kind }) {
     let disposed = false, stop = () => {};
     const still = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-    Promise.all([import('three'), import('three/examples/jsm/geometries/RoundedBoxGeometry.js')]).then(async ([THREE, { RoundedBoxGeometry }]) => {
+    import('three').then(async THREE => {
       if (disposed) return;
       const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
       renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.5));
@@ -147,7 +97,7 @@ export default function ModelLoop({ kind }: { kind: Kind }) {
       const ro = new ResizeObserver(resize); ro.observe(el); resize();
       stop = () => { ro.disconnect(); renderer.dispose(); renderer.domElement.remove(); };
 
-      const update = kind === 'house' ? await buildHouse(THREE, pivot, camera) : buildOtto(THREE, pivot, camera, RoundedBoxGeometry);
+      const update = await buildHouse(THREE, pivot, camera);
       if (disposed) return;
       update(still ? 4.6 : 0); renderer.render(scene, camera);
 
