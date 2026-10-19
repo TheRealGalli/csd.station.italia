@@ -252,8 +252,8 @@
 @media(max-width:767px){.web-wa{padding-block:60px 50px}.web-wa .included-grid{grid-template-columns:1fr;gap:30px}.web-wa .section-heading{flex-direction:column;align-items:flex-start;gap:16px}.web-wa h2{font-size:32px}}
 
 /* Otto al portatile sopra "Preferisco seguire bene poche attività…" */
-.web-desk-wrap{position:relative;max-width:335px}
-.web-desk{position:absolute;left:-4px;bottom:calc(100% + 4px);display:flex;align-items:flex-end;gap:6px;pointer-events:none}
+.web-desk-wrap{position:relative;display:flex;align-items:flex-end;gap:22px;max-width:600px}
+.web-desk{flex:none;display:flex;align-items:flex-end;gap:6px;pointer-events:none}
 .web-desk-otto{position:relative;width:84px;height:110px}
 .web-desk-otto>.otto{position:absolute;top:0;left:0;scale:1;transform:scale(.56);transform-origin:top left;filter:drop-shadow(0 6px 6px #101a1630)}
 .web-laptop{position:relative;width:156px;margin-bottom:6px}
@@ -266,7 +266,7 @@
 .wl-head{position:absolute;left:10%;bottom:4px;width:2px;height:16px;background:#ff5a4a;box-shadow:0 0 4px #ff5a4a;animation:wl-play 4s linear infinite}
 .web-laptop-base{display:block;height:6px;margin:0 -10px;border-radius:0 0 8px 8px;background:linear-gradient(#c9d6b0,#9fb187);box-shadow:0 4px 8px #101a1625}
 @keyframes wl-play{from{left:10%}to{left:88%}}
-@media(max-width:767px){.web-desk{position:static;justify-content:flex-end;margin-bottom:8px}}
+@media(max-width:767px){.web-desk-wrap{flex-direction:column;align-items:flex-start;gap:10px}}
 @media(prefers-reduced-motion:reduce){.wl-head{animation:none}}
 
-.web-desk-wrap>p{color:#777e70;font-size:13px;padding-bottom:3px}
+.web-desk-wrap>p{color:#777e70;font-size:13px;padding-bottom:6px;max-width:335px}
