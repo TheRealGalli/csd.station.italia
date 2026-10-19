@@ -39,7 +39,7 @@ function DemoMenu({ active }: { active: ReturnType<typeof getOsProduct> }) {
     { key: 'notaro', to: osPaths.notaro, name: 'Notaro OS', note: 'Posta, pratiche e scadenze con l’AI al centro' },
   ] as const;
   return <div className={`nav-demo ${open ? 'open' : ''} ${active ? 'active' : ''}`}>
-    <button type="button" className="nav-demo-tag" aria-expanded={open} aria-controls="nav-demo-pop" onClick={() => setOpen(o => !o)}>DEMO</button>
+    <button type="button" className="nav-demo-tag" aria-expanded={open} aria-controls="nav-demo-pop" onClick={() => setOpen(o => !o)}>DEMO OS</button>
     <div className="nav-demo-pop" id="nav-demo-pop" hidden={!open}>
       <span className="nav-demo-head">Prova un sistema dal vivo</span>
       {items.map(i => <Link key={i.key} className={active === i.key ? 'active' : ''} aria-current={active === i.key ? 'page' : undefined} to={i.to}><b>{i.name}</b><small>{i.note}</small></Link>)}
