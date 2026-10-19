@@ -654,3 +654,10 @@ body:has(.game-pressure) .live-stack{top:136px}
 @supports(display:flex){.split>.detail-pane{display:flex;flex-direction:column}.split>.detail-pane>.detail-actions:last-child{margin-top:auto}}
 /* una fila a colonne subito dopo una scheda ha la stessa aria di tutte le altre */
 @media(min-width:761px){:is(.workspace-panel,.metrics-grid,.registry-grid,.board,.kds-board,.dlv-board)+:is(.quote-layout,.split,.fid-layout,.app-layout,.qr-layout,.sala-layout,.rule-grid,.flag-grid){margin-top:16px}}
+
+/* Ingresso in sfida: tasti che si ripiegano e risalgono da sotto, come una leva meccanica */
+.mech-in{animation:mech-in .75s cubic-bezier(.3,1.35,.5,1) both;transform-origin:50% 100%}
+.mech-swap{animation:mech-swap .85s cubic-bezier(.3,1.2,.5,1) both;transform-origin:50% 100%}
+@keyframes mech-in{0%{transform:perspective(420px) translateY(130%) rotateX(-100deg);opacity:0}45%{opacity:1}68%{transform:perspective(420px) translateY(-8%) rotateX(14deg)}84%{transform:perspective(420px) translateY(2%) rotateX(-5deg)}100%{transform:none;opacity:1}}
+@keyframes mech-swap{0%{transform:none}32%{transform:perspective(420px) translateY(130%) rotateX(100deg);opacity:0}38%{transform:perspective(420px) translateY(130%) rotateX(-100deg);opacity:0}72%{transform:perspective(420px) translateY(-8%) rotateX(14deg);opacity:1}88%{transform:perspective(420px) translateY(2%) rotateX(-4deg)}100%{transform:none;opacity:1}}
+@media(prefers-reduced-motion:reduce){.mech-in,.mech-swap{animation:none}}

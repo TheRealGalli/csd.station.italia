@@ -265,11 +265,14 @@ export function gameChip() {
  return `${alertBtn()}${ch ? `<button class="game-chapter" data-game="menu" title="${esc(`Capitolo ${ch.n} · ${ch.title} — ${ch.goal}`)}"><small>CAP. ${ch.n}/${ch.of}<i>${esc(ch.goal.split(' · ').pop())}</i></small><b class="${ch.title.length > 17 ? 'long' : ''}"><span>${esc(ch.title)}</span></b></button>` : ''}<button class="game-chip ${S.points ? '' : 'idle'}" data-game="menu" aria-label="La sfida di Otto: ${S.points} punti, livello ${S.level}" title="${ch ? esc(`Capitolo ${ch.n} · ${ch.title} — ${ch.goal}`) : 'La sfida di Otto'}"><span class="gch-face">${icon(face())}</span><b class="gch-pts">${S.points}</b><small>pt</small><span class="gch-lvl">${[1, 2, 3].map(l => `<i class="${l < S.level ? 'done' : l === S.level ? 'on' : ''}"></i>`).join('')}</span>${S.gift ? '<i class="gch-gift" title="Otto ha un regalo per te"></i>' : ''}</button>`;
 }
 function updateChip(bump) {
+ const hadChapter = !!document.querySelector('.topbar .game-chapter');
  document.querySelectorAll('.game-alert, .game-chapter').forEach(el => el.remove());
  document.querySelectorAll('.game-chip').forEach(el => {
   el.outerHTML = gameChip();
  });
  updateAlert(); syncShopLabels();
+ // il capitolo ("Il servizio comincia") compare dopo l'avvio: entra con lo stesso scatto della Bottega
+ const chapter = document.querySelector('.topbar .game-chapter'); if (chapter && !hadChapter) mechRun(chapter, 'mech-in');
  const chip = document.querySelector('.game-chip');
  if (bump && chip && !calm.matches) { chip.classList.add(bump); burst(chip, bump === 'bump-bad'); }
 }
@@ -421,6 +424,22 @@ function markNav() {
   const a = document.querySelector(`.sidebar a[href="#${page}"]`);
   a?.insertAdjacentHTML('beforeend', '<i class="game-dot" title="Decisione da prendere"></i>');
  }
+}
+// Ingresso in sfida: "Chiedi a Otto" si ripiega e risale come "Bottega di Otto", il capitolo e i punti
+// salgono da sotto come una leva meccanica che scatta. La scritta cambia quando il tasto è nascosto.
+function mechRun(el, cls, delay = 0) {
+ if (calm.matches) return;
+ el.classList.remove('mech-in', 'mech-swap'); void el.offsetWidth; el.style.animationDelay = `${delay}ms`; el.classList.add(cls);
+ el.addEventListener('animationend', () => { el.classList.remove(cls); el.style.animationDelay = ''; }, {once:true});
+}
+function mechIn() {
+ if (calm.matches) return;
+ const run = mechRun;
+ document.querySelectorAll('.topbar .ask-otto').forEach(b => {
+  const sp = b.querySelector('span'); if (sp) { sp.textContent = 'Chiedi a Otto'; setTimeout(() => { sp.textContent = 'Bottega di Otto'; }, 300); }
+  run(b, 'mech-swap', 0);
+ });
+ [...document.querySelectorAll('.topbar .game-alert, .topbar .game-chapter, .topbar .game-chip')].forEach((el, i) => run(el, 'mech-in', 180 + i * 110));
 }
 // In modalità gioco i tasti "Chiedi a Otto" diventano "Bottega di Otto" (in alto e nella barra laterale).
 function syncShopLabels() {
@@ -574,7 +593,7 @@ export function gameIntro() {
  document.body.append(el); draw(); play('open');
 }
 function start() {
- S.started = true; S.t0 = Date.now(); openLevel(); nextTaskAt = Date.now() + 12000; hooks.onStart?.(); updateChip('bump'); play('level');
+ S.started = true; S.t0 = Date.now(); openLevel(); nextTaskAt = Date.now() + 12000; hooks.onStart?.(); updateChip('bump'); play('level'); mechIn();
  refresh(location.hash.slice(1) || 'home'); markNav();
  setTimeout(() => startChapter(0), 1400);
  setTimeout(() => coach('welcome', '.game-chip', 'Si comincia', `Questi sono i tuoi punti. Guardati intorno con calma: ${place} lavora da solo e **ti chiamo io** quando serve.`, 'otto-happy'), 600);
