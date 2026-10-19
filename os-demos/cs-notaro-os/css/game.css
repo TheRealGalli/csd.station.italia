@@ -628,3 +628,29 @@ body:has(.game-pressure) .live-stack{top:136px}
 .dlv-col>header{top:-10px;margin:-10px -10px 2px}
 .dlv-col{height:440px;min-height:0;overflow:auto;overscroll-behavior:contain;scrollbar-width:thin}
 .dlv-col>*{flex-shrink:0}
+/* ————— Ultima passata di coerenza (19 ottobre) —————
+   Nelle file a più colonne nessuna scheda ha margine sopra: le colonne partono tutte alla stessa altezza. */
+@media(min-width:761px){
+ :is(.qr-layout,.fid-layout,.app-layout,.module-workspace,.split,.duo-row,.home-grid,.lobby-grid,.board,.decisions)>.workspace-panel{margin-top:0}
+ /* la sala: la pianta si allunga fino in fondo al tavolo aperto (e lo spazio in più va alla pianta, non sotto) */
+ .sala-layout{align-items:stretch}
+ .sala-layout>.floor-panel{display:flex;flex-direction:column}
+ .sala-layout>.floor-panel>.floor{flex:1 1 auto}
+ .sala-layout>.table-panel{position:static}
+}
+/* l'ecosistema: nelle schede dei moduli il piede sta sempre in fondo, così le righe finiscono pari */
+.module-card{display:flex;flex-direction:column}
+.module-card>.mini-features{margin-bottom:16px}
+.module-card>.module-card-footer{margin-top:auto}
+/* Scadenziario: gli adempimenti riempiono la larghezza, su due colonne, in un riquadro più basso */
+.filing-list{grid-template-columns:minmax(0,1fr)}
+@media(min-width:761px){.filing-list{grid-template-columns:repeat(2,minmax(0,1fr))}.filings .filing-list.fixed-scroll.is-live{height:236px}}
+/* barra in alto: un titolo lungo si accorcia con i puntini, i tasti restano dentro lo schermo (1024 px) */
+.topbar .breadcrumbs{min-width:0;flex:1 1 auto}
+.topbar .breadcrumbs strong{min-width:0;overflow:hidden;text-overflow:ellipsis}
+.topbar-actions{flex:none}
+/* il dettaglio accanto a un elenco (posta, chiamate, chat): le parti restano della loro altezza, i tasti vanno in fondo */
+.split>.detail-pane{align-content:start}
+@supports(display:flex){.split>.detail-pane{display:flex;flex-direction:column}.split>.detail-pane>.detail-actions:last-child{margin-top:auto}}
+/* una fila a colonne subito dopo una scheda ha la stessa aria di tutte le altre */
+@media(min-width:761px){:is(.workspace-panel,.metrics-grid,.registry-grid,.board,.kds-board,.dlv-board)+:is(.quote-layout,.split,.fid-layout,.app-layout,.qr-layout,.sala-layout,.rule-grid,.flag-grid){margin-top:16px}}

@@ -87,7 +87,7 @@ function render() {
  main.innerHTML = pages[id] ? pages[id]() : `<div class="empty-state"><span class="empty-icon">${icon('search')}</span><h2>Questo spazio non esiste.</h2><p>Torna a “Oggi in studio”.</p><a class="btn btn-primary" href="#home">Torna a oggi${icon('arrow')}</a></div>`;
  mountGame(id, main);
  // elenchi vivi in riquadri fissi che si scorrono (con la lente quando sono lunghi): la pagina non cambia altezza
- enhancePanels(main, id, ({posta:['.list-pane'], centralino:['.list-pane'], whatsapp:['.list-pane'], scadenze:['.filing-list', '.timeline']})[id]);
+ enhancePanels(main, id, ({posta:['.list-pane'], centralino:['.list-pane'], whatsapp:['.list-pane'], scadenze:['.filing-list', '.timeline'], visure:['.visura-list'], compliance:['.audit-scroll']})[id]);
  if (id === 'studio') afterStudioRender();
  } catch (err) {
   // mai una pagina bianca: lo diciamo, e si riparte da uno stato pulito
@@ -373,6 +373,7 @@ function memoria() {
 // ————— 06 VISURE —————
 function visure() {
  return `${heading('IL LAVORO · 06', 'Visure & Public Gateway', 'Le richieste partono dai dati della pratica. Otto legge gli esiti e segnala ciò che non torna.', btn('Nuova richiesta', 'toast:Seleziona un registro qui sotto', 'btn-primary', 'plus'))}
+ <div class="block-head"><h2>Registri collegati</h2><small>Tocca un registro: la richiesta parte già compilata dalla pratica</small></div>
  <div class="registry-grid">${D.registries.map(r => `<button class="registry" data-action="toast:Richiesta a ${esc(r.name)} preparata dai dati della pratica (demo)"><span class="soft-icon">${icon(r.icon)}</span><span><b>${esc(r.name)}</b><small>${esc(r.note)}</small></span>${icon('plus')}</button>`).join('')}</div>
  <section class="workspace-panel"><div class="panel-title"><h2>Richieste recenti</h2>${badge(`${D.visure.filter(v => v.status !== 'Completata').length} in lavorazione`)}</div><div data-anchor="visure" class="anchor-pad"></div>
   <div class="visura-list">${D.visure.map(v => `<article class="visura"><div class="visura-head"><span><small>${esc(v.registry)} · ${v.time}</small><b>${esc(v.what)}</b></span>${pchip(v.practice)}${badge(v.status, v.status === 'Completata' ? 'badge-green' : 'badge-amber')}</div>${v.finding ? ottoNote(v.finding, v.level) : `<p class="muted pad-s">${icon('clock')} In attesa dell’esito dal registro.</p>`}</article>`).join('')}</div></section>
@@ -435,6 +436,7 @@ function staff() {
  const isDone = t => t.done ? !state.done.includes(t.id) : state.done.includes(t.id);
  return `${heading('LO STUDIO · 09', 'Staff & task', 'Otto assegna il lavoro in base a pratica, competenze e carico. Tu decidi le priorità.')}
  <div data-anchor="staff"></div>
+ <div class="block-head"><h2>Il team, oggi</h2><small>Le attività di ognuno, con il motivo per cui Otto le ha create</small></div>
  <div class="board">${D.team.map(p => {const list = D.tasks.filter(t => t.who === p.id); return `<section class="board-col ${p.present ? '' : 'away'}"><header>${avatar(p.id)}<span><b>${esc(p.name)}</b><small>${esc(p.present ? p.role : p.away)}</small></span></header><div class="load"><i style="width:${p.load}%"></i></div>${list.map(t => `<label class="task ${isDone(t) ? 'done' : ''}"><input type="checkbox" data-task="${t.id}" ${isDone(t) ? 'checked' : ''}><span><b>${esc(t.text)}</b><small>${t.practice ? esc(D.practice(t.practice).name) + ' · ' : ''}${esc(t.due)}${t.by === 'Otto' ? ` · ${icon('sparkle')} ${esc(t.reason)}` : ` · da ${esc(t.by)}`}</small></span></label>`).join('') || '<p class="muted pad-s">Nessuna attività.</p>'}${!p.present ? `<button class="btn btn-secondary small-btn" data-action="toast:Attività di Paolo riassegnate a Giulia e Sara (demo)">Riassegna${icon('arrow')}</button>` : ''}</section>`;}).join('')}</div>
  <section class="workspace-panel"><div class="panel-title"><h2>Workflow dello studio</h2>${badge('Ogni pratica segue il suo')}</div><div class="table-scroll"><table class="data-table"><thead><tr><th>Tipo di pratica</th><th>Passaggi</th><th>Durata media</th><th>Pratiche attive</th></tr></thead><tbody>${D.workflows.map(w => `<tr><td><b>${esc(w.name)}</b></td><td>${w.steps}</td><td>${esc(w.avg)}</td><td>${w.active}</td></tr>`).join('')}</tbody></table></div></section>`;
 }
@@ -442,18 +444,19 @@ function staff() {
 // ————— 10 SCADENZE —————
 // Il "fornello" dello studio: adempimenti con capienza, tempo di lavoro e scadenza di legge.
 function filingsPanel() {
- if (!gameOn()) return '';
- const now = Date.now(), doing = P.doingNow().length, cap = P.studioCfg.cap;
+ // nella sfida gli adempimenti li avvii tu; fuori dalla sfida Paolo li lavora da solo, e qui si guarda
+ const manual = gameOn(), now = Date.now(), doing = P.doingNow().length, cap = P.studioCfg.cap;
  const bar = (start, total, cls) => `<span class="tk-bar ${cls}"><i style="animation-duration:${total}s;animation-delay:-${Math.min(total, (now - start) / 1000).toFixed(1)}s"></i></span>`;
- return `<section class="workspace-panel filings game-kds"><div class="panel-title"><h2>${icon('clock')} Adempimenti da lavorare</h2><span class="live-pill"><span class="live-dot"></span>Paolo · ${doing}/${cap} in lavorazione</span></div>
-  <div class="filing-list">${P.filings.map(f => { const left = Math.max(0, Math.ceil(P.filingLeft(f))), red = P.filingRed(f); return `<article class="filing ${red ? 'red' : ''} fs-${f.state}"><span class="fl-body"><b>${esc(f.what)}</b><small>${esc(f.act)} · ${esc(f.office)}</small>${f.state === 'todo' ? bar(f.created, f.due, 'pass') : f.state === 'doing' ? bar(f.doneAt - P.studioCfg.work * 1000, P.studioCfg.work, 'cook') : ''}</span>${f.state === 'todo' ? (doing >= cap ? `<span class="tk-full">Addetto occupato · ${doing}/${cap}</span>` : `<button class="btn btn-secondary" data-filing-act="${f.id}">Avvia ${icon('arrow')}</button>`) : f.state === 'doing' ? `<span class="fr-wait">${icon('clock')} In lavorazione</span>` : f.state === 'done' ? badge(`Fatto alle ${f.doneTime}`, 'badge-green') : badge('Scaduto · sanzione', 'badge-red')}${f.state === 'todo' ? `<span class="fl-left ${red ? 'hot' : ''}">${left} s</span>` : ''}</article>`; }).join('') || '<p class="muted pad-s">Nessun adempimento aperto.</p>'}</div></section>`;
+ const todo = f => !manual ? `<span class="fr-wait">${icon('clock')} Paolo lo avvia appena si libera</span>` : doing >= cap ? `<span class="tk-full">Addetto occupato · ${doing}/${cap}</span>` : `<button class="btn btn-secondary" data-filing-act="${f.id}">Avvia ${icon('arrow')}</button>`;
+ return `<section class="workspace-panel filings game-kds"><div class="panel-title"><h2>${icon('clock')} Adempimenti in lavorazione</h2><span class="live-pill"><span class="live-dot"></span>Paolo · ${doing}/${cap} in lavorazione</span></div>
+  <div class="filing-list">${P.filings.map(f => { const left = Math.max(0, Math.ceil(P.filingLeft(f))), red = manual && P.filingRed(f); return `<article class="filing ${red ? 'red' : ''} fs-${f.state}"><span class="fl-body"><b>${esc(f.what)}</b><small>${esc(f.act)} · ${esc(f.office)}</small>${f.state === 'todo' && manual ? bar(f.created, f.due, 'pass') : f.state === 'doing' ? bar(f.doneAt - P.studioCfg.work * (manual ? 1000 : 1600), P.studioCfg.work * (manual ? 1 : 1.6), 'cook') : ''}</span>${f.state === 'todo' ? todo(f) : f.state === 'doing' ? `<span class="fr-wait">${icon('clock')} In lavorazione</span>` : f.state === 'done' ? badge(`Fatto alle ${f.doneTime}`, 'badge-green') : badge('Scaduto · sanzione', 'badge-red')}${f.state === 'todo' && manual ? `<span class="fl-left ${red ? 'hot' : ''}">${left} s</span>` : ''}</article>`; }).join('') || '<p class="muted pad-s">Nessun adempimento aperto.</p>'}</div></section>`;
 }
 function scadenze() {
  const sorted = [...D.deadlines].sort((a, b) => (a.days ?? 9999) - (b.days ?? 9999));
  return `${heading('IL CONTROLLO · 10', 'Scadenziario & post-stipula', 'Dopo la firma ogni atto genera i suoi adempimenti. Otto calcola i termini e avvisa chi se ne occupa.')}
  ${filingsPanel()}
  <div class="alert-banner">${icon('alert')}<p><b>Paolo Donati è in ferie fino a lunedì</b> e ha 2 termini entro 5 giorni.</p>${btn('Riassegna a Giulia', 'toast:Termini riassegnati a Giulia Marchi (demo)', 'btn-secondary', 'users')}</div>
- <section class="workspace-panel"><div data-anchor="scadenze" class="anchor-pad"></div><div class="timeline">${sorted.map(d => `<div class="tl-row ${d.state}"><span class="tl-days">${d.days === null ? icon('check') : `<b>${d.days}</b><small>giorni</small>`}</span><span class="tl-body"><b>${esc(d.what)}</b><small>${esc(d.act)}</small></span><span class="tl-due">${esc(d.due)}</span>${avatar(d.owner)}${badge(d.state === 'done' ? 'Completato' : d.state === 'urgent' ? 'Urgente' : 'Programmato', d.state === 'done' ? 'badge-green' : d.state === 'urgent' ? 'badge-red' : '')}</div>`).join('')}</div></section>
+ <section class="workspace-panel"><div class="panel-title"><h2>${icon('calendar')} Termini di legge</h2>${badge('Calcolati dalla data dell’atto')}</div><div data-anchor="scadenze" class="anchor-pad"></div><div class="timeline">${sorted.map(d => `<div class="tl-row ${d.state}"><span class="tl-days">${d.days === null ? icon('check') : `<b>${d.days}</b><small>giorni</small>`}</span><span class="tl-body"><b>${esc(d.what)}</b><small>${esc(d.act)}</small></span><span class="tl-due">${esc(d.due)}</span>${avatar(d.owner)}${badge(d.state === 'done' ? 'Completato' : d.state === 'urgent' ? 'Urgente' : 'Programmato', d.state === 'done' ? 'badge-green' : d.state === 'urgent' ? 'badge-red' : '')}</div>`).join('')}</div></section>
  <div class="notice">${icon('info')}<p>Termini di esempio. Nel servizio reale vengono calcolati dalla data dell’atto e dalle regole configurate dallo studio.</p></div>`;
 }
 
@@ -461,7 +464,7 @@ function scadenze() {
 function antiriciclaggio() {
  const steps = [['documento', 'Identificazione'], ['titolare', 'Titolare effettivo'], ['pep', 'Verifica PEP e liste'], ['fondi', 'Origine dei fondi']];
  return `${heading('IL CONTROLLO · 11', 'Antiriciclaggio & clienti', 'L’adeguata verifica si prepara mentre la pratica avanza, con i documenti già arrivati in studio.')}
- <section class="workspace-panel"><div class="table-scroll"><table class="data-table aml"><thead><tr><th>Cliente</th><th>Rischio</th>${steps.map(s => `<th>${s[1]}</th>`).join('')}</tr></thead><tbody>${D.clients.map(c => `<tr><td><b>${esc(c.name)}</b><small>${esc(D.practice(c.practice).name)}</small></td><td>${badge(c.risk, c.risk === 'Basso' ? 'badge-green' : c.risk === 'Medio' ? 'badge-amber' : '')}</td>${steps.map(s => `<td><span class="dot ${c.steps[s[0]] ? 'ok' : 'no'}">${c.steps[s[0]] ? icon('check') : ''}</span></td>`).join('')}</tr>`).join('')}</tbody></table></div></section>
+ <section class="workspace-panel"><div class="panel-title"><h2>${icon('shield')} Adeguata verifica dei clienti</h2>${badge('Si completa mentre la pratica avanza')}</div><div class="table-scroll"><table class="data-table aml"><thead><tr><th>Cliente</th><th>Rischio</th>${steps.map(s => `<th>${s[1]}</th>`).join('')}</tr></thead><tbody>${D.clients.map(c => `<tr><td><b>${esc(c.name)}</b><small>${esc(D.practice(c.practice).name)}</small></td><td>${badge(c.risk, c.risk === 'Basso' ? 'badge-green' : c.risk === 'Medio' ? 'badge-amber' : '')}</td>${steps.map(s => `<td><span class="dot ${c.steps[s[0]] ? 'ok' : 'no'}">${c.steps[s[0]] ? icon('check') : ''}</span></td>`).join('')}</tr>`).join('')}</tbody></table></div></section>
  <div class="section-title"><h2>Da valutare</h2><span class="subtle-label">Otto segnala, il notaio valuta</span></div>
  <div data-anchor="antiriciclaggio"></div>
  <div class="flag-grid">${D.clients.filter(c => c.flag).map(c => `<article class="workspace-panel">${ottoNote(c.flag, c.risk === 'Medio' ? 'warn' : '')}<div class="detail-actions">${pchip(c.practice)}${btn('Richiedi documenti', 'toast:Richiesta preparata, in attesa di approvazione', 'btn-secondary', '')}</div></article>`).join('')}</div>`;
@@ -471,7 +474,7 @@ function antiriciclaggio() {
 function compliance() {
  return `${heading('IL CONTROLLO · 12', 'Privacy, audit & compliance', 'Ogni azione di Otto è registrata con chi l’ha approvata. L’AI prepara, il professionista decide.')}
  <div class="metrics-grid">${[['sparkle', 'Azioni di Otto oggi', D.audit.filter(a => a.actor === 'Otto').length], ['check', 'Approvate da una persona', 1], ['settings', 'Da regole automatiche', 2], ['lock', 'Richieste bloccate dalla policy', 1]].map(([i, t, n]) => `<article class="metric"><div><span>${t}</span>${icon(i)}</div><strong class="has-value">${n}</strong></article>`).join('')}</div>
- <section class="workspace-panel"><div class="panel-title"><h2>Registro delle azioni</h2>${badge('Append-only nel servizio reale')}</div><div data-anchor="compliance" class="anchor-pad"></div><div class="table-scroll"><table class="data-table"><thead><tr><th>Ora</th><th>Chi</th><th>Azione</th><th>Approvazione</th><th>Modulo</th></tr></thead><tbody>${D.audit.map(a => `<tr><td>${a.time}</td><td>${a.actor === 'Otto' ? `<span class="otto-tag">${icon('sparkle')}Otto</span>` : esc(a.actor)}</td><td>${esc(a.action)}</td><td>${esc(a.approved)}</td><td>${badge(esc(a.area))}</td></tr>`).join('')}</tbody></table></div></section>
+ <section class="workspace-panel"><div class="panel-title"><h2>Registro delle azioni</h2>${badge('Append-only nel servizio reale')}</div><div data-anchor="compliance" class="anchor-pad"></div><div class="table-scroll audit-scroll"><table class="data-table"><thead><tr><th>Ora</th><th>Chi</th><th>Azione</th><th>Approvazione</th><th>Modulo</th></tr></thead><tbody>${D.audit.map(a => `<tr><td>${a.time}</td><td>${a.actor === 'Otto' ? `<span class="otto-tag">${icon('sparkle')}Otto</span>` : esc(a.actor)}</td><td>${esc(a.action)}</td><td>${esc(a.approved)}</td><td>${badge(esc(a.area))}</td></tr>`).join('')}</tbody></table></div></section>
  <div class="quote-layout"><section class="workspace-panel"><div class="panel-title"><h2>Richieste degli interessati</h2>${badge('Risposta entro un mese')}</div><div class="table-scroll"><table class="data-table"><thead><tr><th>Chi</th><th>Richiesta</th><th>Arrivata</th><th>Scadenza</th><th>Stato</th></tr></thead><tbody>${D.dataRequests.map(r => `<tr><td><b>${esc(r.who)}</b><small>${esc(r.via)}</small></td><td>${esc(r.what)}${r.note ? `<small>${esc(r.note)}</small>` : ''}</td><td>${r.received}</td><td><b>${r.due}</b><small>tra ${r.days} giorni</small></td><td>${badge(r.state, r.state === 'Completata' ? 'badge-green' : r.state === 'Da valutare' ? 'badge-amber' : '')}</td></tr>`).join('')}</tbody></table></div></section>
  <aside class="module-side"><div class="workspace-panel"><div class="panel-title"><h2>Controlli privacy</h2></div>${D.privacyChecks.map(([t, d, ok]) => `<div class="mini-row"><span><b>${t}</b><small>${d}</small></span>${badge(ok ? 'In regola' : 'Da fare', ok ? 'badge-green' : 'badge-amber')}</div>`).join('')}</div></aside></div>
  <div class="rule-grid four">${[
@@ -683,6 +686,12 @@ setInterval(() => {
    ...(r.lobbyRed.length ? [{page:'centralino', label:r.lobbyRed.length === 1 ? `In sala d’attesa: ${r.lobbyRed[0].who}` : `${r.lobbyRed.length} appuntamenti aspettano in sala d’attesa`}] : [])]);
  } catch (err) { console.warn('CS Notaro OS · errore nel battito', err); }
 }, 1000);
+// Fuori dalla sfida lo Scadenziario va avanti da solo (vedi pressure.js): si ridisegna quando cambia qualcosa.
+setInterval(() => {
+ if (gameOn() || !live.awake || document.hidden || document.body.classList.contains('touring')) return;
+ if (P.studioDemoTick() && route() === 'scadenze') liveRefresh();
+}, 1000);
+P.studioDemoTick();
 // Dentro il sito la demo parte ferma (niente cicli né animazioni): si accende solo quando il visitatore la apre.
 const wake = on => { live.awake = on; document.documentElement.classList.toggle('csd-paused', !on); };
 wake(live.awake);

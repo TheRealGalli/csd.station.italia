@@ -486,3 +486,9 @@
 .wa-preview .phone-mock{width:100%;max-width:330px;flex:1}
 .wa-list{max-height:320px}
 @media(max-width:1100px){.wa-layout{grid-template-columns:minmax(0,1fr)}}
+/* Centralino: le chiamate stanno in una scheda con il titolo, come gli altri elenchi che si scorrono */
+.calls-panel .call-grid{margin-top:0;padding:14px}
+.calls-panel .call-grid>.workspace-panel{margin-top:0}
+/* Bandi: l'elenco dei bandi è una scheda con il titolo che si scorre, i bandi dentro sono schede bianche */
+.grants-panel .grant-list{padding:14px;display:grid;gap:14px}
+.grants-panel .grant-list>.workspace-panel{margin-top:0}

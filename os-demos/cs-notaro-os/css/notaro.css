@@ -436,7 +436,7 @@ main#main.main-studio{padding:0;max-width:none}
 /* Sala d'attesa e sale riunioni (sfida) */
 .lobby .panel-title h2{display:flex;align-items:center;gap:8px}
 .lobby .panel-title h2 .icon{width:16px;height:16px}
-.lobby-grid{display:grid;grid-template-columns:minmax(0,1.2fr) minmax(0,1fr);gap:14px;padding:0 18px 18px}
+.lobby-grid{display:grid;grid-template-columns:minmax(0,1.2fr) minmax(0,1fr);gap:14px;padding:16px 18px 18px}
 .lobby-queue{display:flex;flex-direction:column;gap:8px}
 .lb-empty{font-size:12.5px;padding:10px 0}
 .lb-guest{position:relative;overflow:hidden;display:flex;flex-direction:column;gap:3px;text-align:left;padding:10px 12px 12px;border:1.5px solid #dbe5cb;border-radius:12px;background:#fff;cursor:pointer;transition:border-color .15s,box-shadow .15s}
@@ -458,3 +458,6 @@ main#main.main-studio{padding:0;max-width:none}
 .lobby-rooms.seating .lb-room.fit{border-color:#9cc46a;box-shadow:0 0 0 3px #c5f47666;animation:kds-hot 1.4s ease-in-out infinite}
 .lobby-rooms.seating .lb-room.nofit{opacity:.45}
 @media(max-width:900px){.lobby-grid{grid-template-columns:1fr}}
+/* Staff: il team su tre colonne che vanno a capo, senza schede tagliate a destra */
+@media(min-width:761px){.board{grid-auto-flow:row;grid-template-columns:repeat(3,minmax(0,1fr));overflow:visible}}
+@media(min-width:761px) and (max-width:1100px){.board{grid-template-columns:repeat(2,minmax(0,1fr))}}

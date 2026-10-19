@@ -44,11 +44,29 @@ export function studioGameStart(handled) {
  nextFilingAt = Date.now() + 70000; nextMailAt = Date.now() + 45000;
  lobby.length = 0; rooms.forEach(r => { r.until = 0; r.with = null; }); Object.assign(lobbyCfg, {wait:60, leave:150, rate:1, bonus:0}); nextGuestAt = Date.now() + 60000;
 }
-export function studioGameStop() { on = false; lobby.length = 0; rooms.forEach(r => { r.until = 0; r.with = null; }); }
+export function studioGameStop() { on = false; demoSeeded = false; lobby.length = 0; rooms.forEach(r => { r.until = 0; r.with = null; }); }
 export function startFiling(id) {
  const f = filings.find(x => x.id === id);
  if (!f || f.state !== 'todo' || doingNow().length >= studioCfg.cap) return false;
  f.state = 'doing'; f.doneAt = Date.now() + studioCfg.work * 1000; return true;
+}
+// Fuori dalla sfida lo Scadenziario lavora da solo, come la cucina del Restaurant: Paolo avvia gli adempimenti
+// appena si libera, li chiude e ne arrivano di nuovi dagli atti firmati. Niente rosso e niente sanzioni: si guarda, non si tocca.
+let demoSeeded = false, nextDemoAt = 0;
+export function studioDemoTick() {
+ if (on) return false;
+ const now = Date.now(); let changed = false;
+ if (!demoSeeded) {
+  demoSeeded = true; filings.length = 0;
+  [900, 1100, 1300, 1500].forEach(d => newFiling(d));
+  Object.assign(filings[3], {state:'done', doneTime:clock()}); Object.assign(filings[2], {state:'doing', doneAt:now + 18000}); Object.assign(filings[1], {state:'doing', doneAt:now + 30000});
+  nextDemoAt = now + 40000; return true;
+ }
+ for (const f of filings) if (f.state === 'doing' && now >= f.doneAt) { f.state = 'done'; f.doneTime = clock(); changed = true; }
+ for (const f of [...filings].reverse()) if (f.state === 'todo' && doingNow().length < studioCfg.cap && now - f.created > 3000) { f.state = 'doing'; f.doneAt = now + studioCfg.work * 1600; changed = true; }
+ if (now >= nextDemoAt) { nextDemoAt = now + 35000 + Math.random() * 25000; newFiling(900 + Math.random() * 600); changed = true; }
+ for (let i = filings.length - 1; i >= 0; i--) if (filings[i].state === 'done' && filings.length > 5) { filings.splice(i, 1); changed = true; break; }
+ return changed;
 }
 // Un battito al secondo: lavori finiti, nuovi atti firmati, scadenze.
 export function studioTick(level = 1, handled = []) {

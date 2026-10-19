@@ -184,6 +184,8 @@ export function tick() {
  const r = Math.random();
  const lines = kitchenLines();
  const free2 = lines.filter(x => !reserved(x.id));
+ // una cucina vera non accumula: oltre le 6 comande in attesa (o 6 sui fornelli) la brigata accelera
+ for (const st of ['cooking', 'waiting']) { const q = free2.filter(x => x.state === st && !x.tour).sort((a, b) => a.at - b.at); if (q.length > 6) { advance(q[0].id); return; } }
  if (r < .5 && free2.length) { const l = free2.sort((a, b) => a.at - b.at).find(x => x.state !== 'ready') || free2[0]; advance(l.id); return; }
  if (r < .6) { if (guestOrder()) return; }
  if (r < .72) { const t = tables.filter(t => (t.status === 'seated' || t.status === 'ordered') && t.lines.length < 8 && t.id !== 'T7')[Math.floor(Math.random() * 4)]; if (t) { const d = menu.filter(available)[Math.floor(Math.random() * menu.length)]; if (d) addDish(t.id, d.id); } return; }
@@ -394,7 +396,7 @@ export function kitchenGameTick(level = 1) {
  if (changed) emit();
  const lines = kitchenLines();
  return {
-  waiting:lines.some(l => l.state === 'waiting' && now - l.at > waitMax() * 1000),
+  waiting:lines.some(l => l.state === 'waiting' && now - l.at > waitMax() * 1000) || delivery.orders.some(o => o.state === 'queue' && now - o.acceptAt > waitMax() * 1000),
   pass:lines.some(l => (l.state === 'ready' && now - (l.readyAt || now) > kitchen.passTime * 1000) || (l.state === 'cooking' && l.cooked && now - (l.cookedAt || now) > kitchen.passTime * 1000)),
   handover
  };
@@ -427,7 +429,8 @@ export function fridgeAction(id) {
 export function fridgeGameStart() { fridges.forEach(f => Object.assign(f, {temp:f.base, shown:f.base, state:'ok', lost:false})); nextFaultAt = Date.now() + 75000; }
 // Un battito al secondo, solo nella sfida.
 export function fridgeTick() {
- if (!service.game) return {red:[], lost:[]};
+ // fuori dalla sfida le sonde leggono solo le piccole oscillazioni di un servizio normale: niente guasti
+ if (!service.game) { for (const f of fridges) { f.temp += (f.base - f.temp) * .2 + (Math.random() - .5) * .12; f.shown = f.temp; } return {red:[], lost:[]}; }
  const now = Date.now(), lost = []; let changed = false;
  for (const f of fridges) {
   const rise = {door:.12, fault:.035, repair:.015}[f.state];
@@ -658,8 +661,8 @@ export const dTotal = o => o.items.reduce((n, [id, q]) => n + dmenu(id).price * 
 export const dWait = o => (Date.now() - o.at) / 1000;
 // il rider è arrivato e aspetta da… (secondi), 0 se non è ancora arrivato
 export const riderWait = o => Math.max(0, (Date.now() - o.riderAt) / 1000);
-export const dRed = o => delivery.on && ((o.state === 'new' && dWait(o) > delivery.cfg.accept) || (o.state !== 'picked' && riderWait(o) > 12));
-export const dActive = () => delivery.orders.filter(o => ['new', 'prep', 'ready'].includes(o.state));
+export const dRed = o => delivery.on && ((o.state === 'new' && dWait(o) > delivery.cfg.accept) || (!['picked', 'lost'].includes(o.state) && riderWait(o) > 12));
+export const dActive = () => delivery.orders.filter(o => ['new', 'queue', 'prep', 'ready'].includes(o.state));
 function newOrder(opts = {}) {
  const on = channels.filter(c => c.on && (!c.until || Date.now() > c.until));
  if (!on.length) return null;
@@ -672,16 +675,24 @@ function newOrder(opts = {}) {
  const o = {id:`D${++delivery.seq}`, code:`${ch.short}-${delivery.seq}`, ch:ch.id, who:dWho[Math.floor(Math.random() * dWho.length)], zone:z[0], km:z[1], items, state:'new', at, rider:ch.id === 'own' ? 'Matteo · rider del locale' : riders[Math.floor(Math.random() * riders.length)]};
  o.prep = dPrep(o);
  // il rider arriva quando l'ordine dovrebbe essere pronto, se accettato in tempo, più qualche secondo
- o.riderAt = at + (delivery.cfg.accept * .5 + o.prep + 12 + Math.random() * 20) * 1000;
+ // (più un margine per l'attesa dei fornelli: la cucina è la stessa della sala)
+ o.riderAt = at + (delivery.cfg.accept * .5 + o.prep + 25 + Math.random() * 20) * 1000;
  delivery.orders.unshift(o);
  log(`Delivery · nuovo ordine ${ch.name} ${o.code}: ${o.items.map(([id, q]) => `${q}× ${dish(id).name}`).join(', ')}`, 'cucina');
  return o;
 }
 export function acceptOrder(id) {
  const o = delivery.orders.find(x => x.id === id); if (!o || o.state !== 'new') return false;
- o.state = 'prep'; o.prepAt = Date.now();
+ // accettato, entra nella cucina della sala: aspetta un fornello libero come ogni altra comanda
+ o.state = 'queue'; o.acceptAt = Date.now();
  for (const [dId, q] of o.items) for (const [k, qq] of Object.entries(dish(dId).recipe)) { const i = ingredient(k); i.qty = Math.max(0, +(i.qty - qq * q).toFixed(3)); i.changed = Date.now(); }
- log(`Delivery · ${o.code} accettato, in preparazione`, 'cucina'); emit(); return true;
+ log(`Delivery · ${o.code} accettato, in cucina`, 'cucina'); emit(); return true;
+}
+// Un ordine delivery sui fornelli: occupa un posto come un piatto della sala, finché non è pronto da imbustare.
+export function cookOrder(id) {
+ const o = delivery.orders.find(x => x.id === id);
+ if (!o || o.state !== 'queue' || (service.game && cookingNow().length >= kitchen.cap)) return false;
+ o.state = 'prep'; o.prepAt = Date.now(); log(`Delivery · ${o.code} sui fornelli`, 'cucina'); emit(); return true;
 }
 export function handOrder(id) {
  const o = delivery.orders.find(x => x.id === id); if (!o || o.state !== 'ready' || Date.now() < o.riderAt) return false;
@@ -702,7 +713,8 @@ export const chPaused = c => !c.on || (c.until && Date.now() < c.until);
 function deliveryDemo() {
  const now = Date.now(); let changed = false;
  for (const o of delivery.orders) {
-  if (o.state === 'new' && now - o.at > 6000) { o.state = 'prep'; o.prepAt = now; changed = true; }
+  if (o.state === 'new' && now - o.at > 6000) { o.state = 'queue'; o.acceptAt = now; changed = true; }
+  else if (o.state === 'queue' && now - o.acceptAt > 5000) { o.state = 'prep'; o.prepAt = now; changed = true; }
   else if (o.state === 'prep' && now - o.prepAt > o.prep * 1000) { o.state = 'ready'; o.readyAt = now; changed = true; }
   else if (o.state === 'ready' && now > o.riderAt) { handOrder(o.id); changed = true; }
  }
@@ -724,10 +736,12 @@ export function deliveryTick(level = 1) {
  const now = Date.now(), lost = []; let changed = false;
  for (const o of delivery.orders) {
   if (o.state === 'new' && delivery.cfg.autoAccept && now - o.at > 8000) { acceptOrder(o.id); changed = true; }
+  // con l'automatismo della cucina (o nei primi minuti) anche gli ordini delivery vanno sui fornelli da soli
+  if (o.state === 'queue' && autoOn('cook') && cookingNow().length < kitchen.cap) { o.state = 'prep'; o.prepAt = now; changed = true; }
   if (o.state === 'prep' && now - o.prepAt > o.prep * 1000) { o.state = 'ready'; o.readyAt = now; log(`Delivery · ${o.code} pronto da imbustare`, 'cucina'); changed = true; }
   if (o.state === 'ready' && delivery.cfg.autoHand && now > o.riderAt + 4000) { handOrder(o.id); changed = true; }
   // il rider non aspetta all'infinito: se riparte senza l'ordine, la piattaforma lo annulla
-  if (['new', 'prep', 'ready'].includes(o.state) && riderWait(o) > delivery.cfg.patience + delivery.cfg.bonus) { o.state = 'lost'; lost.push(o); log(`Delivery · ${o.code} annullato: il rider è ripartito senza l’ordine`, 'cucina'); changed = true; }
+  if (['new', 'queue', 'prep', 'ready'].includes(o.state) && riderWait(o) > delivery.cfg.patience + delivery.cfg.bonus) { o.state = 'lost'; lost.push(o); log(`Delivery · ${o.code} annullato: il rider è ripartito senza l’ordine`, 'cucina'); changed = true; }
  }
  if (now >= nextDlvAt) {
   const gap = [delivery.cfg.gap, [60, 95], [45, 75]][level - 1] || delivery.cfg.gap;
@@ -738,10 +752,10 @@ export function deliveryTick(level = 1) {
  channels.forEach(c => { if (c.until && now > c.until) { c.until = 0; log(`Delivery · ${c.name} di nuovo attivo`, 'cucina'); changed = true; } });
  trimOrders();
  if (changed) emit();
- return {red:delivery.orders.filter(o => ['new', 'prep', 'ready'].includes(o.state) && dRed(o)), lost};
+ return {red:delivery.orders.filter(o => ['new', 'queue', 'prep', 'ready'].includes(o.state) && dRed(o)), lost};
 }
 export const deliveryArrive = ch => delivery.on ? (newOrder({ch}) && (emit(), delivery.orders[0])) : null;
-export const deliveryShift = ms => { nextDlvAt += ms; delivery.orders.forEach(o => { ['at', 'prepAt', 'readyAt'].forEach(k => { if (o[k]) o[k] = Math.min(o[k] + ms, Date.now()); }); if (o.state !== 'picked' && o.state !== 'lost') o.riderAt += ms; }); channels.forEach(c => { if (c.until) c.until += ms; }); };
+export const deliveryShift = ms => { nextDlvAt += ms; delivery.orders.forEach(o => { ['at', 'acceptAt', 'prepAt', 'readyAt'].forEach(k => { if (o[k]) o[k] = Math.min(o[k] + ms, Date.now()); }); if (o.state !== 'picked' && o.state !== 'lost') o.riderAt += ms; }); channels.forEach(c => { if (c.until) c.until += ms; }); };
 // Stato iniziale del tablet: qualche ordine già in corsa, uno appena arrivato.
 (function seedDelivery() {
  const now = Date.now();

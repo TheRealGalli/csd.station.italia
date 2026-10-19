@@ -37,6 +37,8 @@ export function notaroTour({toggleOtto}) {
    text:'Ogni attività ha un responsabile e il **motivo** per cui Otto l’ha creata. Paolo è in ferie: le sue attività si riassegnano con un clic.'},
   {before:[{click:'.sidebar a[href="#scadenze"]'}], target:'.timeline', title:'10 · Nessun termine dimenticato',
    text:'Dopo la firma ogni atto genera i suoi adempimenti: deposito al Registro Imprese, copia esecutiva, trascrizione. **In rosso** quelli entro 5 giorni.'},
+  {route:'scadenze', target:'.filings', title:'Gli adempimenti, due alla volta',
+   text:'Qui c’è il lavoro di oggi: registrazione, trascrizione, voltura, deposito. Paolo li lavora **due alla volta** e Otto li mette in fila: appena si libera, parte il prossimo. Nella Sfida di Otto li avvii tu, **prima che scadano**.'},
   {before:[{click:'.sidebar a[href="#antiriciclaggio"]'}], target:'.flag-grid', title:'11 · Antiriciclaggio preparato in anticipo',
    text:'Otto segnala ciò che va valutato: un socio estero al 40%, fondi da un conto di terzi. **Segnala, non decide**: la valutazione resta al notaio.'},
   {before:[{click:'.sidebar a[href="#compliance"]'}], target:'.workspace-panel .data-table', title:'12 · Ogni azione è tracciata',

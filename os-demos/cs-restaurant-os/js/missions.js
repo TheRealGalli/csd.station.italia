@@ -7,7 +7,7 @@
 //  Menu digitale QR · Cosa resta sul QR? (disponibile, ultime porzioni, esaurito)
 //  Centralino AI    · Al telefono
 //  Recensioni AI    · La risposta giusta
-//  WhatsApp         · Correggi la bozza
+//  WhatsApp         · Correggi la bozza · (dal capitolo 2) Il pubblico giusto / Quando la mandi
 //  Delivery         · (dal capitolo 2) Quanto resta al locale, Viaggia bene?, Cucina piena, Il cliente al telefono
 //  Fidelity & NFC   · Premio sì o no? · Il premio giusto · Il conto con la card · A chi la mandi?
 //  Magazzino        · Trova la differenza (fattura contro bolla firmata)
@@ -109,6 +109,30 @@ function whatsappMission() {
  const seg = (txt, key) => key === kind ? {t:wrong, err:true, ok:right, choices:G.shuffle([right, wrong, decoy])} : {t:txt};
  const parts = [{t:`Ciao ${who.first}! Confermato per `}, seg(day, 'giorno'), {t:' alle '}, seg(hour, 'ora'), {t:', '}, seg(String(n), 'coperti'), {t:' persone al tavolo '}, seg(String(table), 'tavolo'), {t:'. A presto all’Osteria del Borgo!'}];
  return {event:[`WhatsApp · ${who.name}`, 'Chiede la conferma della prenotazione'], m:mk('proof', 'CORREGGI LA BOZZA', `WhatsApp · conferma a ${who.name}`, {ask:`${who.first} chiede: “Mi confermate la prenotazione?” Otto ha scritto la risposta, ma qualcosa <b>non torna con il registro</b>.`, draftLabel:'Risposta proposta da Otto', parts, sources:[{t:'Registro prenotazioni', rows:[[`${day} · ${hour}`, `${who.name} · ${n} persone · tavolo ${table}`]]}], winWhy:'Ora la risposta coincide con il registro: l’ospite arriva all’ora giusta e trova il suo tavolo.', winLabel:'Conferma perfetta'}, 150000)};
+}
+
+// ————— WhatsApp & campagne · Il pubblico giusto / Quando la mandi (pick) —————
+function waCampaignMission() {
+ const occ = G.pick([
+  ['Serata tartufo', 'chi negli ordini e su WhatsApp ha chiesto piatti al tartufo o ai funghi', 'Chi ha dato il consenso e ama tartufo e funghi'],
+  ['Aperitivo del venerdì', 'chi viene a bere un calice dopo il lavoro', 'Chi ha dato il consenso e prenota spesso tra le 18 e le 20'],
+  ['Musica dal vivo', 'chi ha chiesto delle serate con musica', 'Chi ha dato il consenso e ha chiesto della musica dal vivo']
+ ]), n = G.int(40, 90);
+ if (Math.random() < .5) {
+  const cards = [{title:occ[2], meta:`${n} ospiti`, body:'Il gruppo che Otto ha trovato nelle conversazioni e negli ordini, solo con il sì ai messaggi.', ok:true},
+   {title:'Tutta la rubrica del telefono', meta:`${n * 6} numeri`, why:'Chi non ha dato il consenso non può ricevere promozioni: è una violazione della privacy, e i contatti bloccano il numero.'},
+   {title:'Gli ospiti di ieri sera', meta:`${G.int(25, 40)} ospiti`, why:'Sono appena stati da voi e non hanno detto nulla su questa occasione: il messaggio arriva alla persona sbagliata nel momento sbagliato.'},
+   {title:'Tutti gli iscritti alla card', meta:'412 iscritti', why:'Tra gli iscritti c’è anche chi non ha dato il consenso WhatsApp, e chi non è interessato: più messaggi, meno prenotazioni.'}];
+  return {event:['WhatsApp & campagne', `${occ[0]}: a chi la mandi?`], brief:{what:`Otto ha scritto la campagna “${occ[0]}”. Scegli il pubblico: ${occ[1]}, e solo chi ha detto sì ai messaggi.`, why:'Una campagna mandata a tutti costa di più, porta meno tavoli e, senza consenso, è vietata. Il pubblico giusto è metà del lavoro.'},
+   m:mk('pick', 'IL PUBBLICO GIUSTO', `WhatsApp & campagne · ${occ[0]}`, {ask:`Campagna <b>“${occ[0]}”</b>. A chi la mandi?`, sources:[{t:'Regole delle campagne', rows:[['Consenso', 'solo chi ha detto sì ai messaggi WhatsApp'], ['Pubblico', occ[1]]]}], cards:G.shuffle([cards[0], ...G.shuffle(cards.slice(1)).slice(0, by(2, 3, 3))]), winWhy:'Messaggio a chi lo aspetta: più letture, più risposte SÌ, nessun reclamo per la privacy.'})};
+ }
+ const good = {['Serata tartufo']:['Martedì alle 11:00', 'una settimana prima: c’è il tempo di organizzarsi e prenotare'], ['Aperitivo del venerdì']:['Venerdì alle 17:00', 'poco prima dell’uscita dal lavoro, quando si decide dove andare'], ['Musica dal vivo']:['Mercoledì alle 18:00', 'tre giorni prima della serata, a fine giornata']}[occ[0]];
+ const cards = [{title:good[0], body:good[1], ok:true},
+  {title:'Adesso, alle 23:40', body:'Subito, appena scritta', why:'Di notte un messaggio promozionale disturba: si legge male e spesso si blocca il numero.'},
+  {title:'Domenica alle 8:00', body:'Prima di colazione', why:'Una promozione la domenica mattina presto disturba: è il momento in cui si blocca il numero.'},
+  {title:'Il giorno stesso, alle 21:00', body:'A serata già iniziata', why:'Arriva troppo tardi: chi voleva venire ha già deciso dove andare.'}];
+ return {event:['WhatsApp & campagne', `${occ[0]}: quando la mandi?`], brief:{what:`La campagna “${occ[0]}” è pronta e il pubblico è scelto. Ora decidi quando parte.`, why:'Lo stesso messaggio, all’ora sbagliata, disturba e fa bloccare il numero; all’ora giusta diventa un tavolo prenotato.'},
+  m:mk('pick', 'QUANDO LA MANDI?', `WhatsApp & campagne · ${occ[0]}`, {ask:`Campagna <b>“${occ[0]}”</b> per ${n} ospiti con il consenso. Quando la programmi?`, sources:[{t:'Buone regole di Otto', rows:[['Orari', 'mai di notte né la mattina presto'], ['Anticipo', 'abbastanza per decidere, non così tanto da dimenticarsene']]}], cards:G.shuffle([cards[0], ...G.shuffle(cards.slice(1)).slice(0, by(2, 3, 3))]), winWhy:'All’ora giusta il messaggio si legge con calma: le risposte SÌ diventano prenotazioni.'})};
 }
 
 // ————— Fidelity · Premio sì o no? —————
@@ -351,6 +375,7 @@ const extras = [
  {page:'delivery', fn:dlvMenuMission, p:.8, ch:1},
  {page:'delivery', fn:dlvPauseMission, p:.7, lvl:3},
  {page:'delivery', fn:dlvPhoneMission, p:.7, ch:2},
+ {page:'whatsapp', fn:waCampaignMission, p:.75, ch:1},
  {page:'fatture', fn:riconciliaMission, p:.75},
  {page:'fatture', fn:chiusuraMission, p:.7, lvl:2},
  {page:'bandi', fn:contributoMission, p:.75, lvl:2}
