@@ -257,7 +257,7 @@ export const grants = [
 ];
 export const grantHistory = [{title:'Ristori per la ristorazione 2021', amount:4200, state:'Incassato'}, {title:'Credito d’imposta sanificazione 2020', amount:1150, state:'Compensato in F24'}];
 export const staff = [{name:persona.name, role:'Titolare', shift:'18–24'}, {name:'Davide', role:'Chef', shift:'17–24'}, {name:'Sofia', role:'Sala', shift:'18:30–24'}, {name:'Karim', role:'Cucina', shift:'17–23'}, {name:'Elena', role:'Sala', shift:'19–24'}];
-export const haccp = [{task:'Temperatura frigo 1 (≤ 4°C)', done:true, by:'Karim · 17:05'}, {task:'Temperatura abbattitore', done:true, by:'Davide · 17:30'}, {task:'Sanificazione piani di lavoro', done:false, by:'Entro le 24:00'}, {task:'Etichettatura preparazioni', done:false, by:'Entro le 23:00'}];
+export const haccp = [{task:'Temperatura frigo 1 (≤ 4°C)', done:true, by:'Karim · 17:05'}, {task:'Temperatura abbattitore', done:true, by:'Davide · 17:30'}, {task:'Sanificazione piani di lavoro', done:false, by:'A fine servizio · entro le 24:00', when:'end'}, {task:'Etichettatura preparazioni', done:false, by:'Entro le 23:00'}];
 
 // Trigger in entrata: telefono, recensioni, WhatsApp, fornitori. Arrivano a ciclo come in un servizio vero.
 let inbound = [];

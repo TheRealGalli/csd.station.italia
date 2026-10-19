@@ -618,6 +618,14 @@ function searchResults(q) {
  const items = [...modules.map(m => ({h:m.id, i:m.icon, t:m.title, s:m.description})), ...D.menu.map(d => ({h:'menu_pos', i:'menu', t:d.name, s:`${d.cat} · ${euro(d.price)}`})), ...D.ingredients.map(x => ({h:'magazzino', i:'box', t:x.name, s:D.fmtQty(x)}))].filter(x => `${x.t} ${x.s}`.toLowerCase().includes(q)).slice(0, 9);
  return items.map(x => `<a href="#${x.h}" class="search-result" data-close>${icon(x.i)}<span><b>${esc(x.t)}</b><small>${esc(x.s)}</small></span>${icon('arrow')}</a>`).join('') || '<p class="search-empty">Nessun risultato.</p>';
 }
+// Nel registro HACCP si segna solo ciò che è già avvenuto: la sanificazione dei piani si fa a sala vuota e cucina ferma.
+function haccpReady(i) {
+ if (D.haccp[i].when !== 'end') return {ok:true};
+ const busy = D.tables.filter(t => t.status !== 'free').length, open = D.kitchenLines().filter(l => l.state !== 'served').length;
+ if (!busy && !open) return {ok:true};
+ const left = [busy && (busy === 1 ? '1 tavolo è ancora occupato' : `${busy} tavoli sono ancora occupati`), open && (open === 1 ? '1 comanda è ancora in cucina' : `${open} comande sono ancora in cucina`)].filter(Boolean).join(' e ');
+ return {ok:false, why:`Non è ancora il momento: la sanificazione dei piani si fa a fine servizio. Adesso ${left}. Segnare un controllo non ancora fatto è una registrazione falsa.`};
+}
 function toast(s) { const el = document.querySelector('#toast'); el.textContent = s; el.classList.add('show'); clearTimeout(toastTimer); toastTimer = setTimeout(() => el.classList.remove('show'), 4000); }
 function action(a) {
  if (a === 'wa-send') {
@@ -701,7 +709,14 @@ document.addEventListener('click', e => {
 document.addEventListener('change', e => {
  const d = e.target.dataset;
  if (d.waAuto) { (ui.waAuto ||= {})[d.waAuto] = e.target.checked; toast(e.target.checked ? 'Messaggio automatico attivo.' : 'Messaggio automatico in pausa.'); return; }
- if (d.haccp) { ui.done.haccp.push(+d.haccp); ecoPoints('haccp', 3, 'Controllo HACCP', +d.haccp); render(); }
+ if (d.haccp) {
+  const i = +d.haccp;
+  // Una spunta messa per sbaglio si toglie; i punti non si ripagano se la rimetti.
+  if (!e.target.checked) { ui.done.haccp = ui.done.haccp.filter(x => x !== i); toast('Controllo tolto dalla checklist.'); return render(); }
+  const r = haccpReady(i);
+  if (!r.ok) { penalty(3, 'HACCP segnato troppo presto'); toast(r.why); return render(); }
+  ui.done.haccp.push(i); ecoPoints('haccp', 3, 'Controllo HACCP', i); render();
+ }
  if (d.editPrice && +e.target.value > 0) { D.editDish(d.editPrice, {price:+e.target.value}); toast('Prezzo aggiornato su tutti i QR.'); checkChef(); }
  if (d.appBlock) { const b = D.appCfg.blocks.find(x => x.id === d.appBlock); if (b) { b.on = e.target.checked; ecoPoints('app-block', 2, 'App aggiornata', `${b.id}-${b.on}`); toast(b.on ? `“${b.name}” è nell’app: arriva agli ospiti con il prossimo aggiornamento.` : `“${b.name}” tolta dall’app.`); render(); } }
  if (d.editVisible) { D.editDish(d.editVisible, {visible:e.target.checked}); toast(e.target.checked ? 'Di nuovo nel menu.' : 'Tolto dal menu di stasera.'); checkChef(); }
@@ -860,7 +875,7 @@ initGame(challenges, {story,icon, place:'il locale', missionsOnly:true,
    if (ch && waitingK >= D.kitchen.cap + 1 && D.dActive().length >= 2) c.push({key:'dlv-pause', ref:ch.id, page:'delivery', title:`Cucina piena: pausa a ${ch.name}`, text:`${waitingK} comande aspettano i fornelli. In Delivery **metti in pausa ${ch.name}** (la commissione più alta, ${ch.fee}%) per un minuto e mezzo.`, target:`[data-dlv-pause="${ch.id}"]`, valid:() => !D.chPaused(ch), auto:() => D.pauseChannel(ch.id, 90)});
   }
   D.nfc.taps.forEach(x => c.push({key:'nfc', ref:x.id, page:'fidelity_nfc', urgent:D.nfcWait(x) > D.nfc.cfg.wait * .5, title:`Card al tavolo ${x.table.slice(1)}: ${x.m.name}`, text:`In Fidelity & NFC **scegli cosa spetta** a ${x.m.name}: ${x.ask === 'premio' ? 'chiede un premio, guarda se il saldo basta' : 'paga il conto, guarda il livello'}.`, target:`[data-nfc-tap="${x.id}"]`, valid:() => D.nfc.taps.some(y => y.id === x.id), auto:() => D.nfcResolve(x.id, D.nfcAnswer(x))}));
-  const h = D.haccp.findIndex((x, i) => !x.done && !ui.done.haccp.includes(i));
+  const h = D.haccp.findIndex((x, i) => !x.done && !ui.done.haccp.includes(i) && haccpReady(i).ok);
   if (h >= 0) c.push({key:'haccp', ref:h, page:'staff', title:`HACCP · ${D.haccp[h].task}`, text:'In Staff & HACCP **spunta il controllo** nella checklist di oggi.', target:`input[data-haccp="${h}"]`, valid:() => !ui.done.haccp.includes(h), auto:() => ui.done.haccp.push(h)});
   // come un cameriere: un ordine da fare dal menu QR, con il pagamento giusto
   const seated = D.tables.filter(t => (t.status === 'seated' || t.status === 'ordered') && !['T3', 'T7', 'T8'].includes(t.id));
