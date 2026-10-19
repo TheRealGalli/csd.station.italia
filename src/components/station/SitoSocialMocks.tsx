@@ -1,5 +1,4 @@
 import { Clapperboard, Copy, Grid3x3 } from 'lucide-react';
-import ModelLoop from './ModelLoop';
 
 // Mockup della sezione Sito & Social. Misure in em: la scala la decide chi li ospita.
 
@@ -12,19 +11,15 @@ function Shop() {
   </div>;
 }
 
-// Sito motion capture: la stessa idea di pagina, con la casa animata nella hero.
-function Page3D({ lite = false }: { lite?: boolean }) {
-  return <div className="mk-page mk-3d">
-    <div className="mk-nav"><i className="mk-logo"/><span/><span/><span/></div>
-    <div className="mk-3d-hero"><div><span className="l1"/><span className="l2"/><span className="l3"/><em/></div>{lite ? <div className="mk-pulse"><i/><i/><i/></div> : <div className="mk-loop-house"><ModelLoop kind="house"/></div>}</div>
-    <div className="mk-strip"><span/><span/><span/></div>
-  </div>;
+// Sito motion: un piccolo video in loop fatto con Remotion (sorgente in "sito react/accendi-la-station/src/SiteMotion.tsx").
+export function MotionVideo() {
+  return <video className="mk-motion" src="/sito-social/site-motion.mp4" poster="/sito-social/site-motion.jpg" autoPlay muted loop playsInline preload="metadata" aria-hidden="true"/>;
 }
 
-export function SiteMock({ three = false, lite = false }: { three?: boolean; lite?: boolean }) {
+export function SiteMock() {
   return <div className="mk-browser" aria-hidden="true">
     <div className="mk-bar"><i/><i/><i/><span>la-tua-attivita.it</span></div>
-    {three ? <Page3D lite={lite}/> : <Shop/>}
+    <Shop/>
   </div>;
 }
 

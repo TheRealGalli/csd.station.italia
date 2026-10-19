@@ -4,7 +4,7 @@ import { ArrowDown, ArrowUpRight, Camera, Check, ChevronLeft, ChevronRight, Clap
 import { servicePaths } from '@/seo/routes';
 import { OttoIcon } from './OttoIcon';
 import { Otto } from './StationExperiences';
-import { SiteMock, SocialMock, VideoMock } from './SitoSocialMocks';
+import { MotionVideo, SiteMock, SocialMock, VideoMock } from './SitoSocialMocks';
 import { webIntro } from '@/seo/content';
 import './sito-social.css';
 
@@ -85,7 +85,7 @@ export default function SitoSocial({ children }: { children?: React.ReactNode })
       <div className="nfc-benefits"><span><Check size={15}/> Contenuti approvati da te</span><span><Check size={15}/> Prezzi chiari, quantità fisse</span></div>
     </div><div className="nfc-display">
       <div className="product-orbit"/><span className="product-overline">LA TUA ATTIVITÀ. ANCHE ONLINE.</span>
-      <div className="web-preview"><div className={preview.key === 'site' ? 'on' : ''}><SiteMock/></div><div className={preview.key === '3d' ? 'on' : ''}><SiteMock three/></div><div className={preview.key === 'social' ? 'on' : ''}><SocialMock/></div></div>
+      <div className="web-preview"><div className={preview.key === 'site' ? 'on' : ''}><SiteMock/></div><div className={preview.key === '3d' ? 'on' : ''}><MotionVideo/></div><div className={preview.key === 'social' ? 'on' : ''}><SocialMock/></div></div>
       <span className="product-float">{preview.key === 'social' ? <Images size={18}/> : <Globe size={18}/>} {preview.tag}</span>
       <div className="product-selector" role="group" aria-label="Anteprima del servizio">{previews.map((p, i) => <button key={p.key} type="button" aria-pressed={selected === i} onClick={() => setSelected(i)} className={selected === i ? 'selected' : ''}>{p.label}</button>)}</div>
       <div className="product-caption"><span>{preview.name}</span><b>{preview.price}</b></div>
@@ -96,7 +96,7 @@ export default function SitoSocial({ children }: { children?: React.ReactNode })
     <Reveal as="section" className="product-section" id="siti"><div className="wrap">
       <div className="section-heading"><div><Eyebrow>01 / IL SITO</Eyebrow><h2>La tua vetrina.<br/>Tre modi di costruirla.</h2></div><p>Siti moderni e veloci, pensati prima di tutto per chi ti cerca dallo smartphone. Le animazioni sono un passo in più, non un obbligo.</p></div>
       <div className="products-grid">{sites.map((s, i) => <article className="product-card web-card" key={s.name}>
-        <div className="web-card-head">{s.mock === 'video' ? <VideoMock/> : <SiteMock three={s.mock === '3d'}/>}<span>0{i + 1}</span></div>
+        <div className="web-card-head">{s.mock === 'video' ? <VideoMock/> : s.mock === '3d' ? <MotionVideo/> : <SiteMock/>}<span>0{i + 1}</span></div>
         <div className="product-card-content"><h3>{s.name}</h3><p>{s.description}</p>
           <ul className="web-points">{s.points.map(point => <li key={point}><Check size={14}/>{point}</li>)}</ul>
           <div className="price-row"><strong>{s.price}</strong><span>{s.unit}</span></div>
@@ -159,6 +159,8 @@ export default function SitoSocial({ children }: { children?: React.ReactNode })
   </>;
 }
 
+const instagram = 'https://www.instagram.com/carlogalli.ai';
+
 // Da telefono: tre blocchi leggeri, dal servizio che costa meno. Niente 3D e niente pacchetto.
 export function SitoSocialMobile() {
   const blocks = [
@@ -168,7 +170,7 @@ export function SitoSocialMobile() {
     { n: '02', eyebrow: 'SITO STANDARD', title: <>La tua vetrina.<br/><em>Veloce e chiara.</em></>, price: 'da 344 €', unit: 'una tantum', mock: <SiteMock/>,
       points: ['Pensato prima di tutto per lo smartphone', 'Menu, orari, mappa e WhatsApp', 'SEO locale e scheda Google collegata'],
       cta: 'Ciao Carlo! Mi interessa il Sito standard per la mia attività.' },
-    { n: '03', eyebrow: 'SITO MOTION', title: <>Il sito che<br/><em>prende vita.</em></>, price: 'da 744 €', unit: 'una tantum', mock: <SiteMock three lite/>,
+    { n: '03', eyebrow: 'SITO MOTION', title: <>Il sito che<br/><em>prende vita.</em></>, price: 'da 744 €', unit: 'una tantum', mock: <MotionVideo/>,
       points: ['Animazioni e transizioni in movimento', 'Scene animate con il modello che hai già', 'Più sezioni: storia, eventi, galleria'],
       cta: 'Ciao Carlo! Mi interessa il Sito motion per la mia attività.' },
   ];
@@ -176,8 +178,9 @@ export function SitoSocialMobile() {
     {blocks.map((b, i) => <section key={b.n} className="mobile-section" aria-labelledby={`mobile-web-${b.n}`}>
       <span className="mobile-eyebrow">{i === 0 ? <i/> : null}{b.n} / {b.eyebrow}</span>
       {i === 0 ? <h1 id={`mobile-web-${b.n}`}>{b.title}</h1> : <h2 id={`mobile-web-${b.n}`}>{b.title}</h2>}
-      <div className="mw-mock">{b.mock}</div>
+      {i === 0 ? <a className="mw-mock" href={instagram} target="_blank" rel="noreferrer" aria-label="Apri il profilo Instagram di CSD Station">{b.mock}</a> : <div className="mw-mock">{b.mock}</div>}
       <div className="mw-price"><strong>{b.price}</strong><span>{b.unit}</span></div>
+      {i === 0 && <a className="mw-ig" href={instagram} target="_blank" rel="noreferrer">Guarda il profilo Instagram <ArrowUpRight size={15}/></a>}
       <ul className="mw-points">{b.points.map(point => <li key={point}><Check size={15}/>{point}</li>)}</ul>
       <a className="mobile-primary" href={whatsapp(b.cta)} target="_blank" rel="noreferrer">Scrivimi su WhatsApp <ArrowUpRight size={20}/></a>
       {i === 2 && <Link className="mobile-crosslink" to={servicePaths.nfc}><span>Hai già le card NFC?<small>Il primo passo per farti trovare su Google Maps.</small></span><ArrowUpRight size={20}/></Link>}

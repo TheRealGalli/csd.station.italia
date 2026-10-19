@@ -288,3 +288,12 @@
 .mk-pulse i:nth-child(1){height:3.5em}.mk-pulse i:nth-child(2){height:6em;animation-delay:.2s}.mk-pulse i:nth-child(3){height:4.5em;animation-delay:.4s}
 @keyframes mk-pulse{0%,100%{transform:translateY(0) scaleY(1)}50%{transform:translateY(-.8em) scaleY(1.12)}}
 @media(prefers-reduced-motion:reduce){.mk-pulse i{animation:none}}
+
+/* Sito motion: il video Remotion in loop */
+.mk-motion{display:block;width:100%;height:100%;object-fit:cover}
+.web-preview .mk-motion{width:27em;height:18em;border-radius:.8em;box-shadow:1.2em 1.4em 3.5em #0007;transform:rotate(-3deg)}
+.mobile-web .mw-mock .mk-motion{border-radius:14px}
+
+.mobile-web a.mw-mock{display:grid}
+.mobile-web .mw-mock .mk-phone a{pointer-events:none}
+.mobile-web .mw-ig{display:inline-flex;align-items:center;gap:6px;margin:-4px 0 18px;font-size:14px;color:#c5f476;text-decoration:underline;text-underline-offset:3px;min-height:44px}
