@@ -111,3 +111,12 @@
 
 /* Titolo per lettori di schermo: la demo parte subito, senza schermata iniziale */
 .os-sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+
+/* Caricamento: schermo scuro con l'anello di Otto, poi compare il sistema già con la demo guidata */
+.os-frame{opacity:0;transition:opacity .4s ease .25s}
+.os-frame.is-ready{opacity:1}
+.os-loading{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;background:radial-gradient(ellipse at 50% 45%,#1b2a17,#101510 70%);color:#a9bb98;font-size:13px;letter-spacing:.3px;transition:opacity .4s ease .35s,visibility 0s .75s;z-index:2}
+.os-loading.is-gone{opacity:0;visibility:hidden}
+.os-loading-ring{width:42px;height:42px;border-radius:50%;border:3px solid #2d3e24;border-top-color:#c5f476;animation:os-spin .9s linear infinite}
+@keyframes os-spin{to{transform:rotate(360deg)}}
+@media(prefers-reduced-motion:reduce){.os-loading-ring{animation:none}}

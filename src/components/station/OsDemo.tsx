@@ -7,13 +7,13 @@ import './os-demo.css';
 // Demo OS: l'interfaccia vera (in /os/<prodotto>/, sorgenti in os-demos/) si apre subito con la demo guidata dal passo 1.
 // La demo guidata si chiude e si riapre quando si vuole, e la sfida si avvia in qualsiasi momento. Solo desktop.
 const whatsapp = (message: string) => `https://wa.me/393518628203?text=${encodeURIComponent(message)}`;
-const products: Record<OsProduct, { name: string; sector: string; tagline: string; src: string; shot: string }> = {
+const products: Record<OsProduct, { name: string; sector: string; tagline: string; src: string }> = {
   restaurant: {
-    name: 'CS Restaurant OS', sector: 'ristoranti', src: '/os/restaurant/index.html', shot: '/os-shots/restaurant.webp',
+    name: 'CS Restaurant OS', sector: 'ristoranti', src: '/os/restaurant/index.html',
     tagline: 'Sala, cucina, cassa e magazzino. Tutto collegato, in tempo reale.',
   },
   notaro: {
-    name: 'CS Notaro OS', sector: 'studi notarili', src: '/os/notaro/index.html', shot: '/os-shots/notaro.webp',
+    name: 'CS Notaro OS', sector: 'studi notarili', src: '/os/notaro/index.html',
     tagline: 'Posta, pratiche, documenti e scadenze. Con l’AI al centro dello studio.',
   },
 };
@@ -54,8 +54,9 @@ export default function OsDemo({ product }: { product: OsProduct }) {
     <StationHeader/>
     <main id="main-content" className="os-stage">
       {desktop ? <>
-        <iframe ref={frame} className={`os-frame ${open ? 'is-open' : ''}`} src={`${p.src}?v=${__OS_VERSION__}`} title={`${p.name}, demo dimostrativa`} onLoad={() => { tell(open ? 'csd:resume' : 'csd:pause'); setTimeout(() => { setReady(true); if (pending.current) { tell('csd:resume'); tell(pending.current); pending.current = null; } }, 400); }} tabIndex={open ? 0 : -1} aria-hidden={!open}/>
-        <img className={`os-shot ${open && ready ? 'is-gone' : ''}`} src={p.shot} alt="" aria-hidden="true" fetchPriority="high" decoding="async"/>
+        <iframe ref={frame} className={`os-frame ${open ? 'is-open' : ''} ${ready ? 'is-ready' : ''}`} src={`${p.src}?v=${__OS_VERSION__}`} title={`${p.name}, demo dimostrativa`} onLoad={() => { tell(open ? 'csd:resume' : 'csd:pause'); setTimeout(() => { setReady(true); if (pending.current) { tell('csd:resume'); tell(pending.current); pending.current = null; } }, 400); }} tabIndex={open ? 0 : -1} aria-hidden={!open}/>
+        {/* Niente foto salvata (aveva nomi fissi): una schermata scura finché il sistema vero non è pronto e la demo guidata parte. */}
+        <div className={`os-loading ${ready ? 'is-gone' : ''}`} aria-live="polite"><span className="os-loading-ring" aria-hidden="true"/><span>Otto accende {p.name}…</span></div>
         <h1 className="os-sr">{p.name}, demo dimostrativa</h1>
         {open && !touring && !barClosed && <div className="os-bar">
           <span><i/> {p.name} · demo con dati inventati</span>
