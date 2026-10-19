@@ -5,6 +5,8 @@ export function notaroTour({toggleOtto}) {
  return [
   {route:'home', target:'.briefing', otto:'wave', say:'Ciao! Sono Otto 👋', title:'Benvenuto in CS Notaro OS',
    text:`Questo è lo studio di un notaio, ${NOW.part === 'mattina' ? 'la mattina' : NOW.part === 'pomeriggio' ? 'il pomeriggio' : 'a fine giornata'}.`+' Prima che arrivi qualcuno, Otto ha già letto **6 email**, gestito **4 chiamate** e diviso il lavoro nel team.'},
+  {route:'home', target:'.metrics-grid', title:'Tre tipi di schede',
+   text:'Le schede con **un numero** si leggono e basta. Quelle con **i tasti** si usano. Quelle con **il titolo su una fascia scura** sono elenchi vivi, come la posta: si scorrono, si accendono di verde quando ci passi sopra e hanno la lente per cercare.'},
   {route:'home', target:'.decisions', title:'Solo ciò che spetta a te',
    text:'In apertura non c’è una lista infinita: solo le **due decisioni** che un’AI non deve prendere da sola. Tutto il resto è pronto da approvare.'},
   {route:'home', target:'.eco-flow', title:'12 moduli, un solo studio',

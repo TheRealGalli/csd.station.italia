@@ -21,6 +21,30 @@ const consultingContact = whatsapp('Ciao Carlo! Vorrei informazioni sull’intel
 const processContact = whatsapp('Ciao Carlo! Vorrei capire come automatizzare le attività ripetitive nella mia attività. Possiamo parlarne?');
 const skills = 'https://www.skills.google/public_profiles/4a3ed6b8-9f55-463f-83a6-8c218717a8fd';
 export function Brand() { return <span className="station-brand"><span className="brand-symbol"><i/><i/><i/></span><span>CSD<span className="brand-light"> Station</span><small>CONSULENZA · AI · NFC</small></span></span>; }
+// Le demo OS in un'unica voce: l'etichetta DEMO apre una nuvoletta per scegliere Restaurant OS o Notaro OS.
+// I link restano nell'HTML anche a nuvoletta chiusa, così i motori di ricerca li trovano.
+function DemoMenu({ active }: { active: ReturnType<typeof getOsProduct> }) {
+  const [open, setOpen] = useState(false);
+  const location = useLocation();
+  useEffect(() => { setOpen(false); }, [location.pathname]);
+  useEffect(() => {
+    if (!open) return;
+    const close = (e: Event) => { if (e instanceof KeyboardEvent ? e.key === 'Escape' : !(e.target as Element).closest?.('.nav-demo')) setOpen(false); };
+    document.addEventListener('click', close); document.addEventListener('keydown', close);
+    return () => { document.removeEventListener('click', close); document.removeEventListener('keydown', close); };
+  }, [open]);
+  const items = [
+    { key: 'restaurant', to: osPaths.restaurant, name: 'Restaurant OS', note: 'Sala, cucina, delivery e cassa collegati' },
+    { key: 'notaro', to: osPaths.notaro, name: 'Notaro OS', note: 'Posta, pratiche e scadenze con l’AI al centro' },
+  ] as const;
+  return <div className={`nav-demo ${open ? 'open' : ''} ${active ? 'active' : ''}`}>
+    <button type="button" className="nav-demo-tag" aria-expanded={open} aria-controls="nav-demo-pop" onClick={() => setOpen(o => !o)}>DEMO</button>
+    <div className="nav-demo-pop" id="nav-demo-pop" hidden={!open}>
+      <span className="nav-demo-head">Prova un sistema dal vivo</span>
+      {items.map(i => <Link key={i.key} className={active === i.key ? 'active' : ''} aria-current={active === i.key ? 'page' : undefined} to={i.to}><b>{i.name}</b><small>{i.note}</small></Link>)}
+    </div>
+  </div>;
+}
 export function StationHeader() {
   const location = useLocation();
   const os = getOsProduct(location.pathname);
@@ -32,8 +56,7 @@ export function StationHeader() {
       <Link className={mode === 'automazioni' ? 'active' : ''} aria-current={mode === 'automazioni' ? 'page' : undefined} to={servicePaths.automazioni}>Consulenza AI</Link>
       <Link className={mode === 'training' ? 'active' : ''} aria-current={mode === 'training' ? 'page' : undefined} to={servicePaths.training}>Training</Link>
       <Link className={mode === 'nfc' ? 'active' : ''} aria-current={mode === 'nfc' ? 'page' : undefined} to={servicePaths.nfc}>Card NFC <span className="nav-dot"/></Link>
-      <Link className={`nav-os ${os === 'restaurant' ? 'active' : ''}`} aria-current={os === 'restaurant' ? 'page' : undefined} to={osPaths.restaurant}>Restaurant OS <small>DEMO</small></Link>
-      <Link className={`nav-os ${os === 'notaro' ? 'active' : ''}`} aria-current={os === 'notaro' ? 'page' : undefined} to={osPaths.notaro}>Notaro OS <small>DEMO</small></Link>
+      <DemoMenu active={os}/>
     </nav>
     <a className="station-button small nav-contact" href={contactHref} target="_blank" rel="noreferrer">Parliamone <ArrowUpRight size={16}/></a>
   </div></header>;

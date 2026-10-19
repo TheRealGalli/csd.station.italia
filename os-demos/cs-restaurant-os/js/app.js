@@ -86,7 +86,7 @@ function liveRefresh() {
   // con una nuvoletta di Otto aperta la pagina resta ferma: l'aggiornamento si fa appena si chiude
   if (gamePaused()) { setTimeout(liveRefresh, 600); return; }
   const busy = document.activeElement?.matches?.('input,textarea,select') || dialog.open;
-  if (['home', 'sala', 'kds', 'menu_pos', 'delivery', 'magazzino', 'centralino_ai', 'recensioni_ai', 'fatture', 'staff'].includes(route()) && !busy) {
+  if (['home', 'sala', 'kds', 'menu_pos', 'delivery', 'magazzino', 'centralino_ai', 'recensioni_ai', 'fatture', 'staff', 'whatsapp'].includes(route()) && !busy) {
    const y = scrollY; render(); scrollTo(0, y);
   } else syncCounts();
  };
@@ -95,7 +95,8 @@ function liveRefresh() {
 }
 function syncCounts() {
  const c = navCounts();
- for (const [id, n] of Object.entries(c)) { const el = document.querySelector(`.sidebar a[href="#${id}"] .nav-count`); if (el) el.textContent = n; }
+ // a zero il bollino sparisce: se non c'è niente da fare non c'è niente da segnalare
+ for (const [id, n] of Object.entries(c)) { const el = document.querySelector(`.sidebar a[href="#${id}"] .nav-count`); if (el) { el.textContent = n; el.hidden = !n; } else if (n) document.querySelector(`.sidebar a[href="#${id}"]`)?.insertAdjacentHTML('beforeend', `<small class="nav-count ${id === 'magazzino' ? 'warn' : ''}">${n}</small>`); }
  if (document.body.classList.contains('otto-open')) {}
 }
 function kpi(key, label, value, sub, ic, cls='') {
@@ -118,7 +119,7 @@ function home() {
   <div class="workspace-panel"><div class="panel-title"><h2>La sala adesso</h2><a class="text-link" href="#sala">Apri la sala${icon('arrow')}</a></div><div class="floor mini">${floorTables(true)}</div></div>
   <div class="home-side">
    ${ottoPanel('IL PUNTO DI OTTO', `${SV.name === 'pranzo' ? 'Oggi a pranzo' : 'Stasera'} **${D.bookings.length} prenotazioni** ancora in arrivo. ${low.length ? `**${low.map(i => i.name).join(', ')}** sotto scorta: ho preparato l’ordine.` : 'Magazzino in ordine.'} Ci sono **${D.reviews.filter(r => !ui.done.reviews.includes(r.who)).length} recensioni** con risposta pronta.`, `<a class="btn btn-primary" href="#magazzino">Vedi il magazzino${icon('arrow')}</a>`)}
-   <div class="workspace-panel feed-panel"><div class="panel-title"><h2><span class="live-dot"></span> Cosa sta succedendo</h2></div><ul class="feed-list">${D.service.events.slice(0, 7).map(e => `<li class="${Date.now() - e.at < 2500 ? 'row-in' : ''}"><span class="feed-kind k-${e.kind}">${icon({sala:'table', cucina:'chef', magazzino:'box', cassa:'coins'}[e.kind] || 'sparkle')}</span><span>${esc(e.text)}</span><small>${e.time}</small></li>`).join('')}</ul></div>
+   <div class="workspace-panel feed-panel"><div class="panel-title"><h2>Cosa sta succedendo</h2></div><ul class="feed-list">${D.service.events.slice(0, 7).map(e => `<li class="${Date.now() - e.at < 2500 ? 'row-in' : ''}"><span class="feed-kind k-${e.kind}">${icon({sala:'table', cucina:'chef', magazzino:'box', cassa:'coins'}[e.kind] || 'sparkle')}</span><span>${esc(e.text)}</span><small>${e.time}</small></li>`).join('')}</ul></div>
   </div>
  </section>
  ${ecosystem()}`;
@@ -175,9 +176,13 @@ function tablePanel() {
 }
 
 // ————— CUCINA —————
+// I biglietti del delivery in cucina: stessi fornelli, stesso pass. Si gestiscono dalla sezione Delivery.
+function dlvTickets(state) {
+ return D.delivery.orders.filter(o => o.state === state).map(o => { const c = D.channel(o.ch); return `<article class="ticket dlv-ticket"><span class="tk-top">${chChip(c)}<b>${o.code}</b><small>delivery</small></span>${o.items.map(([id, q]) => `<span class="tk-dish">${q}× ${esc(D.dish(id).name)}</span>`).join('')}<span class="tk-next">${state === 'prep' ? `${icon('clock')} In preparazione per ${esc(c.name)}` : `${icon('check')} Pronto · si imbusta per il rider`}</span></article>`; }).join('');
+}
 function kdsClassic() {
  const lines = D.kitchenLines();
- const col = (state, title) => { const ls = lines.filter(l => l.state === state).sort((a, b) => a.at - b.at); return `<section class="kds-col k-${state}"><header><b>${title}</b><span>${ls.length}</span></header>${ls.map(l => { const d = D.dish(l.dish); const age = Math.round((Date.now() - l.at) / 60000) + (state === 'waiting' ? 2 : 9); const sel = ui.ticket === l.id; return `<article class="ticket ${Date.now() - l.at < 2500 ? 'row-in' : ''} ${age > 15 ? 'late' : ''} ${sel ? 'selected' : ''}" data-ticket="${l.id}" tabindex="0" role="button" aria-expanded="${sel}"><span class="tk-top"><b>${l.table}</b><small>${age}′</small></span><span class="tk-dish">${l.qty}× ${esc(d.name)}</span>${d.allergens.length ? `<span class="tk-all">${d.allergens.map(a => `<i>${a}</i>`).join('')}</span>` : ''}${sel ? `<button class="tk-go" data-advance="${l.id}">${{waiting:'Avvia la preparazione', cooking:'Segna pronto al pass', ready:'Segna servito'}[state]} ${icon('arrow')}</button>` : `<span class="tk-next">Tocca per aprire</span>`}</article>`; }).join('') || '<p class="muted pad-s">Niente qui.</p>'}</section>`; };
+ const col = (state, title) => { const ls = lines.filter(l => l.state === state).sort((a, b) => a.at - b.at); return `<section class="kds-col k-${state}"><header><b>${title}</b><span>${ls.length}</span></header>${ls.map(l => { const d = D.dish(l.dish); const age = Math.round((Date.now() - l.at) / 60000) + (state === 'waiting' ? 2 : 9); const sel = ui.ticket === l.id; return `<article class="ticket ${Date.now() - l.at < 2500 ? 'row-in' : ''} ${age > 15 ? 'late' : ''} ${sel ? 'selected' : ''}" data-ticket="${l.id}" tabindex="0" role="button" aria-expanded="${sel}"><span class="tk-top"><b>${l.table}</b><small>${age}′</small></span><span class="tk-dish">${l.qty}× ${esc(d.name)}</span>${d.allergens.length ? `<span class="tk-all">${d.allergens.map(a => `<i>${a}</i>`).join('')}</span>` : ''}${sel ? `<button class="tk-go" data-advance="${l.id}">${{waiting:'Avvia la preparazione', cooking:'Segna pronto al pass', ready:'Segna servito'}[state]} ${icon('arrow')}</button>` : `<span class="tk-next">Tocca per aprire</span>`}</article>`; }).join('')}${dlvTickets({cooking:'prep', ready:'ready'}[state])}${ls.length || D.delivery.orders.some(o => o.state === ({cooking:'prep', ready:'ready'}[state])) ? '' : '<p class="muted pad-s">Niente qui.</p>'}</section>`; };
  return `${heading('SALA & CUCINA · 02', 'Cucina & comande', 'Le comande arrivano dal tavolo in tempo reale. Apri una comanda e conferma per farla avanzare: un tocco per sbaglio non sposta niente.', `<span class="live-pill"><span class="live-dot"></span>Pass collegato</span>`)}
  <div data-anchor="kds"></div>
  <div class="kds-board">${col('waiting', 'In attesa')}${col('cooking', 'In preparazione')}${col('ready', 'Pronti al pass')}</div>
@@ -187,7 +192,7 @@ function kdsClassic() {
 function kds() {
  if (!(gameOn() && D.service.game)) return kdsClassic();
  const lines = D.kitchenLines(), now = Date.now(), k = D.kitchen, hot = ui.kitchenHot || {};
- const cooking = lines.filter(l => l.state === 'cooking').length, full = cooking >= k.cap;
+ const cooking = D.cookingNow().length, full = cooking >= k.cap; // fornelli condivisi con il delivery
  const bar = (start, total, cls = '') => `<span class="tk-bar ${cls}"><i style="animation-duration:${total}s;animation-delay:-${Math.min(total, (now - start) / 1000).toFixed(1)}s"></i></span>`;
  const ticket = (l, state) => {
   const d = D.dish(l.dish), sel = ui.ticket === l.id;
@@ -198,7 +203,7 @@ function kds() {
   return `<article class="ticket ${now - l.at < 2500 ? 'row-in' : ''} ${sel ? 'selected' : ''}" data-ticket="${l.id}" tabindex="0" role="button" aria-expanded="${sel}"><span class="tk-top"><b>${l.table}</b><small>${state === 'cooking' ? icon('clock') : ''}</small></span><span class="tk-dish">${l.qty}× ${esc(d.name)}</span>${d.allergens.length ? `<span class="tk-all">${d.allergens.map(a => `<i>${a}</i>`).join('')}</span>` : ''}${l.cooked && state === 'cooking' ? '' : timer}${sel || state !== 'waiting' ? action : D.autoOn('cook') ? '<span class="tk-next">Va sui fornelli da solo</span>' : '<span class="tk-next">Tocca per aprire</span>'}</article>`;
  };
  const autoLeft = Math.max(0, Math.ceil((k.autoUntil - now) / 1000)), autoTag = key => D.autoOn(key) ? '<i class="kds-auto">AUTO</i>' : '';
- const col = (state, title, extra = '') => { const ls = lines.filter(l => l.state === state).sort((a, b) => a.at - b.at); const red = (state === 'waiting' && hot.waiting) || (state === 'ready' && hot.pass); return `<section class="kds-col k-${state} ${red ? 'hot' : ''}"><header><b>${title} ${autoTag({waiting:'cook', cooking:'pass', ready:'serve'}[state])}</b><span>${extra || ls.length}</span></header>${red ? `<p class="kds-hot">${icon('alert')} ${state === 'waiting' ? 'Comande ferme troppo a lungo' : 'Piatti fermi al pass'} · −1 pt al secondo</p>` : ''}${ls.map(l => ticket(l, state)).join('') || '<p class="muted pad-s">Niente qui.</p>'}</section>`; };
+ const col = (state, title, extra = '') => { const ls = lines.filter(l => l.state === state).sort((a, b) => a.at - b.at); const red = (state === 'waiting' && hot.waiting) || (state === 'ready' && hot.pass); return `<section class="kds-col k-${state} ${red ? 'hot' : ''}"><header><b>${title} ${autoTag({waiting:'cook', cooking:'pass', ready:'serve'}[state])}</b><span>${extra || ls.length}</span></header>${red ? `<p class="kds-hot">${icon('alert')} ${state === 'waiting' ? 'Comande ferme troppo a lungo' : 'Piatti fermi al pass'} · −1 pt al secondo</p>` : ''}${ls.map(l => ticket(l, state)).join('')}${dlvTickets({cooking:'prep', ready:'ready'}[state])}${ls.length || D.delivery.orders.some(o => o.state === ({cooking:'prep', ready:'ready'}[state])) ? '' : '<p class="muted pad-s">Niente qui.</p>'}</section>`; };
  return `${heading('SALA & CUCINA · 02', 'Cucina & comande', `I fornelli reggono <b>${k.cap} piatti insieme</b>: ogni piatto ha il suo tempo di cottura e va al pass da solo. Dal pass si serve entro ${k.passTime} secondi.`, `${autoLeft ? `<span class="live-pill kds-autopill">${icon('clock')} Cucina automatica ancora ${Math.floor(autoLeft / 60)}:${String(autoLeft % 60).padStart(2, '0')}</span>` : ''}<span class="live-pill"><span class="live-dot"></span>Fornelli ${cooking}/${k.cap}</span>`)}
  <div data-anchor="kds"></div>
  <div class="kds-board game-kds">${col('waiting', 'In attesa')}${col('cooking', 'Sui fornelli', `${cooking}/${k.cap}`)}${col('ready', 'Pronti al pass')}</div>`;
@@ -317,10 +322,55 @@ function recensioni() {
 </section>
  <aside class="module-side">${reviewSummary()}${ottoNote('Tema ricorrente nell’ultimo mese: **attesa sui secondi il sabato**. Lo stesso dato emerge dai tempi della cucina.', 'info')}</aside></div>`;
 }
+// ————— WHATSAPP & CAMPAGNE —————
+// Otto conosce i gusti degli ospiti dalle conversazioni WhatsApp e dagli ordini (solo di chi ha dato il consenso):
+// si sceglie l'occasione e il pubblico, Otto scrive il messaggio, si manda adesso o si programma.
+const waOccasions = [
+ ['aperitivo', 'Aperitivo del giovedì', '🍷', n => `giovedì dalle 18:30 c’è l’aperitivo toscano con tagliere, crostini e un calice a 12 €`],
+ ['musica', 'Serata musica live', '🎷', n => `venerdì sera dalle 21 c’è il trio jazz in sala`],
+ ['tartufo', 'Menu del tartufo', '🍄', n => `è arrivato il tartufo bianco di San Miniato: tagliolini, uovo e tartufo fino a fine novembre`],
+ ['natale', 'Cena di Natale', '🎄', n => `il 24 e il 25 dicembre c’è il menu di Natale a 65 €, con i posti contati`],
+ ['pasqua', 'Pranzo di Pasqua', '🐣', n => `per Pasqua prepariamo il pranzo della tradizione toscana`],
+ ['valentino', 'San Valentino', '🌹', n => `a San Valentino tavoli per due con il menu degustazione a 55 € a testa`],
+ ['compleanno', 'Auguri di compleanno', '🎂', n => `per il tuo compleanno questo mese il dolce lo offriamo noi`]
+];
+const waSegments = [
+ ['tutti', 'Tutti con consenso', 684, 'chi ha detto sì ai messaggi su WhatsApp'],
+ ['carbonara', 'Amano la carbonara', 142, 'l’hanno ordinata almeno 2 volte'],
+ ['vino', 'Amanti del vino', 88, 'chiedono sempre la carta dei vini'],
+ ['oro', 'Clienti Oro', 37, 'livello Oro della card fedeltà'],
+ ['lontani', 'Non vengono da 60 giorni', 96, 'erano abituali, poi più niente'],
+ ['famiglie', 'Famiglie con bambini', 54, 'prenotano con il seggiolone']
+];
+const waWhen = [['ora', 'Adesso'], ['domani', 'Domani alle 11:00'], ['venerdi', 'Venerdì alle 17:00']];
+function waDraft() {
+ const w = ui.wa ||= {occ:'aperitivo', seg:'carbonara', when:'ora'};
+ const o = waOccasions.find(x => x[0] === w.occ), g = waSegments.find(x => x[0] === w.seg);
+ const hook = {carbonara:', e la carbonara c’è come piace a te', vino:', con una selezione di rossi toscani aperta per l’occasione', oro:', e per i clienti Oro il primo calice è offerto', lontani:'. Ci manchi: ti aspettiamo', famiglie:', con il menu bambini e i seggioloni pronti'}[w.seg] || '';
+ return {o, g, text:`Ciao {nome}! ${o[2]} All’${D.restaurant.name} ${o[3]()}${hook}. Rispondi SÌ e ti prenoto io. 🙂`};
+}
+function waBuilder() {
+ const w = ui.wa ||= {occ:'aperitivo', seg:'carbonara', when:'ora'}, {o, g, text} = waDraft();
+ const chip = (k, v, on, label, sub = '') => `<button class="wa-chip ${on ? 'on' : ''}" data-wa="${k}:${v}">${label}${sub ? `<small>${sub}</small>` : ''}</button>`;
+ return `<section class="workspace-panel wa-builder"><div class="panel-title"><h2>${icon('message')} Nuova campagna</h2>${badge('Scritta da Otto', 'badge-green')}</div>
+  <div class="wa-step"><span class="eyebrow">1 · L’OCCASIONE</span><div class="wa-chips">${waOccasions.map(x => chip('occ', x[0], w.occ === x[0], `${x[2]} ${x[1]}`)).join('')}</div></div>
+  <div class="wa-step"><span class="eyebrow">2 · A CHI</span><div class="wa-chips seg">${waSegments.map(x => chip('seg', x[0], w.seg === x[0], x[1], `${x[2]} · ${x[3]}`)).join('')}</div></div>
+  <div class="wa-step"><span class="eyebrow">3 · QUANDO</span><div class="wa-chips">${waWhen.map(x => chip('when', x[0], w.when === x[0], x[1])).join('')}</div></div>
+  <div class="wa-send"><span><b>${g[2]} contatti</b><small>${esc(g[1].toLowerCase())} · solo chi ha dato il consenso, con il link per non ricevere più messaggi</small></span><button class="btn btn-primary" data-action="wa-send">${w.when === 'ora' ? `Invia a ${g[2]}` : 'Programma'} ${icon('arrow')}</button></div></section>`;
+}
+function waPreview() {
+ const {text} = waDraft();
+ return `<div class="wa-preview"><span class="eyebrow">COME LO VEDE L’OSPITE</span><div class="phone-mock"><div class="wa bot">${rich(text.replace('{nome}', 'Luca'))}</div><div class="wa client">Sì! Giovedì in 4 😊</div><div class="wa bot">Fatto: tavolo per 4 giovedì alle 19:00. A presto!</div></div></div>`;
+}
 function whatsapp() {
- return `${heading('CLIENTI & MARKETING · 07', 'WhatsApp & campagne', 'Promemoria automatici e campagne preparate da Otto, solo agli ospiti che hanno dato il consenso.')}
- <div data-anchor="whatsapp"></div><div class="quote-layout"><section class="workspace-panel"><div class="panel-title"><h2>Campagne</h2></div>${D.campaigns.map(c => `<div class="mini-row"><span><b>${esc(c.name)}</b><small>${c.kind}${c.sent ? ` · ${c.sent} inviati · ${c.read} letti` : ''}</small></span>${c.sent ? badge(`${Math.round(c.read / c.sent * 100)}% letti`, 'badge-green') : btn('Rivedi', 'toast:Bozza pronta: in produzione parte dopo la tua approvazione', 'btn-secondary', '')}</div>`).join('')}</section>
- <aside class="module-side"><div class="phone-mock"><div class="wa bot">Ciao Luca! Ti aspettiamo ${SV.name === 'pranzo' ? 'oggi alle 13:15' : 'stasera alle 20:45'} per il vostro anniversario 🥂 Abbiamo tenuto per voi il tavolo vicino alla finestra.</div><div class="wa client">Grazie mille, a ${SV.name === 'pranzo' ? 'dopo' : 'stasera'}!</div></div>${ottoPanel('IDEA', 'Arrivano i porcini e a novembre il tartufo: ho preparato una campagna per **118 ospiti** che hanno ordinato piatti ai funghi negli ultimi 6 mesi.')}</aside></div>`;
+ const sent = D.campaigns.filter(c => c.sent), reads = sent.reduce((n, c) => n + c.read, 0), sends = sent.reduce((n, c) => n + c.sent, 0), booked = D.campaigns.reduce((n, c) => n + (c.booked || 0), 0);
+ const auto = ui.waAuto ||= {promemoria:true, grazie:true, compleanno:true, recupero:false};
+ return `${heading('CLIENTI & MARKETING · 07', 'WhatsApp & campagne', 'Otto conosce i gusti degli ospiti dalle conversazioni e dagli ordini: scegli l’occasione e il pubblico, il messaggio lo scrive lui. Solo a chi ha dato il consenso.')}
+ <div class="metrics-grid">${kpi('wc', 'Contatti con consenso', 684, '71% degli ospiti della card', 'users', 'hero')}${kpi('ws', 'Messaggi inviati', sends, `${sent.length} campagne questo mese`, 'message')}${kpi('wr', 'Letti', `${Math.round(reads / Math.max(1, sends) * 100)}%`, `${reads} messaggi aperti`, 'check')}${kpi('wb', 'Prenotazioni dalle campagne', booked, 'risposte SÌ diventate tavoli', 'calendar')}</div>
+ <div data-anchor="whatsapp"></div>
+ <div class="wa-layout">${waBuilder()}${waPreview()}</div>
+ <div class="quote-layout"><section class="workspace-panel"><div class="panel-title"><h2>Campagne</h2></div><div class="panel-scroll wa-list">${D.campaigns.map(c => `<div class="mini-row"><span><b>${esc(c.name)}</b><small>${esc(c.kind)}${c.sent ? ` · ${c.sent} inviati · ${c.read} letti${c.booked ? ` · ${c.booked} ${c.booked === 1 ? 'prenotazione' : 'prenotazioni'}` : ''}` : c.when ? ` · ${esc(c.when)}` : ''}</small></span>${c.sent ? badge(`${Math.round(c.read / c.sent * 100)}% letti`, 'badge-green') : badge(c.when ? 'Programmata' : 'Bozza', 'badge-amber')}</div>`).join('')}</div></section>
+ <aside class="module-side"><div class="workspace-panel"><div class="panel-title"><h2>Messaggi automatici</h2>${badge('Partono da soli')}</div>${[['promemoria', 'Promemoria della prenotazione', 'il giorno prima, con l’indirizzo'], ['grazie', 'Grazie della visita', 'la mattina dopo, con il link alla recensione'], ['compleanno', 'Auguri di compleanno', 'con il dolce offerto, per chi è nella card'], ['recupero', 'Ci manchi', 'a chi non viene da 60 giorni']].map(([k, t, sub]) => `<label class="mini-row toggle-row wa-auto"><span><b>${t}</b><small>${sub}</small></span><input type="checkbox" data-wa-auto="${k}" ${auto[k] ? 'checked' : ''}><span class="switch"></span></label>`).join('')}</div></aside></div>`;
 }
 // ————— FIDELITY & NFC —————
 // La card fisica: bianca, con il logo del locale e il segno NFC, come quelle che si lasciano sul tavolo.
@@ -369,7 +419,7 @@ function fatture() {
  return `${heading('GESTIONE · 10', 'Cassa & Agenzia delle Entrate', 'Ogni incasso, dal POS o dal QR con Stripe, diventa un documento commerciale e finisce nei corrispettivi trasmessi all’Agenzia. Senza fare niente.', `<span class="live-pill"><span class="live-dot"></span>Corrispettivi collegati</span>`)}
  <div class="metrics-grid">${kpi('fz', `Incassato ${SV.today}`, euro(D.service.revenue), `${D.service.closed.length} conti chiusi`, 'coins', 'hero')}${kpi('st', 'Pagato dal QR con Stripe', euro(stripePays.reduce((n, p) => n + p.amount, 0)), `${stripePays.length} pagamenti anticipati`, 'card')}${kpi('dc', 'Documenti commerciali', pays.length, `Emessi ${SV.today}`, 'receipt')}${kpi('ade', 'Trasmessi all’Agenzia', sent, `${pays.length - sent} in invio`, 'check')}</div>
  <div data-anchor="fatture"></div>
- <div class="quote-layout"><section class="workspace-panel"><div class="panel-title"><h2>Incassi e documenti commerciali</h2>${badge('In tempo reale', 'badge-green')}</div><div class="table-scroll"><table class="data-table pay-table"><thead><tr><th>Documento</th><th>Ora</th><th>Cosa</th><th>Metodo</th><th>Importo</th><th>Agenzia Entrate</th></tr></thead><tbody>${pays.map(p => `<tr class="${Date.now() - p.at < 3000 ? 'row-in' : ''}"><td><b>${p.id}</b></td><td>${p.time}</td><td>${esc(p.what)}</td><td>${p.method.startsWith('Stripe') ? `<span class="stripe-tag">stripe</span> ${esc(p.method.slice(9))}` : esc(p.method)}</td><td><b>${euro(p.amount)}</b></td><td>${badge(p.ade, p.ade === 'Trasmesso' ? 'badge-green' : 'badge-amber')}</td></tr>`).join('') || '<tr><td colspan="6" class="muted">I primi incassi del servizio arrivano qui.</td></tr>'}</tbody></table></div></section>
+ <div class="quote-layout"><section class="workspace-panel"><div class="panel-title"><h2>Incassi e documenti commerciali</h2></div><div class="table-scroll"><table class="data-table pay-table"><thead><tr><th>Documento</th><th>Ora</th><th>Cosa</th><th>Metodo</th><th>Importo</th><th>Agenzia Entrate</th></tr></thead><tbody>${pays.map(p => `<tr class="${Date.now() - p.at < 3000 ? 'row-in' : ''}"><td><b>${p.id}</b></td><td>${p.time}</td><td>${esc(p.what)}</td><td>${p.method.startsWith('Stripe') ? `<span class="stripe-tag">stripe</span> ${esc(p.method.slice(9))}` : esc(p.method)}</td><td><b>${euro(p.amount)}</b></td><td>${badge(p.ade, p.ade === 'Trasmesso' ? 'badge-green' : 'badge-amber')}</td></tr>`).join('') || '<tr><td colspan="6" class="muted">I primi incassi del servizio arrivano qui.</td></tr>'}</tbody></table></div></section>
  <aside class="module-side"><div class="workspace-panel ade-panel"><div class="panel-title"><h2>${icon('shield')} Collegamenti fiscali</h2></div>
   <div class="ade-row ok"><span>${icon('check')}</span><div><b>POS collegato al registratore telematico</b><small>Obbligo dal 1° gennaio 2026: le matricole sono associate nell’area Fatture e Corrispettivi. Ogni pagamento elettronico ha il suo scontrino.</small></div></div>
   <div class="ade-row ok"><span>${icon('check')}</span><div><b>Stripe riconciliato con i corrispettivi</b><small>Ogni pagamento dal QR emette il documento commerciale con lo stesso importo: l’incrocio dell’Agenzia con i dati dei pagamenti torna sempre.</small></div></div>
@@ -484,9 +534,14 @@ function dlvTimer(o) {
  return o.state === 'lost' ? `<span class="dlv-t red">${icon('alert')} Annullato dalla piattaforma</span>` : `<span class="dlv-t done">${icon('check')} Ritirato da ${esc(o.rider)}</span>`;
 }
 function dlvOrder(o) {
- const c = D.channel(o.ch), here = Date.now() >= o.riderAt;
+ const c = D.channel(o.ch), here = Date.now() >= o.riderAt, manual = gameOn() && D.service.game && D.delivery.on;
+ // fuori dalla sfida il tablet lavora da solo: si guarda Otto che accetta, la cucina che prepara, il rider che ritira
+ if (!manual) return dlvCard(o, c, o.state === 'new' ? `<span class="tk-next">${icon('sparkle')} Otto lo accetta e lo manda in cucina</span>` : o.state === 'ready' ? `<span class="tk-next">${icon('check')} ${here ? `Il banco lo consegna a ${esc(o.rider.split(' ')[0])}` : 'Imbustato · aspetta il rider'}</span>` : '');
  const act = o.state === 'new' ? `<button class="tk-go" data-dlv-accept="${o.id}">Accetta e manda in cucina ${icon('arrow')}</button>`
   : o.state === 'ready' ? (here ? `<button class="tk-go" data-dlv-hand="${o.id}">Consegna a ${esc(o.rider.split(' ')[0])} ${icon('arrow')}</button>` : `<span class="tk-next">${icon('check')} Imbustato · aspetta il rider</span>`) : '';
+ return dlvCard(o, c, act);
+}
+function dlvCard(o, c, act) {
  return `<article class="dlv-order ${Date.now() - o.at < 2500 ? 'row-in' : ''} ${['new', 'prep', 'ready'].includes(o.state) && D.dRed(o) ? 'red' : ''} st-${o.state}" data-dlv="${o.id}"><span class="dlv-top">${chChip(c)}<b>${o.code}</b><em>${euro(D.dTotal(o))}</em></span><span class="dlv-who">${esc(o.who)} · ${esc(o.zone)}, ${String(o.km).replace('.', ',')} km</span><ul>${o.items.map(([id, q]) => `<li>${q}× ${esc(D.dish(id).name)}</li>`).join('')}</ul>${dlvTimer(o)}${act}</article>`;
 }
 function deliveryPage() {
@@ -496,10 +551,11 @@ function deliveryPage() {
  const chCard = c => { const paused = D.chPaused(c), left = c.until ? Math.ceil((c.until - Date.now()) / 1000) : 0; return `<article class="dlv-ch ${paused ? 'paused' : ''}">${chChip(c)}<span><b>${esc(c.name)}</b><small>${c.fee ? `commissione ${c.fee}%` : `nessuna commissione · rider ${euro(c.rider)}`} · prep. ${c.prep}′</small></span><span class="dlv-ch-n"><b>${c.orders}</b><small>${euro(c.gross)}</small></span><button class="btn ${paused ? 'btn-dark' : 'btn-secondary'} dlv-pause" data-dlv-pause="${c.id}" ${idle ? 'disabled' : ''}>${paused ? (left > 0 ? `Riapre tra <span data-dlv-until="${c.id}">${mmss(left)}</span>` : 'In pausa · riattiva') : 'Metti in pausa'}</button></article>`; };
  return `${heading('SALA & CUCINA · 04', 'Delivery', 'Glovo, Deliveroo, Just Eat e il sito del locale su un solo schermo: ogni ordine arriva come comanda in cucina e come documento in cassa. Se la cucina è piena, un tocco mette in pausa un canale.', `<span class="live-pill"><span class="live-dot"></span>${D.dActive().length} ordini in corso</span>`)}
  <div class="metrics-grid">${kpi('do', `Ordini delivery ${SV.today}`, orders, `${ch.filter(c => !D.chPaused(c)).length} canali su 4 attivi`, 'bike', 'hero')}${kpi('dg', 'Incasso lordo', euro(gross), 'prezzi del menu delivery', 'coins')}${kpi('df', 'Commissioni e rider', euro(Math.round(fees)), `${Math.round(fees / gross * 100)}% del lordo`, 'receipt')}${kpi('dn', 'Netto al locale', euro(Math.round(gross - fees)), `${euro(+((gross - fees) / orders).toFixed(2))} a ordine`, 'check')}</div>
+ <div class="block-head"><h2>Canali di vendita</h2><small>Le app delivery e il sito del locale: commissione, ordini e incasso di oggi${live ? ', e il tasto per metterle in pausa' : ''}</small></div>
  <div class="dlv-channels">${ch.map(chCard).join('')}</div>
  <div data-anchor="delivery"></div>
  ${idle ? `<div class="workspace-panel dlv-idle">${ottoNote(`I canali delivery aprono più tardi ${SV.name === 'pranzo' ? 'oggi' : 'stasera'}: quando si accendono ti avviso io. Da quel momento ogni ordine va **accettato entro ${D.delivery.cfg.accept} secondi** e consegnato al rider quando arriva al banco.`)}</div>`
-  : `<div class="dlv-board">${col('new', 'Nuovi')}${col('prep', 'In preparazione')}${col('ready', 'Pronti · rider')}${col('done', 'Ritirati')}</div>`}
+  : `<div class="block-head"><h2>Ordini delivery</h2><small>${gameOn() && D.service.game ? 'Accetta, prepara, consegna al rider: tocca a te' : 'Otto accetta, la cucina prepara, il banco consegna al rider'}</small></div><div class="dlv-board">${col('new', 'Nuovi')}${col('prep', 'In preparazione')}${col('ready', 'Pronti · rider')}${col('done', 'Ritirati')}</div>`}
  <div class="quote-layout"><section class="workspace-panel"><div class="panel-title"><h2>Menu del delivery</h2>${badge('Solo i piatti che viaggiano bene')}</div><div class="table-scroll"><table class="data-table"><thead><tr><th>Piatto</th><th>In sala</th><th>Delivery</th><th>Nel box</th><th>Stato</th></tr></thead><tbody>${D.deliveryMenu.map(x => { const d = D.dish(x.id); return `<tr><td><b>${esc(d.name)}</b></td><td>${euro(d.price)}</td><td><b>${euro(x.price)}</b></td><td><small>${esc(x.note)}</small></td><td>${x.on ? (D.available(d) ? badge('Sulle piattaforme', 'badge-green') : badge('Esaurito', 'badge-red')) : badge('Solo in sala')}</td></tr>`; }).join('')}</tbody></table></div></section>
  <aside class="module-side"><div class="workspace-panel"><div class="panel-title"><h2>Su 100 € di ordini</h2>${badge('Commissioni di esempio')}</div>${ch.map(c => { const net = c.fee ? 100 - c.fee : 100 - c.rider * 100 / (c.gross / c.orders); return `<div class="mini-row dlv-net">${chChip(c)}<span><b>${esc(c.name)}</b><span class="km-bar"><i style="width:${net}%"></i></span></span><b>${euro(Math.round(net))}</b></div>`; }).join('')}</div>
   ${ottoPanel('CUCINA PIENA?', `Quando le comande in attesa superano i fornelli, ${live ? 'metti in pausa' : 'Otto mette in pausa'} prima **il canale con la commissione più alta**: gli ospiti vedono “non disponibile ora” invece di aspettare un’ora. Il sito del locale resta aperto.`)}</aside></div>`;
@@ -551,6 +607,12 @@ function searchResults(q) {
 }
 function toast(s) { const el = document.querySelector('#toast'); el.textContent = s; el.classList.add('show'); clearTimeout(toastTimer); toastTimer = setTimeout(() => el.classList.remove('show'), 4000); }
 function action(a) {
+ if (a === 'wa-send') {
+  const {o, g} = waDraft(), when = (ui.wa || {}).when || 'ora', label = waWhen.find(w => w[0] === when)[1];
+  const c = {name:`${o[1]} · ${g[1].toLowerCase()}`, kind:'Campagna WhatsApp', sent:when === 'ora' ? g[2] : 0, read:0, booked:0, when:when === 'ora' ? '' : label, at:Date.now()};
+  D.campaigns.unshift(c); D.notify({type:'wa', title:when === 'ora' ? 'Campagna inviata' : 'Campagna programmata', text:`${o[1]} · ${g[2]} contatti`, icon:'message', go:'whatsapp'}, `WhatsApp · ${c.name}: ${when === 'ora' ? `inviata a ${g[2]} contatti` : `programmata per ${label.toLowerCase()}`}`, 'sala');
+  toast(when === 'ora' ? `Partita: ${g[2]} messaggi. Le risposte SÌ diventano prenotazioni da sole.` : `Programmata per ${label.toLowerCase()}.`); return render();
+ }
  const [k, x, y] = a.split(':');
  if (a === 'close') return dialog.close();
  if (a === 'sidebar') { document.body.classList.toggle('sidebar-open'); return syncNavigation(); }
@@ -586,6 +648,7 @@ document.addEventListener('click', e => {
  const t = e.target, el = s => t.closest(s); let x;
  if (el('[data-close]')) dialog.close();
  if ((x = el('[data-action]'))) return action(x.dataset.action);
+ if ((x = el('[data-wa]'))) { const [k, v] = x.dataset.wa.split(':'); (ui.wa ||= {occ:'aperitivo', seg:'carbonara', when:'ora'})[k] = v; return render(); }
  if ((x = el('[data-door]'))) { ui.door = ui.door === x.dataset.door ? null : x.dataset.door; return render(); }
  if ((x = el('[data-table]')) && ui.door && route() === 'sala') {
   const id = x.dataset.table, t = D.table(id), p = D.door.find(y => y.id === ui.door);
@@ -623,6 +686,7 @@ document.addEventListener('click', e => {
 });
 document.addEventListener('change', e => {
  const d = e.target.dataset;
+ if (d.waAuto) { (ui.waAuto ||= {})[d.waAuto] = e.target.checked; toast(e.target.checked ? 'Messaggio automatico attivo.' : 'Messaggio automatico in pausa.'); return; }
  if (d.haccp) { ui.done.haccp.push(+d.haccp); ecoPoints('haccp', 3, 'Controllo HACCP', +d.haccp); render(); }
  if (d.editPrice && +e.target.value > 0) { D.editDish(d.editPrice, {price:+e.target.value}); toast('Prezzo aggiornato su tutti i QR.'); checkChef(); }
  if (d.appBlock) { const b = D.appCfg.blocks.find(x => x.id === d.appBlock); if (b) { b.on = e.target.checked; ecoPoints('app-block', 2, 'App aggiornata', `${b.id}-${b.on}`); toast(b.on ? `“${b.name}” è nell’app: arriva agli ospiti con il prossimo aggiornamento.` : `“${b.name}” tolta dall’app.`); render(); } }
@@ -727,6 +791,12 @@ setInterval(() => {
   setPressure(pr);
  } catch (err) { console.warn('CS Restaurant OS · errore nel battito', err); }
 }, 1000);
+// le campagne appena partite: i messaggi vengono letti a poco a poco, e qualche SÌ diventa un tavolo
+setInterval(() => {
+ let changed = false;
+ for (const c of D.campaigns) if (c.at && c.sent && c.read < c.sent * .82) { c.read = Math.min(c.sent, c.read + Math.ceil(c.sent * (.04 + Math.random() * .06))); if (Math.random() < .5) c.booked = (c.booked || 0) + 1; changed = true; }
+ if (changed && route() === 'whatsapp' && !document.activeElement?.matches?.('input,textarea,select')) liveRefresh();
+}, 4000);
 (function inbound() { setTimeout(() => { if (!busy()) D.inboundTick(); inbound(); }, 14000 + Math.random() * 10000); })();
 window.addEventListener('message', e => {
  if (e.origin !== location.origin) return;

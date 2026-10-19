@@ -598,3 +598,33 @@ body:has(.game-pressure) .live-stack{top:136px}
 /* negli elenchi che si scorrono le schede tengono sempre la loro altezza: si scorre, non si schiaccia */
 .fixed-scroll{grid-auto-rows:max-content}
 .fixed-scroll>*{flex-shrink:0;min-height:min-content}
+/* aria tra i numeri in alto (KPI) e le schede sotto, in tutte le sezioni */
+.metrics-grid{margin-bottom:22px}
+.nav-count[hidden]{display:none!important}
+/* ————— Le schede che si scorrono si riconoscono a colpo d'occhio —————
+   Titolo in una fascia più scura sopra l'elenco; passandoci sopra (o usandola) fascia e bordo si accendono di verde.
+   Così ci sono tre tipi di schede: numeri (si leggono), schede con tasti (si usano), elenchi vivi (si scorrono). */
+.workspace-panel:has(>.fixed-scroll.is-live)>.panel-title{background:#e8eddf;border-bottom:1px solid #d6dfc8;transition:background .15s}
+.workspace-panel:has(>.fixed-scroll.is-live){transition:box-shadow .15s,border-color .15s}
+.workspace-panel:has(>.fixed-scroll.is-live:hover),.workspace-panel:has(>.fixed-scroll.is-live:focus-within){border-color:#9cc46a;box-shadow:0 0 0 2px #c5f47655}
+.workspace-panel:has(>.fixed-scroll.is-live:hover)>.panel-title,.workspace-panel:has(>.fixed-scroll.is-live:focus-within)>.panel-title{background:#dcefc2}
+.fixed-scroll.is-live{background:#f3f6ee}
+.fixed-scroll.is-live thead th{background:#f3f6ee}
+/* colonne della cucina e del delivery: intestazione come fascia scura, colonna verde quando ci sei sopra */
+.kds-col>header,.dlv-col>header{position:sticky;top:-12px;z-index:2;margin:-12px -12px 2px;padding:10px 14px;background:#e3e9d8;border-bottom:1px solid #d3dcc4;border-radius:12px 12px 0 0;transition:background .15s}
+.kds-col,.dlv-col{transition:border-color .15s,box-shadow .15s}
+.kds-col:hover,.dlv-col:hover{border-color:#9cc46a;box-shadow:0 0 0 2px #c5f47655}
+.kds-col:hover>header,.dlv-col:hover>header{background:#dcefc2}
+.kds-col.hot>header,.dlv-col.hot>header{background:#f6d9d2}
+/* blocchi con un titolo tra le schede (es. canali e ordini del delivery) */
+.block-head{display:flex;align-items:baseline;gap:12px;margin:6px 2px 12px}
+.block-head h2{font-size:15px;font-weight:600;color:#1d2b20}
+.block-head small{font-size:12px;color:#7b886b}
+.dlv-channels+.block-head,.dlv-channels+[data-anchor]+.block-head{margin-top:24px}
+/* biglietti del delivery dentro la cucina */
+.ticket.dlv-ticket{border-left-color:#7aa7d6;background:#f6f9fd}
+.ticket.dlv-ticket .tk-top{display:flex;align-items:center;gap:6px}
+.ticket.dlv-ticket .tk-top small{margin-left:auto;font-size:10px;letter-spacing:.8px;text-transform:uppercase;color:#5b7fa6}
+.dlv-col>header{top:-10px;margin:-10px -10px 2px}
+.dlv-col{height:440px;min-height:0;overflow:auto;overscroll-behavior:contain;scrollbar-width:thin}
+.dlv-col>*{flex-shrink:0}

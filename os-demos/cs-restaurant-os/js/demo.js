@@ -321,7 +321,8 @@ export const AUTO_START = 300;
 export const waitMax = () => kitchen.waitLimit + (kitchen.waitBonus || 0);
 export const cookTime = d => Math.max(8, Math.round(d.prep * 2 * kitchen.speed)); // secondi
 const findLine = id => { for (const t of tables) { const l = t.lines.find(x => x.id === id); if (l) return [t, l]; } return []; };
-export const cookingNow = () => kitchenLines().filter(l => l.state === 'cooking');
+// la cucina è una sola: sui fornelli ci sono i piatti della sala e quelli del delivery in preparazione
+export const cookingNow = () => [...kitchenLines().filter(l => l.state === 'cooking'), ...delivery.orders.filter(o => o.state === 'prep')];
 export function startCooking(id) {
  const [t, l] = findLine(id);
  if (!l || l.state !== 'waiting' || cookingNow().length >= kitchen.cap) return false;

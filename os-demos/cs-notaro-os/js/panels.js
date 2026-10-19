@@ -35,7 +35,15 @@ export function enhancePanels(root, page, live = []) {
   }
   if (queries[key]) apply(box, queries[key]);
  });
+ restoreScrolls(root);
 }
+// La posizione di scorrimento resta dov'era: quando arriva un ordine o un'email nuova la pagina si ridisegna,
+// ma l'elenco non torna in cima mentre lo stai leggendo. Vale per i riquadri fissi e per le colonne (cucina, delivery).
+const SCROLLERS = '.fixed-scroll, .kds-col, .dlv-col';
+const scrolls = {};
+const keyOf = el => { const cls = [...el.classList].find(c => ['fixed-scroll', 'kds-col', 'dlv-col'].includes(c)) || 'box'; const all = [...document.querySelectorAll(`#main .${cls}`)]; return `${location.hash}|${cls}|${all.indexOf(el)}`; };
+document.addEventListener('scroll', e => { const el = e.target; if (el instanceof Element && el.matches(SCROLLERS)) scrolls[keyOf(el)] = el.scrollTop; }, true);
+export function restoreScrolls(root) { root?.querySelectorAll(SCROLLERS).forEach(el => { const y = scrolls[keyOf(el)]; if (y) el.scrollTop = y; }); }
 document.addEventListener('input', e => {
  const input = e.target.closest?.('[data-panel-filter]'); if (!input) return;
  const key = input.dataset.panelFilter; queries[key] = input.value;
