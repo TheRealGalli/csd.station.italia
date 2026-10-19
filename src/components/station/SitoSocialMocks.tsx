@@ -1,11 +1,10 @@
 import { Clapperboard, Copy, Grid3x3 } from 'lucide-react';
-import AlienStar from './AlienStar';
 
 // Mockup della sezione Sito & Social. Misure in em: la scala la decide chi li ospita.
 
-// Il modello 3D: una stella aliena che pulsa e segue il mouse.
-export function Star() {
-  return <div className="mk-star-stage" aria-hidden="true"><AlienStar/><span className="mk-shadow"/></div>;
+// Cubo 3D in CSS: segnaposto finché non scegliamo l'effetto definitivo.
+export function Cube() {
+  return <div className="mk-cube-stage" aria-hidden="true"><div className="mk-cube">{['f', 'b', 'l', 'r', 't', 'd'].map(f => <i key={f} className={`mk-face ${f}`}/>)}</div><span className="mk-shadow"/></div>;
 }
 
 // Sito React: una pagina negozio standard, senza marchio.
@@ -21,7 +20,7 @@ function Shop() {
 function Page3D() {
   return <div className="mk-page mk-3d">
     <div className="mk-nav"><i className="mk-logo"/><span/><span/><span/></div>
-    <div className="mk-3d-hero"><div><span className="l1"/><span className="l2"/><span className="l3"/><em/></div><Star/></div>
+    <div className="mk-3d-hero"><div><span className="l1"/><span className="l2"/><span className="l3"/><em/></div><Cube/></div>
     <div className="mk-strip"><span/><span/><span/></div>
   </div>;
 }
@@ -34,7 +33,7 @@ export function SiteMock({ three = false }: { three?: boolean }) {
 }
 
 export function ModelMock() {
-  return <div className="mk-model" aria-hidden="true"><div className="mk-orbit"/><Star/><span>IL TUO PRODOTTO · 360°</span></div>;
+  return <div className="mk-model" aria-hidden="true"><div className="mk-orbit"/><Cube/><span>IL TUO PRODOTTO · 360°</span></div>;
 }
 
 // Social: il profilo Instagram di CSD Station, con i caroselli veri. Avatar e caroselli aprono il profilo.
