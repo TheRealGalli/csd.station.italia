@@ -1,9 +1,9 @@
 import { useEffect, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { ArrowDown, ArrowUpRight, Camera, Check, CheckCheck, ChevronLeft, ChevronRight, Clapperboard, Globe, Images, Nfc, Play, ShieldCheck, Users } from 'lucide-react';
+import { ArrowDown, ArrowUpRight, Camera, Check, ChevronLeft, ChevronRight, Clapperboard, Globe, Images, Nfc, ShieldCheck, Users } from 'lucide-react';
 import { servicePaths } from '@/seo/routes';
 import { OttoIcon } from './OttoIcon';
-import { SiteMock, SocialMock } from './SitoSocialMocks';
+import { ModelMock, SiteMock, SocialMock } from './SitoSocialMocks';
 import { webIntro } from '@/seo/content';
 import './sito-social.css';
 
@@ -29,18 +29,7 @@ const plans = [
   { name: 'Social Plus', price: '249 €', points: ['12 caroselli al mese', '8 reel, short o clip al mese', 'Stories ogni settimana', 'Una campagna al mese, anche WhatsApp'] },
 ];
 
-const slides = [
-  { tone: 'a', title: 'Il menu d’autunno', note: 'Piatto per piatto' },
-  { tone: 'b', title: 'Pici al ragù', note: 'Fatti a mano ogni mattina' },
-  { tone: 'c', title: 'La ribollita', note: 'Ricetta della nonna' },
-  { tone: 'd', title: 'Il nostro orto', note: 'Da dove arriva tutto' },
-  { tone: 'a', title: 'Ti aspettiamo', note: 'Prenota su WhatsApp' },
-];
-
-// Il modello 3D su misura: il soggetto ruota su sé stesso, come nel sito.
-function ModelMock() {
-  return <div className="mk-model" aria-hidden="true"><div className="mk-sphere">{[0, 1, 2, 3, 4, 5].map(i => <i key={i} style={{ transform: `rotateY(${i * 30}deg)` }}/>)}<b/></div><span>IL TUO PIATTO · 360°</span></div>;
-}
+const slides = [1, 2, 3, 4, 5].map(n => `/sito-social/car-${n}.jpg`);
 
 // Entrata animata: ogni blocco compare quando arriva sullo schermo.
 function useReveal<T extends HTMLElement>() {
@@ -53,40 +42,30 @@ function useReveal<T extends HTMLElement>() {
   return [ref, seen] as const;
 }
 
-// La revisione dei contenuti avviene su WhatsApp, con Otto: allegati veri da sfogliare, poi si approva o si chiede una modifica.
+// La revisione dei contenuti avviene su WhatsApp: Otto manda il carosello, che si sfoglia come sul telefono.
 function OttoChat() {
   const [slide, setSlide] = useState(0);
-  const [answer, setAnswer] = useState<'ok' | 'edit' | null>(null);
-  const [typing, setTyping] = useState(false);
-  const [ref, seen] = useReveal<HTMLDivElement>(), [step, setStep] = useState(0), body = useRef<HTMLDivElement>(null);
+  const [ref, seen] = useReveal<HTMLDivElement>(), [step, setStep] = useState(0);
   useEffect(() => {
-    if (!seen || step >= 3) return;
-    const t = setTimeout(() => setStep(n => n + 1), step === 0 ? 500 : 1100); return () => clearTimeout(t);
+    if (!seen || step >= 2) return;
+    const t = setTimeout(() => setStep(n => n + 1), step === 0 ? 500 : 1200); return () => clearTimeout(t);
   }, [seen, step]);
-  useEffect(() => { body.current?.scrollTo({ top: body.current.scrollHeight, behavior: 'smooth' }); }, [step, answer, typing]);
-  const reply = (a: 'ok' | 'edit') => { setAnswer(a); setTyping(true); setTimeout(() => setTyping(false), 1100); };
-  const s = slides[slide];
-  return <div className="wa-wrap" ref={ref}><div className="wa">
-    <div className="wa-head"><span className="wa-avatar"><OttoIcon mood="happy" size={20}/></span><div><b>Otto · CSD Station</b><small>{typing || (seen && step < 3) ? 'sta scrivendo…' : 'online'}</small></div><em>ESEMPIO</em></div>
-    <div className="wa-body" ref={body}>
+  return <div className="wa" ref={ref}>
+    <div className="wa-head"><span className="wa-avatar"><OttoIcon mood="happy" size={20}/></span><div><b>Otto · CSD Station</b><small>{seen && step < 2 ? 'sta scrivendo…' : 'online'}</small></div><em>ESEMPIO</em></div>
+    <div className="wa-body">
       <span className="wa-day">OGGI</span>
-      {step >= 1 && <div className="wa-msg in"><p>Ciao Marco! Ecco i contenuti della prossima settimana. Sfoglia il carosello e dimmi se va bene 👇</p><time>10:02</time></div>}
+      {step >= 1 && <div className="wa-msg in"><p>Ciao Marco! Ecco il carosello di lunedì. Sfoglialo e dimmi se va bene 👇</p><time>10:02</time></div>}
       {step >= 2 && <div className="wa-msg in wa-attach">
-        <div className={`wa-slide tone-${s.tone}`}><div><b>{s.title}</b><small>{s.note}</small></div><span className="wa-count">{slide + 1}/{slides.length}</span>
+        <div className="wa-slide"><img src={slides[slide]} alt={`Slide ${slide + 1} del carosello d’esempio`}/><span className="wa-count">{slide + 1}/{slides.length}</span>
           <button type="button" className="wa-arrow l" aria-label="Slide precedente" disabled={slide === 0} onClick={() => setSlide(slide - 1)}><ChevronLeft size={16}/></button>
           <button type="button" className="wa-arrow r" aria-label="Slide successiva" disabled={slide === slides.length - 1} onClick={() => setSlide(slide + 1)}><ChevronRight size={16}/></button>
         </div>
         <div className="wa-dots">{slides.map((_, i) => <i key={i} className={i === slide ? 'on' : ''}/>)}</div>
         <p><Images size={13}/> Carosello · 5 slide · <b>lun 12:30</b></p><time>10:02</time>
       </div>}
-      {step >= 3 && <div className="wa-msg in wa-attach"><div className="wa-reel"><b>Dalla cucina</b><span><Play size={18} fill="currentColor"/></span><small>0:20</small></div><p><Clapperboard size={13}/> Reel · dalla cucina · <b>gio 19:00</b></p><time>10:03</time></div>}
-      {seen && step < 3 && <div className="wa-msg in wa-typing"><i/><i/><i/></div>}
-      {answer && <div className="wa-msg out"><p>{answer === 'ok' ? 'Approvati tutti e due 👍' : 'Nella slide 3 metterei la foto del piatto nuovo'}</p><time>10:05 <CheckCheck size={13}/></time></div>}
-      {answer && typing && <div className="wa-msg in wa-typing"><i/><i/><i/></div>}
-      {answer && !typing && <div className="wa-msg in"><p>{answer === 'ok' ? 'Perfetto! Li programmo: lunedì alle 12:30 e giovedì alle 19:00. A fine mese ti mando il riepilogo ✅' : 'Ricevuto! Rifaccio la slide 3 con il piatto nuovo e ti mando la bozza entro domani. È la modifica inclusa del mese ✏️'}</p><time>10:05</time></div>}
+      {seen && step < 2 && <div className="wa-msg in wa-typing"><i/><i/><i/></div>}
     </div>
-    <div className="wa-replies">{step < 3 ? <span className="wa-wait">Otto ti sta mandando i contenuti…</span> : answer ? <button type="button" onClick={() => { setAnswer(null); setSlide(0); setStep(0); }}>Ricomincia l’esempio</button> : <><button type="button" onClick={() => reply('ok')}>👍 Approva tutto</button><button type="button" onClick={() => reply('edit')}>✏️ Cambia la slide 3</button></>}</div>
-  </div></div>;
+  </div>;
 }
 
 function Reveal({ as: Tag = 'div', className = '', children, ...rest }: { as?: 'div' | 'section'; className?: string; id?: string; children: React.ReactNode }) {
