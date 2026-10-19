@@ -192,7 +192,7 @@
 /* Chat: già alla misura finale, i messaggi compaiono al loro posto */
 .wa-body{position:relative}
 .wa-msg.wa-later{visibility:hidden;animation:none}
-.wa-typing{position:absolute;left:16px;top:44px;z-index:1}
+.wa-later>.wa-typing{visibility:visible;position:absolute;left:0;top:0;width:auto;margin:0}
 /* Profilo: avatar dritto nonostante il telefono inclinato, tutto cliccabile verso Instagram */
 .mk-ig-head img{transform:rotate(4deg)}
 .mk-ig-head a,.mk-grid>a{display:block}

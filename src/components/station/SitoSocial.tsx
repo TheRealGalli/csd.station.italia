@@ -48,15 +48,14 @@ function OttoChat() {
   const [ref, seen] = useReveal<HTMLDivElement>(), [step, setStep] = useState(0);
   useEffect(() => {
     if (!seen || step >= 2) return;
-    const t = setTimeout(() => setStep(n => n + 1), step === 0 ? 500 : 1200); return () => clearTimeout(t);
+    const t = setTimeout(() => setStep(n => n + 1), step === 0 ? 1000 : 1700); return () => clearTimeout(t);
   }, [seen, step]);
   return <div className="wa" ref={ref}>
     <div className="wa-head"><span className="wa-avatar"><OttoIcon mood="happy" size={20}/></span><div><b>Otto · CSD Station</b><small>{seen && step < 2 ? 'sta scrivendo…' : 'online'}</small></div><em>ESEMPIO</em></div>
     <div className="wa-body">
       <span className="wa-day">OGGI</span>
-      {seen && step < 2 && <div className="wa-msg in wa-typing"><i/><i/><i/></div>}
-      <div className={`wa-msg in ${step >= 1 ? '' : 'wa-later'}`}><p>Ciao Marco! Ecco il carosello di lunedì. Sfoglialo e dimmi se va bene 👇</p><time>10:02</time></div>
-      <div className={`wa-msg in wa-attach ${step >= 2 ? '' : 'wa-later'}`}>
+      <div className={`wa-msg in ${step >= 1 ? '' : 'wa-later'}`}>{seen && step === 0 && <span className="wa-msg in wa-typing"><i/><i/><i/></span>}<p>Ciao Marco! Ecco il carosello di lunedì. Sfoglialo e dimmi se va bene 👇</p><time>10:02</time></div>
+      <div className={`wa-msg in wa-attach ${step >= 2 ? '' : 'wa-later'}`}>{step === 1 && <span className="wa-msg in wa-typing"><i/><i/><i/></span>}
         <div className="wa-slide"><img src={slides[slide]} alt={`Slide ${slide + 1} del carosello d’esempio`}/><span className="wa-count">{slide + 1}/{slides.length}</span>
           <button type="button" className="wa-arrow l" aria-label="Slide precedente" disabled={slide === 0} onClick={() => setSlide(slide - 1)}><ChevronLeft size={16}/></button>
           <button type="button" className="wa-arrow r" aria-label="Slide successiva" disabled={slide === slides.length - 1} onClick={() => setSlide(slide + 1)}><ChevronRight size={16}/></button>
