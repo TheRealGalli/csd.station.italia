@@ -22,7 +22,7 @@ const previews = [
 const sites = [
   { name: 'Sito standard', price: 'da 344 €', unit: 'una tantum', mock: 'site', description: 'Un sito moderno e veloce. Chi ti cerca trova subito quello che serve.', points: ['Ottimizzato per smartphone', 'Menu, orari, mappa e WhatsApp', 'SEO locale e scheda Google collegata'] },
   { name: 'Sito motion capture', price: 'da 744 €', unit: 'una tantum', mock: '3d', description: 'Il sito standard con animazioni in movimento: le sezioni prendono vita mentre scorri.', points: ['Animazioni e transizioni in movimento', 'Scene animate con il modello che hai già', 'Più sezioni: storia, eventi, galleria'] },
-  { name: 'Montaggio e clipping video', price: 'Su preventivo', unit: 'in base al progetto', mock: 'video', description: 'Dall’idea al video finito: animazioni in motion e montaggio di video anche molto lunghi.', points: ['Ideazione e animazioni in motion fino a 3 minuti', 'Montaggio di video lunghi, anche podcast oltre l’ora', 'Clip verticali pronte per Instagram e TikTok'] },
+  { name: 'Montaggio e clipping video', price: 'Su preventivo', unit: 'in base al progetto', mock: 'video', description: 'Dall’idea al video finito: animazioni in motion e montaggio di video anche molto lunghi.', points: ['Animazioni in motion, anche su video reali', 'Montaggio di video lunghi, anche podcast oltre l’ora', 'Clip verticali pronte per Instagram e TikTok'] },
 ];
 
 const plans = [
@@ -115,7 +115,7 @@ export default function SitoSocial({ children }: { children?: React.ReactNode })
           <ul className="web-points">{p.points.map(point => <li key={point}><Check size={14}/>{point}</li>)}</ul>
           <a className="text-link" href={whatsapp(`Ciao Carlo! Mi interessa il piano ${p.name} (${p.price} al mese) per i social della mia attività.`)} target="_blank" rel="noreferrer">Richiedi {p.name} <ArrowUpRight size={16}/></a>
         </article>)}
-          <article className="web-plan web-plan-extra"><Clapperboard size={22}/><div><h3>Montaggio e clipping video</h3><p>Dall’idea al video finito: animazioni in motion fino a 3 minuti, montaggio di video lunghi e podcast anche oltre l’ora, clip verticali da interviste, eventi o dirette. Su preventivo, in base a durata e lavoro.</p></div></article>
+          <article className="web-plan web-plan-extra"><Clapperboard size={22}/><div><h3>Montaggio e clipping video</h3><p>Dall’idea al video finito: animazioni in motion, anche su video reali, montaggio di video lunghi e podcast anche oltre l’ora, clip verticali da interviste, eventi o dirette. Su preventivo, in base a durata e lavoro.</p></div></article>
         </div>
         <OttoChat/>
       </div>
@@ -167,4 +167,30 @@ export default function SitoSocial({ children }: { children?: React.ReactNode })
     {children}
     </div>
   </>;
+}
+
+// Da telefono: tre blocchi leggeri, dal servizio che costa meno. Niente 3D e niente pacchetto.
+export function SitoSocialMobile() {
+  const blocks = [
+    { n: '01', eyebrow: 'GESTIONE SOCIAL', title: <>Ogni mese,<br/><em>contenuti pronti.</em></>, price: 'da 149 €', unit: 'al mese', mock: <SocialMock/>,
+      points: ['8 caroselli e 4 reel al mese con Social Base', '16 caroselli, 8 reel e 10 stories con Social Plus (249 €)', 'Formati per Instagram e TikTok, approvati su WhatsApp'],
+      cta: 'Ciao Carlo! Vorrei informazioni sulla gestione dei social per la mia attività.' },
+    { n: '02', eyebrow: 'SITO STANDARD', title: <>La tua vetrina.<br/><em>Veloce e chiara.</em></>, price: 'da 344 €', unit: 'una tantum', mock: <SiteMock/>,
+      points: ['Pensato prima di tutto per lo smartphone', 'Menu, orari, mappa e WhatsApp', 'SEO locale e scheda Google collegata'],
+      cta: 'Ciao Carlo! Mi interessa il Sito standard per la mia attività.' },
+    { n: '03', eyebrow: 'SITO MOTION', title: <>Il sito che<br/><em>prende vita.</em></>, price: 'da 744 €', unit: 'una tantum', mock: <SiteMock three lite/>,
+      points: ['Animazioni e transizioni in movimento', 'Scene animate con il modello che hai già', 'Più sezioni: storia, eventi, galleria'],
+      cta: 'Ciao Carlo! Mi interessa il Sito motion per la mia attività.' },
+  ];
+  return <div className="mobile-landing mobile-web">
+    {blocks.map((b, i) => <section key={b.n} className="mobile-section" aria-labelledby={`mobile-web-${b.n}`}>
+      <span className="mobile-eyebrow">{i === 0 ? <i/> : null}{b.n} / {b.eyebrow}</span>
+      {i === 0 ? <h1 id={`mobile-web-${b.n}`}>{b.title}</h1> : <h2 id={`mobile-web-${b.n}`}>{b.title}</h2>}
+      <div className="mw-mock">{b.mock}</div>
+      <div className="mw-price"><strong>{b.price}</strong><span>{b.unit}</span></div>
+      <ul className="mw-points">{b.points.map(point => <li key={point}><Check size={15}/>{point}</li>)}</ul>
+      <a className="mobile-primary" href={whatsapp(b.cta)} target="_blank" rel="noreferrer">Scrivimi su WhatsApp <ArrowUpRight size={20}/></a>
+      {i === 2 && <Link className="mobile-crosslink" to={servicePaths.nfc}><span>Hai già le card NFC?<small>Il primo passo per farti trovare su Google Maps.</small></span><ArrowUpRight size={20}/></Link>}
+    </section>)}
+  </div>;
 }

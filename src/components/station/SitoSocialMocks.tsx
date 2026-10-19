@@ -13,18 +13,18 @@ function Shop() {
 }
 
 // Sito motion capture: la stessa idea di pagina, con la casa animata nella hero.
-function Page3D() {
+function Page3D({ lite = false }: { lite?: boolean }) {
   return <div className="mk-page mk-3d">
     <div className="mk-nav"><i className="mk-logo"/><span/><span/><span/></div>
-    <div className="mk-3d-hero"><div><span className="l1"/><span className="l2"/><span className="l3"/><em/></div><div className="mk-loop-house"><ModelLoop kind="house"/></div></div>
+    <div className="mk-3d-hero"><div><span className="l1"/><span className="l2"/><span className="l3"/><em/></div>{lite ? <div className="mk-pulse"><i/><i/><i/></div> : <div className="mk-loop-house"><ModelLoop kind="house"/></div>}</div>
     <div className="mk-strip"><span/><span/><span/></div>
   </div>;
 }
 
-export function SiteMock({ three = false }: { three?: boolean }) {
+export function SiteMock({ three = false, lite = false }: { three?: boolean; lite?: boolean }) {
   return <div className="mk-browser" aria-hidden="true">
     <div className="mk-bar"><i/><i/><i/><span>la-tua-attivita.it</span></div>
-    {three ? <Page3D/> : <Shop/>}
+    {three ? <Page3D lite={lite}/> : <Shop/>}
   </div>;
 }
 
