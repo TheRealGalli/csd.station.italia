@@ -201,6 +201,14 @@ export const clients = [
  {id:'k5', name:'Laura Bianchi', practice:'P-199', risk:'Da valutare', steps:{documento:false, titolare:false, pep:false, fondi:false}, flag:'Nuovo cliente: la verifica parte dopo il primo incontro.'}
 ];
 
+// PRIVACY — richieste degli interessati (GDPR): risposta entro un mese, prorogabile di due nei casi complessi.
+export const dataRequests = [
+ {who:'Mario Rossi', what:'Accesso ai propri dati', via:'Email registrata', received:'2 ott', due:'2 nov', days:16, state:'In preparazione', owner:'SR'},
+ {who:'Chiara Fabbri', what:'Rettifica dell’indirizzo di residenza', via:'Modulo dello studio', received:'14 ott', due:'14 nov', days:28, state:'Completata', owner:'SR'},
+ {who:'Ex cliente (2014)', what:'Cancellazione dei dati', via:'PEC', received:'9 ott', due:'9 nov', days:23, state:'Da valutare', owner:'AC', note:'Gli atti notarili si conservano per legge: si cancellano solo i dati di contatto e marketing.'}
+];
+export const privacyChecks = [['Registro dei trattamenti', 'aggiornato al 1° ottobre', true], ['Nomine dei responsabili esterni', 'CSD Station, PEC, conservazione digitale', true], ['Formazione privacy del team', '5 su 6 · manca Paolo Donati', false], ['Registro delle violazioni', 'nessuna violazione nel 2026', true]];
+
 // AUDIT — ogni azione dell'AI, con chi l'ha approvata.
 export const audit = [
  {time:'11:41', actor:'Otto', action:'Richiesta visura per soggetto · eredità Moretti', approved:'Regola automatica', area:'Visure'},

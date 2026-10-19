@@ -8,15 +8,18 @@
 //  Centralino AI    · Al telefono
 //  Recensioni AI    · La risposta giusta
 //  WhatsApp         · Correggi la bozza
-//  Fidelity & NFC   · Premio sì o no?
+//  Delivery         · (dal capitolo 2) Quanto resta al locale, Viaggia bene?, Cucina piena, Il cliente al telefono
+//  Fidelity & NFC   · Premio sì o no? · Il premio giusto · Il conto con la card · A chi la mandi?
 //  Magazzino        · Trova la differenza (fattura contro bolla firmata)
-//  Cassa & Entrate  · Caselle dalla fonte (codice destinatario, partita IVA)
-//  Bandi            · Spesa ammissibile o no?
+//  Cassa & Entrate  · Caselle dalla fonte (codice destinatario, partita IVA) · I conti tornano? · Il cassetto torna?
+//  Bandi            · Spesa ammissibile o no? · Quanto vale il contributo?
 //  Staff & HACCP    · Conforme o no?
-//  Brand & app      · Gli allergeni del piatto del giorno
+//  Brand & app      · Gli allergeni del piatto del giorno · La notifica giusta · Le prenotazioni dell’app · La scheda dello store
+//
+// Le missioni dopo la prima di ogni settore non arrivano sempre: vedi `extras` più sotto.
 import * as G from './gen.js';
 import {mechanics as M} from './mg.js';
-import {addMission, gameLevel, canSpawnMission, storyBias, rnd} from './game.js';
+import {addMission, gameLevel, canSpawnMission, storyBias, rnd, gameState} from './game.js';
 import * as D from './demo.js';
 
 let testLevel = 0;
@@ -157,7 +160,7 @@ const allergenList = ['Glutine', 'Crostacei', 'Uova', 'Pesce', 'Arachidi', 'Soia
 function appMission() {
  const dish = G.pick([['Trofie al pesto', 'trofie (farina di grano), basilico, pinoli, parmigiano, aglio', ['Glutine', 'Frutta a guscio', 'Latte']], ['Gamberi in tempura', 'gamberi, farina di grano, acqua frizzante, salsa di soia', ['Crostacei', 'Glutine', 'Soia']], ['Panna cotta alle nocciole', 'panna, zucchero, gelatina, granella di nocciole', ['Latte', 'Frutta a guscio']], ['Tartare di tonno', 'tonno, semi di sesamo, senape, olio', ['Pesce', 'Sesamo', 'Senape']], ['Risotto al vino rosso', 'riso, burro, Chianti, sedano, cipolla', ['Latte', 'Solfiti', 'Sedano']]]);
  const decoys = G.shuffle(allergenList.filter(a => !dish[2].includes(a))).slice(0, by(3, 5, 7));
- return {event:['Piatto del giorno', `${dish[0]}: allergeni da pubblicare`], m:mk('multi', 'GLI ALLERGENI GIUSTI', `Brand & app · ${dish[0]}`, {ask:`Lo chef ha scritto il piatto del giorno: <b>${dish[0]}</b>. Seleziona <b>tutti</b> gli allergeni da mostrare sul menu QR, e nessuno di più.`, sources:[{t:'Ricetta dello chef', rows:[['Ingredienti', dish[1]]]}], chips:G.shuffle([...dish[2].map(t => ({t, ok:true})), ...decoys.map(t => ({t}))]), confirm:'Pubblica sul QR', winWhy:'Allergeni completi e giusti: chi è allergico lo vede prima di ordinare, come chiede la legge.', partWhy:'Un allergene mancante è il rischio più grave per un locale.'})};
+ return {event:['Piatto del giorno', `${dish[0]}: allergeni da pubblicare`], m:mk('multi', 'GLI ALLERGENI GIUSTI', `Brand & app · ${dish[0]}`, {ask:`Lo chef ha scritto il piatto del giorno: <b>${dish[0]}</b>. Seleziona <b>tutti</b> gli allergeni da mostrare sull’app e sul menu QR, e nessuno di più.`, sources:[{t:'Ricetta dello chef', rows:[['Ingredienti', dish[1]]]}], chips:G.shuffle([...dish[2].map(t => ({t, ok:true})), ...decoys.map(t => ({t}))]), confirm:'Pubblica sull’app', winWhy:'Allergeni completi e giusti: chi è allergico lo vede prima di ordinare, come chiede la legge.', partWhy:'Un allergene mancante è il rischio più grave per un locale.'})};
 }
 
 
@@ -194,10 +197,175 @@ function proceduraMission() {
   m:mk('order', 'IN FILA', `Staff & HACCP · ${p.name}`, {ask:`Il nuovo aiuto cuoco chiede: “<b>${p.name.toLowerCase()}</b>, come si fa?” Tocca i passaggi <b>dal primo all’ultimo</b>.`, steps, winWhy:p.why, sources:[{t:'Manuale HACCP del locale', rows:[['Regola', 'ogni procedura si registra con data, ora e chi l’ha fatta']]}]}, 180000)};
 }
 
+// ————— Fidelity · Il premio giusto (pick) —————
+// L'ospite appoggia la card e chiede cosa può prendere: il premio più alto che il saldo copre, compatibile con le sue allergie.
+function nfcPickMission() {
+ const who = G.person(), pts = G.int(320, 1650), allergy = G.pick(['', '', 'celiaca', 'astemio']);
+ const conflict = r => (allergy === 'celiaca' && r.id === 'dessert') || (allergy === 'astemio' && r.id === 'chianti');
+ const ok = [...D.rewards].reverse().find(r => pts >= r.cost && !conflict(r)), above = D.rewards.find(r => r.cost > pts), clash = D.rewards.find(r => pts >= r.cost && conflict(r)), lower = D.rewards.filter(r => r.cost < ok.cost && !conflict(r))[0];
+ const cards = [{title:ok.name, meta:`${ok.cost} punti`, body:`Il premio più alto che il saldo copre${allergy ? ', compatibile con quello che può prendere' : ''}.`, ok:true}];
+ if (above) cards.push({title:above.name, meta:`${above.cost} punti`, body:'Il premio più ambito.', why:`Costa ${above.cost} punti: con ${pts} ne mancano ${above.cost - pts}.`});
+ if (clash) cards.push({title:clash.name, meta:`${clash.cost} punti`, body:'Il saldo basta.', why:allergy === 'celiaca' ? 'Il dessert della casa è il tiramisù, con il glutine dei savoiardi: a un ospite celiaco non si propone.' : 'L’ospite non beve alcolici: una bottiglia di vino non è un premio per lui.'});
+ if (cards.length < 3 && lower) cards.push({title:lower.name, meta:`${lower.cost} punti`, body:'Il premio più semplice.', why:`Spetta di più: con ${pts} punti arriva a “${ok.name}”.`});
+ if (cards.length < 2) return fidelityMission();
+ return {event:[`Card NFC · ${who.name}`, 'Chiede quale premio può avere'], brief:{what:'Un ospite appoggia la card e chiede cosa può avere con i suoi punti. Scegli il premio più alto che il saldo copre, tenendo conto di allergie e abitudini segnate sulla card.', why:'Proporre il premio giusto è il momento in cui la fidelity si vede: un premio che non spetta o che l’ospite non può mangiare rovina la serata.'},
+  m:mk('pick', 'IL PREMIO GIUSTO', `Fidelity · ${who.name}`, {ask:`<b>${who.name}</b> appoggia la card al tavolo: “Cosa posso prendere con i miei punti?” Quale premio proponi?`, sources:[{t:`Card di ${who.name}`, rows:[['Saldo', `${pts} punti`], ['Note', allergy === 'celiaca' ? 'Celiaca' : allergy === 'astemio' ? 'Non beve alcolici' : 'Nessuna allergia segnalata']]}, {t:'Premi della card', rows:D.rewards.map(r => [r.name, `${r.cost} punti`])}, {t:'Dessert della casa', rows:[['Tiramisù', 'uova, latte, glutine (savoiardi)']]}], cards:G.shuffle(cards), winWhy:'Il premio più alto che spetta, e che l’ospite può davvero godersi: Otto lo scala dal saldo e lo segna sul conto.'})};
+}
+
+// ————— Fidelity · Il conto con la card (calc) —————
+function nfcBillMission() {
+ const who = G.person(), t = G.int(1, 12), food = G.int(18, 52) * 2, wine = G.pick([0, 28, 28, 56]), tier = G.pick([['Argento', 5], ['Oro', 10]]), dessert = lvl() >= 3 && Math.random() < .6;
+ const base = food - (dessert ? 7 : 0), off = +(base * tier[1] / 100).toFixed(2), answer = +(base - off + wine).toFixed(2);
+ return {event:[`Tavolo ${t}: card ${tier[0]}`, `${who.name} paga con la card`], brief:{what:'Un ospite iscritto paga il conto: si applica lo sconto del suo livello, ma solo sulla cucina (i vini sono esclusi), e prima si toglie il premio già offerto.', why:'Lo sconto sbagliato è un documento commerciale sbagliato: o regali soldi o fai pagare troppo un cliente fedele.'},
+  m:mk('calc', 'IL CONTO CON LA CARD', `Fidelity · conto del tavolo ${t}`, {unit:'€', ask:`${who.name} è di livello <b>${tier[0]}</b>. Quanto paga il <b>tavolo ${t}</b>?`, answer, sources:[{t:`Conto tavolo ${t}`, rows:[['Cucina', G.euro(food)], ...(wine ? [['Vini', G.euro(wine)]] : []), ...(dessert ? [['Tiramisù offerto con i punti', '− € 7,00']] : [])]}, {t:'Regole della card', rows:[['Sconto Argento', '5% sulla cucina'], ['Sconto Oro', '10% sulla cucina'], ['Esclusi', 'vini e premi già offerti']]}], hint:`Sconto del ${tier[1]}% solo sulla cucina${dessert ? ' (dopo aver tolto il dessert offerto)' : ''}, poi si aggiungono i vini.`, winWhy:'Sconto giusto, sul pezzo giusto del conto: il documento commerciale torna e l’ospite vede il suo vantaggio.'})};
+}
+
+// ————— Fidelity · La campagna agli iscritti (multi) —————
+function campaignMission() {
+ const pool = Array.from({length:by(5, 6, 7)}, () => { const p = G.person(), days = G.pick([12, 25, 40, 64, 75, 92, 120]), wa = Math.random() < .7; return {p, days, wa}; });
+ if (!pool.some(x => x.days > 60 && x.wa)) Object.assign(pool[0], {days:75, wa:true});
+ if (!pool.some(x => x.days > 60 && !x.wa)) Object.assign(pool[1], {days:92, wa:false});
+ return {event:['Campagna WhatsApp', 'Otto chiede a chi mandarla'], brief:{what:'Otto ha preparato un messaggio per gli iscritti che non vengono da più di 60 giorni. Scegli i destinatari: solo chi è nel gruppo e ha dato il consenso.', why:'Un WhatsApp a chi non ha dato il consenso è una violazione della privacy, e chi viene ogni settimana non ha bisogno di essere “riconquistato”.'},
+  m:mk('multi', 'A CHI LA MANDI?', 'Fidelity · campagna “Ci manchi”', {ask:'Campagna <b>“Ci manchi”</b>: caffè e amaro offerti a chi non viene da <b>più di 60 giorni</b>. Seleziona i destinatari giusti.', sources:[{t:'Regole della campagna', rows:[['Gruppo', 'ultima visita oltre 60 giorni fa'], ['Consenso', 'solo chi ha detto sì ai messaggi WhatsApp']]}], chips:G.shuffle(pool.map(x => ({t:`${x.p.name} · ultima visita ${x.days} giorni fa · consenso ${x.wa ? 'sì' : 'no'}`, ok:x.days > 60 && x.wa}))), confirm:'Invia la campagna', winWhy:'Messaggio solo a chi serve e a chi lo ha chiesto: più letture, nessun reclamo per la privacy.', partWhy:'Contano due condizioni insieme: oltre 60 giorni e consenso sì.'})};
+}
+
+// ————— Brand & app · La notifica push (proof) —————
+function pushMission() {
+ const ev = G.pick([['Serata vini toscani', 'giovedì', '35'], ['Cena del tartufo', 'venerdì', '65'], ['Brunch della domenica', 'domenica', '28']]);
+ const kind = G.pick(['giorno', 'prezzo', 'ora']), hour = ev[1] === 'domenica' ? '12:30' : '20:00';
+ const wrong = {giorno:G.pick(['mercoledì', 'sabato'].filter(d => d !== ev[1])), prezzo:String(+ev[2] + G.pick([5, 10])), ora:ev[1] === 'domenica' ? '13:30' : '21:00'}[kind];
+ const right = {giorno:ev[1], prezzo:ev[2], ora:hour}[kind], decoy = {giorno:'lunedì', prezzo:String(+ev[2] - 5), ora:'19:00'}[kind];
+ const seg = (txt, key) => key === kind ? {t:wrong, err:true, ok:right, choices:G.shuffle([right, wrong, decoy])} : {t:txt};
+ const parts = [{t:`${ev[0]}: `}, seg(ev[1], 'giorno'), {t:' alle '}, seg(hour, 'ora'), {t:', '}, seg(ev[2], 'prezzo'), {t:' € a persona. Posti limitati: prenota dall’app.'}];
+ return {event:['Notifica push da approvare', `${ev[0]}: controlla prima dell’invio`], brief:{what:'Otto ha scritto la notifica push dell’app per un evento. Prima che parta a più di mille telefoni, confrontala con il calendario degli eventi e correggi il dato sbagliato.', why:'Una notifica non si ritira: se dice il giorno o il prezzo sbagliato, arrivano prenotazioni sbagliate e ospiti scontenti.'},
+  m:mk('proof', 'LA NOTIFICA GIUSTA', `Brand & app · notifica “${ev[0]}”`, {ask:`La notifica parte a <b>1.102 iscritti</b>: c’è un dato che <b>non coincide con il calendario</b>.`, draftLabel:'Notifica proposta da Otto', parts, sources:[{t:'Calendario eventi dell’app', rows:[[ev[0], `${ev[1]} alle ${hour}`], ['Prezzo', `${ev[2]} € a persona`]]}], winWhy:'Notifica corretta prima dell’invio: chi la apre trova le stesse informazioni dell’evento nell’app.', winLabel:'Notifica perfetta'}, 150000)};
+}
+
+// ————— Brand & app · Le prenotazioni dall'app (classify) —————
+function bookingMission() {
+ const b = D.appCfg.booking, n = by(4, 5, 6);
+ const pool = [() => [`Sabato 21:30 · ${G.int(2, 4)} persone`, 'ok'], () => [`Venerdì 20:00 · ${G.int(b.deposit, b.maxOnline)} persone`, 'dep'], () => [`Sabato 22:45 · 2 persone`, 'no'], () => [`Domenica 13:00 · ${G.int(b.maxOnline + 1, 14)} persone`, 'no'], () => [`Giovedì 19:30 · ${G.int(2, b.deposit - 1)} persone`, 'ok'], () => [`Martedì 21:00 · ${b.deposit} persone`, 'dep'], () => [`Lunedì 20:30 · 2 persone`, 'no']];
+ const items = G.shuffle(pool).slice(0, n).map(f => { const [text, ans] = f(); return {text, sub:`dall’app · ${G.person().name}`, ans}; });
+ return {event:['Prenotazioni dall’app', `${n} richieste da confermare`], brief:{what:'Dall’app arrivano richieste di prenotazione. Per ognuna decidi: si conferma, si chiede la caparra oppure non si può prendere online, secondo le regole dell’app.', why:'Le regole dell’app proteggono la sala: niente gruppi grandi senza parlarne, niente tavoli dopo l’ultimo orario, caparra dove il tavolo vuoto costa caro.'},
+  m:mk('classify', 'LE PRENOTAZIONI DELL’APP', 'Brand & app · richieste di prenotazione', {ask:'Applica le <b>regole delle prenotazioni online</b> a ogni richiesta.', sources:[{t:'Regole dell’app', rows:[['Online fino a', `${b.maxOnline} persone`], ['Ultimo orario', b.last], ['Caparra', `da ${b.deposit} persone, ${b.depositAmount} € a testa`], ['Lunedì', 'chiuso']]}], states:[['ok', 'Conferma'], ['dep', 'Chiedi caparra'], ['no', 'Non online']], items, winWhy:'Richieste gestite con le regole giuste: la sala sa chi arriva, e i gruppi grandi parlano con una persona.'})};
+}
+
+// ————— Brand & app · La scheda dello store (hunt) —————
+function storeMission() {
+ const pool = [
+  ['Nome dell’app', 'Osteria del Borgo', ''],
+  ['Telefono', '055 234 8890', ''],
+  ['Orari', 'Lunedì 19:30–23:00', 'Il lunedì il locale è chiuso: l’app direbbe il contrario.'],
+  ['Foto della galleria', 'Risotto al tartufo nero', 'Il piatto non è più in menu da settembre: si mostra solo ciò che si può ordinare.'],
+  ['Descrizione', '“Il miglior ristorante di Firenze”', 'Un vanto che non si può dimostrare: lo store la può rifiutare ed è pubblicità ingannevole.'],
+  ['Informativa privacy', 'Link mancante', 'Senza informativa privacy un’app che raccoglie prenotazioni non può essere pubblicata.'],
+  ['Categoria', 'Cibo e bevande', ''],
+  ['Età minima', '4+, con vendita di vino nel delivery', 'Con la vendita di alcolici serve la verifica dell’età: la classificazione va alzata.'],
+  ['Novità della versione', 'Ordina a domicilio senza commissioni', '']
+ ];
+ const bad = G.shuffle(pool.filter(r => r[2])).slice(0, by(2, 3, 3)), good = G.shuffle(pool.filter(r => !r[2])).slice(0, by(2, 3, 3));
+ return {event:['Versione 2.5 dell’app', 'Scheda dello store da controllare'], brief:{what:'Prima di mandare la nuova versione dell’app in revisione su App Store e Google Play, si controlla la scheda: orari, foto, descrizione, privacy, età. Trova tutto quello che non va.', why:'Una scheda sbagliata fa rifiutare l’app dallo store, oppure promette agli ospiti cose che il locale non fa.'},
+  m:mk('hunt', 'LA SCHEDA DELLO STORE', 'Brand & app · scheda della versione 2.5', {ask:`Tocca <b>tutte le righe che non vanno</b>: sono ${bad.length}.`, docTitle:'Scheda App Store e Google Play · v2.5', rows:G.shuffle([...bad, ...good]), sources:[{t:'Il locale', rows:[['Orari', 'chiuso il lunedì'], ['Menu', 'senza risotto al tartufo da settembre'], ['Delivery', 'anche vino, solo maggiorenni']]}], winWhy:'Scheda pulita: l’app passa la revisione e dice agli ospiti solo cose vere.'}, 180000)};
+}
+
+// ————— Delivery · Quanto resta al locale (calc) —————
+function commissionMission() {
+ const ch = G.pick(D.channels.filter(c => c.fee)), items = G.shuffle(D.deliveryMenu.filter(x => x.on)).slice(0, G.int(2, 3)), total = items.reduce((n, x) => n + x.price, 0);
+ const promo = lvl() >= 2 ? G.pick([0, 3, 4]) : 0, vat = lvl() >= 3, fee = +((total - promo) * ch.fee / 100).toFixed(2), answer = +(total - promo - fee - (vat ? fee * .22 : 0)).toFixed(2);
+ return {event:[`Ordine ${ch.name}`, 'Quanto resta davvero al locale?'], brief:{what:'Le piattaforme trattengono una commissione su ogni ordine, e a volte una promozione a carico del locale. Calcola quanto arriva davvero in cassa con il bonifico.', why:'Il delivery sembra incasso pieno, ma tra commissioni e promozioni il margine cambia: è da qui che si decidono i prezzi del menu delivery.'},
+  m:mk('calc', 'QUANTO RESTA AL LOCALE?', `Delivery · ordine ${ch.name}`, {unit:'€', ask:`Ordine <b>${ch.name}</b>: quanto arriva al locale${vat ? ', con l’IVA sulla commissione' : ''}?`, answer, sources:[{t:`Ordine ${ch.short}-${G.int(4830, 4999)}`, rows:[...items.map(x => [D.dish(x.id).name, G.euro(x.price)]), ...(promo ? [['Promo “consegna −€” a carico del locale', `− ${G.euro(promo)}`]] : [])]}, {t:`Contratto ${ch.name} (esempio)`, rows:[['Commissione', `${ch.fee}% sul totale${promo ? ' dopo la promo' : ''}`], ...(vat ? [['IVA sulla commissione', '22%']] : [])]}], hint:`Totale${promo ? ' meno la promo' : ''}, meno il ${ch.fee}%${vat ? ', meno il 22% della commissione' : ''}.`, winWhy:'Netto giusto: Otto confronta ogni bonifico della piattaforma con gli ordini e trova subito una commissione sbagliata.'})};
+}
+
+// ————— Delivery · Viaggia bene? (classify) —————
+function dlvMenuMission() {
+ const pool = [['Lasagna al forno', 'in teglia monoporzione', 'ok'], ['Frittura di calamari', 'croccante appena fritta', 'no'], ['Risotto ai porcini', 'mantecato al momento', 'no'], ['Tagliata di manzo', 'salsa e rucola a parte', 'ok'], ['Tiramisù', 'in vasetto chiuso', 'ok'], ['Soufflé al cioccolato', 'si abbassa in 5 minuti', 'no'], ['Pici al pomodoro', 'sugo a parte', 'ok'], ['Gelato artigianale', 'senza box refrigerato', 'no'], ['Bruschetta al pomodoro', 'pane già condito', 'no'], ['Burrata e pomodorini', 'nel box freddo', 'ok']];
+ const n = by(4, 5, 6), items = G.shuffle(pool).slice(0, n).map(([t, sub, ans]) => ({text:t, sub, ans}));
+ return {event:['Menu del delivery', 'Quali piatti mettere sulle piattaforme?'], brief:{what:'Si prepara il menu del delivery: per ogni piatto decidi se viaggia bene nel box per 25 minuti, oppure se resta solo in sala.', why:'Un piatto che arriva molle o freddo porta una recensione negativa sulla piattaforma, e quella pesa più di cento in sala.'},
+  m:mk('classify', 'VIAGGIA BENE?', 'Delivery · il menu delle piattaforme', {ask:'Per ogni piatto: <b>sul delivery o solo in sala</b>?', sources:[{t:'Regola dello chef', rows:[['Sul delivery', 'tiene 25 minuti nel box senza cambiare consistenza'], ['Solo in sala', 'fritture, mantecature, piatti che si sgonfiano o si sciolgono']]}], states:[['ok', 'Delivery'], ['no', 'Solo sala']], items, winWhy:'Sulle piattaforme solo piatti che arrivano come escono dalla cucina: meno rimborsi, recensioni migliori.'})};
+}
+
+// ————— Delivery · Cucina piena (pick) —————
+function dlvPauseMission() {
+ const w = G.int(9, 14), chs = D.channels.filter(c => c.fee).map(c => ({...c, q:G.int(2, 6)}));
+ const worst = [...chs].sort((a, b) => b.fee - a.fee)[0];
+ const cheap = [...chs].sort((a, b) => a.fee - b.fee)[0];
+ const cards = [{title:`Pausa a ${worst.name} per 15 minuti`, meta:`commissione ${worst.fee}%`, body:'Il canale che costa di più resta fermo finché la cucina respira.', ok:true}, {title:'Pausa al sito e all’app del locale', meta:'nessuna commissione', why:'È il canale che non paga commissioni e porta i clienti del locale: si chiude per ultimo.'}, {title:'Pausa a tutti i canali per un’ora', meta:'delivery chiuso', why:'Un’ora di chiusura perde tutti gli ordini, anche quelli che la cucina può reggere.'}, {title:`Pausa a ${cheap.name}`, meta:`commissione ${cheap.fee}%`, why:`${cheap.name} è il canale più economico tra le piattaforme: si ferma prima chi costa di più.`}];
+ return {event:['Cucina piena', `${w} comande in attesa: cosa fermi?`], brief:{what:'La cucina è piena e il delivery continua a mandare ordini. Scegli quale canale mettere in pausa, e per quanto.', why:'Meglio che l’ospite veda “non disponibile ora” piuttosto che aspetti un’ora: le piattaforme penalizzano i ritardi, e la sala ne soffre.'},
+  m:mk('pick', 'COSA METTI IN PAUSA?', 'Delivery · la cucina è piena', {ask:`In cucina aspettano <b>${w} comande</b> e i fornelli sono pieni. Cosa fai con il delivery?`, sources:[{t:'Canali adesso', rows:chs.map(c => [c.name, `${c.q} ordini in arrivo · commissione ${c.fee}%`]).concat([['Sito e app del locale', `${G.int(1, 2)} ordini · nessuna commissione`]])}], cards:G.shuffle([cards[0], ...G.shuffle(cards.slice(1)).slice(0, by(2, 3, 3))]), winWhy:'Si ferma il canale che costa di più, per il tempo che serve: la cucina recupera e i clienti del locale continuano a ordinare.'})};
+}
+
+// ————— Delivery · Al telefono con il cliente (phone) —————
+function dlvPhoneMission() {
+ const who = G.person(), ch = G.pick(D.channels.filter(c => c.fee)), kind = G.pick(['manca', 'freddo']);
+ const sources = [{t:`Ordine ${ch.name}`, rows:[['Consegnato', '20:41 · rider Samir'], ['Contenuto', kind === 'manca' ? '2× Carbonara, 1× Tiramisù, 1× acqua' : '1× Tagliata, 1× Pici al pomodoro'], ['Tempo di consegna', kind === 'freddo' ? '48 minuti (stimati 25)' : '22 minuti']]}, {t:'Regola del locale', rows:[['Errore nostro', 'si rimedia subito, senza discutere'], ['Rimborsi', 'dalla piattaforma, con la segnalazione dell’ordine']]}];
+ const turns = kind === 'manca' ? [
+  {c:`Buonasera, ho ordinato su ${ch.name}: è arrivato tutto tranne il tiramisù.`, o:[{t:'Ha ragione, è rimasto al banco: le segnalo il rimborso del tiramisù sulla piattaforma subito.', ok:true}, {t:'Il rider l’avrà perso, chiami la piattaforma.', why:'Il tiramisù non è mai partito: l’errore è del locale, si rimedia noi.'}, {t:'Le mandiamo un altro rider con il tiramisù tra un’ora.', why:'Un’ora per un dolce non risolve: il rimborso immediato sì.'}]},
+  {c:'Grazie. Peccato, era per mio figlio.', o:[{t:'Alla prossima ordinazione dall’app del locale il dolce è offerto: le lascio il codice via messaggio.', ok:true}, {t:'Capita, la prossima volta controlli il sacchetto.', why:'Non è compito del cliente controllare il nostro lavoro.'}, {t:'Le regaliamo una cena per quattro.', why:'Un gesto sproporzionato: basta il rimborso e un dolce offerto.'}]}
+ ] : [
+  {c:`L’ordine ${ch.name} è arrivato dopo 48 minuti ed era freddo.`, o:[{t:'Mi dispiace: il rider ha avuto un ritardo. Segnalo il ritardo alla piattaforma e chiedo il rimborso per lei.', ok:true}, {t:'Da noi è uscito caldo, non è colpa nostra.', why:'Difendersi non serve al cliente: si segnala e si rimedia.'}, {t:'Lo scaldi al microonde, va benissimo.', why:'Una tagliata al microonde non è un rimedio.'}]},
+  {c:'E la prossima volta come faccio a fidarmi?', o:[{t:'Se ordina dall’app del locale consegna il nostro rider: le lascio un codice per la consegna gratuita.', ok:true}, {t:'Non ordini più su quella piattaforma.', why:'Non si parla male di un canale con cui il locale lavora.'}, {t:'Non dipende da noi.', why:'Si offre un’alternativa concreta: il canale del locale.'}]}
+ ];
+ if (lvl() === 1) turns.length = 1;
+ turns.forEach(t => { t.o = G.shuffle(t.o); });
+ return {event:[`Cliente delivery · ${who.name}`, kind === 'manca' ? 'Manca un piatto nell’ordine' : 'Ordine arrivato in ritardo'], brief:{what:'Un cliente del delivery chiama perché qualcosa è andato storto. Scegli le risposte: rimediare subito e portarlo verso il canale del locale.', why:'Sulle piattaforme il voto del cliente decide la posizione del locale: una chiamata gestita bene salva la recensione.'},
+  m:mk('phone', 'IL CLIENTE DEL DELIVERY', `Delivery · ${who.name} al telefono`, {turns, sources, caller:who.name}, 180000)};
+}
+
+// ————— Cassa · Riconciliazione dei pagamenti (classify) —————
+function riconciliaMission() {
+ const n = by(4, 5, 6);
+ const items = Array.from({length:n}, (_, i) => { const amt = G.int(24, 180), k = i < 2 ? ['manca', 'diverso'][i] : G.pick(['ok', 'ok', 'manca', 'diverso']); const dc = k === 'diverso' ? amt + G.pick([-10, -2, 2, 9]) : amt; const m = G.pick(['POS · carta', 'Stripe · Apple Pay', 'Stripe · Google Pay', 'POS · bancomat']); return {text:`${m} · ${G.euro(amt)}`, sub:k === 'manca' ? 'documento commerciale: nessuno' : `documento commerciale DC ${G.int(380, 470)} · ${G.euro(dc)}`, ans:k}; });
+ return {event:['Riconciliazione di fine servizio', `${n} pagamenti da incrociare`], brief:{what:'A fine servizio ogni pagamento elettronico deve avere il suo documento commerciale con lo stesso importo. Per ognuno: torna, manca il documento o l’importo è diverso.', why:'Dal 2026 POS e registratore sono collegati: l’Agenzia delle Entrate incrocia i pagamenti con i corrispettivi, e una differenza fa partire un controllo.'},
+  m:mk('classify', 'I CONTI TORNANO?', 'Cassa · pagamenti e documenti commerciali', {ask:'Incrocia ogni <b>pagamento elettronico</b> con il suo <b>documento commerciale</b>.', sources:[{t:'Regola', rows:[['Torna', 'stesso importo, documento emesso'], ['Manca', 'pagamento senza documento: va emesso'], ['Diverso', 'importi diversi: va corretto con un reso o un annullo']]}], states:[['ok', 'Torna'], ['manca', 'Manca'], ['diverso', 'Diverso']], items, winWhy:'Ogni pagamento ha il suo documento: i corrispettivi trasmessi coincidono con i dati dei pagamenti.'})};
+}
+
+// ————— Cassa · Chiusura di cassa (calc) —————
+function chiusuraMission() {
+ const fondo = G.pick([100, 150, 200]), cash = G.int(180, 640), out = lvl() >= 3 ? G.int(40, 120) : 0, tips = G.pick([0, 0, 25, 30]);
+ const answer = fondo + cash - out;
+ return {event:['Chiusura di cassa', 'Quanti contanti devono esserci?'], brief:{what:'A fine serata si conta il cassetto: fondo cassa iniziale più i contanti incassati, meno quello che è uscito in contanti con il suo documento. Le mance hanno un barattolo a parte.', why:'Se il cassetto non torna con i documenti commerciali, o mancano soldi o manca uno scontrino: in entrambi i casi va trovato stasera.'},
+  m:mk('calc', 'IL CASSETTO TORNA?', 'Cassa · chiusura della serata', {unit:'€', ask:'Quanti <b>contanti</b> devono esserci nel cassetto della cassa?', answer, sources:[{t:'Chiusura giornaliera', rows:[['Fondo cassa di apertura', G.euro(fondo)], ['Contanti incassati (documenti commerciali)', G.euro(cash)], ...(out ? [['Pagato in contanti al pescivendolo, con fattura', `− ${G.euro(out)}`] ] : []), ...(tips ? [['Mance della sala', `${G.euro(tips)} · barattolo a parte`]] : [])]}], hint:`Fondo più contanti incassati${out ? ', meno il pagamento in contanti' : ''}. Le mance non entrano nel cassetto.`, winWhy:'Il cassetto torna con i documenti: la chiusura si firma e il fondo cassa è pronto per domani.'})};
+}
+
+// ————— Bandi · Quanto vale il contributo (calc) —————
+function contributoMission() {
+ const pct = G.pick([30, 40, 50]), cap = G.pick([5000, 8000, 10000]);
+ const pool = [['Abbattitore nuovo', G.int(30, 60) * 100, true], ['Cappa aspirante nuova', G.int(20, 45) * 100, true], ['Software di gestione', G.int(12, 30) * 100, true], ['Sedie della sala', G.int(10, 25) * 100, false], ['Forno usato', G.int(15, 30) * 100, false]];
+ const list = G.shuffle(pool).slice(0, by(3, 4, 5)); if (!list.some(x => x[2])) list[0] = pool[0];
+ const vat = lvl() >= 3, ok = list.filter(x => x[2]).reduce((n, x) => n + x[1], 0), answer = Math.min(cap, Math.round(ok * pct / 100));
+ return {event:['Bando attrezzature (esempio)', 'Quanto contributo chiedere?'], brief:{what:'Il bando rimborsa una percentuale delle spese ammissibili, fino a un massimale. Somma solo quelle che rientrano, applica la percentuale e controlla il tetto.', why:'Chiedere un contributo sbagliato vuol dire domanda da rifare, o un contributo ridotto in fase di controllo.'},
+  m:mk('calc', 'QUANTO VALE IL CONTRIBUTO?', 'Bandi · la domanda da presentare', {unit:'€', ask:`Il bando paga il <b>${pct}%</b> delle spese ammissibili, fino a <b>${G.euro(cap)}</b>. Quanto contributo chiedi?`, answer, tolerance:1, sources:[{t:`Preventivi${vat ? ' (imponibile, IVA esclusa)' : ''}`, rows:list.map(x => [x[0], G.euro(x[1])])}, {t:'Bando (esempio)', rows:[['Ammesse', 'attrezzature e software nuovi'], ['Escluse', 'arredi e beni usati'], ['Massimale', G.euro(cap)], ...(vat ? [['IVA', 'mai ammissibile: si calcola sull’imponibile']] : [])]}], hint:`Somma solo le spese ammesse, poi il ${pct}%; se supera ${G.euro(cap)} vale il massimale.`, winWhy:'Contributo calcolato come lo calcolerà chi istruisce la domanda: niente tagli in fase di controllo.'})};
+}
+
+// ————— missioni in più, a caso —————
+// Non arrivano sempre: a ogni partita se ne accende solo una parte (p), e alcune solo dal capitolo indicato (ch: 1 = capitolo 2)
+// o dal livello indicato (lvl). Il Delivery non ha una missione di base: le sue arrivano solo dal capitolo 2 in poi.
+const extras = [
+ {page:'fidelity_nfc', fn:nfcPickMission, p:.85},
+ {page:'fidelity_nfc', fn:nfcBillMission, p:.7, lvl:2},
+ {page:'fidelity_nfc', fn:campaignMission, p:.6, ch:1},
+ {page:'app_builder', fn:pushMission, p:.85},
+ {page:'app_builder', fn:bookingMission, p:.7, lvl:2},
+ {page:'app_builder', fn:storeMission, p:.6, ch:1},
+ {page:'delivery', fn:commissionMission, p:.85, ch:1},
+ {page:'delivery', fn:dlvMenuMission, p:.8, ch:1},
+ {page:'delivery', fn:dlvPauseMission, p:.7, lvl:3},
+ {page:'delivery', fn:dlvPhoneMission, p:.7, ch:2},
+ {page:'fatture', fn:riconciliaMission, p:.75},
+ {page:'fatture', fn:chiusuraMission, p:.7, lvl:2},
+ {page:'bandi', fn:contributoMission, p:.75, lvl:2}
+];
+let active = new Set(extras);
+const drawExtras = () => { active = new Set(extras.filter(x => Math.random() < x.p)); };
+const ready = x => active.has(x) && (x.ch == null || gameState().chapter >= x.ch) && (x.lvl == null || lvl() >= x.lvl);
+const candidates = page => [...(base[page] ? [base[page]] : []), ...extras.filter(x => x.page === page && ready(x)).map(x => x.fn)];
+const eligible = page => candidates(page).length > 0;
+function generate(page) { const c = candidates(page); return c[rnd(c.length)](); }
+
 // ————— regista —————
 // Le missioni sono un bonus raro (una ogni un paio di minuti): il cuore della sfida sono i compiti veri.
-const pages = {sala:salaMission, kds:kdsMission, menu_pos:menuMission, centralino_ai:centralinoMission, recensioni_ai:recensioniMission, whatsapp:whatsappMission, fidelity_nfc:fidelityMission, magazzino:() => (rnd(2) ? ricevimentoMission : magazzinoMission)(), fatture:fattureMission, bandi:bandiMission, staff:() => (rnd(2) ? proceduraMission : staffMission)(), app_builder:appMission};
-const rotation = ['kds', 'sala', 'centralino_ai', 'magazzino', 'menu_pos', 'whatsapp', 'fatture', 'recensioni_ai', 'staff', 'app_builder', 'fidelity_nfc', 'bandi'];
+const base = {sala:salaMission, kds:kdsMission, menu_pos:menuMission, centralino_ai:centralinoMission, recensioni_ai:recensioniMission, whatsapp:whatsappMission, fidelity_nfc:fidelityMission, magazzino:() => (rnd(2) ? ricevimentoMission : magazzinoMission)(), fatture:fattureMission, bandi:bandiMission, staff:() => (rnd(2) ? proceduraMission : staffMission)(), app_builder:appMission};
+const rotation = ['kds', 'sala', 'centralino_ai', 'magazzino', 'menu_pos', 'delivery', 'whatsapp', 'fatture', 'recensioni_ai', 'staff', 'app_builder', 'fidelity_nfc', 'bandi'];
 // Il primo arrivo di ogni settore lo spiega un Otto di quel settore: cosa fai e perché, a tempo fermo.
 const briefs = {
  sala:{where:'in sala, al pannello del tavolo', role:'otto-bow', name:'Otto cameriere', what:'Il tavolo chiede il conto, ma c’è qualcosa da calcolare: una parte già pagata dal QR, il coperto, uno sconto o la divisione alla romana. Fai il conto con la calcolatrice, guardando i documenti.', why:'Se il conto non torna, l’ospite paga due volte o il locale perde soldi, e il documento fiscale va rifatto.'},
@@ -211,7 +379,8 @@ const briefs = {
  fatture:{where:'in cassa, alle fatture elettroniche', role:'otto-bow', name:'Otto cassiere', what:'Per emettere la fattura elettronica copi un codice dalla fonte giusta, una casella alla volta.', why:'Con un codice o una partita IVA sbagliati la fattura non arriva al cliente e va rifatta.'},
  bandi:{where:'sui bandi, con una domanda da preparare', role:'otto-inspector', name:'Otto consulente', what:'Il bando chiede quali spese inserire: per ognuna decidi se è ammissibile.', why:'Una sola spesa non ammessa può far perdere tutto il contributo.'},
  staff:{where:'in cucina, con la checklist HACCP', role:'otto-inspector', name:'Otto ispettore', what:'Valida la checklist HACCP: ogni controllo è conforme o no, secondo la procedura.', why:'In un controllo dell’ASL conta quello che è scritto: una non conformità registrata con l’azione giusta protegge il locale.'},
- app_builder:{where:'all’app del locale, sul piatto del giorno', role:'otto-chef', name:'Otto cuoco', what:'Il piatto del giorno va pubblicato sul menu QR: scegli tutti gli allergeni, e nessuno in più.', why:'Per chi è allergico è una questione di salute, e per il locale un obbligo di legge.'}
+ app_builder:{where:'all’app del locale, sul piatto del giorno', role:'otto-chef', name:'Otto cuoco', what:'Il piatto del giorno va pubblicato sull’app e sul menu QR: scegli tutti gli allergeni, e nessuno in più.', why:'Per chi è allergico è una questione di salute, e per il locale un obbligo di legge.'},
+ delivery:{where:'al tablet del delivery', role:'otto-phone', name:'Otto rider', what:'Il delivery ha i suoi conti e le sue regole: commissioni delle piattaforme, piatti che viaggiano bene, canali da fermare quando la cucina è piena.', why:'Un ordine delivery sbagliato non si vede in sala, ma si legge nelle recensioni della piattaforma e nel bonifico di fine mese.'}
 };
 // Seconde versioni delle spiegazioni: Otto non racconta il settore sempre con le stesse parole (si estrae a caso).
 const briefAlt = {
@@ -226,13 +395,14 @@ const briefAlt = {
  fatture:{what:'Per la fattura elettronica serve un codice preciso: copialo dalla fonte giusta, carattere per carattere.', why:'Un carattere sbagliato e la fattura non arriva al cliente: lo Sdi la scarta, e si ricomincia.'},
  bandi:{what:'Il bando paga solo certe spese: per ognuna decidi se va inserita nella domanda o lasciata fuori.', why:'Basta una spesa non ammessa per far scattare un controllo, e a volte la revoca del contributo.'},
  staff:{what:'La checklist HACCP di oggi va validata: ogni controllo, conforme o no, secondo la procedura scritta.', why:'In un controllo dell’ASL conta la registrazione: un frigo a 6 °C segnato come conforme è un problema doppio.'},
- app_builder:{what:'Il piatto del giorno va pubblicato con i suoi allergeni: tutti quelli giusti, e nessuno di troppo.', why:'Gli allergeni sono un obbligo di legge e una questione di salute: per un celiaco non esiste il “quasi”.'}
+ app_builder:{what:'Il piatto del giorno va pubblicato con i suoi allergeni: tutti quelli giusti, e nessuno di troppo.', why:'Gli allergeni sono un obbligo di legge e una questione di salute: per un celiaco non esiste il “quasi”.'},
+ delivery:{what:'Dal tablet passano Glovo, Deliveroo, Just Eat e il sito del locale: ogni ordine ha un costo e un tempo, e qui si decide come gestirli.', why:'Il delivery fatto male costa due volte: commissioni pagate e clienti persi.'}
 };
 Object.entries(briefAlt).forEach(([k, v]) => { briefs[k].alt = [v]; });
 
-const icons = {sala:'coins', kds:'chef', menu_pos:'menu', centralino_ai:'phone', recensioni_ai:'star', whatsapp:'message', fidelity_nfc:'card', magazzino:'box', fatture:'receipt', bandi:'radar', staff:'users', app_builder:'palette'};
+const icons = {sala:'coins', kds:'chef', menu_pos:'menu', delivery:'bike', centralino_ai:'phone', recensioni_ai:'star', whatsapp:'message', fidelity_nfc:'card', magazzino:'box', fatture:'receipt', bandi:'radar', staff:'users', app_builder:'palette'};
 let open = [];
-function spawn(force) {
+function spawn(force, forced) {
  if (!running && !force) return;
  if (!force && (document.body.classList.contains('touring') || document.hidden)) return schedule(3);
  // una missione arriva solo quando il giocatore ha preso la mano (due compiti fatti) e c'è spazio nel livello
@@ -240,11 +410,11 @@ function spawn(force) {
   const busy = new Set(open.filter(x => x.open).map(x => x.page));
   const order = rotation.slice(turn % rotation.length).concat(rotation.slice(0, turn % rotation.length));
   // nella storia, l'antagonista del capitolo porta più spesso missioni dalle sue sezioni
-  const bias = storyBias()?.filter(p => pages[p] && !busy.has(p)), fromStory = !force && bias?.length && Math.random() < .6 ? bias[Math.floor(Math.random() * bias.length)] : null;
-  const page = force || fromStory || order.find(p => !busy.has(p)) || order[0]; turn = rotation.indexOf(page) + 1;
+  const bias = storyBias()?.filter(p => eligible(p) && !busy.has(p)), fromStory = !force && bias?.length && Math.random() < .6 ? bias[Math.floor(Math.random() * bias.length)] : null;
+  const page = force || fromStory || order.find(p => eligible(p) && !busy.has(p)) || order.find(eligible); turn = rotation.indexOf(page) + 1;
   // la Sala usa un tavolo vero: chiede il conto, il "!" compare sulla pianta e si risolve nel suo pannello
   const tb = page === 'sala' ? D.tables.find(x => ['seated', 'ordered'].includes(x.status) && !['T3', 'T8'].includes(x.id) && !x.mission && x.lines.length) : null;
-  const made = page === 'sala' ? salaMission(tb) : pages[page](), ttl = Math.round(made.m.ttl * by(1, .85, .7)), rec = {open:true, page};
+  const made = page === 'sala' ? salaMission(tb) : forced ? forced() : generate(page), ttl = Math.round(made.m.ttl * by(1, .85, .7)), rec = {open:true, page};
   if (tb) tb.status = 'bill';
   const id = addMission({...made.m, ttl, page, ref:tb?.id, brief:made.brief ? {...briefs[page], alt:null, ...made.brief} : briefs[page], event:made.event, onDone:() => {
    rec.open = false; schedule(G.int(120, 180));
@@ -258,12 +428,15 @@ function spawn(force) {
  if (!force) schedule(open.some(x => x.open) ? G.int(90, 140) : 15);
 }
 // Per i test e le prove a mano: fa arrivare subito la missione di una sezione.
-export const spawnNow = page => spawn(page);
+// Con un indice sceglie una missione precisa del settore (0 = quella di base, poi le extra), anche se non è ancora sbloccata.
+export const spawnNow = (page, k) => spawn(page, k == null ? null : [...(base[page] ? [base[page]] : []), ...extras.filter(x => x.page === page).map(x => x.fn)][k]);
+export const extraList = () => extras.map(x => ({page:x.page, name:x.fn.name, ch:x.ch, lvl:x.lvl, on:active.has(x), ready:ready(x)}));
 function schedule(s) { clearTimeout(timer); timer = setTimeout(spawn, s * 1000); }
 // a ogni partita l'ordine dei settori si rimescola davvero: le prime missioni non sono mai le stesse
 const reshuffle = () => { for (let i = rotation.length - 1; i > 0; i--) { const j = rnd(i + 1); [rotation[i], rotation[j]] = [rotation[j], rotation[i]]; } };
-export function startMissions() { running = true;  turn = 0; reshuffle(); open = []; schedule(30); }
+export function startMissions() { running = true; turn = 0; reshuffle(); drawExtras(); open = []; schedule(30); }
 export function stopMissions() { running = false; D.service.game = false; clearTimeout(timer); }
 // Per i test: i generatori di ogni modulo, con un livello forzato.
-export const generators = Object.fromEntries(Object.entries(pages).map(([k, f]) => [k, () => f().m]));
+export const generators = Object.fromEntries(Object.entries(base).map(([k, f]) => [k, () => f().m]));
+export const extraGenerators = extras.map(x => ({page:x.page, name:x.fn.name, make:() => x.fn().m}));
 export const setTestLevel = l => { testLevel = l; };

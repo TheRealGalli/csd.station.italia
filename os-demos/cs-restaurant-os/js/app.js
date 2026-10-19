@@ -2,7 +2,7 @@ import {icon, otto} from './icons.js';
 import {modules, groups, groupNotes, moduleById} from './modules.js';
 import * as D from './demo.js';
 import {startTour} from './tour.js';
-import {initGame, gameChip, mountGame, gameInvite, gameOn, openShop, gameIntro, ecoPoints, missionPanel, gamePaused, isReserved, penalty, gameLevel, ottoMessage, setPressure, later, gameState} from './game.js';
+import {initGame, gameChip, mountGame, gameInvite, gameOn, openShop, gameIntro, ecoPoints, missionPanel, gamePaused, isReserved, penalty, gameLevel, ottoMessage, setPressure, later, gameState, pickOne} from './game.js';
 import {story} from './story.js';
 import {challenges} from './challenges.js';
 import {startMissions, stopMissions} from './missions.js';
@@ -33,7 +33,7 @@ function navItem(id, title, ic, extra='') {
  return `<a href="#${id}" class="nav-item ${a ? 'active' : ''}" ${a ? 'aria-current="page"' : ''}>${icon(ic)}<span>${title}</span>${extra}</a>`;
 }
 function navCounts() {
- return {sala:D.tables.filter(t => t.status !== 'free').length, kds:D.kitchenLines().filter(l => l.state !== 'served').length, magazzino:D.lowStock().length, recensioni_ai:D.reviews.filter(r => !ui.done.reviews.includes(r.who)).length};
+ return {sala:D.tables.filter(t => t.status !== 'free').length, delivery:D.dActive().length, kds:D.kitchenLines().filter(l => l.state !== 'served').length, magazzino:D.lowStock().length, recensioni_ai:D.reviews.filter(r => !ui.done.reviews.includes(r.who)).length};
 }
 function shell() {
  const c = navCounts();
@@ -53,7 +53,7 @@ function shell() {
  <aside class="otto-drawer" id="otto-drawer" aria-label="Otto" hidden></aside><div class="live-stack" id="live-stack" aria-live="polite"></div>`;
  render(); syncNavigation();
 }
-const pages = {home, modules:catalog, settings, sala, kds, menu_pos:menuPos, magazzino, centralino_ai:centralino, recensioni_ai:recensioni, whatsapp, fidelity_nfc:fidelity, fatture, bandi, staff, app_builder:brandPage};
+const pages = {home, modules:catalog, settings, sala, kds, menu_pos:menuPos, delivery:deliveryPage, magazzino, centralino_ai:centralino, recensioni_ai:recensioni, whatsapp, fidelity_nfc:fidelity, fatture, bandi, staff, app_builder:brandPage};
 function render() {
  const id = route(), m = moduleById(id);
  const title = m?.title || {home:SV.title, modules:'L’ecosistema', settings:'Impostazioni'}[id] || 'Pagina non trovata';
@@ -82,7 +82,7 @@ function liveRefresh() {
   // con una nuvoletta di Otto aperta la pagina resta ferma: l'aggiornamento si fa appena si chiude
   if (gamePaused()) { setTimeout(liveRefresh, 600); return; }
   const busy = document.activeElement?.matches?.('input,textarea,select') || dialog.open;
-  if (['home', 'sala', 'kds', 'menu_pos', 'magazzino', 'centralino_ai', 'recensioni_ai', 'fatture', 'staff'].includes(route()) && !busy) {
+  if (['home', 'sala', 'kds', 'menu_pos', 'delivery', 'magazzino', 'centralino_ai', 'recensioni_ai', 'fatture', 'staff'].includes(route()) && !busy) {
    const y = scrollY; render(); scrollTo(0, y);
   } else syncCounts();
  };
@@ -120,14 +120,14 @@ function home() {
  ${ecosystem()}`;
 }
 function ecosystem() {
- return `<section class="ecosystem"><div class="section-title"><div class="inline-title"><h2>Un ristorante, tutto collegato</h2><span class="count-tag">12 MODULI · 1 ASSISTENTE</span></div><a class="text-link" href="#modules">L’ecosistema${icon('arrow')}</a></div>
+ return `<section class="ecosystem"><div class="section-title"><div class="inline-title"><h2>Un ristorante, tutto collegato</h2><span class="count-tag">${modules.length} MODULI · 1 ASSISTENTE</span></div><a class="text-link" href="#modules">L’ecosistema${icon('arrow')}</a></div>
  <div class="eco-flow">${Object.entries(groups).map(([g, l], i) => `<div class="eco-col ${g === 'operations' ? 'eco-core' : ''}"><span class="eco-step">0${i + 1}</span><h3>${l}</h3><p>${groupNotes[g]}</p>${modules.filter(m => m.group === g).map(m => `<a href="#${m.id}" class="eco-item">${icon(m.icon)}<span>${m.title}</span>${m.live ? '<span class="live-dot"></span>' : ''}</a>`).join('')}</div>`).join('')}</div>
  <div class="eco-otto">${icon('otto-wink')}<p><b>Un piatto, tutto il sistema.</b> Quando un ospite ordina una carbonara dal QR, la comanda arriva in cucina, il pagamento con Stripe diventa documento commerciale per l’Agenzia delle Entrate e il magazzino scala pasta, guanciale, uova e pecorino. Nello stesso istante.</p></div></section>`;
 }
 function catalog() {
  const q = ui.query.toLowerCase();
  const list = modules.filter(m => (ui.category === 'all' || m.group === ui.category) && `${m.title} ${m.description}`.toLowerCase().includes(q));
- return `${heading('L’ECOSISTEMA', 'Dodici moduli. Un solo locale.', 'I moduli che usano i ristoranti ogni giorno, collegati tra loro e con Otto.')}${ecosystem()}
+ return `${heading('L’ECOSISTEMA', 'Tredici moduli. Un solo locale.', 'I moduli che usano i ristoranti ogni giorno, collegati tra loro e con Otto.')}${ecosystem()}
  <div class="catalog-toolbar"><div class="filter-tabs">${[['all', 'Tutti'], ...Object.entries(groups)].map(([k, v]) => `<button data-category="${k}" class="${ui.category === k ? 'selected' : ''}" aria-pressed="${ui.category === k}">${v}</button>`).join('')}</div><label class="input-search">${icon('search')}<input id="catalog-search" value="${esc(ui.query)}" placeholder="Cerca un modulo…" aria-label="Cerca un modulo"></label></div>
  <div class="module-grid" id="catalog-results">${list.map(m => `<a class="module-card" href="#${m.id}"><div class="module-card-top"><span class="module-icon tone-${m.group}">${icon(m.icon)}</span>${m.live ? badge('<span class="live-dot"></span> Live', 'badge-green') : badge(m.group === 'ai' ? 'AI' : 'Demo')}</div><h3>${m.title}</h3><p>${m.description}</p><ul class="mini-features">${m.features.map(f => `<li>${icon('check')}${f}</li>`).join('')}</ul><div class="module-card-footer"><span>${groups[m.group]}</span>${icon('arrow')}</div></a>`).join('')}</div>`;
 }
@@ -164,7 +164,7 @@ function tablePanel() {
  const lines = courses.map(([c, label]) => { const ls = t.lines.filter(l => D.dish(l.dish).course === c); return ls.length ? `<div class="course"><span class="eyebrow">${label.toUpperCase()}</span>${ls.map(l => `<div class="tline ${Date.now() - l.at < 2500 ? 'row-in' : ''}"><span class="q">${l.qty}×</span><span class="n">${esc(D.dish(l.dish).name)}${l.via === 'qr' ? '<i class="via-qr">QR</i>' : ''}${l.paid ? '<i class="via-paid">pagato</i>' : ''}</span>${badge(...(stateLabel[l.state] || ['']))}<b>${euro(D.dish(l.dish).price * l.qty)}</b></div>`).join('')}</div>` : ''; }).join('');
  const total = D.tableTotal(t);
  return `${head}<div class="tp-lines">${lines || '<p class="muted pad-s">Nessun piatto ancora. Aggiungi la comanda.</p>'}</div>
-  <div class="tp-total"><span>Conto${total !== D.tableDue(t) ? `<small>${euro(total - D.tableDue(t))} già pagati dal QR</small>` : ''}</span><strong class="${ui.prev['t' + t.id] !== total && ui.prev['t' + t.id] !== undefined ? 'bump' : ''}">${euro(total)}</strong></div>${(ui.prev['t' + t.id] = total, '')}
+  <div class="tp-total"><span>Conto${total !== D.tableDue(t) ? `<small>${euro(total - D.tableDue(t))} già pagati dal QR</small>` : ''}${t.perk ? `<small class="tp-perk">${icon('card')} ${esc(t.perk.label)} · −${euro(t.perk.amount)}</small>` : ''}</span><strong class="${ui.prev['t' + t.id] !== total && ui.prev['t' + t.id] !== undefined ? 'bump' : ''}">${euro(total)}</strong></div>${(ui.prev['t' + t.id] = total, '')}
   ${ui.adding ? `<div class="quick-menu">${D.menu.map(d => `<button data-add="${d.id}" ${D.available(d) ? '' : 'disabled'}><b>${esc(d.name)}</b><small>${euro(d.price)}${D.available(d) ? '' : ' · esaurito'}</small></button>`).join('')}</div>` : ''}
   ${t.mission && gameOn() ? `<div class="tp-mission">${missionPanel(t.mission)}</div>` : ''}
   <div class="tp-actions" ${t.mission && gameOn() ? 'hidden' : ''}>${btn(ui.adding ? 'Chiudi menu' : 'Aggiungi piatto', 'adding', ui.adding ? 'btn-secondary' : 'btn-primary', ui.adding ? 'close' : 'plus')}${t.status === 'bill' ? btn('Chiudi conto · carta', `close:${t.id}`, 'btn-dark', 'check') : btn('Richiedi il conto', `bill:${t.id}`, 'btn-secondary', 'receipt')}</div>`;
@@ -284,7 +284,7 @@ function qrAction(a) {
 function magazzino() {
  const low = D.lowStock();
  const sup = [...new Set(low.map(i => i.supplier))];
- return `${heading('GESTIONE · 08', 'Magazzino & food cost', 'Ogni piatto venduto scala i suoi ingredienti dalla ricetta. Le righe che si accendono stanno cambiando adesso.', `<span class="live-pill"><span class="live-dot"></span>Scarico automatico</span>`)}
+ return `${heading('GESTIONE · 09', 'Magazzino & food cost', 'Ogni piatto venduto scala i suoi ingredienti dalla ricetta. Le righe che si accendono stanno cambiando adesso.', `<span class="live-pill"><span class="live-dot"></span>Scarico automatico</span>`)}
  <div class="quote-layout"><section class="workspace-panel"><div data-anchor="magazzino" class="anchor-pad"></div><div class="panel-title"><h2>Dispensa e cella</h2>${badge(`${low.length} sotto scorta`, low.length ? 'badge-red' : 'badge-green')}</div><div class="stock">${D.ingredients.map(i => { const pct = Math.min(100, i.qty / (i.min * 3) * 100); const recent = Date.now() - (i.changed || 0) < 3000; return `<div class="stock-row ${i.qty <= i.min ? 'low' : ''} ${recent ? 'row-in' : ''}" data-ing="${i.id}"><span class="st-name"><b>${esc(i.name)}</b><small>${esc(i.supplier)}</small></span><span class="st-bar"><i style="width:${pct}%"></i><em style="left:${100 / 3}%"></em></span><span class="st-qty ${recent ? 'bump' : ''}">${D.fmtQty(i)}</span>${i.qty <= i.min ? badge('Sotto scorta', 'badge-red') : badge('OK', 'badge-green')}</div>`; }).join('')}</div></section>
  <aside class="module-side">${low.length ? ottoPanel('ORDINE PROPOSTO', `**${low.map(i => `${i.name} (+${i.min * 2} ${i.unit})`).join(', ')}** da ${sup.join(', ')}. Arriva domattina, prima del pranzo.`, btn('Invia l’ordine ai fornitori', 'reorder', 'btn-primary', 'check')) : ottoPanel('MAGAZZINO', 'Tutto sopra la scorta minima. Ti avviso io quando qualcosa scende.')}
  <div class="workspace-panel"><div class="panel-title"><h2>Ricette: cosa scala un piatto</h2></div>${D.menu.filter(d => d.course).slice(0, 5).map(d => `<div class="mini-row"><span><b>${esc(d.name)}</b><small>${Object.entries(d.recipe).map(([k, q]) => `${D.ingredient(k).name} ${q < 1 ? Math.round(q * 1000) + (D.ingredient(k).unit === 'kg' ? ' g' : '') : q + ' ' + D.ingredient(k).unit}`).join(' · ')}</small></span><span class="fc">${euro(+D.foodCost(d).toFixed(2))}</span></div>`).join('')}</div></aside></div>`;
@@ -292,30 +292,66 @@ function magazzino() {
 
 // ————— moduli AI e relazioni —————
 function centralino() {
- return `${heading('INTELLIGENZA ARTIFICIALE · 04', 'Centralino AI', 'Otto risponde mentre siete in servizio: prenota, segnala le allergie, gestisce la lista d’attesa.', `<span class="live-pill"><span class="live-dot"></span>Attivo</span>`)}
+ return `${heading('INTELLIGENZA ARTIFICIALE · 05', 'Centralino AI', 'Otto risponde mentre siete in servizio: prenota, segnala le allergie, gestisce la lista d’attesa.', `<span class="live-pill"><span class="live-dot"></span>Attivo</span>`)}
  <div class="metrics-grid">${[['phone', `Chiamate ${SV.today}`, D.calls.length], ['calendar', 'Prenotazioni prese', 2], ['users', 'In lista d’attesa', 1], ['clock', 'Minuti al telefono risparmiati', 14]].map(([i, t, n]) => `<article class="metric"><div><span>${t}</span>${icon(i)}</div><strong class="has-value">${n}</strong></article>`).join('')}</div>
  <div data-anchor="centralino"></div>
  <div class="call-grid">${D.liveCalls.filter(c => c.live).map(c => `<article class="workspace-panel call live-call"><div class="panel-title"><h2>${esc(c.caller)}</h2><span class="badge badge-red"><span class="live-dot red"></span> In corso</span></div><div class="transcript"><div class="bubble caller row-in">${esc(c.text)}</div><div class="bubble typing"><i></i><i></i><i></i></div></div></article>`).join('')}${D.calls.map(c => `<article class="workspace-panel call"><div class="panel-title"><h2>${esc(c.caller)}</h2><span>${badge(c.outcome, 'badge-green')} <small class="muted">${c.time}</small></span></div><div class="transcript"><div class="bubble caller">${esc(c.text)}</div><div class="bubble agent"><small>${icon('sparkle')} Otto</small>${esc(c.reply)}</div></div></article>`).join('')}</div>`;
 }
 function recensioni() {
- return `${heading('INTELLIGENZA ARTIFICIALE · 05', 'Recensioni AI', 'Ogni recensione letta da Otto, con una risposta nel tuo tono pronta da approvare.')}
+ return `${heading('INTELLIGENZA ARTIFICIALE · 06', 'Recensioni AI', 'Ogni recensione letta da Otto, con una risposta nel tuo tono pronta da approvare.')}
  <div class="review-list"><div data-anchor="recensioni"></div>${D.reviews.map(r => { const done = ui.done.reviews.includes(r.who); return `<article class="workspace-panel review ${done ? 'done' : ''}"><div class="rv-head"><span class="stars">${'★'.repeat(r.stars)}<i>${'★'.repeat(5 - r.stars)}</i></span><b>${esc(r.who)}</b><small>${r.source}</small>${done ? badge('Risposta pubblicata', 'badge-green') : ''}</div><p class="rv-text">“${esc(r.text)}”</p>${ottoNote(r.draft, r.stars < 3 ? 'warn' : '')}${done ? '' : `<div class="detail-actions">${btn('Approva e pubblica', `review:${r.who}`, 'btn-primary', 'check')}</div>`}</article>`; }).join('')}</div>
  ${ottoNote('Tema ricorrente nell’ultimo mese: **attesa sui secondi il sabato**. Lo stesso dato emerge dai tempi della cucina.', 'info')}`;
 }
 function whatsapp() {
- return `${heading('CLIENTI & MARKETING · 06', 'WhatsApp & campagne', 'Promemoria automatici e campagne preparate da Otto, solo agli ospiti che hanno dato il consenso.')}
+ return `${heading('CLIENTI & MARKETING · 07', 'WhatsApp & campagne', 'Promemoria automatici e campagne preparate da Otto, solo agli ospiti che hanno dato il consenso.')}
  <div data-anchor="whatsapp"></div><div class="quote-layout"><section class="workspace-panel"><div class="panel-title"><h2>Campagne</h2></div>${D.campaigns.map(c => `<div class="mini-row"><span><b>${esc(c.name)}</b><small>${c.kind}${c.sent ? ` · ${c.sent} inviati · ${c.read} letti` : ''}</small></span>${c.sent ? badge(`${Math.round(c.read / c.sent * 100)}% letti`, 'badge-green') : btn('Rivedi', 'toast:Bozza pronta: in produzione parte dopo la tua approvazione', 'btn-secondary', '')}</div>`).join('')}</section>
  <aside class="module-side"><div class="phone-mock"><div class="wa bot">Ciao Luca! Ti aspettiamo ${SV.name === 'pranzo' ? 'oggi alle 13:15' : 'stasera alle 20:45'} per il vostro anniversario 🥂 Abbiamo tenuto per voi il tavolo vicino alla finestra.</div><div class="wa client">Grazie mille, a ${SV.name === 'pranzo' ? 'dopo' : 'stasera'}!</div></div>${ottoPanel('IDEA', 'Arrivano i porcini e a novembre il tartufo: ho preparato una campagna per **118 ospiti** che hanno ordinato piatti ai funghi negli ultimi 6 mesi.')}</aside></div>`;
 }
-function fidelity() {
- return `${heading('CLIENTI & MARKETING · 07', 'Fidelity & NFC', 'Gli ospiti abituali riconosciuti al tavolo, con punti e premi.')}
- <div data-anchor="fidelity"></div>
- <section class="workspace-panel"><div class="table-scroll"><table class="data-table"><thead><tr><th>Ospite</th><th>Visite</th><th>Punti</th><th>Premio disponibile</th></tr></thead><tbody>${D.members.map(m => `<tr><td><b>${esc(m.name)}</b></td><td>${m.visits}</td><td>${m.points}</td><td>${m.reward === '—' ? '—' : badge(m.reward, 'badge-green')}</td></tr>`).join('')}</tbody></table></div></section>
- ${ottoNote('**Luca Pieri** arriva alle 20:45 per l’anniversario ed è alla 15ª visita: ha diritto al dessert offerto. L’ho segnalato sul tavolo 10.')}`;
+// ————— FIDELITY & NFC —————
+// La card fisica: bianca, con il logo del locale e il segno NFC, come quelle che si lasciano sul tavolo.
+const nfcCard = (name = 'Card fedeltà', sub = 'Avvicina al lettore del tavolo') => `<div class="nfc-card" aria-hidden="true"><span class="nfc-logo">OdB</span><b>${esc(D.restaurant.name)}</b><small>${esc(name)}</small><span class="nfc-wave"><i></i><i></i><i></i></span><em>${esc(sub)}</em></div>`;
+const tierBadge = m => { const t = D.tierOf(m); return `<span class="tier tier-${t.id}">${t.name}</span>`; };
+const fmtPts = n => new Intl.NumberFormat('it-IT').format(n);
+// Nella sfida: l'ospite ha appoggiato la card e aspetta. Si sceglie cosa spetta secondo le regole del programma.
+function nfcTapCard(tap) {
+ const m = tap.m, t = D.table(tap.table), r = tap.want && D.reward(tap.want), w = D.nfcWait(tap), tier = D.tierOf(m);
+ const opt = (v, label, sub) => `<button class="nfc-opt" data-nfc-choice="${tap.id}|${v}"><b>${label}</b><small>${sub}</small></button>`;
+ return `<article class="nfc-tap ${D.nfcRed(tap) ? 'red' : ''}" data-nfc-tap="${tap.id}"><header><span class="nfc-pulse">${icon('card')}</span><div><b>${esc(m.name)}</b><small>Tavolo ${tap.table.slice(1)} · ${tierBadge(m)} · saldo <b>${fmtPts(m.points)} punti</b> · ${fmtPts(m.year)} negli ultimi 12 mesi</small></div><span class="nfc-time"><span data-nfc-wait="${tap.id}">${Math.floor(w)}</span> s</span></header>
+  <p class="nfc-ask">${tap.ask === 'premio' ? `“Vorrei usare i punti per <b>${esc(r.name.toLowerCase())}</b>.”` : `“Il conto, grazie. Ho la card.” · conto <b>${euro(D.tableTotal(t))}</b>`}</p>
+  <div class="nfc-opts">${D.rewards.map(x => opt(`reward:${x.id}`, x.name, `${fmtPts(x.cost)} punti · vale ${euro(x.value)}`)).join('')}${opt('sconto', 'Sconto del livello', tier.off ? `${tier.name}: ${tier.off}% sul conto` : 'Argento 5% · Oro 10%')}${opt('punti', 'Solo punti', `+${Math.round(D.tableTotal(t))} punti con il conto di stasera`)}</div>
+  <i class="nfc-bar"><i data-nfc-bar="${tap.id}" style="width:${Math.min(100, w / (D.nfc.cfg.leave + D.nfc.cfg.bonus * 1.5) * 100)}%"></i></i></article>`;
 }
+function nfcReader() {
+ const live = gameOn() && D.nfc.on;
+ const taps = live ? D.nfc.taps : [];
+ return `<section class="workspace-panel nfc-reader"><div class="panel-title"><h2>${icon('card')} Al tavolo, adesso</h2>${live ? badge(`${taps.length} card in attesa`, taps.length ? 'badge-amber' : 'badge-green') : badge('Lettori NFC collegati', 'badge-green')}</div>
+  <div class="nfc-stage">${nfcCard()}<div class="nfc-how"><b>Un tocco, e Otto sa chi è</b><span>Card fisica o card nel telefono: il lettore sul tavolo riconosce l’ospite, mostra livello, preferenze e allergie al cameriere e somma i punti alla chiusura del conto.</span></div></div>
+  ${live ? (taps.length ? `<div class="nfc-taps">${taps.map(nfcTapCard).join('')}</div>` : `<p class="nfc-empty">Nessuna card in attesa. Quando un ospite appoggia la card, decidi tu cosa spetta: <b>premio</b>, <b>sconto del livello</b> o <b>solo punti</b>.</p>`)
+   : `<ul class="nfc-log">${D.nfcLog.slice(0, 5).map(x => `<li><span class="nfc-dot">${icon('card')}</span><span><b>${esc(x.who)}</b> · tavolo ${x.table.slice(1)}<small>${esc(x.what)}</small></span><em>${x.time}${x.pts ? `<b class="${x.pts.startsWith('−') ? 'neg' : ''}">${x.pts}</b>` : ''}</em></li>`).join('')}</ul>`}</section>`;
+}
+function fidelity() {
+ const seg = D.segments.find(s => s.id === (ui.fidSeg || 'oro')), inSeg = D.members.filter(seg.test), reach = inSeg.filter(m => m.wa);
+ return `${heading('CLIENTI & MARKETING · 08', 'Fidelity & NFC', 'L’ospite appoggia la card al lettore del tavolo: Otto lo riconosce, somma i punti e propone il premio giusto. Il livello sale con le visite, i premi si pagano con i punti.', `<span class="live-pill"><span class="live-dot"></span>412 iscritti</span>`)}
+ <div class="metrics-grid">${kpi('fm', 'Iscritti alla card', '412', '+18 questo mese · 71% con consenso WhatsApp', 'users', 'hero')}${kpi('fv', 'Coperti da iscritti', '38%', `${SV.of === 'del pranzo' ? 'oggi a pranzo' : 'stasera'} 11 ospiti riconosciuti`, 'card')}${kpi('fr', 'Premi riscattati', '27', 'in ottobre · valore € 412', 'star')}${kpi('fd', 'Ritorno medio', '24 giorni', 'tra una visita e l’altra · erano 39', 'calendar')}</div>
+ <div data-anchor="fidelity"></div>
+ <div class="fid-layout">${nfcReader()}
+  <div class="module-side">
+  <section class="workspace-panel"><div class="panel-title"><h2>Livelli</h2>${badge('Punti degli ultimi 12 mesi')}</div>${D.tiers.map(t => `<div class="mini-row"><span><b><span class="tier tier-${t.id}">${t.name}</span> da ${fmtPts(t.from)} punti</b><small>${t.perk}</small></span><span class="muted">${D.members.filter(m => D.tierOf(m).id === t.id).length} ospiti</span></div>`).join('')}</section>
+  <section class="workspace-panel"><div class="panel-title"><h2>Premi</h2>${badge('1 punto = 1 euro speso')}</div>${D.rewards.map(r => `<div class="mini-row"><span><b>${r.name}</b><small>vale ${euro(r.value)} · riscattato ${{caffe:14, dessert:9, chianti:3, cena:1}[r.id]} volte a ottobre</small></span><b class="pts">${fmtPts(r.cost)} pt</b></div>`).join('')}</section>
+  </div>
+  <section class="workspace-panel fid-campaign"><div class="panel-title"><h2>${icon('message')} Campagna agli iscritti</h2></div>
+   <div class="seg-chips">${D.segments.map(s => `<button data-fid-seg="${s.id}" class="${s.id === seg.id ? 'on' : ''}">${s.name}</button>`).join('')}</div>
+   <p class="seg-count"><b>${reach.length}</b> di ${inSeg.length} ospiti con consenso WhatsApp${inSeg.length > reach.length ? ` · ${inSeg.length - reach.length} senza consenso restano fuori` : ''}</p>
+   <div class="wa bot seg-msg">${esc({oro:'Ciao {nome}! Per i nostri ospiti Oro: giovedì 24 serata vini toscani in anteprima, con il tuo tavolo preferito già tenuto. Rispondi SÌ per prenotare.', lontani:'Ciao {nome}, è un po’ che non ci vediamo! Sono arrivati i porcini: alla prossima cena il caffè e l’amaro li offriamo noi.', compleanno:'Buon compleanno in anticipo, {nome}! 🎂 Il dessert del tuo compleanno è offerto: ti basta appoggiare la card al tavolo.', premio:'Ciao {nome}, hai un premio da usare sulla card: {premio}. Ti aspettiamo!'}[seg.id])}</div>
+   <div class="detail-actions">${btn('Prepara la campagna', 'fid-campaign', 'btn-primary', 'send')}</div></section>
+ </div>
+  <section class="workspace-panel fid-members"><div class="panel-title"><h2>Ospiti riconosciuti</h2>${badge('Riconosciuti dalla card al tavolo')}</div><div class="table-scroll"><table class="data-table"><thead><tr><th>Ospite</th><th>Livello</th><th>Saldo</th><th>Visite</th><th>Preferenze</th><th>Premio pronto</th></tr></thead><tbody>${D.members.map(m => { const nt = D.nextTier(m), b = D.bestReward(m), prog = nt ? Math.min(100, m.year / nt.from * 100) : 100; return `<tr><td><b>${esc(m.name)}</b><small>card ${m.uid} · dal ${m.since}</small></td><td>${tierBadge(m)}<span class="tier-bar"><i style="width:${prog}%"></i></span><small>${nt ? `${fmtPts(nt.from - m.year)} punti a ${nt.name}` : 'Livello massimo'}</small></td><td><b>${fmtPts(m.points)}</b></td><td>${m.visits}<small>ultima ${m.last}</small></td><td>${esc(m.fav)}${m.allergy ? `<small class="allergy">${icon('alert')} ${esc(m.allergy)}</small>` : ''}</td><td>${b ? badge(b.name, 'badge-green') : `<small>${fmtPts(D.rewards[0].cost - m.points)} punti al primo premio</small>`}</td></tr>`; }).join('')}</tbody></table></div></section>
+ ${ottoNote('**Luca Pieri** arriva alle 20:45 per l’anniversario: è livello **Oro** e ha 340 punti, abbastanza per il dessert offerto. L’ho segnalato al tavolo 10 e in cucina.')}`;
+}
+
 function fatture() {
  const pays = D.service.payments, stripePays = pays.filter(p => p.method.startsWith('Stripe')), sent = pays.filter(p => p.ade === 'Trasmesso').length;
- return `${heading('GESTIONE · 09', 'Cassa & Agenzia delle Entrate', 'Ogni incasso, dal POS o dal QR con Stripe, diventa un documento commerciale e finisce nei corrispettivi trasmessi all’Agenzia. Senza fare niente.', `<span class="live-pill"><span class="live-dot"></span>Corrispettivi collegati</span>`)}
+ return `${heading('GESTIONE · 10', 'Cassa & Agenzia delle Entrate', 'Ogni incasso, dal POS o dal QR con Stripe, diventa un documento commerciale e finisce nei corrispettivi trasmessi all’Agenzia. Senza fare niente.', `<span class="live-pill"><span class="live-dot"></span>Corrispettivi collegati</span>`)}
  <div class="metrics-grid">${kpi('fz', `Incassato ${SV.today}`, euro(D.service.revenue), `${D.service.closed.length} conti chiusi`, 'coins', 'hero')}${kpi('st', 'Pagato dal QR con Stripe', euro(stripePays.reduce((n, p) => n + p.amount, 0)), `${stripePays.length} pagamenti anticipati`, 'card')}${kpi('dc', 'Documenti commerciali', pays.length, `Emessi ${SV.today}`, 'receipt')}${kpi('ade', 'Trasmessi all’Agenzia', sent, `${pays.length - sent} in invio`, 'check')}</div>
  <div data-anchor="fatture"></div>
  <div class="quote-layout"><section class="workspace-panel"><div class="panel-title"><h2>Incassi e documenti commerciali</h2>${badge('In tempo reale', 'badge-green')}</div><div class="table-scroll"><table class="data-table pay-table"><thead><tr><th>Documento</th><th>Ora</th><th>Cosa</th><th>Metodo</th><th>Importo</th><th>Agenzia Entrate</th></tr></thead><tbody>${pays.map(p => `<tr class="${Date.now() - p.at < 3000 ? 'row-in' : ''}"><td><b>${p.id}</b></td><td>${p.time}</td><td>${esc(p.what)}</td><td>${p.method.startsWith('Stripe') ? `<span class="stripe-tag">stripe</span> ${esc(p.method.slice(9))}` : esc(p.method)}</td><td><b>${euro(p.amount)}</b></td><td>${badge(p.ade, p.ade === 'Trasmesso' ? 'badge-green' : 'badge-amber')}</td></tr>`).join('') || '<tr><td colspan="6" class="muted">I primi incassi del servizio arrivano qui.</td></tr>'}</tbody></table></div></section>
@@ -324,14 +360,31 @@ function fatture() {
   <div class="ade-row ok"><span>${icon('check')}</span><div><b>Stripe riconciliato con i corrispettivi</b><small>Ogni pagamento dal QR emette il documento commerciale con lo stesso importo: l’incrocio dell’Agenzia con i dati dei pagamenti torna sempre.</small></div></div>
   <div class="ade-row next"><span>${icon('clock')}</span><div><b>Dal 2027 la cassa può diventare software</b><small>L’Agenzia sta introducendo soluzioni software certificate per memorizzare e trasmettere i corrispettivi da PC, tablet o SmartPOS. CS Restaurant OS è pensato per diventare la tua cassa.</small></div></div></div>
   ${ottoPanel('IL PUNTO DI OTTO', `${SV.name === 'pranzo' ? 'Oggi a pranzo' : 'Stasera'} **${pays.length} documenti commerciali**, ${sent} già trasmessi. La cena dello **Studio Marchetti** va fatturata: ho preparato la fattura elettronica con i dati dell’ultima volta.`)}
+  ${cashClose(pays)}
   <div class="workspace-panel"><div class="panel-title"><h2>Fatture</h2></div>${D.invoices.map(f => `<div class="mini-row"><span><b>${f.n} · ${esc(f.to)}</b><small>${euro(f.amount)}</small></span>${badge(f.state, f.state.includes('SDI') ? 'badge-green' : 'badge-amber')}</div>`).join('')}</div></aside></div>
  <div class="notice">${icon('info')}<p>Anteprima dimostrativa: nessun collegamento reale con l’Agenzia delle Entrate o con Stripe. Date e regole fiscali vanno sempre verificate con il tuo commercialista.</p></div>`;
 }
 
+// La chiusura di cassa: ogni metodo di pagamento con il suo totale, e quanto deve esserci nel cassetto.
+function cashClose(pays) {
+ const by = k => pays.filter(p => k(p.method)).reduce((n, p) => n + p.amount, 0), fondo = 150, cash = by(m => m === 'Contanti');
+ const rows = [['Contanti', cash], ['POS · carte', by(m => m.startsWith('POS'))], ['Stripe · QR e app', by(m => m.startsWith('Stripe'))], ['Piattaforme delivery', by(m => m.startsWith('Bonifico'))]];
+ return `<div class="workspace-panel cash-close"><div class="panel-title"><h2>${icon('coins')} Chiusura di cassa</h2>${badge('Si chiude alle 00:30')}</div>${rows.map(([k, v]) => `<div class="mini-row"><span><b>${k}</b></span><b>${euro(v)}</b></div>`).join('')}<div class="mini-row cc-drawer"><span><b>Nel cassetto</b><small>fondo cassa ${euro(fondo)} + contanti incassati</small></span><b>${euro(fondo + cash)}</b></div><p class="cc-note">Le piattaforme delivery pagano con bonifico ogni 15 giorni, già al netto delle commissioni: Otto le riconcilia con i documenti commerciali emessi.</p></div>`;
+}
 function bandi() {
- return `${heading('GESTIONE · 10', 'Bandi & opportunità', 'Otto cerca contributi adatti al locale e ti avvisa prima della scadenza.')}
- <div class="feed"><div data-anchor="bandi"></div>${D.grants.map(g => `<article class="update"><div class="update-top">${badge('Compatibilità ' + g.fit, g.fit === 'Alta' ? 'badge-green' : '')}<small>${esc(g.who)}</small>${badge('Scadenza ' + g.deadline, 'badge-amber')}</div><h3>${esc(g.title)}</h3>${ottoNote(g.fit === 'Alta' ? 'Il nuovo abbattitore e la cappa rientrano tra le spese ammissibili: contributo stimato fino al 40%.' : 'Utile per il nuovo menu digitale e le prenotazioni online.')}</article>`).join('')}</div>
- <div class="notice">${icon('info')}<p>Bandi di esempio, non reali.</p></div>`;
+ const open = D.grants.filter(g => g.fit !== 'Bassa'), est = open.reduce((n, g) => n + Math.min(g.cap, g.our * g.pct / 100), 0);
+ const fact = (k, v) => `<span><em>${k}</em><b>${v}</b></span>`;
+ return `${heading('GESTIONE · 11', 'Bandi & opportunità', 'Otto legge ogni settimana i bandi di Regione, Camera di Commercio e Ministeri, li incrocia con il locale e con le spese che stai per fare, e prepara i documenti prima della scadenza.', `<span class="live-pill"><span class="live-dot"></span>${D.grants.length} bandi seguiti</span>`)}
+ <div class="metrics-grid">${kpi('bc', 'Contributi possibili', euro(est), `su ${open.length} bandi compatibili`, 'coins', 'hero')}${kpi('bs', 'Prossima scadenza', D.grants[0].deadline, `tra ${D.grants[0].days} giorni · ${D.grants[0].who}`, 'calendar')}${kpi('bd', 'Documenti pronti', `${D.grants.flatMap(g => g.docs).filter(d => d[1]).length}/${D.grants.flatMap(g => g.docs).length}`, 'preparati da Otto', 'file')}${kpi('bh', 'Già ottenuti', euro(D.grantHistory.reduce((n, g) => n + g.amount, 0)), 'dal 2020', 'check')}</div>
+ <div data-anchor="bandi"></div>
+ <div class="quote-layout"><div class="grant-list">${D.grants.map(g => { const ready = g.docs.filter(d => d[1]).length; return `<article class="workspace-panel grant ${g.fit === 'Bassa' ? 'off' : ''}"><div class="grant-top">${badge('Compatibilità ' + g.fit.toLowerCase(), g.fit === 'Alta' ? 'badge-green' : g.fit === 'Media' ? 'badge-amber' : '')}<small>${esc(g.who)}</small>${badge(g.days ? `Scadenza ${g.deadline} · ${g.days} giorni` : 'A sportello', g.days && g.days < 45 ? 'badge-red' : '')}</div>
+   <h3>${esc(g.title)}</h3>
+   <div class="grant-facts">${fact('Contributo', g.pct ? `${g.pct}% a fondo perduto` : g.kind)}${fact('Massimale', g.cap ? euro(g.cap) : '—')}${fact('Spese ammesse', esc(g.spend))}${fact('Le tue spese', g.our ? `${euro(g.our)} → <i>${euro(Math.min(g.cap, g.our * g.pct / 100))}</i>` : '—')}</div>
+   ${g.docs.length ? `<div class="grant-docs"><span class="eyebrow">DOCUMENTI · ${ready}/${g.docs.length}</span><span class="km-bar"><i style="width:${ready / g.docs.length * 100}%"></i></span><ul>${g.docs.map(([d, ok]) => `<li class="${ok ? 'ok' : ''}">${icon(ok ? 'check' : 'clock')}${esc(d)}</li>`).join('')}</ul></div>` : ''}
+   ${ottoNote(g.note, g.fit === 'Bassa' ? 'info' : '')}</article>`; }).join('')}</div>
+ <aside class="module-side"><div class="workspace-panel"><div class="panel-title"><h2>Come legge un bando</h2></div>${[['Chi può', 'forma della società, anni di attività, codice ATECO 56.10.11'], ['Cosa paga', 'solo spese nuove, dopo la domanda, con fattura e pagamento tracciato'], ['Quanto', 'percentuale sulle spese ammesse, fino al massimale'], ['Regola de minimis', 'massimo € 300.000 di aiuti in tre anni, da dichiarare']].map(([k, v]) => `<div class="mini-row"><span><b>${k}</b><small>${v}</small></span></div>`).join('')}</div>
+  <div class="workspace-panel"><div class="panel-title"><h2>Già ottenuti</h2></div>${D.grantHistory.map(g => `<div class="mini-row"><span><b>${esc(g.title)}</b><small>${g.state}</small></span><b>${euro(g.amount)}</b></div>`).join('')}</div></aside></div>
+ <div class="notice">${icon('info')}<p>Bandi di esempio, non reali: importi, scadenze e regole vanno sempre verificati sul testo ufficiale e con il tuo commercialista.</p></div>`;
 }
 // Gli ordini dello chef durante il servizio: togliere un piatto finito o cambiargli il prezzo.
 // Si fanno dall'editor del menu o chiedendo a Otto; il gioco controlla che il menu sia cambiato davvero.
@@ -356,16 +409,85 @@ function fridgePanel() {
   <div class="fridge-grid">${D.fridges.map(f => { const [label, note] = act(f), red = D.fridgeRed(f); return `<article class="fridge ${red ? 'red' : ''} st-${f.state}" data-fridge="${f.id}"><span class="fr-name">${esc(f.name)}</span><strong><span data-fridge-temp="${f.id}">${fridgeTemp(f)}</span><small> °C</small></strong><span class="fr-max">massimo ${String(f.max).replace('-', '−')} °C</span><span class="fr-note">${f.state === 'ok' ? icon('check') : icon('alert')} ${note}</span>${label && f.state !== 'repair' ? `<button class="btn btn-secondary fr-act" data-fridge-act="${f.id}">${label}</button>` : f.state === 'repair' ? `<span class="fr-wait">${icon('clock')} ${label}</span>` : ''}</article>`; }).join('')}</div></section>`;
 }
 function staff() {
- return `${heading('GESTIONE · 11', 'Staff & HACCP', `Chi è in turno ${SV.today}, le celle frigorifere e le checklist della cucina.`)}
+ return `${heading('GESTIONE · 12', 'Staff & HACCP', `Chi è in turno ${SV.today}, le celle frigorifere e le checklist della cucina.`)}
  ${fridgePanel()}
  <div class="quote-layout"><section class="workspace-panel"><div class="panel-title"><h2>Checklist HACCP di oggi</h2>${badge(`${D.haccp.filter((h, i) => h.done || ui.done.haccp.includes(i)).length}/${D.haccp.length}`)}</div><div data-anchor="staff" class="anchor-pad"></div><div class="haccp">${D.haccp.map((h, i) => { const done = h.done || ui.done.haccp.includes(i); return `<label class="task ${done ? 'done' : ''}"><input type="checkbox" data-haccp="${i}" ${done ? 'checked' : ''} ${h.done ? 'disabled' : ''}><span><b>${esc(h.task)}</b><small>${esc(h.by)}</small></span></label>`; }).join('')}</div></section>
  <aside class="module-side"><div class="workspace-panel"><div class="panel-title"><h2>In turno ${SV.today}</h2></div>${D.staff.map(s => `<div class="mini-row"><span><b>${esc(s.name)}</b><small>${s.role}</small></span><span class="muted">${s.shift}</span></div>`).join('')}</div>
  ${ottoPanel('TURNI', 'Sabato prossimo hai **38 coperti** già prenotati: ti suggerisco una persona in più in sala dalle 20.')}</aside></div>`;
 }
+// ————— BRAND & APP —————
+// Il costruttore dell'app del locale: nome, colori e sezioni a sinistra, l'app vera sul telefono al centro, notifiche e store a destra.
+function appPhone() {
+ const a = D.appCfg, th = a.themes[a.theme], on = id => a.blocks.find(b => b.id === id)?.on;
+ const tabs = [['home', 'Home', 'home'], ...(on('prenota') ? [['prenota', 'Prenota', 'calendar']] : []), ...(on('card') ? [['card', 'Card', 'card']] : []), ['notifiche', 'Avvisi', 'bell']];
+ if (!tabs.some(t => t[0] === a.tab)) a.tab = 'home';
+ const luca = D.member('M1'), tier = D.tierOf(luca), nt = D.nextTier(luca);
+ const tile = (id, ic, t, s) => on(id) ? `<button class="ap-tile" data-app-tab="${id === 'menu' || id === 'delivery' || id === 'eventi' ? 'home' : id}">${icon(ic)}<b>${t}</b><small>${s}</small></button>` : '';
+ const body = {
+  home:`<div class="ap-hero"><small>${SV.name === 'pranzo' ? 'OGGI A PRANZO' : 'STASERA'}</small><b>Porcini del Mugello e tartufo di San Miniato</b><span>Tavoli liberi dalle 21:30</span></div>
+   <div class="ap-tiles">${tile('prenota', 'calendar', 'Prenota', 'Un tavolo in 3 tocchi')}${tile('menu', 'menu', 'Menu', 'Con gli allergeni')}${tile('card', 'card', 'La tua card', `${fmtPts(luca.points)} punti`)}${tile('delivery', 'bike', 'A domicilio', 'Senza commissioni')}${tile('eventi', 'star', 'Serate', 'Giovedì vini toscani')}</div>
+   <div class="ap-hours"><b>Orari</b>${a.hours.map(([d, h]) => `<span><em>${d}</em>${h}</span>`).join('')}</div>`,
+  prenota:`<div class="ap-form"><b class="ap-h">Prenota un tavolo</b><span class="ap-lbl">Quando</span><div class="ap-chips">${['Oggi', 'Domani', 'Ven 24', 'Sab 25'].map((d, i) => `<i class="${i === 0 ? 'on' : ''}">${d}</i>`).join('')}</div><span class="ap-lbl">Persone</span><div class="ap-step"><i>−</i><b>2</b><i>+</i></div><span class="ap-lbl">Orari liberi</span><div class="ap-chips">${['19:30', '21:30', '21:45', a.booking.last].map((h, i) => `<i class="${i === 1 ? 'on' : ''}">${h}</i>`).join('')}</div><small class="ap-note">Online fino a ${a.booking.maxOnline} persone. Da ${a.booking.deposit} persone caparra di ${euro(a.booking.depositAmount)} a testa, rimborsata fino a ${a.booking.advance} prima.</small><span class="ap-cta">Conferma la prenotazione</span></div>`,
+  card:`<div class="ap-card"><span class="ap-cardtop"><b>${esc(a.short)}</b><span class="tier tier-${tier.id}">${tier.name}</span></span><strong>${fmtPts(luca.points)}<small> punti</small></strong><span class="ap-cardname">${esc(luca.name)}</span><span class="tier-bar"><i style="width:${nt ? luca.year / nt.from * 100 : 100}%"></i></span><small>${nt ? `${fmtPts(nt.from - luca.year)} punti al livello ${nt.name}` : 'Livello Oro · sconto 10% sul conto'}</small></div>
+   <b class="ap-h">I tuoi premi</b>${D.rewards.map(r => `<div class="ap-rw ${luca.points >= r.cost ? 'ok' : ''}"><span>${r.name}</span><b>${luca.points >= r.cost ? 'Pronto' : `${fmtPts(r.cost - luca.points)} pt`}</b></div>`).join('')}<small class="ap-note">Appoggia il telefono al lettore del tavolo come una card NFC.</small>`,
+  notifiche:`<b class="ap-h">Avvisi</b>${[...a.pushes].map(p => `<div class="ap-push"><span class="ap-pi">${esc(a.short)}</span><span><b>${esc(p.title)}</b><small>${esc(p.text)}</small></span><em>${p.when}</em></div>`).join('')}`
+ }[a.tab];
+ return `<div class="guest-phone app-phone" style="--abg:${th.bg};--aink:${th.ink}"><div class="ap-top"><span class="gp-logo">${esc(a.short)}</span><span><b>${esc(a.name)}</b><small>Firenze · ${SV.name === 'pranzo' ? 'aperto ora' : 'aperto fino alle 23'}</small></span>${icon('bell')}</div><div class="ap-body">${body}</div>
+  <nav class="ap-nav">${tabs.map(([id, l, ic]) => `<button data-app-tab="${id}" class="${a.tab === id ? 'on' : ''}">${icon(ic)}<span>${l}</span></button>`).join('')}</nav></div>`;
+}
 function brandPage() {
- return `${heading('CLIENTI & MARKETING · 12', 'Brand & app', 'Il menu QR e il portale ospiti, sempre allineati con la cucina.')}
- <div class="quote-layout"><section class="workspace-panel"><div class="panel-title"><h2>Menu QR, come lo vede l’ospite</h2>${badge('Si aggiorna con il magazzino', 'badge-green')}</div><div data-anchor="brand" class="anchor-pad"></div><div class="qr-menu">${D.menu.map(d => `<div class="qr-item ${D.available(d) ? '' : 'off'}"><span><b>${esc(d.name)}</b><small>${d.allergens.join(' · ') || 'Senza allergeni dichiarati'}</small></span><b>${D.available(d) ? euro(d.price) : 'Esaurito'}</b></div>`).join('')}</div></section>
- <aside class="module-side">${ottoPanel('COLLEGATO', 'Quando un piatto finisce in magazzino, sparisce dal menu QR e dal portale. **Nessuno ordina più qualcosa che non c’è.**')}</aside></div>`;
+ const a = D.appCfg, s = a.stats;
+ return `${heading('CLIENTI & MARKETING · 13', 'Brand & app', 'L’app del tuo locale, con il tuo nome e i tuoi colori, su App Store e Google Play. Non è il menu QR del tavolo: è quella che l’ospite tiene sul telefono, per prenotare, ordinare a casa e usare la card.', `<span class="live-pill"><span class="live-dot"></span>v2.4 sugli store</span>`)}
+ <div class="metrics-grid">${kpi('ad', 'Download', fmtPts(s.downloads), '+64 questo mese', 'download', 'hero')}${kpi('aa', 'Utenti attivi', fmtPts(s.active), 'negli ultimi 30 giorni', 'users')}${kpi('ab', 'Prenotazioni dall’app', s.bookings, 'a ottobre · 22% del totale', 'calendar')}${kpi('ao', 'Ordini a domicilio', s.orders, 'dall’app · nessuna commissione', 'bike')}</div>
+ <div data-anchor="brand" class="anchor-pad"></div>
+ <div class="app-layout">
+  <section class="workspace-panel app-builder"><div class="panel-title"><h2>${icon('palette')} Costruisci l’app</h2>${badge('Modifiche in anteprima subito', 'badge-green')}</div>
+   <div class="ab-group"><span class="eyebrow">IDENTITÀ</span><div class="ab-id"><span class="gp-logo" style="background:${a.themes[a.theme].ink};color:${a.themes[a.theme].bg}">${esc(a.short)}</span><span><b>${esc(a.name)}</b><small>Icona, nome e descrizione sugli store</small></span></div>
+    <div class="ab-themes">${Object.entries(a.themes).map(([k, t]) => `<button data-app-theme="${k}" class="${a.theme === k ? 'on' : ''}" aria-pressed="${a.theme === k}"><i style="background:${t.bg}"><em style="background:${t.ink}"></em></i>${t.name}</button>`).join('')}</div></div>
+   <div class="ab-group"><span class="eyebrow">SEZIONI DELL’APP</span>${a.blocks.map(b => `<label class="ab-block"><span><b>${b.name}</b><small>${b.note}</small></span><span class="editor-toggle"><input type="checkbox" data-app-block="${b.id}" ${b.on ? 'checked' : ''} aria-label="${esc(b.name)}"><i></i></span></label>`).join('')}</div>
+   <div class="ab-group"><span class="eyebrow">REGOLE DELLE PRENOTAZIONI</span><div class="ab-rules"><span><em>Online fino a</em><b>${a.booking.maxOnline} persone</b></span><span><em>Ultimo orario</em><b>${a.booking.last}</b></span><span><em>Caparra da</em><b>${a.booking.deposit} persone · ${euro(a.booking.depositAmount)} a testa</b></span><span><em>Rimborso</em><b>fino a ${a.booking.advance} prima</b></span></div></div>
+  </section>
+  <section class="guest-wrap"><span class="eyebrow">L’APP SUL TELEFONO DELL’OSPITE</span>${appPhone()}</section>
+  <aside class="module-side">
+   <div class="workspace-panel app-push"><div class="panel-title"><h2>${icon('bell')} Notifiche push</h2></div>
+    <div class="push-draft"><span class="eyebrow">BOZZA DI OTTO · ${esc(a.draft.seg.toUpperCase())}</span><b>${esc(a.draft.title)}</b><p>${esc(a.draft.text)}</p>${btn('Programma per venerdì alle 11', 'push-send', 'btn-primary', 'send')}</div>
+    ${a.pushes.map(p => `<div class="mini-row"><span><b>${esc(p.title)}</b><small>${esc(p.seg)} · ${fmtPts(p.sent)} inviate · ${p.when}</small></span>${badge(`${p.open}% aperte`, p.open >= 50 ? 'badge-green' : '')}</div>`).join('')}</div>
+   <div class="workspace-panel"><div class="panel-title"><h2>Sugli store</h2></div>${a.store.map(([k, v, st]) => `<div class="ade-row ${st === 'ok' ? 'ok' : 'next'}"><span>${icon(st === 'ok' ? 'check' : 'clock')}</span><div><b>${k}</b><small>${v}</small></div></div>`).join('')}</div>
+   ${ottoPanel('COLLEGATA A TUTTO', 'Prenotazioni, card e ordini dell’app arrivano negli stessi posti di sala, fidelity e delivery. **Un ordine dall’app non paga commissioni**: su 41 ordini di ottobre sono circa **€ 420** risparmiati.')}
+  </aside>
+ </div>`;
+}
+
+// ————— DELIVERY —————
+const chChip = c => `<span class="ch-chip" style="background:${c.bg};color:${c.ink}">${c.short}</span>`;
+const mmss = s => `${Math.floor(Math.max(0, s) / 60)}:${String(Math.floor(Math.max(0, s) % 60)).padStart(2, '0')}`;
+function dlvTimer(o) {
+ const now = Date.now();
+ if (o.state === 'new') return `<span class="dlv-t ${D.dRed(o) ? 'red' : ''}" data-dlv-t="${o.id}">${icon('clock')} Da accettare · <b>${Math.floor(D.dWait(o))} s</b></span>`;
+ if (o.state === 'prep') return `<span class="dlv-t" data-dlv-t="${o.id}">${icon('chef')} In cucina · pronto tra <b>${Math.max(0, Math.ceil(o.prep - (now - o.prepAt) / 1000))} s</b></span>`;
+ if (o.state === 'ready') return now < o.riderAt ? `<span class="dlv-t" data-dlv-t="${o.id}">${icon('bike')} ${esc(o.rider)} arriva tra <b>${mmss((o.riderAt - now) / 1000)}</b></span>` : `<span class="dlv-t ${D.dRed(o) ? 'red' : ''}" data-dlv-t="${o.id}">${icon('bike')} ${esc(o.rider)} è al banco da <b>${Math.floor(D.riderWait(o))} s</b></span>`;
+ return o.state === 'lost' ? `<span class="dlv-t red">${icon('alert')} Annullato dalla piattaforma</span>` : `<span class="dlv-t done">${icon('check')} Ritirato da ${esc(o.rider)}</span>`;
+}
+function dlvOrder(o) {
+ const c = D.channel(o.ch), here = Date.now() >= o.riderAt;
+ const act = o.state === 'new' ? `<button class="tk-go" data-dlv-accept="${o.id}">Accetta e manda in cucina ${icon('arrow')}</button>`
+  : o.state === 'ready' ? (here ? `<button class="tk-go" data-dlv-hand="${o.id}">Consegna a ${esc(o.rider.split(' ')[0])} ${icon('arrow')}</button>` : `<span class="tk-next">${icon('check')} Imbustato · aspetta il rider</span>`) : '';
+ return `<article class="dlv-order ${Date.now() - o.at < 2500 ? 'row-in' : ''} ${['new', 'prep', 'ready'].includes(o.state) && D.dRed(o) ? 'red' : ''} st-${o.state}" data-dlv="${o.id}"><span class="dlv-top">${chChip(c)}<b>${o.code}</b><em>${euro(D.dTotal(o))}</em></span><span class="dlv-who">${esc(o.who)} · ${esc(o.zone)}, ${String(o.km).replace('.', ',')} km</span><ul>${o.items.map(([id, q]) => `<li>${q}× ${esc(D.dish(id).name)}</li>`).join('')}</ul>${dlvTimer(o)}${act}</article>`;
+}
+function deliveryPage() {
+ const ch = D.channels, gross = ch.reduce((n, c) => n + c.gross, 0), fees = ch.reduce((n, c) => n + c.gross * c.fee / 100 + (c.rider ? c.orders * c.rider : 0), 0), orders = ch.reduce((n, c) => n + c.orders, 0);
+ const idle = gameOn() && D.service.game && !D.delivery.on, live = !idle;
+ const col = (st, title) => { const os = D.delivery.orders.filter(o => st === 'done' ? ['picked', 'lost'].includes(o.state) : o.state === st); return `<section class="dlv-col c-${st} ${os.some(o => o.state !== 'picked' && o.state !== 'lost' && D.dRed(o)) ? 'hot' : ''}"><header><b>${title}</b><span>${os.length}</span></header>${os.map(dlvOrder).join('') || '<p class="muted pad-s">Niente qui.</p>'}</section>`; };
+ const chCard = c => { const paused = D.chPaused(c), left = c.until ? Math.ceil((c.until - Date.now()) / 1000) : 0; return `<article class="dlv-ch ${paused ? 'paused' : ''}">${chChip(c)}<span><b>${esc(c.name)}</b><small>${c.fee ? `commissione ${c.fee}%` : `nessuna commissione · rider ${euro(c.rider)}`} · prep. ${c.prep}′</small></span><span class="dlv-ch-n"><b>${c.orders}</b><small>${euro(c.gross)}</small></span><button class="btn ${paused ? 'btn-dark' : 'btn-secondary'} dlv-pause" data-dlv-pause="${c.id}" ${idle ? 'disabled' : ''}>${paused ? (left > 0 ? `Riapre tra <span data-dlv-until="${c.id}">${mmss(left)}</span>` : 'In pausa · riattiva') : 'Metti in pausa'}</button></article>`; };
+ return `${heading('SALA & CUCINA · 04', 'Delivery', 'Glovo, Deliveroo, Just Eat e il sito del locale su un solo schermo: ogni ordine arriva come comanda in cucina e come documento in cassa. Se la cucina è piena, un tocco mette in pausa un canale.', `<span class="live-pill"><span class="live-dot"></span>${D.dActive().length} ordini in corso</span>`)}
+ <div class="metrics-grid">${kpi('do', `Ordini delivery ${SV.today}`, orders, `${ch.filter(c => !D.chPaused(c)).length} canali su 4 attivi`, 'bike', 'hero')}${kpi('dg', 'Incasso lordo', euro(gross), 'prezzi del menu delivery', 'coins')}${kpi('df', 'Commissioni e rider', euro(Math.round(fees)), `${Math.round(fees / gross * 100)}% del lordo`, 'receipt')}${kpi('dn', 'Netto al locale', euro(Math.round(gross - fees)), `${euro(+((gross - fees) / orders).toFixed(2))} a ordine`, 'check')}</div>
+ <div class="dlv-channels">${ch.map(chCard).join('')}</div>
+ <div data-anchor="delivery"></div>
+ ${idle ? `<div class="workspace-panel dlv-idle">${ottoNote(`I canali delivery aprono più tardi ${SV.name === 'pranzo' ? 'oggi' : 'stasera'}: quando si accendono ti avviso io. Da quel momento ogni ordine va **accettato entro ${D.delivery.cfg.accept} secondi** e consegnato al rider quando arriva al banco.`)}</div>`
+  : `<div class="dlv-board">${col('new', 'Nuovi')}${col('prep', 'In preparazione')}${col('ready', 'Pronti · rider')}${col('done', 'Ritirati')}</div>`}
+ <div class="quote-layout"><section class="workspace-panel"><div class="panel-title"><h2>Menu del delivery</h2>${badge('Solo i piatti che viaggiano bene')}</div><div class="table-scroll"><table class="data-table"><thead><tr><th>Piatto</th><th>In sala</th><th>Delivery</th><th>Nel box</th><th>Stato</th></tr></thead><tbody>${D.deliveryMenu.map(x => { const d = D.dish(x.id); return `<tr><td><b>${esc(d.name)}</b></td><td>${euro(d.price)}</td><td><b>${euro(x.price)}</b></td><td><small>${esc(x.note)}</small></td><td>${x.on ? (D.available(d) ? badge('Sulle piattaforme', 'badge-green') : badge('Esaurito', 'badge-red')) : badge('Solo in sala')}</td></tr>`; }).join('')}</tbody></table></div></section>
+ <aside class="module-side"><div class="workspace-panel"><div class="panel-title"><h2>Su 100 € di ordini</h2>${badge('Commissioni di esempio')}</div>${ch.map(c => { const net = c.fee ? 100 - c.fee : 100 - c.rider * 100 / (c.gross / c.orders); return `<div class="mini-row dlv-net">${chChip(c)}<span><b>${esc(c.name)}</b><span class="km-bar"><i style="width:${net}%"></i></span></span><b>${euro(Math.round(net))}</b></div>`; }).join('')}</div>
+  ${ottoPanel('CUCINA PIENA?', `Quando le comande in attesa superano i fornelli, ${live ? 'metti in pausa' : 'Otto mette in pausa'} prima **il canale con la commissione più alta**: gli ospiti vedono “non disponibile ora” invece di aspettare un’ora. Il sito del locale resta aperto.`)}</aside></div>`;
 }
 
 // ————— IMPOSTAZIONI —————
@@ -433,6 +555,8 @@ function action(a) {
  if (a === 'reset') { location.hash = 'home'; location.reload(); return; }
  if (a === 'reorder') { D.reorder(D.lowStock().map(i => i.id)); ecoPoints('reorder', 8, 'Magazzino rifornito'); toast('Ordine inviato ai fornitori (demo).'); return; }
  if (k === 'review') { ui.done.reviews.push(a.slice(7)); ecoPoints('review', 4, 'Recensione pubblicata', a.slice(7)); toast('Risposta pubblicata (demo).'); return shell(); }
+ if (a === 'fid-campaign') { const sg = D.segments.find(x => x.id === (ui.fidSeg || 'oro')), n = D.members.filter(sg.test).filter(m => m.wa).length; ecoPoints('fid-campaign', 3, 'Campagna pronta', sg.id); return toast(`Campagna “${sg.name}” pronta per ${n} ospiti con consenso: parte dopo la tua approvazione (demo).`); }
+ if (a === 'push-send') { const dr = D.appCfg.draft; if (dr.sent) return toast('Notifica già programmata.'); dr.sent = true; D.appCfg.pushes.unshift({title:dr.title, text:dr.text, seg:dr.seg, sent:0, open:0, when:'ven 11:00'}); ecoPoints('push', 3, 'Notifica programmata'); toast('Notifica programmata per venerdì alle 11 (demo).'); return render(); }
  if (a === 'account') return show(`<span class="dialog-kicker">IL TUO LOCALE</span><h2 id="dialog-title">Marta Rinaldi</h2><p class="dialog-description">Titolare · ${esc(D.restaurant.name)}. L’accesso CSD Station sarà collegato al servizio.</p>`);
 }
 function syncNavigation() {
@@ -473,12 +597,20 @@ document.addEventListener('click', e => {
  if ((x = el('[data-qr-page]'))) { ui.qrPage = +x.dataset.qrPage; return render(); }
  if ((x = el('[data-qr-table]'))) { ui.qr = {table:x.dataset.qrTable, cart:{}, step:'menu', cat:ui.qr.cat, receipt:null}; return render(); }
  if ((x = el('[data-qr]'))) return qrAction(x.dataset.qr);
+ if ((x = el('[data-dlv-accept]'))) { const id = x.dataset.dlvAccept, o = D.delivery.orders.find(y => y.id === id); if (D.acceptOrder(id)) { ecoPoints('dlv-accept', 3, 'Ordine accettato', id, {born:o?.at}); toast(`${o.code} accettato: la comanda è in cucina.`); } return; }
+ if ((x = el('[data-dlv-hand]'))) { const id = x.dataset.dlvHand, o = D.delivery.orders.find(y => y.id === id); if (D.handOrder(id)) { ecoPoints('dlv-hand', 4, 'Consegnato al rider', id, {born:o?.riderAt}); toast(`${o.code} consegnato a ${o.rider}: documento commerciale emesso.`); } return; }
+ if ((x = el('[data-dlv-pause]'))) { const c = D.channel(x.dataset.dlvPause), was = D.chPaused(c); D.pauseChannel(c.id, gameOn() && D.service.game ? 90 : 0); if (!was) ecoPoints('dlv-pause', 3, 'Canale in pausa', c.id); toast(was ? `${c.name} di nuovo attivo.` : `${c.name} in pausa: gli ospiti vedono “non disponibile ora”.`); return render(); }
+ if ((x = el('[data-nfc-choice]'))) { const [id, choice] = x.dataset.nfcChoice.split('|'), tap = D.nfc.taps.find(y => y.id === id); if (!tap) return; const right = D.nfcAnswer(tap); if (choice !== right) { penalty(5, 'Fidelity sbagliata'); toast(`Scelta sbagliata. ${D.nfcWhy(tap, choice)}`); x.classList.add('wrong'); return; } D.nfcResolve(id, choice); ecoPoints('nfc', 6, 'Fidelity giusta', id, {born:tap.at}); toast(D.nfcWhy(tap, choice)); return render(); }
+ if ((x = el('[data-fid-seg]'))) { ui.fidSeg = x.dataset.fidSeg; return render(); }
+ if ((x = el('[data-app-theme]'))) { D.appCfg.theme = x.dataset.appTheme; return render(); }
+ if ((x = el('[data-app-tab]'))) { D.appCfg.tab = x.dataset.appTab; return render(); }
  if ((x = el('[data-menu-otto]'))) { ui.menuReply = D.menuCommand(x.dataset.menuOtto); ecoPoints('menu', 2, 'Menu aggiornato'); checkChef(); return render(); }
 });
 document.addEventListener('change', e => {
  const d = e.target.dataset;
  if (d.haccp) { ui.done.haccp.push(+d.haccp); ecoPoints('haccp', 3, 'Controllo HACCP', +d.haccp); render(); }
  if (d.editPrice && +e.target.value > 0) { D.editDish(d.editPrice, {price:+e.target.value}); toast('Prezzo aggiornato su tutti i QR.'); checkChef(); }
+ if (d.appBlock) { const b = D.appCfg.blocks.find(x => x.id === d.appBlock); if (b) { b.on = e.target.checked; ecoPoints('app-block', 2, 'App aggiornata', `${b.id}-${b.on}`); toast(b.on ? `“${b.name}” è nell’app: arriva agli ospiti con il prossimo aggiornamento.` : `“${b.name}” tolta dall’app.`); render(); } }
  if (d.editVisible) { D.editDish(d.editVisible, {visible:e.target.checked}); toast(e.target.checked ? 'Di nuovo nel menu.' : 'Tolto dal menu di stasera.'); checkChef(); }
 });
 document.addEventListener('input', e => {
@@ -513,6 +645,24 @@ let awake = window.parent === window;
 const busy = () => !awake || document.hidden || document.body.classList.contains('touring') || gamePaused();
 const wake = on => { awake = on; document.documentElement.classList.toggle('csd-paused', !on); };
 wake(awake);
+// Le sezioni nuove della sfida non arrivano sempre: a ogni partita si estrae da quando aprono
+// (dal capitolo 2 o 3, oppure dal livello 2 o 3) o se per questa volta restano chiuse.
+const unlockAt = {};
+function drawUnlocks() {
+ unlockAt.delivery = pickOne([{ch:1}, {ch:1}, {ch:2}, {lvl:3}, null]);
+ unlockAt.nfc = pickOne([{ch:1}, {ch:2}, {ch:2}, {lvl:2}, null]);
+}
+const due = u => !!u && (u.ch != null ? gameState().chapter >= u.ch : gameLevel() >= u.lvl);
+function unlockTick() {
+ if (!D.delivery.on && (D.delivery.forced || due(unlockAt.delivery))) {
+  D.deliveryGameStart(); if (route() === 'delivery') render();
+  ottoMessage({name:'Otto rider', role:'otto-phone', title:'Si apre il delivery', button:'Ho capito', lines:['Si sono accesi i canali delivery: **Glovo, Deliveroo, Just Eat** e il sito del locale arrivano tutti nello stesso tablet.', 'Ogni ordine nuovo va **accettato entro ' + D.delivery.cfg.accept + ' secondi**: poi va in cucina e, quando è pronto, lo consegni al rider appena arriva al banco. Se il rider aspetta troppo, riparte e la piattaforma annulla l’ordine.', 'Se la cucina è piena, **metti in pausa un canale**: meglio “non disponibile ora” che un’ora di attesa.']});
+ }
+ if (!D.nfc.on && due(unlockAt.nfc)) {
+  D.nfcGameStart();
+  ottoMessage({name:'Otto fidelity', role:'otto-star', title:'Le card al tavolo', button:'Ho capito', lines:['Da adesso gli ospiti iscritti **appoggiano la card NFC** al lettore del tavolo, e il cameriere sei tu.', 'In **Fidelity & NFC** decidi cosa spetta: il **premio** se il saldo basta, lo **sconto del livello** (Argento 5%, Oro 10%) quando pagano, oppure **solo punti**.', 'Una scelta sbagliata costa punti, e un ospite che aspetta troppo rinuncia.']});
+ }
+}
 setInterval(() => { try { if (!busy()) D.tick(); } catch (err) { console.warn('CS Restaurant OS · errore nel servizio', err); } }, 3500);
 setInterval(() => {
  try {
@@ -525,11 +675,25 @@ setInterval(() => {
   dr.left.forEach(p => { penalty(10, 'Ospiti andati via'); toast(`${p.name} (${p.n} persone) se ne sono andati: troppa attesa all’ingresso.`); });
   document.querySelectorAll('[data-door-wait]').forEach(e => { const p = D.door.find(y => y.id === e.dataset.doorWait); if (!p) return; e.textContent = Math.floor(D.doorWait(p)); e.closest('.dq-party')?.classList.toggle('red', D.doorRed(p)); const bar = document.querySelector(`[data-door-bar="${p.id}"]`); if (bar) bar.style.width = `${Math.min(100, D.doorWait(p) / D.doorLeave() * 100)}%`; });
   const dsig = D.door.map(p => p.id).join(','); if (dsig !== ui.doorSig) { ui.doorSig = dsig; if (route() === 'sala') render(); }
+  unlockTick();
+  const dl = D.deliveryTick(gameLevel());
+  dl.lost.forEach(o => { penalty(10, 'Ordine delivery annullato'); toast(`${o.code} annullato: il rider di ${D.channel(o.ch).name} è ripartito senza l’ordine.`); });
+  const nf = D.nfcTick(gameLevel());
+  nf.left.forEach(x => { penalty(5, 'Ospite senza premio'); toast(`${x.m.name} al tavolo ${x.table.slice(1)} ha rinunciato: nessuno ha letto la card.`); });
+  const dsig2 = D.delivery.orders.map(o => o.id + o.state + (Date.now() >= o.riderAt ? 1 : 0) + (D.dRed(o) ? 1 : 0)).join(',') + D.channels.map(c => D.chPaused(c) ? 1 : 0).join('') + D.delivery.on;
+  if (dsig2 !== ui.dlvSig) { ui.dlvSig = dsig2; if (route() === 'delivery') { const y = scrollY; render(); scrollTo(0, y); } }
+  else if (route() === 'delivery') {
+   D.delivery.orders.forEach(o => { const e = document.querySelector(`[data-dlv-t="${o.id}"] b`); if (!e) return; const now = Date.now(); e.textContent = o.state === 'new' ? `${Math.floor(D.dWait(o))} s` : o.state === 'prep' ? `${Math.max(0, Math.ceil(o.prep - (now - o.prepAt) / 1000))} s` : now < o.riderAt ? `${Math.floor((o.riderAt - now) / 60000)}:${String(Math.floor((o.riderAt - now) / 1000) % 60).padStart(2, '0')}` : `${Math.floor(D.riderWait(o))} s`; });
+   D.channels.forEach(c => { const e = document.querySelector(`[data-dlv-until="${c.id}"]`); if (e && c.until) { const l = Math.max(0, Math.ceil((c.until - Date.now()) / 1000)); e.textContent = `${Math.floor(l / 60)}:${String(l % 60).padStart(2, '0')}`; } });
+  }
+  const nsig = D.nfc.taps.map(x => x.id + (D.nfcRed(x) ? 1 : 0)).join(',') + D.nfc.on;
+  if (nsig !== ui.nfcSig) { ui.nfcSig = nsig; if (route() === 'fidelity_nfc') { const y = scrollY; render(); scrollTo(0, y); } }
+  else if (route() === 'fidelity_nfc') D.nfc.taps.forEach(x => { const e = document.querySelector(`[data-nfc-wait="${x.id}"]`); if (e) e.textContent = Math.floor(D.nfcWait(x)); const b = document.querySelector(`[data-nfc-bar="${x.id}"]`); if (b) b.style.width = `${Math.min(100, D.nfcWait(x) / (D.nfc.cfg.leave + D.nfc.cfg.bonus * 1.5) * 100)}%`; });
   const h = D.kitchenGameTick(gameLevel());
  if (h.handover) ottoMessage({name:'Otto cuoco', role:'otto-chef', title:'La cucina passa a te', button:'Ho capito', lines:['Per i primi minuti ho mandato avanti io la cucina, così hai potuto guardarti intorno.', '**Da adesso la cucina è manuale**: metti i piatti sui fornelli, manda al pass quelli cotti e servili al tavolo. Se una colonna diventa rossa, perdi punti.', 'Niente paura: con i punti, nella **Bottega di Otto**, puoi comprare tre automatismi — **in cucina**, **al pass** e **al tavolo** — e non pensarci più.']});
   // ogni cosa in rosso costa 1 punto al secondo, ma al massimo 2 in tutto: si perde, senza crollare
-  const reds = fr.red.length + (h.waiting ? 1 : 0) + (h.pass ? 1 : 0) + (dr.red.length ? 1 : 0);
-  if (reds) penalty(Math.min(2, reds), fr.red.length ? 'Cella fuori norma' : h.waiting ? 'Comande ferme' : h.pass ? 'Piatti fermi al pass' : 'Ospiti in attesa');
+  const reds = fr.red.length + (h.waiting ? 1 : 0) + (h.pass ? 1 : 0) + (dr.red.length ? 1 : 0) + (dl.red.length ? 1 : 0) + (nf.red.length ? 1 : 0);
+  if (reds) penalty(Math.min(2, reds), fr.red.length ? 'Cella fuori norma' : h.waiting ? 'Comande ferme' : h.pass ? 'Piatti fermi al pass' : dl.red.length ? 'Delivery in ritardo' : nf.red.length ? 'Card in attesa' : 'Ospiti in attesa');
   const was = ui.kitchenHot || {}; ui.kitchenHot = h;
   // la cucina si ridisegna appena un piatto cambia stato (cotto, al pass, servito, nuova comanda), non solo uscendo e rientrando
   const ksig = D.kitchenLines().map(l => `${l.id}${l.state}${l.cooked ? 1 : 0}`).join(',') + D.autoOn('cook') + D.autoOn('pass') + D.autoOn('serve');
@@ -543,6 +707,8 @@ setInterval(() => {
   if (h.pass) pr.push({page:'kds', label:'Piatti fermi al pass'});
   fr.red.forEach(f => pr.push({page:'staff', label:`${f.name} fuori temperatura`}));
   if (dr.red.length) pr.push({page:'sala', label:dr.red.length === 1 ? `All’ingresso aspetta: ${dr.red[0].name}` : `${dr.red.length} gruppi aspettano all’ingresso`});
+  if (dl.red.length) { const o = dl.red[0]; pr.push({page:'delivery', label:dl.red.length > 1 ? `${dl.red.length} ordini delivery in ritardo` : o.state === 'new' ? `Ordine ${o.code} da accettare` : `Il rider di ${o.code} aspetta al banco`}); }
+  if (nf.red.length) pr.push({page:'fidelity_nfc', label:nf.red.length > 1 ? `${nf.red.length} card in attesa ai tavoli` : `Card in attesa al tavolo ${nf.red[0].table.slice(1)}`});
   setPressure(pr);
  } catch (err) { console.warn('CS Restaurant OS · errore nel battito', err); }
 }, 1000);
@@ -578,6 +744,15 @@ initGame(challenges, {story,icon, place:'il locale', missionsOnly:true,
   D.door.forEach(p => c.push({key:'seat', ref:p.id, page:'sala', urgent:D.doorWait(p) > 15, title:`All’ingresso: ${p.name}, ${p.n} persone`, text:`In Sala **tocca ${p.name}** nel riquadro “All’ingresso”, poi **un tavolo libero con almeno ${p.n} posti**.`, target:`[data-door="${p.id}"]`, valid:() => D.door.some(x => x.id === p.id), auto:() => { const t = D.tables.find(x => D.fits(x, p)); if (t) D.seatParty(p.id, t.id); }}));
   const o = ui.chefOrder;
   if (o) { const d = D.dish(o.dish); c.push({key:'chef', ref:o.ref, page:'menu_pos', title:o.kind === 'off' ? `Lo chef: ${d.name} è finito` : `Lo chef: ${d.name} a € ${o.price}`, text:`Apri **l’editor del menu** (o chiedilo a Otto a parole) e ${o.kind === 'off' ? `**togli ${d.name}** dal menu di stasera` : `metti **${d.name} a € ${o.price}**`}.`, target:'[data-action="menu-editor"]', valid:() => ui.chefOrder?.ref === o.ref, auto:() => { D.editDish(o.dish, o.kind === 'off' ? {visible:false} : {price:o.price}); ui.chefOrder = null; }}); }
+  // delivery: l'ordine più vecchio da accettare, il rider al banco, la cucina piena che chiede una pausa
+  if (D.delivery.on) {
+   const nw = D.delivery.orders.filter(o => o.state === 'new').sort((a, b) => a.at - b.at)[0];
+   if (nw) { const ch = D.channel(nw.ch); c.push({key:'dlv-accept', ref:nw.id, page:'delivery', urgent:D.dWait(nw) > D.delivery.cfg.accept * .5, title:`Nuovo ordine ${ch.name} · ${nw.code}`, text:`In Delivery **accetta l’ordine ${nw.code}** e mandalo in cucina: la piattaforma lo vuole confermato entro ${D.delivery.cfg.accept} secondi.`, target:`[data-dlv-accept="${nw.id}"]`, valid:() => D.delivery.orders.some(o => o.id === nw.id && o.state === 'new'), auto:() => D.acceptOrder(nw.id)}); }
+   D.delivery.orders.filter(o => o.state === 'ready' && Date.now() >= o.riderAt).forEach(o => c.push({key:'dlv-hand', ref:o.id, page:'delivery', urgent:true, title:`Il rider di ${o.code} è al banco`, text:`In Delivery premi **Consegna a ${o.rider.split(' ')[0]}**: se aspetta troppo riparte e l’ordine viene annullato.`, target:`[data-dlv-hand="${o.id}"]`, valid:() => D.delivery.orders.some(x => x.id === o.id && x.state === 'ready'), auto:() => D.handOrder(o.id)}));
+   const waitingK = D.kitchenLines().filter(l => l.state === 'waiting').length, ch = D.channels.filter(x => x.fee && !D.chPaused(x)).sort((a, b) => b.fee - a.fee)[0];
+   if (ch && waitingK >= D.kitchen.cap + 1 && D.dActive().length >= 2) c.push({key:'dlv-pause', ref:ch.id, page:'delivery', title:`Cucina piena: pausa a ${ch.name}`, text:`${waitingK} comande aspettano i fornelli. In Delivery **metti in pausa ${ch.name}** (la commissione più alta, ${ch.fee}%) per un minuto e mezzo.`, target:`[data-dlv-pause="${ch.id}"]`, valid:() => !D.chPaused(ch), auto:() => D.pauseChannel(ch.id, 90)});
+  }
+  D.nfc.taps.forEach(x => c.push({key:'nfc', ref:x.id, page:'fidelity_nfc', urgent:D.nfcWait(x) > D.nfc.cfg.wait * .5, title:`Card al tavolo ${x.table.slice(1)}: ${x.m.name}`, text:`In Fidelity & NFC **scegli cosa spetta** a ${x.m.name}: ${x.ask === 'premio' ? 'chiede un premio, guarda se il saldo basta' : 'paga il conto, guarda il livello'}.`, target:`[data-nfc-tap="${x.id}"]`, valid:() => D.nfc.taps.some(y => y.id === x.id), auto:() => D.nfcResolve(x.id, D.nfcAnswer(x))}));
   const h = D.haccp.findIndex((x, i) => !x.done && !ui.done.haccp.includes(i));
   if (h >= 0) c.push({key:'haccp', ref:h, page:'staff', title:`HACCP · ${D.haccp[h].task}`, text:'In Staff & HACCP **spunta il controllo** nella checklist di oggi.', target:`input[data-haccp="${h}"]`, valid:() => !ui.done.haccp.includes(h), auto:() => ui.done.haccp.push(h)});
   // come un cameriere: un ordine da fare dal menu QR, con il pagamento giusto
@@ -591,7 +766,7 @@ initGame(challenges, {story,icon, place:'il locale', missionsOnly:true,
   }
   return c;
  },
- focus:(page, ref) => { if (page === 'menu_pos' && ref && D.table(ref)) { ui.qr = {table:ref, cart:{}, step:'menu', cat:ui.qr.cat, receipt:null}; ui.qrPage = undefined; } if (page === 'sala') { ui.table = ref; ui.adding = false; } if (route() === page) render(); else location.hash = page; }, missionTypes:12, sections:12, placeOf:'del locale', startNote:'Fatture, comande, conti, chiamate e prenotazioni arrivano dal quadrato rosso “!” in alto, e ogni sezione del locale ha la sua missione.', onStart:() => { startMissions(); D.kitchenGameStart(); D.fridgeGameStart(); D.doorGameStart(); ui.door = null; ui.chefOrder = null; nextChefAt = Date.now() + 90000; }, onReset:() => { stopMissions(); D.kitchenGameStop(); D.doorGameStop(); ui.door = null; setPressure([]); },
+ focus:(page, ref) => { if (page === 'menu_pos' && ref && D.table(ref)) { ui.qr = {table:ref, cart:{}, step:'menu', cat:ui.qr.cat, receipt:null}; ui.qrPage = undefined; } if (page === 'sala') { ui.table = ref; ui.adding = false; } if (route() === page) render(); else location.hash = page; }, missionTypes:22, sections:13, placeOf:'del locale', startNote:'Fatture, comande, conti, chiamate e prenotazioni arrivano dal quadrato rosso “!” in alto, e ogni sezione del locale ha la sua missione.', onStart:() => { startMissions(); D.kitchenGameStart(); D.fridgeGameStart(); D.doorGameStart(); D.delivery.orders.length = 0; D.delivery.forced = false; D.channels.forEach(c => { c.on = true; c.until = 0; }); drawUnlocks(); ui.door = null; ui.chefOrder = null; nextChefAt = Date.now() + 90000; }, onReset:() => { stopMissions(); D.kitchenGameStop(); D.doorGameStop(); D.deliveryGameStop(); D.nfcGameStop(); D.delivery.forced = false; ui.door = null; setPressure([]); },
  // potenziamenti del locale, da comprare nella Bottega di Otto
  shop:[
   {id:'auto-cook', name:'Automatismo in cucina', desc:'Le comande in attesa vanno sui fornelli da sole, appena c’è posto.', cost:1000, fixed:true, max:1, mood:'otto-chef', use:() => { if (D.kitchen.auto.cook) return false; D.kitchen.auto.cook = true; render(); return 'Le comande vanno sui fornelli da sole.'; }},
@@ -605,6 +780,10 @@ initGame(challenges, {story,icon, place:'il locale', missionsOnly:true,
   {id:'comis', name:'Commis in cucina', desc:'+30 secondi prima che le comande in attesa vadano in rosso.', cost:300, fixed:true, max:2, mood:'otto-chef', use:() => { D.kitchen.waitBonus += 30; render(); return `Le comande possono aspettare ${D.waitMax()} secondi.`; }},
   {id:'maitre', name:'Maître di sala', desc:'Accomoda da solo gli ospiti alla porta dopo 20 secondi, al tavolo giusto.', cost:1000, fixed:true, max:1, mood:'otto-bow', use:() => { if (D.doorCfg.autoSeat) return false; D.doorCfg.autoSeat = true; return 'Il maître accoglie e accomoda gli ospiti al tavolo giusto.'; }},
   {id:'hostess', name:'Hostess all’ingresso', desc:'Gli ospiti alla porta aspettano 30 secondi in più prima di spazientirsi.', cost:500, fixed:true, max:2, mood:'otto-bow', use:() => { if (D.doorCfg.bonus >= 90) return false; D.doorCfg.bonus += 30; render(); return 'All’ingresso c’è chi accoglie: gli ospiti hanno più pazienza.'; }},
+  {id:'dlv-tablet', name:'Tablet unico delivery', desc:'Gli ordini di tutte le piattaforme si accettano da soli dopo 8 secondi.', cost:900, fixed:true, max:1, mood:'otto-phone', use:() => { if (D.delivery.cfg.autoAccept) return false; D.delivery.cfg.autoAccept = true; render(); return 'Il tablet accetta da solo gli ordini delivery.'; }},
+  {id:'dlv-banco', name:'Addetto al banco delivery', desc:'Imbusta e consegna da solo gli ordini pronti appena arriva il rider.', cost:1000, fixed:true, max:1, mood:'otto-bow', use:() => { if (D.delivery.cfg.autoHand) return false; D.delivery.cfg.autoHand = true; render(); return 'Al banco delivery c’è chi consegna ai rider.'; }},
+  {id:'rider-paz', name:'Accordo con le piattaforme', desc:'I rider aspettano 30 secondi in più prima di ripartire.', cost:500, fixed:true, max:1, mood:'otto-phone', use:() => { if (D.delivery.cfg.bonus) return false; D.delivery.cfg.bonus = 30; return 'I rider aspettano 30 secondi in più.'; }},
+  {id:'nfc-cassa', name:'Cassa collegata alla fidelity', desc:'Premi e sconti delle card si applicano da soli, con la regola giusta, dopo 10 secondi.', cost:700, fixed:true, max:1, mood:'otto-star', use:() => { if (D.nfc.cfg.auto) return false; D.nfc.cfg.auto = true; return 'La cassa applica da sola premi e sconti della card.'; }},
   {id:'prenota', name:'Prenotazioni online', desc:'Un terzo in meno di ospiti senza prenotazione alla porta.', cost:1200, fixed:true, max:1, mood:'otto-phone', use:() => { if (D.doorCfg.calm > 1) return false; D.doorCfg.calm = 1.5; return 'Ora quasi tutti prenotano dal sito: meno sorprese alla porta.'; }}
  ], menuNote:'Le missioni arrivano dal locale vivo: fatture dei fornitori, comande grandi, conti, prenotazioni e chiamate. Sempre nuove.', pageName:id => moduleById(id)?.title || {home:SV.title}[id] || id});
 shell();

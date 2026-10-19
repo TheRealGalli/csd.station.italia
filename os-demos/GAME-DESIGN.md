@@ -22,15 +22,16 @@ Sopra tutto, la **storia**: capitoli con un antagonista che cambia il tipo di pr
 | **Sala** | I tavoli arrivano, ordinano, chiedono il conto. Il conto lasciato in attesa diventa un compito; la missione "Il conto torna" vive nel pannello del tavolo. | compiti + missione |
 | **Cucina** (fatta) | Fornelli con **massimo 4 piatti insieme**, tempo di cottura per piatto (va al pass da solo), **tempo per servire dal pass**. Comande in attesa troppo a lungo o piatti fermi al pass → colonna rossa, −1 pt/s. Le comande arrivano piano, col tempo. Non si può più "spammare": si mette sui fornelli solo se c'è posto, si serve solo ciò che è pronto. | indicatore vivo |
 | **Menu digitale QR** | Quando un ingrediente finisce, il piatto va **tolto dal QR in servizio**: se un ospite ordina un piatto che non c'è, −5. Missioni: "cosa resta sul QR" dopo l'inventario, **ordine a mano** per un tavolo, **cambio menu in servizio** (piatto del giorno, ritiro di un piatto). | indicatore + missioni |
+| **Delivery** (nuova) | Glovo, Deliveroo, Just Eat e il sito del locale in un solo tablet. **Si apre a caso durante la partita** (dal capitolo 2, dal 3 o dal livello 3, oppure resta chiuso). Ogni ordine va **accettato entro 35 s**, poi cucina (tempo per numero di piatti), poi il **rider arriva al banco** e va consegnato. Ordine non accettato o rider che aspetta oltre 12 s → rosso (−1 pt/s); rider che aspetta oltre 50 s → riparte, ordine annullato (−10). Con la cucina piena nasce il compito “metti in pausa il canale con la commissione più alta” (90 s). Missioni solo dal capitolo 2 e a caso: quanto resta al locale (commissione, promo, IVA), viaggia bene?, cosa metti in pausa (livello 3), il cliente al telefono (capitolo 3). | indicatore vivo + compiti + missioni |
 | **Centralino AI** | Automatico: Otto risponde. Ogni tanto una chiamata che non sa chiudere → missione al telefono. | missione |
 | **Recensioni AI** | Automatico con risposta da approvare (azione). Le recensioni difficili → missione. | azione + missione |
 | **WhatsApp** | Conferme automatiche; la bozza sbagliata → missione. | missione |
-| **Fidelity & NFC** | Le card al lettore → missione "premio sì o no". | missione |
+| **Fidelity & NFC** | Lettore NFC al tavolo: card fisica o nel telefono, livelli Bronzo/Argento/Oro (sconto 0/5/10% sulla cucina), premi pagati con il saldo, campagne WhatsApp solo con consenso. **Card al tavolo** (si apre a caso dal capitolo 2/3 o dal livello 2): l’ospite appoggia la card e chiede un premio o paga; si sceglie premio, sconto del livello o solo punti. Scelta sbagliata −5, attesa oltre 40 s → rosso, oltre 100 s rinuncia (−5). Il premio o lo sconto finisce davvero sul conto del tavolo. Missioni: premio sì o no, il premio giusto (saldo e allergie), il conto con la card (livello 2), a chi mandi la campagna (capitolo 2). | indicatore vivo + compiti + missioni |
 | **Magazzino** | Automatico: ogni piatto scala gli ingredienti; sotto scorta → compito "invia l'ordine". La fattura del fornitore → missione. | compito + missione |
-| **Cassa & Entrate** | Automatica; fatture da emettere → missione. | missione |
-| **Bandi** | Rara: missione sulle spese ammissibili. | missione |
+| **Cassa & Entrate** | Automatica, con chiusura di cassa per metodo (contanti, POS, Stripe, bonifici delle piattaforme). Missioni: caselle dalla fonte, **i conti tornano?** (pagamenti contro documenti commerciali), **il cassetto torna?** (livello 2). | missione |
+| **Bandi** | Bandi con percentuale, massimale, spese ammesse, documenti pronti e contributo stimato. Missioni: spese ammissibili, **quanto vale il contributo** (livello 2; al livello 3 l’IVA esclusa). | missione |
 | **Staff & HACCP** | **Quattro frigoriferi con sonda di temperatura** che si vede cambiare. Possono succedere: **porta rimasta aperta** (la temperatura sale in fretta: chiudila), **guasto del compressore** (sale piano: chiama il tecnico, ci mette un po'), **sonda scollegata** (valore che non si muove: ricollegala). Oltre i 4 °C il frigo è rosso (−1 pt/s); oltre gli 8 °C si butta la merce (ingredienti persi, −10). La checklist da validare → missione. | indicatore vivo + missione |
-| **Brand & app** | Il piatto del giorno con gli allergeni → missione. | missione |
+| **Brand & app** | Ripensata come **costruttore dell’app del locale** (non il menu QR): colori, sezioni, regole delle prenotazioni, anteprima sul telefono con home, prenota, card digitale e avvisi; notifiche push e stato sugli store. Missioni: allergeni del piatto del giorno, la notifica giusta, le prenotazioni dell’app (livello 2), la scheda dello store (capitolo 2). | missione |
 
 ## 3. CS Notaro OS · sezione per sezione
 
@@ -45,11 +46,11 @@ Lo studio notarile non ha fornelli, ma ha due cose che funzionano allo stesso mo
 | **Memoria** | La domanda sul precedente giusto → missione. | missione |
 | **Visure** | Le richieste partono e gli esiti arrivano col tempo; l'esito che non coincide → missione. | missione |
 | **Preventivi** | Il cliente aspetta la cifra → missione con la calcolatrice. | missione |
-| **Osservatorio** | La novità che si applica o no → missione. | missione |
-| **Staff & task** | Qualcuno in ferie → missione di riassegnazione. | missione |
+| **Osservatorio** | Numeri della settimana (novità, pratiche toccate, bandi). La novità che si applica o no → missione; dal capitolo 2, a caso, “chi va avvisato?” (decadenza prima casa). | missione |
+| **Staff & task** | Qualcuno in ferie → missione di riassegnazione; dal livello 2, a caso, “chi segue la firma?”. | missione |
 | **Scadenziario & post-stipula** | Il "fornello" dello studio: gli atti firmati generano **adempimenti con scadenza di legge** (registrazione, trascrizione, voltura, deposito). L'addetto ne lavora **2 alla volta** e ognuno richiede tempo. Un adempimento vicino alla scadenza e non avviato → rosso (−1 pt/s); se scade, **sanzione** (−15). | indicatore vivo + missione |
 | **Antiriciclaggio** | Il titolare effettivo da calcolare → missione. | missione |
-| **Compliance** | Le richieste di accesso ai dati → missione. | missione |
+| **Compliance** | Richieste degli interessati con scadenza a un mese e controlli privacy. Le richieste di accesso ai dati → missione; dal capitolo 2, a caso, la violazione dei dati in fila (contenere, valutare, Garante entro 72 ore, informare, registrare). | missione |
 
 ## 4. L'economia dei punti
 
@@ -104,6 +105,13 @@ La storia è sempre **il lavoro vero raccontato**: un fornitore che sbaglia le f
 - **Il tempo fermo vale per tutto**: mentre Otto parla, anche porta, cucina, frigo, email, adempimenti e sale restano fermi.
 - **Bottega in due parti**: *potenziamenti fissi* (sempre in vetrina, durano tutta la partita, 300–1.200 punti, +40% se si ricomprano: automatismi, cuoco, forno, maître che accomoda da solo, prenotazioni online, sale…) e *temporanei* (in vendita oggi, a caso, +25% a ogni acquisto). I regali sono solo temporanei. Ospiti alla porta meno frequenti (uno ogni 85–125 s al livello 1).
 - **Bottega**: Hostess all’ingresso, Prenotazioni online (Restaurant); Receptionist, Sala riunioni in più (Notaro). I potenziamenti comprati sono bonus separati: le regole dei capitoli non li cancellano più.
+
+## 6c. Sezioni nuove e caso (19 ottobre 2026)
+- **Restaurant passa a 13 moduli**: nuovo **Delivery** (Sala & cucina · 04), **Fidelity & NFC** e **Brand & app** ridisegnati come prodotti veri, **Cassa** con chiusura di cassa, **Bandi** con contributo stimato e documenti.
+- **Non tutto arriva sempre.** A ogni partita si estrae: da quando si aprono il Delivery vivo (capitolo 2, capitolo 3, livello 3 o mai) e le card al tavolo (capitolo 2, 3, livello 2 o mai); quali missioni in più sono accese (ognuna con la sua probabilità, 60–85%) e da quando (capitolo o livello). Il Delivery non ha una missione di base: le sue arrivano solo dal capitolo 2. Lo stesso schema vale nel Notaro per Osservatorio, Staff e Compliance.
+- **Storia**: nuova variante del capitolo 3, *Il temporale* (diluvia, ordini delivery quasi doppi: apre per forza il delivery); *La finale in TV* porta anche il delivery; *Il POS che fa i capricci* include la Fidelity.
+- **Bottega, potenziamenti fissi nuovi**: Tablet unico delivery (accetta da solo, 900), Addetto al banco delivery (consegna da solo ai rider, 1.000), Accordo con le piattaforme (+30 s di pazienza dei rider, 500), Cassa collegata alla fidelity (premi e sconti da soli, 700).
+- **Demo guidata**: tre passaggi sul Delivery (canali, dal tablet al rider, pausa del canale), tre su Fidelity (card al tavolo, livelli e premi, campagne) e due su Brand & app (costruttore, anteprima sul telefono).
 
 ## 7. Prossimi passi possibili
 - Nel riepilogo finale: punti per sezione e cosa è andato in rosso.

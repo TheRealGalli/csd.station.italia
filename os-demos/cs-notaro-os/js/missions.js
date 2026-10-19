@@ -9,14 +9,14 @@
 //  Memoria          · Trova il precedente giusto
 //  Visure           · Trova la differenza
 //  Preventivi       · Il conto torna (calcolatrice: percentuali, minimi, IVA, frazioni)
-//  Osservatorio     · Si applica o no?
-//  Staff            · Riassegna il lavoro
+//  Osservatorio     · Si applica o no? · (dal capitolo 2, a caso) Chi va avvisato?
+//  Staff            · Riassegna il lavoro · (dal livello 2, a caso) Chi segue la firma?
 //  Scadenziario     · La data giusta sul calendario
 //  Antiriciclaggio  · Quanto possiede davvero? (percentuali composte)
-//  Compliance       · Consenti o rifiuta
+//  Compliance       · Consenti o rifiuta · (dal capitolo 2, a caso) La violazione dei dati, in fila
 import * as G from './gen.js';
 import {mechanics as M} from './mg.js';
-import {addMission, gameLevel, canSpawnMission, storyBias, rnd} from './game.js';
+import {addMission, gameLevel, canSpawnMission, storyBias, rnd, gameState} from './game.js';
 import {spawnMail, spawnChat, spawnCall, live} from './live.js';
 
 let testLevel = 0;
@@ -287,6 +287,49 @@ function complianceMission() {
 
 
 
+// ————— Osservatorio · Chi va avvisato? (pick) —————
+// Agevolazione prima casa: chi vende entro 5 anni dall'acquisto la perde, salvo riacquistare un'altra prima casa entro un anno.
+function primaCasaMission() {
+ const [a, b, c] = [G.person(), G.person(), G.person()], y = n => 2026 - n;
+ const cards = [
+  {title:a.name, meta:`comprata nel ${y(3)} con l’agevolazione`, body:'Vende ora, nessun nuovo acquisto in vista.', ok:true},
+  {title:b.name, meta:`comprata nel ${y(G.int(6, 9))} con l’agevolazione`, body:'Vende ora, nessun nuovo acquisto.', why:'Sono passati più di 5 anni dall’acquisto: l’agevolazione non si perde più.'},
+  {title:c.name, meta:`comprata nel ${y(2)} con l’agevolazione`, body:`Vende ora e ha già comprato un’altra prima casa ${G.int(3, 9)} mesi fa.`, why:'Ha riacquistato entro un anno: l’agevolazione è salva, e matura anche il credito d’imposta.'}
+ ];
+ return {mission:mk('pick', 'CHI VA AVVISATO?', 'Osservatorio · agevolazione prima casa', {ask:'L’Osservatorio segnala i chiarimenti sulla <b>decadenza dall’agevolazione prima casa</b>. Tra le vendite in agenda, <b>chi va avvisato subito</b>?', sources:[{t:'Regola (sintesi)', rows:[['Decadenza', 'vendita entro 5 anni dall’acquisto agevolato'], ['Salvo', 'riacquisto di un’altra abitazione principale entro 1 anno']]}], cards:G.shuffle(cards), winWhy:'Avvisato prima del rogito: il cliente sa che ha un anno per riacquistare, e lo studio lo mette in scadenziario.'}),
+  brief:{what:'È uscita una novità che tocca alcune pratiche in agenda. Scegli il cliente che rischia davvero e va avvisato prima della firma.', why:'Un cliente avvisato prima del rogito può ancora organizzarsi; dopo, paga imposte, sanzioni e interessi.'}};
+}
+
+// ————— Staff · Chi segue la firma? (pick) —————
+function firmaMission() {
+ const act = G.pick([['una compravendita con mutuo', 'GM', 'immobiliare'], ['una costituzione di S.r.l.', 'LB', 'societario'], ['una successione', 'EF', 'successioni']]);
+ const by2 = {GM:'Giulia Marchi', LB:'Luca Benassi', EF:'Elena Ferri', SR:'Sara Ricci'};
+ const others = Object.keys(by2).filter(k => k !== act[1]), busyK = G.pick(others.filter(k => k !== 'SR'));
+ const load = G.int(45, 70);
+ const cards = [
+  {title:by2[act[1]], meta:`${act[2]} · carico ${load}%`, body:'Segue questa materia ed è in studio venerdì.', ok:true},
+  {title:by2.SR, meta:'segreteria · carico 30%', body:'È la più libera.', why:'Sara segue agenda e clienti, non istruisce pratiche: la firma va a chi conosce la materia.'},
+  {title:by2[busyK], meta:`carico 95% · venerdì in Conservatoria`, body:'Ha esperienza su tutto.', why:'Venerdì è fuori studio e ha già il carico pieno: la pratica resterebbe ferma.'}
+ ];
+ return {mission:mk('pick', 'CHI SEGUE LA FIRMA?', 'Staff · la firma di venerdì', {ask:`Paolo Donati è in ferie e venerdì c’è la firma di <b>${act[0]}</b>. A chi la affidi?`, sources:[{t:'Competenze dello studio', rows:[['Immobiliare', by2.GM], ['Societario', by2.LB], ['Successioni', by2.EF], ['Segreteria', by2.SR]]}], cards:G.shuffle(cards), winWhy:'Pratica a chi la conosce e ha tempo: la firma resta in agenda e nessuno corre all’ultimo.'}),
+  brief:{what:'Qualcuno è assente e c’è una firma da coprire. Scegli chi la segue: deve conoscere la materia ed essere libero quel giorno.', why:'Una pratica data alla persona sbagliata si ferma, o arriva alla firma con un errore.'}};
+}
+
+// ————— Compliance · La violazione dei dati (in fila) —————
+function breachMission() {
+ const what = G.pick(['Un’email con l’atto di un cliente è partita all’indirizzo sbagliato', 'Il portatile di un collaboratore con le pratiche è stato rubato in treno', 'Un allegato con i documenti d’identità è finito in una chat di gruppo']);
+ const steps = [['Contieni la violazione', 'chiedi la cancellazione, blocca l’accesso, cambia le password'], ['Valuta il rischio per le persone', 'che dati, quante persone, che conseguenze'], ['Notifica al Garante entro 72 ore', 'se c’è un rischio per i diritti delle persone'], ['Informa i clienti coinvolti', 'se il rischio è elevato'], ['Registra tutto nel registro delle violazioni', 'anche quando non si notifica']].slice(0, by(4, 5, 5)).map(([t, sub]) => ({t, sub}));
+ return {mission:mk('order', 'IN FILA', 'Compliance · violazione dei dati', {ask:`<b>${what}.</b> Cosa si fa, dal primo all’ultimo passaggio?`, steps, sources:[{t:'Regolamento privacy (GDPR, sintesi)', rows:[['Notifica al Garante', 'entro 72 ore da quando lo studio lo scopre'], ['Registro', 'ogni violazione si documenta']]}], winWhy:'Prima si ferma il danno, poi si valuta, poi si notifica nei tempi: e tutto resta scritto nel registro.'}, 180000),
+  brief:{what:'Una violazione dei dati: un documento finito dove non doveva. Metti in fila la procedura, dal primo all’ultimo passaggio.', why:'Il termine di 72 ore per avvisare il Garante corre da quando lo studio lo scopre: l’ordine giusto fa risparmiare ore preziose.'}};
+}
+
+// Missioni in più: a ogni partita se ne accendono alcune a caso, e solo da un certo punto (ch: 1 = capitolo 2, lvl: livello).
+const extras = [{page:'osservatorio', fn:primaCasaMission, p:.75, ch:1}, {page:'staff', fn:firmaMission, p:.75, lvl:2}, {page:'compliance', fn:breachMission, p:.7, ch:1}];
+let active = new Set(extras);
+const ready = x => active.has(x) && (x.ch == null || gameState().chapter >= x.ch) && (x.lvl == null || lvl() >= x.lvl);
+const withExtras = (page, fn) => () => { const c = [fn, ...extras.filter(x => x.page === page && ready(x)).map(x => x.fn)]; return c[rnd(c.length)](); };
+export const extraGenerators = extras.map(x => ({page:x.page, name:x.fn.name, make:() => x.fn()}));
+
 // Il primo arrivo di ogni settore lo spiega un Otto di quel settore: cosa fai e perché, a tempo fermo.
 const briefs = {
  posta:{where:'nella posta dello studio', role:'otto-cap', name:'Otto postino', what:'Nella posta è arrivato qualcosa che Otto non può smistare da solo: leggi bene e decidi tu.', why:'Ogni email sbagliata di posto è una pratica che si ferma, e un dato sbagliato in un allegato finisce dritto nell’atto.'},
@@ -323,10 +366,10 @@ Object.entries(briefAlt).forEach(([k, v]) => { briefs[k].alt = [v]; });
 // ————— regista —————
 // Le missioni sono un bonus raro (una ogni un paio di minuti): il cuore della sfida sono i compiti veri.
 // Gira su tutti i moduli, così ogni sezione dello studio prima o poi ha la sua missione.
-const pages = {posta:() => [allegatiMission, postaMission, frodeMission][rnd(3)](), centralino:centralinoMission, whatsapp:whatsappMission, studio:studioMission, memoria:memoriaMission, visure:visureMission, preventivi:preventiviMission, osservatorio:osservatorioMission, staff:staffMission, scadenze:() => (rnd(2) ? proceduraMission : scadenzeMission)(), antiriciclaggio:antiriciclaggioMission, compliance:complianceMission};
+const pages = {posta:() => [allegatiMission, postaMission, frodeMission][rnd(3)](), centralino:centralinoMission, whatsapp:whatsappMission, studio:studioMission, memoria:memoriaMission, visure:visureMission, preventivi:preventiviMission, osservatorio:withExtras('osservatorio', osservatorioMission), staff:withExtras('staff', staffMission), scadenze:() => (rnd(2) ? proceduraMission : scadenzeMission)(), antiriciclaggio:antiriciclaggioMission, compliance:withExtras('compliance', complianceMission)};
 const rotation = ['posta', 'visure', 'centralino', 'preventivi', 'whatsapp', 'studio', 'scadenze', 'memoria', 'antiriciclaggio', 'staff', 'compliance', 'osservatorio'];
 let open = [];
-function spawn(force) {
+function spawn(force, forced) {
  if (!running && !force) return;
  if (!force && (document.body.classList.contains('touring') || document.hidden)) return schedule(3);
  // una missione arriva solo quando il giocatore ha preso la mano (due compiti fatti) e c'è spazio nel livello
@@ -336,7 +379,7 @@ function spawn(force) {
   // nella storia, l'antagonista del capitolo porta più spesso missioni dalle sue sezioni
   const bias = storyBias()?.filter(p => pages[p] && !busy.has(p)), fromStory = !force && bias?.length && Math.random() < .6 ? bias[Math.floor(Math.random() * bias.length)] : null;
   const page = force || fromStory || order.find(p => !busy.has(p)) || order[0]; turn = rotation.indexOf(page) + 1;
-  const made = pages[page](), mission = made.mission || made, ttl = Math.round(mission.ttl * by(1, .85, .7)), rec = {open:true, page};
+  const made = forced ? forced() : pages[page](), mission = made.mission || made, ttl = Math.round(mission.ttl * by(1, .85, .7)), rec = {open:true, page};
   let item = null;
   if (made.anchor === 'mail') item = spawnMail({...made.mail, priority:'alta', assignee:'GM', prepared:[], draft:''});
   if (made.anchor === 'chat') item = spawnChat(made.chat);
@@ -349,11 +392,12 @@ function spawn(force) {
  if (!force) schedule(open.some(x => x.open) ? G.int(90, 140) : 15);
 }
 // Per i test e le prove a mano: fa arrivare subito la missione di una sezione.
-export const spawnNow = page => spawn(page);
+// Con k = 0, 1… fa arrivare una missione extra precisa del settore, anche se in questa partita non è accesa.
+export const spawnNow = (page, k) => spawn(page, k == null ? null : extras.filter(x => x.page === page)[k]?.fn);
 function schedule(s) { clearTimeout(timer); timer = setTimeout(spawn, s * 1000); }
 // a ogni partita l'ordine dei settori si rimescola davvero: le prime missioni non sono mai le stesse
 const reshuffle = () => { for (let i = rotation.length - 1; i > 0; i--) { const j = rnd(i + 1); [rotation[i], rotation[j]] = [rotation[j], rotation[i]]; } };
-export function startMissions(handled) { onHandled = handled || onHandled; running = true;  turn = 0; reshuffle(); open = []; schedule(45); }
+export function startMissions(handled) { onHandled = handled || onHandled; running = true; turn = 0; reshuffle(); active = new Set(extras.filter(x => Math.random() < x.p)); open = []; schedule(45); }
 export function stopMissions() { running = false; live.game = false; clearTimeout(timer); }
 // Per i test: i generatori di ogni modulo, con un livello forzato.
 export const generators = pages;

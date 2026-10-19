@@ -441,6 +441,7 @@ body.game-paused .game-kds .tk-bar i{animation-play-state:paused}
 .game-pressure em{font-style:normal;font-weight:700;display:flex;align-items:center;gap:4px;color:#b2412d}
 .game-pressure em .icon{width:13px;height:13px}
 .sidebar a.nav-alarm{box-shadow:inset 3px 0 0 #d8432f;background:#3a1f1a}
+.sidebar a.nav-alarm.active{background:#fbe5e0;color:#8e2f1f}.sidebar a.nav-alarm.active .icon{color:#8e2f1f}
 .sidebar a.nav-alarm::after{content:'';width:8px;height:8px;border-radius:50%;background:#d8432f;margin-left:auto;box-shadow:0 0 0 0 #d8432f99;animation:lu-live-red 1.4s infinite;flex:none}
 body.touring .game-pressure{display:none}
 /* La Bottega in sfida: stesso schermino a fosfori del capitolo. Barra in alto sempre su una riga. */

@@ -57,7 +57,8 @@ const emit = () => listeners.forEach(fn => fn());
 const now = () => new Intl.DateTimeFormat('it-IT', {hour:'2-digit', minute:'2-digit', timeZone:'Europe/Rome'}).format(new Date());
 function log(text, kind='sala') { service.events.unshift({time:now(), text, kind, at:Date.now()}); service.events = service.events.slice(0, 40); }
 
-export const tableTotal = t => t.lines.reduce((n, l) => n + dish(l.dish).price * l.qty, 0);
+// perk: un premio o uno sconto della card fedeltà già applicato al conto (Fidelity & NFC)
+export const tableTotal = t => Math.max(0, t.lines.reduce((n, l) => n + dish(l.dish).price * l.qty, 0) - (t.perk?.amount || 0));
 export const lowStock = () => ingredients.filter(i => i.qty <= i.min);
 // Menu intelligente: quante porzioni restano davvero in magazzino, e se la cucina può reggere il piatto adesso.
 export const portions = d => Math.min(...Object.entries(d.recipe).map(([k, q]) => Math.floor(ingredient(k).qty / q + 1e-9)));
@@ -68,7 +69,7 @@ export const kitchenLines = () => tables.flatMap(t => t.lines.filter(l => l.stat
 
 export function openTable(id, guests, name='') {
  const t = table(id); if (t.status !== 'free') return;
- Object.assign(t, {status:'seated', guests, since:Date.now(), lines:[], name});
+ Object.assign(t, {status:'seated', guests, since:Date.now(), lines:[], name, perk:null});
  service.covers += guests; log(`${id} · ${guests} ospiti accomodati${name ? ' (' + name + ')' : ''}`); emit();
 }
 export function addDish(id, dishId, qty=1, silent=false, via='sala') {
@@ -95,7 +96,7 @@ export function advance(lineId) {
  }
 }
 export function requestBill(id) { const t = table(id); if (t.lines.length) { t.status = 'bill'; t.billAt = Date.now(); log(`${id} · conto richiesto (€ ${tableTotal(t)})`); emit(); } }
-export const tableDue = t => t.lines.filter(l => !l.paid).reduce((n, l) => n + dish(l.dish).price * l.qty, 0);
+export const tableDue = t => Math.max(0, t.lines.filter(l => !l.paid).reduce((n, l) => n + dish(l.dish).price * l.qty, 0) - (t.perk?.amount || 0));
 // Ogni incasso, dalla cassa o dal QR, emette il documento commerciale e finisce nei corrispettivi per l'Agenzia delle Entrate.
 function pay(tableId, amount, method, what) {
  const p = {id:'DC ' + String(++service.doc).padStart(4, '0'), table:tableId, amount, method, what, time:now(), at:Date.now(), ade:'In invio'};
@@ -110,7 +111,7 @@ export function closeBill(id, method='Carta') {
  if (due) pay(id, due, method === 'Carta' ? 'POS · carta' : method, `Conto tavolo ${id.slice(1)}`);
  service.closed.unshift({table:id, total, guests:t.guests, method: due === total ? method : due ? `${method} + QR` : 'Pagato dal QR', time:now(), items:t.lines.reduce((n, l) => n + l.qty, 0)});
  log(`${id} · conto chiuso € ${total}${due !== total ? ` (€ ${total - due} già pagati dal QR)` : ` (${method})`}`, 'cassa');
- Object.assign(t, {status:'free', guests:0, since:null, lines:[], name:''}); emit(); return total;
+ Object.assign(t, {status:'free', guests:0, since:null, lines:[], name:'', perk:null}); emit(); return total;
 }
 export function reorder(ids) {
  for (const id of ids) { const i = ingredient(id); i.qty = +(i.qty + i.min * 2).toFixed(2); i.alerted = false; i.changed = Date.now(); }
@@ -174,7 +175,8 @@ seed();
 // Servizio live: la cucina avanza e arrivano nuovi ordini.
 export function tick() {
  if (!service.live) return;
- tidy(); // il riordino (elenchi corti, consegne del fornitore) gira sempre, anche nella sfida
+ tidy();
+ if (!service.game) deliveryDemo(); // il riordino (elenchi corti, consegne del fornitore) gira sempre, anche nella sfida
  // nella sfida la cucina la guida il giocatore: la simulazione fa solo girare i tavoli
  if (service.game) { if (Math.random() < .3) turnover(); return; }
  if (Math.random() < .25 && turnover()) return;
@@ -243,9 +245,14 @@ export const reviews = [
 export const campaigns = [
  {name:'Promemoria prenotazione', sent:42, read:39, kind:'Automatico'}, {name:'Menu del tartufo · novembre', sent:0, read:0, kind:'Bozza di Otto'}, {name:'Grazie della visita + recensione', sent:118, read:96, kind:'Automatico'}
 ];
-export const members = [{name:'Luca Pieri', points:340, visits:14, reward:'Dessert offerto'}, {name:'Anna Serra', points:120, visits:5, reward:'—'}, {name:'Studio Marchetti', points:880, visits:22, reward:'Bottiglia di Chianti'}];
 export const invoices = [{n:'FT 2026/412', to:'Studio Marchetti', amount:620, state:'Da emettere'}, {n:'FT 2026/411', to:'Eventi Medici srl', amount:1840, state:'Inviata SDI'}, {n:'Acquisto', to:'Macelleria Bartolini', amount:412.5, state:'Ricevuta'}];
-export const grants = [{title:'Contributi per l’efficienza energetica delle cucine', who:'Regione Toscana', deadline:'30 nov', fit:'Alta'}, {title:'Bando digitalizzazione PMI del turismo', who:'Camera di Commercio', deadline:'15 dic', fit:'Media'}];
+// Bandi di esempio, con quello che serve per decidere: quanto dà, su cosa, entro quando, e a che punto è la domanda.
+export const grants = [
+ {id:'energia', title:'Efficienza energetica delle cucine professionali', who:'Regione Toscana', deadline:'30 nov', days:42, fit:'Alta', pct:40, cap:30000, kind:'Fondo perduto', spend:'Abbattitori, cappe, forni e piani a induzione nuovi, classe energetica A o superiore', our:18600, state:'Documenti pronti 4/6', docs:[['Preventivo abbattitore Irinox', true], ['Preventivo cappa aspirante', true], ['Visura camerale', true], ['DURC in corso di validità', true], ['Diagnosi energetica', false], ['Dichiarazione de minimis', false]], note:'Il nuovo abbattitore e la cappa rientrano tra le spese ammissibili: contributo stimato **€ 7.440** (40% di € 18.600).'},
+ {id:'digitale', title:'Voucher digitalizzazione PMI del turismo', who:'Camera di Commercio di Firenze', deadline:'15 dic', days:57, fit:'Media', pct:50, cap:10000, kind:'Voucher', spend:'Software gestionali, prenotazioni online, app e sito, formazione digitale', our:6200, state:'Da preparare', docs:[['Preventivo CS Restaurant OS', true], ['Visura camerale', true], ['DURC', true], ['Autodichiarazione aiuti ricevuti', false]], note:'Utile per **app del locale, menu digitale e delivery**: voucher stimato **€ 3.100** (50% di € 6.200).'},
+ {id:'giovani', title:'Nuova impresa giovanile e femminile · ristorazione', who:'Invitalia (esempio)', deadline:'a sportello', days:null, fit:'Bassa', pct:0, cap:0, kind:'Finanziamento agevolato', spend:'Avvio di nuove imprese con meno di 36 mesi', our:0, state:'Non compatibile', docs:[], note:'Il locale è aperto dal 2019: **oltre i 36 mesi** richiesti. Lo tengo d’occhio per un eventuale secondo locale.'}
+];
+export const grantHistory = [{title:'Ristori per la ristorazione 2021', amount:4200, state:'Incassato'}, {title:'Credito d’imposta sanificazione 2020', amount:1150, state:'Compensato in F24'}];
 export const staff = [{name:'Marta Rinaldi', role:'Titolare', shift:'18–24'}, {name:'Davide', role:'Chef', shift:'17–24'}, {name:'Sofia', role:'Sala', shift:'18:30–24'}, {name:'Karim', role:'Cucina', shift:'17–23'}, {name:'Elena', role:'Sala', shift:'19–24'}];
 export const haccp = [{task:'Temperatura frigo 1 (≤ 4°C)', done:true, by:'Karim · 17:05'}, {task:'Temperatura abbattitore', done:true, by:'Davide · 17:30'}, {task:'Sanificazione piani di lavoro', done:false, by:'Entro le 24:00'}, {task:'Etichettatura preparazioni', done:false, by:'Entro le 23:00'}];
 
@@ -487,4 +494,259 @@ export function doorTick(level = 1) {
 export const doorArrive = n => doorOn ? arrive(n) : null;
 
 // Il tempo passato a gioco fermo sposta anche i prossimi arrivi (comande, guasti, ospiti): al ritorno non arriva tutto insieme.
-export function shiftClocks(ms) { nextOrderAt += ms; nextFaultAt += ms; nextDoorAt += ms; }
+export function shiftClocks(ms) { nextOrderAt += ms; nextFaultAt += ms; nextDoorAt += ms; deliveryShift(ms); nfcShift(ms); }
+
+
+// ————— Fidelity & NFC —————
+// La card NFC (o il telefono dell'ospite) si appoggia al lettore al tavolo: Otto riconosce l'ospite, somma i punti
+// e propone il premio. Un punto per ogni euro. Il livello dipende dai punti degli ultimi 12 mesi, i premi si pagano con il saldo.
+export const tiers = [
+ {id:'bronzo', name:'Bronzo', from:0, off:0, perk:'1 punto ogni euro, auguri di compleanno'},
+ {id:'argento', name:'Argento', from:500, off:5, perk:'Sconto 5% sul conto, prenotazione prioritaria'},
+ {id:'oro', name:'Oro', from:1200, off:10, perk:'Sconto 10% sul conto, tavolo preferito, anteprime del menu'}
+];
+export const tierOf = m => [...tiers].reverse().find(t => (m.year ?? m.points) >= t.from);
+export const nextTier = m => tiers.find(t => t.from > (m.year ?? m.points));
+export const rewards = [
+ {id:'caffe', name:'Caffè e amaro offerti', cost:150, value:5},
+ {id:'dessert', name:'Dessert della casa offerto', cost:300, value:7},
+ {id:'chianti', name:'Bottiglia di Chianti Classico', cost:800, value:28},
+ {id:'cena', name:'Cena per due', cost:1500, value:70}
+];
+export const reward = id => rewards.find(r => r.id === id);
+export const members = [
+ {id:'M1', name:'Luca Pieri', uid:'04:3A:91:C2', points:340, year:1340, visits:14, last:'12 ott', fav:'Tagliata di manzo', allergy:'', wa:true, birthday:'3 novembre', since:'2022'},
+ {id:'M2', name:'Anna Serra', uid:'04:7F:12:B8', points:120, year:420, visits:5, last:'28 set', fav:'Risotto ai porcini', allergy:'Celiaca', wa:true, birthday:'14 marzo', since:'2025'},
+ {id:'M3', name:'Studio Marchetti', uid:'04:C1:5E:07', points:880, year:2650, visits:22, last:'2 ott', fav:'Chianti Classico', allergy:'', wa:false, birthday:'—', since:'2021', company:true},
+ {id:'M4', name:'Giulia Fabbri', uid:'04:9B:44:1D', points:610, year:780, visits:9, last:'5 ott', fav:'Carbonara', allergy:'', wa:true, birthday:'27 ottobre', since:'2024'},
+ {id:'M5', name:'Elena Guidi', uid:'04:12:E3:A0', points:1520, year:1610, visits:19, last:'1 ago', fav:'Tagliata di manzo', allergy:'Intollerante al lattosio', wa:true, birthday:'9 gennaio', since:'2020'},
+ {id:'M6', name:'Paolo Neri', uid:'04:5D:70:3F', points:260, year:540, visits:7, last:'20 ago', fav:'Tiramisù', allergy:'', wa:false, birthday:'30 ottobre', since:'2023'},
+ {id:'M7', name:'Tommaso Ricci', uid:'04:E8:2C:91', points:95, year:95, visits:2, last:'17 ott', fav:'Pici al pomodoro', allergy:'', wa:true, birthday:'2 luglio', since:'2026'},
+ {id:'M8', name:'Sara Bellini', uid:'04:61:B7:58', points:45, year:180, visits:3, last:'9 lug', fav:'Bruschetta', allergy:'', wa:true, birthday:'21 ottobre', since:'2025'}
+];
+export const member = id => members.find(m => m.id === id);
+// Il premio migliore che l'ospite può già prendere con il suo saldo (il più alto che raggiunge).
+export const bestReward = m => [...rewards].reverse().find(r => m.points >= r.cost) || null;
+// Gli ultimi tocchi al lettore, fuori dalla sfida: la storia della serata.
+export const nfcLog = [
+ {time:'20:52', who:'Giulia Fabbri', table:'T4', what:'Riconosciuta · livello Argento, sconto 5% applicato', pts:'+48'},
+ {time:'20:31', who:'Luca Pieri', table:'T10', what:'Riconosciuto · anniversario, dessert offerto', pts:'−300'},
+ {time:'20:05', who:'Tommaso Ricci', table:'T2', what:'Nuova card attivata al tavolo · consenso WhatsApp sì', pts:'+46'},
+ {time:'19:48', who:'Studio Marchetti', table:'T9', what:'Riconosciuto · prenotazione per 8 alle 21:00', pts:''}
+];
+// Nella sfida: un ospite appoggia la card e aspetta. Chiede di usare un premio, oppure paga e si aspetta lo sconto del livello.
+// La risposta giusta segue le regole del programma; se l'ospite aspetta troppo, il lettore va in rosso; troppo a lungo, rinuncia.
+export const nfc = {taps:[], cfg:{gap:[75, 115], wait:40, leave:100, rate:1, auto:false, bonus:0}, on:false};
+let nfcSeq = 0, nextTapAt = 0;
+const tapNames = ['Chiara Lotti', 'Marco Sarti', 'Irene Doni', 'Franco Villa', 'Lucia Moretti', 'Stefano Pini', 'Laura Fontana', 'Davide Sacchi', 'Roberto Galli', 'Sara Carraresi'];
+export const nfcWait = t => (Date.now() - t.at) / 1000;
+export const nfcRed = t => nfc.on && nfcWait(t) > nfc.cfg.wait + nfc.cfg.bonus;
+// la risposta giusta: 'reward:<id>', 'sconto' oppure 'punti'
+export function nfcAnswer(tap) {
+ const m = tap.m, r = tap.want && reward(tap.want);
+ if (tap.ask === 'premio') return m.points >= r.cost ? `reward:${r.id}` : 'punti';
+ return tierOf(m).off ? 'sconto' : 'punti';
+}
+export function nfcWhy(tap, choice) {
+ const m = tap.m, r = tap.want && reward(tap.want), t = tierOf(m);
+ if (tap.ask === 'premio') return m.points >= r.cost ? `${m.name} ha ${m.points} punti: “${r.name}” ne costa ${r.cost}, il premio spetta.` : `${m.name} ha ${m.points} punti e “${r.name}” ne costa ${r.cost}: mancano ${r.cost - m.points} punti. Si accumulano i punti di stasera.`;
+ return t.off ? `${m.name} è di livello ${t.name}: sul conto spetta lo sconto del ${t.off}%.` : `${m.name} è di livello Bronzo: nessuno sconto, solo i punti del conto.`;
+}
+function tapArrive() {
+ const t = tables.filter(x => ['seated', 'ordered'].includes(x.status) && x.lines.length && !x.perk && !x.mission && !nfc.taps.some(y => y.table === x.id))[Math.floor(Math.random() * 6)];
+ if (!t) return null;
+ const year = [120, 380, 640, 900, 1350, 1800][Math.floor(Math.random() * 6)];
+ const ask = Math.random() < .55 ? 'premio' : 'conto', want = rewards[Math.floor(Math.random() * 3)];
+ // il saldo è vicino al costo del premio chiesto: a volte basta, a volte no
+ const points = ask === 'premio' ? Math.max(20, want.cost + (Math.random() < .55 ? 1 : -1) * (10 + Math.floor(Math.random() * 140))) : 40 + Math.floor(Math.random() * 900);
+ const m = {id:`X${++nfcSeq}`, name:tapNames[Math.floor(Math.random() * tapNames.length)], points, year:Math.max(year, ask === 'premio' ? 0 : 0), visits:2 + Math.floor(Math.random() * 18)};
+ const tap = {id:`N${nfcSeq}`, table:t.id, m, ask, want:ask === 'premio' ? want.id : null, at:Date.now()};
+ nfc.taps.push(tap); log(`${t.id} · card fedeltà appoggiata: ${m.name}`, 'sala'); emit(); return tap;
+}
+// Applica la scelta: premio (sconto pari al suo valore), sconto del livello o solo punti. Ritorna il tap chiuso.
+export function nfcResolve(id, choice) {
+ const i = nfc.taps.findIndex(x => x.id === id); if (i < 0) return null;
+ const [tap] = nfc.taps.splice(i, 1), t = table(tap.table), m = tap.m;
+ if (t && t.status !== 'free') {
+  if (choice.startsWith('reward:')) { const r = reward(choice.slice(7)); m.points -= r.cost; t.perk = {label:r.name, amount:Math.min(r.value, tableTotal(t)), who:m.name}; }
+  else if (choice === 'sconto') { const off = tierOf(m).off; t.perk = {label:`Sconto ${tierOf(m).name} ${off}%`, amount:+(tableTotal(t) * off / 100).toFixed(2), who:m.name}; }
+  else m.points += Math.round(tableTotal(t));
+ }
+ nfcLog.unshift({time:now(), who:m.name, table:tap.table, what:choice === 'punti' ? 'Punti accumulati sul conto' : t?.perk?.label || '', pts:''}); nfcLog.length = Math.min(nfcLog.length, 8);
+ log(`${tap.table} · fidelity: ${m.name}, ${choice === 'punti' ? 'punti accumulati' : t?.perk?.label}`, 'cassa'); emit(); return tap;
+}
+export function nfcGameStart() { nfc.on = true; nfc.taps.length = 0; Object.assign(nfc.cfg, {gap:[75, 115], wait:40, leave:100, rate:1, auto:false, bonus:0}); nextTapAt = Date.now() + 20000; }
+export function nfcGameStop() { nfc.on = false; nfc.taps.length = 0; }
+export function nfcTick(level = 1) {
+ if (!nfc.on) return {red:[], left:[]};
+ const now = Date.now(), left = [];
+ for (let i = nfc.taps.length - 1; i >= 0; i--) if (nfcWait(nfc.taps[i]) > nfc.cfg.leave + nfc.cfg.bonus * 1.5) left.push(...nfc.taps.splice(i, 1));
+ if (left.length) { left.forEach(x => log(`${x.table} · ${x.m.name} ha rinunciato al premio: nessuno ha letto la card`, 'sala')); emit(); }
+ // la cassa automatica (Bottega) applica da sola la regola giusta dopo 10 secondi
+ if (nfc.cfg.auto) for (const x of [...nfc.taps]) if (nfcWait(x) > 10) nfcResolve(x.id, nfcAnswer(x));
+ if (now >= nextTapAt) {
+  const gap = [nfc.cfg.gap, [65, 100], [50, 85]][level - 1] || nfc.cfg.gap;
+  nextTapAt = now + (gap[0] + Math.random() * (gap[1] - gap[0])) * 1000 / nfc.cfg.rate;
+  if (nfc.taps.length < level) tapArrive();
+ }
+ return {red:nfc.taps.filter(nfcRed), left};
+}
+export const nfcArrive = () => nfc.on ? tapArrive() : null;
+export const nfcShift = ms => { nextTapAt += ms; nfc.taps.forEach(t => { t.at = Math.min(t.at + ms, Date.now()); }); };
+// Campagne WhatsApp ai soli iscritti alla fidelity che hanno dato il consenso.
+export const segments = [
+ {id:'oro', name:'Livello Oro', test:m => tierOf(m).id === 'oro'},
+ {id:'lontani', name:'Non vengono da 60 giorni', test:m => ['1 ago', '20 ago', '9 lug'].includes(m.last)},
+ {id:'compleanno', name:'Compleanno nei prossimi 30 giorni', test:m => /ottobre|novembre/.test(m.birthday)},
+ {id:'premio', name:'Hanno un premio da usare', test:m => !!bestReward(m)}
+];
+
+// ————— L'app del locale (Brand & app) —————
+// Non è il menu QR: è l'app con il nome e i colori del locale, sugli store, che l'ospite tiene sul telefono.
+export const appCfg = {
+ name:'Osteria del Borgo', short:'OdB', theme:'bosco', tab:'home',
+ themes:{bosco:{name:'Bosco', bg:'#1d2b20', ink:'#c5f476'}, vino:{name:'Vino', bg:'#4a1f2a', ink:'#f2c879'}, terra:{name:'Terra', bg:'#5b3a24', ink:'#ffd8a8'}, notte:{name:'Notte', bg:'#17233b', ink:'#9fd3ff'}},
+ blocks:[
+  {id:'prenota', name:'Prenota un tavolo', note:'Collegata alla sala: solo orari e tavoli liberi', on:true},
+  {id:'menu', name:'Menu e allergeni', note:'Lo stesso menu del QR, sempre aggiornato', on:true},
+  {id:'card', name:'Card fedeltà digitale', note:'Punti, livello e premi nel telefono, anche senza card fisica', on:true},
+  {id:'delivery', name:'Ordina a domicilio', note:'Ordini senza commissioni delle piattaforme', on:true},
+  {id:'eventi', name:'Serate ed eventi', note:'Degustazioni, menu speciali, prevendite', on:false}
+ ],
+ store:[['App Store', 'Pubblicata · v2.4', 'ok'], ['Google Play', 'Pubblicata · v2.4', 'ok'], ['Versione 2.5', 'In revisione Apple · aggiunge “Ordina a domicilio”', 'wait']],
+ stats:{downloads:1284, active:612, bookings:96, orders:41},
+ booking:{maxOnline:8, last:'22:15', deposit:6, depositAmount:10, advance:'2 ore'},
+ hours:[['Lunedì', 'chiuso'], ['Mar – Ven', '12:30–14:30 · 19:30–23:00'], ['Sabato', '19:30–23:30'], ['Domenica', '12:30–15:00']],
+ pushes:[
+  {title:'Arrivano i porcini 🍄', text:'Da stasera risotto e tagliatelle ai porcini del Mugello. Prenota dall’app.', seg:'Tutti gli iscritti', sent:1102, open:38, when:'12 ott'},
+  {title:'Ti mancano 40 punti', text:'Alla prossima cena il dessert è offerto da noi.', seg:'Vicini a un premio', sent:86, open:61, when:'8 ott'},
+  {title:'Serata vini toscani', text:'Giovedì 24, quattro calici e quattro assaggi a 35 €.', seg:'Livello Oro e Argento', sent:214, open:52, when:'1 ott'}
+ ],
+ draft:{title:'Il tartufo è arrivato', text:'Da venerdì tagliolini al tartufo bianco di San Miniato. Prenota dall’app.', seg:'Tutti gli iscritti'}
+};
+
+// ————— Delivery multicanale —————
+// Glovo, Deliveroo, Just Eat e il sito del locale in un solo tablet: ordini unificati, tempi, rider, commissioni,
+// menu solo per il delivery e pausa dei canali quando la cucina è piena. Commissioni di esempio.
+export const channels = [
+ {id:'glovo', name:'Glovo', short:'GL', fee:30, on:true, bg:'#ffc244', ink:'#3d3000', orders:9, gross:286, prep:20, until:0},
+ {id:'deliveroo', name:'Deliveroo', short:'DR', fee:32, on:true, bg:'#00ccbc', ink:'#003b36', orders:6, gross:214, prep:20, until:0},
+ {id:'justeat', name:'Just Eat', short:'JE', fee:25, on:true, bg:'#ff8000', ink:'#fff', orders:4, gross:131, prep:25, until:0},
+ {id:'own', name:'Sito e app del locale', short:'OdB', fee:0, rider:3.5, on:true, bg:'#1d2b20', ink:'#c5f476', orders:5, gross:168, prep:25, until:0}
+];
+export const channel = id => channels.find(c => c.id === id);
+// Il menu del delivery: non tutto viaggia bene, e i prezzi coprono la scatola e parte della commissione.
+export const deliveryMenu = [
+ {id:'carbonara', on:true, price:15, travels:true, note:'Uova legate a fuoco basso: tiene 25 minuti'},
+ {id:'pici', on:true, price:13, travels:true, note:'Sugo a parte, si condisce all’ultimo'},
+ {id:'risotto', on:false, price:17, travels:false, note:'Scuoce in 15 minuti: resta solo in sala'},
+ {id:'burrata', on:true, price:13, travels:true, note:'Nel box freddo, separato dai caldi'},
+ {id:'bruschetta', on:false, price:9, travels:false, note:'Il pane si ammorbidisce nel box'},
+ {id:'tagliata', on:true, price:26, travels:true, note:'Cotta media, rucola e grana a parte'},
+ {id:'tiramisu', on:true, price:7.5, travels:true, note:'In vasetto chiuso'},
+ {id:'chianti', on:true, price:26, travels:true, note:'Solo maggiorenni: documento alla consegna'}
+];
+export const dmenu = id => deliveryMenu.find(x => x.id === id);
+export const delivery = {orders:[], cfg:{gap:[70, 110], accept:35, patience:50, rate:1, autoAccept:false, autoHand:false, bonus:0}, on:false, seq:4820};
+const riders = ['Ahmed', 'Yuki', 'Samir', 'Giorgia', 'Ivan', 'Matteo', 'Fatima', 'Kevin'];
+const dWho = ['Marco R.', 'Chiara B.', 'Ufficio Arno Tech', 'Davide L.', 'Irene P.', 'Famiglia Conti', 'Sara M.', 'Tommaso G.', 'Elisa F.', 'Luca D.'];
+const zones = [['Campo di Marte', 2.1], ['Santo Spirito', 1.4], ['Novoli', 4.2], ['Gavinana', 3.3], ['Rifredi', 3.8], ['Sant’Ambrogio', .9], ['Coverciano', 4.6]];
+export const dPrep = o => Math.round((18 + 6 * o.items.reduce((n, [, q]) => n + q, 0)) * kitchen.speed); // secondi nella sfida
+export const dTotal = o => o.items.reduce((n, [id, q]) => n + dmenu(id).price * q, 0);
+export const dWait = o => (Date.now() - o.at) / 1000;
+// il rider è arrivato e aspetta da… (secondi), 0 se non è ancora arrivato
+export const riderWait = o => Math.max(0, (Date.now() - o.riderAt) / 1000);
+export const dRed = o => delivery.on && ((o.state === 'new' && dWait(o) > delivery.cfg.accept) || (o.state !== 'picked' && riderWait(o) > 12));
+export const dActive = () => delivery.orders.filter(o => ['new', 'prep', 'ready'].includes(o.state));
+function newOrder(opts = {}) {
+ const on = channels.filter(c => c.on && (!c.until || Date.now() > c.until));
+ if (!on.length) return null;
+ const ch = opts.ch ? channel(opts.ch) : on[Math.floor(Math.random() * on.length)];
+ const menuOn = deliveryMenu.filter(x => x.on && available(dish(x.id)));
+ if (!menuOn.length) return null;
+ const n = 1 + Math.floor(Math.random() * 3), items = [];
+ for (let k = 0; k < n; k++) { const x = menuOn[Math.floor(Math.random() * menuOn.length)], e = items.find(y => y[0] === x.id); if (e) e[1]++; else items.push([x.id, 1]); }
+ const z = zones[Math.floor(Math.random() * zones.length)], at = opts.at || Date.now();
+ const o = {id:`D${++delivery.seq}`, code:`${ch.short}-${delivery.seq}`, ch:ch.id, who:dWho[Math.floor(Math.random() * dWho.length)], zone:z[0], km:z[1], items, state:'new', at, rider:ch.id === 'own' ? 'Matteo · rider del locale' : riders[Math.floor(Math.random() * riders.length)]};
+ o.prep = dPrep(o);
+ // il rider arriva quando l'ordine dovrebbe essere pronto, se accettato in tempo, più qualche secondo
+ o.riderAt = at + (delivery.cfg.accept * .5 + o.prep + 12 + Math.random() * 20) * 1000;
+ delivery.orders.unshift(o);
+ log(`Delivery · nuovo ordine ${ch.name} ${o.code}: ${o.items.map(([id, q]) => `${q}× ${dish(id).name}`).join(', ')}`, 'cucina');
+ return o;
+}
+export function acceptOrder(id) {
+ const o = delivery.orders.find(x => x.id === id); if (!o || o.state !== 'new') return false;
+ o.state = 'prep'; o.prepAt = Date.now();
+ for (const [dId, q] of o.items) for (const [k, qq] of Object.entries(dish(dId).recipe)) { const i = ingredient(k); i.qty = Math.max(0, +(i.qty - qq * q).toFixed(3)); i.changed = Date.now(); }
+ log(`Delivery · ${o.code} accettato, in preparazione`, 'cucina'); emit(); return true;
+}
+export function handOrder(id) {
+ const o = delivery.orders.find(x => x.id === id); if (!o || o.state !== 'ready' || Date.now() < o.riderAt) return false;
+ o.state = 'picked'; o.pickedAt = Date.now();
+ const ch = channel(o.ch), tot = dTotal(o); ch.orders++; ch.gross += tot;
+ // il delivery incassa dalla piattaforma: anche qui ogni vendita ha il suo documento commerciale
+ pay('DLV', tot, ch.id === 'own' ? 'Stripe · app del locale' : `Bonifico ${ch.name}`, `Delivery ${o.code}`);
+ log(`Delivery · ${o.code} ritirato da ${o.rider}`, 'cassa'); emit(); return true;
+}
+export function pauseChannel(id, sec = 0) {
+ const c = channel(id); if (!c) return;
+ if (sec) { c.until = Date.now() + sec * 1000; c.on = true; }
+ else { c.on = !c.on; c.until = 0; }
+ log(`Delivery · ${c.name} ${c.until || !c.on ? 'in pausa' : 'di nuovo attivo'}`, 'cucina'); emit();
+}
+export const chPaused = c => !c.on || (c.until && Date.now() < c.until);
+// Fuori dalla sfida il tablet accetta da solo e il banco consegna: il flusso gira come in un servizio vero.
+function deliveryDemo() {
+ const now = Date.now(); let changed = false;
+ for (const o of delivery.orders) {
+  if (o.state === 'new' && now - o.at > 6000) { o.state = 'prep'; o.prepAt = now; changed = true; }
+  else if (o.state === 'prep' && now - o.prepAt > o.prep * 1000) { o.state = 'ready'; o.readyAt = now; changed = true; }
+  else if (o.state === 'ready' && now > o.riderAt) { handOrder(o.id); changed = true; }
+ }
+ if (dActive().length < 4 && Math.random() < .3 && newOrder()) changed = true;
+ trimOrders();
+ if (changed) emit();
+}
+const trimOrders = () => { const old = delivery.orders.filter(o => ['picked', 'lost'].includes(o.state)); old.slice(5).forEach(o => delivery.orders.splice(delivery.orders.indexOf(o), 1)); };
+let nextDlvAt = 0;
+export function deliveryGameStart() {
+ delivery.on = true; delivery.orders.length = 0; channels.forEach(c => { c.on = true; c.until = 0; });
+ Object.assign(delivery.cfg, {gap:[70, 110], accept:35, patience:50, rate:1, autoAccept:false, autoHand:false, bonus:0});
+ nextDlvAt = Date.now() + 15000;
+}
+export function deliveryGameStop() { delivery.on = false; }
+// Un battito al secondo nella sfida: arrivano gli ordini, finisce la preparazione, arrivano e ripartono i rider.
+export function deliveryTick(level = 1) {
+ if (!delivery.on) return {red:[], lost:[]};
+ const now = Date.now(), lost = []; let changed = false;
+ for (const o of delivery.orders) {
+  if (o.state === 'new' && delivery.cfg.autoAccept && now - o.at > 8000) { acceptOrder(o.id); changed = true; }
+  if (o.state === 'prep' && now - o.prepAt > o.prep * 1000) { o.state = 'ready'; o.readyAt = now; log(`Delivery · ${o.code} pronto da imbustare`, 'cucina'); changed = true; }
+  if (o.state === 'ready' && delivery.cfg.autoHand && now > o.riderAt + 4000) { handOrder(o.id); changed = true; }
+  // il rider non aspetta all'infinito: se riparte senza l'ordine, la piattaforma lo annulla
+  if (['new', 'prep', 'ready'].includes(o.state) && riderWait(o) > delivery.cfg.patience + delivery.cfg.bonus) { o.state = 'lost'; lost.push(o); log(`Delivery · ${o.code} annullato: il rider è ripartito senza l’ordine`, 'cucina'); changed = true; }
+ }
+ if (now >= nextDlvAt) {
+  const gap = [delivery.cfg.gap, [60, 95], [45, 75]][level - 1] || delivery.cfg.gap;
+  nextDlvAt = now + (gap[0] + Math.random() * (gap[1] - gap[0])) * 1000 / delivery.cfg.rate;
+  if (dActive().length < 1 + level && newOrder()) changed = true;
+ }
+ // finita la pausa a tempo, il canale riapre da solo
+ channels.forEach(c => { if (c.until && now > c.until) { c.until = 0; log(`Delivery · ${c.name} di nuovo attivo`, 'cucina'); changed = true; } });
+ trimOrders();
+ if (changed) emit();
+ return {red:delivery.orders.filter(o => ['new', 'prep', 'ready'].includes(o.state) && dRed(o)), lost};
+}
+export const deliveryArrive = ch => delivery.on ? (newOrder({ch}) && (emit(), delivery.orders[0])) : null;
+export const deliveryShift = ms => { nextDlvAt += ms; delivery.orders.forEach(o => { ['at', 'prepAt', 'readyAt'].forEach(k => { if (o[k]) o[k] = Math.min(o[k] + ms, Date.now()); }); if (o.state !== 'picked' && o.state !== 'lost') o.riderAt += ms; }); channels.forEach(c => { if (c.until) c.until += ms; }); };
+// Stato iniziale del tablet: qualche ordine già in corsa, uno appena arrivato.
+(function seedDelivery() {
+ const now = Date.now();
+ [[-260, 'picked'], [-200, 'picked'], [-90, 'ready'], [-40, 'prep'], [-3, 'new']].forEach(([s, st]) => {
+  const o = newOrder({at:now + s * 1000}); if (!o) return;
+  o.state = st; o.prepAt = o.at + 5000; if (st === 'picked') o.pickedAt = o.riderAt;
+  if (st === 'ready') o.readyAt = now - 10000;
+ });
+ service.events = service.events.filter(e => !e.text.startsWith('Delivery'));
+})();

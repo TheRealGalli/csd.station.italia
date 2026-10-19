@@ -6,6 +6,7 @@ const paths = {
  'otto-notary':'<rect x="3.5" y="7" width="17" height="13" rx="4.5"/><path d="M1.8 12v3M22.2 12v3"/><circle cx="9" cy="13" r="2.1"/><circle cx="15" cy="13" r="2.1"/><path d="M11.1 13h1.8M10.6 17.2q1.4 1 2.8 0"/><path d="M12 7V4.4"/><circle cx="12" cy="3.2" r="1.2"/><path d="M9.2 22.2l2.8-1.1 2.8 1.1v-2.3l-2.8 1.1-2.8-1.1z"/>',
  'otto-inspector':'<rect x="3.5" y="7" width="17" height="13" rx="4.5"/><path d="M1.8 12v3M22.2 12v3"/><circle cx="9" cy="13" r="2.1"/><circle cx="15" cy="13" r="2.1"/><path d="M11.1 13h1.8M10.6 17.2q1.4 1 2.8 0"/><path d="M5.5 7.2q6.5-4.4 13 0M8 4.6h8"/>',
  'otto-star':'<rect x="3.5" y="7" width="17" height="13" rx="4.5"/><path d="M1.8 12v3M22.2 12v3"/><path d="M7.8 13.3q1.2-1.8 2.4 0M13.8 13.3q1.2-1.8 2.4 0M10 16.3q2 1.6 4 0"/><path d="M12 7V4.4"/><circle cx="12" cy="3.2" r="1.2"/><path d="m19 1.5.8 1.7 1.7.8-1.7.8-.8 1.7-.8-1.7-1.7-.8 1.7-.8z"/>',
+ bike:'<circle cx="5.5" cy="17" r="3.5"/><circle cx="18.5" cy="17" r="3.5"/><path d="M5.5 17 9 9h5l4.5 8M9 9 7.5 5.5H5M14 9l1.5-3H18"/>',
  pause:'<rect x="6" y="5" width="4" height="14" rx="1"/><rect x="14" y="5" width="4" height="14" rx="1"/>',
  // Otto al posto delle stelline: la stessa faccia in più espressioni.
  'sparkle':'<rect x="3.5" y="7" width="17" height="13" rx="4.5"/><path d="M12 7V4.4"/><circle cx="12" cy="3.2" r="1.2"/><path d="M1.8 12v3M22.2 12v3"/><path d="M9 11.8v2.2M15 11.8v2.2M10.6 16.8h2.8"/>',

@@ -7,6 +7,8 @@ import * as D from './demo.js';
 // rules: [[oggetto, chiave, valore o funzione del valore attuale], …] → apply(on) che cambia e poi ripristina
 const rules = list => { const was = []; return on => { if (on) list.forEach(([o, k, v], i) => { was[i] = o[k]; o[k] = typeof v === 'function' ? v(o[k]) : v; }); else list.forEach(([o, k], i) => { if (was[i] !== undefined) o[k] = was[i]; }); }; };
 const tasks3 = {type:'tasks', n:3, label:'Fai 3 compiti'};
+// il delivery si apre per forza in questo capitolo (e resta aperto), oltre a cambiare le sue regole
+const withDelivery = list => { const r = rules(list); return on => { r(on); if (on) D.delivery.forced = true; }; };
 const points = {type:'points', n:150, label:'Fai 150 punti in questo capitolo'};
 const wa = 'https://wa.me/393518628203?text=Ciao%20Carlo%21%20Ho%20finito%20la%20serata%20di%20CS%20Restaurant%20OS.%20Vorrei%20avere%20pi%C3%B9%20informazioni.';
 
@@ -44,9 +46,9 @@ export const story = {
     goal:{type:'missions', n:2, pages:['magazzino', 'staff'], label:'Vinci 2 missioni di Magazzino o HACCP'}, bias:['magazzino', 'staff'],
     apply:rules([[D.fridgeCfg, 'rate', 1.7]])},
    {title:'Il POS che fa i capricci', narrator:'Otto cassiere', role:'otto-bow',
-    intro:['Il POS del banco ha deciso di riavviarsi ogni dieci minuti.', 'Gli ospiti pagano dal QR, a volte metà al tavolo e metà in cassa: **i conti vanno fatti con attenzione**, e i documenti per l’Agenzia delle Entrate devono tornare.', 'Arriveranno più conti e fatture da sistemare.'],
+    intro:['Il POS del banco ha deciso di riavviarsi ogni dieci minuti.', 'Gli ospiti pagano dal QR, a volte metà al tavolo e metà in cassa, e chi ha la card vuole il suo sconto: **i conti vanno fatti con attenzione**, e i documenti per l’Agenzia delle Entrate devono tornare.', 'Arriveranno più conti e fatture da sistemare.'],
     outro:['Il tecnico ha cambiato il POS, e nessun conto è andato storto.', 'Ogni euro incassato ha il suo documento commerciale.'],
-    goal:{type:'missions', n:2, pages:['sala', 'fatture', 'menu_pos'], label:'Vinci 2 missioni di Sala, Cassa o Menu QR'}, bias:['sala', 'fatture', 'menu_pos']}
+    goal:{type:'missions', n:2, pages:['sala', 'fatture', 'menu_pos', 'fidelity_nfc'], label:'Vinci 2 missioni di Sala, Cassa, Menu QR o Fidelity'}, bias:['sala', 'fatture', 'menu_pos', 'fidelity_nfc']}
   ]},
   {variants:[
    {title:'Il critico in incognito', narrator:'Otto cuoco', role:'otto-chef',
@@ -62,7 +64,12 @@ export const story = {
    {title:'La recensione che gira', narrator:'Otto social', role:'otto-star',
     intro:['Una recensione da una stella sta girando su Instagram: “Due ore per una tagliata”.', 'Non è vera, ma **tutti la leggono**. Arriveranno più recensioni, messaggi e clienti fedeli preoccupati.', 'Si risponde con i fatti e con garbo: chi legge giudica il locale da come risponde.'],
     outro:['La recensione è sparita sotto venti risposte di clienti contenti. E il tuo commento ha più like di lei.'],
-    goal:{type:'missions', n:2, pages:['recensioni_ai', 'whatsapp', 'fidelity_nfc'], label:'Vinci 2 missioni di Recensioni, WhatsApp o Fidelity'}, bias:['recensioni_ai', 'whatsapp', 'fidelity_nfc']}
+    goal:{type:'missions', n:2, pages:['recensioni_ai', 'whatsapp', 'fidelity_nfc'], label:'Vinci 2 missioni di Recensioni, WhatsApp o Fidelity'}, bias:['recensioni_ai', 'whatsapp', 'fidelity_nfc']},
+   {title:'Il temporale', narrator:'Otto rider', role:'otto-phone',
+    intro:['Fuori diluvia: la sala si svuota e mezza Firenze **ordina a casa**.', 'Il tablet del delivery suona di continuo: **gli ordini arrivano quasi il doppio del solito** e i rider, con la pioggia, non hanno pazienza.', 'Accetta in fretta, consegna appena il rider è al banco e, se la cucina non regge, metti in pausa il canale che costa di più.'],
+    outro:['Ha smesso di piovere. Nessun ordine annullato, e il sito del locale ha preso più ordini di Glovo.'],
+    goal:{type:'missions', n:2, pages:['delivery', 'kds', 'menu_pos'], label:'Vinci 2 missioni di Delivery, Cucina o Menu QR'}, bias:['delivery', 'kds', 'menu_pos'],
+    apply:withDelivery([[D.delivery.cfg, 'rate', 1.8], [D.doorCfg, 'rate', .6]])}
   ]},
   {variants:[
    {title:'L’ispettore ASL', narrator:'Otto ispettore', role:'otto-inspector',
@@ -92,10 +99,10 @@ export const story = {
     goal:points,
     apply:rules([[D.kitchen, 'waitLimit', v => Math.round(v * .8)], [D.doorCfg, 'rate', 1.6]])},
    {title:'La finale in TV', narrator:'Otto', role:'otto-happy',
-    intro:['Stasera c’è la finale, e mezza città vuole guardarla mangiando da noi.', 'Tutti arrivano insieme, tutti ordinano all’intervallo: **la cucina deve correre e la porta non si ferma**.', 'Novanta minuti più recupero. Si gioca.'],
+    intro:['Stasera c’è la finale, e mezza città vuole guardarla mangiando da noi.', 'Tutti arrivano insieme, tutti ordinano all’intervallo: **la cucina deve correre e la porta non si ferma**. E chi resta a casa ordina il delivery.', 'Novanta minuti più recupero. Si gioca.'],
     outro:['Fischio finale. Abbiamo vinto, e anche la cucina.', 'Si spengono gli schermi e le luci.'],
-    goal:points,
-    apply:rules([[D.kitchen, 'waitLimit', v => Math.round(v * .8)], [D.doorCfg, 'rate', 2], [D.doorCfg, 'leave', 110]])}
+    goal:points, bias:['delivery', 'kds', 'sala'],
+    apply:rules([[D.kitchen, 'waitLimit', v => Math.round(v * .8)], [D.doorCfg, 'rate', 2], [D.doorCfg, 'leave', 110], [D.delivery.cfg, 'rate', 1.6]])}
   ]}
  ]
 };
