@@ -569,3 +569,32 @@ body:has(.game-pressure) .live-stack{top:136px}
 /* schede affiancate: allineate in alto, mai stirate dal contenuto dell'altra colonna */
 .quote-layout,.sala-layout,.module-workspace,.qr-layout,.split{align-items:start}
 .filter-tabs .panel-search{margin-left:auto}.filter-tabs .panel-search input{width:90px}
+/* Colonne che finiscono pari: in un layout a due colonne la scheda con l'elenco vivo si allunga fino alla fine
+   dell'altra colonna, e l'elenco riempie lo spazio scorrendo dentro. Niente vuoti sotto, niente pagina che cresce. */
+:is(.quote-layout,.sala-layout,.module-workspace,.split):has(.fixed-scroll.is-live){align-items:stretch}
+:is(.quote-layout,.sala-layout,.module-workspace,.split)>:has(>.fixed-scroll.is-live){display:flex;flex-direction:column}
+:is(.quote-layout,.sala-layout,.module-workspace,.split)>*>.fixed-scroll.is-live{flex:1 1 0;height:auto;min-height:340px;max-height:none}
+:is(.quote-layout,.sala-layout,.module-workspace,.split)>.fixed-scroll.is-live{height:auto;min-height:420px;max-height:none}
+/* gli elenchi che si scorrono hanno un fondo appena più scuro: si riconoscono come zone interattive */
+.fixed-scroll.is-live{background:#f6f8f1;box-shadow:inset 0 1px 0 var(--line,#e3e8da)}
+.fixed-scroll.is-live thead th{background:#f6f8f1}
+.list-pane.fixed-scroll.is-live .filter-tabs{background:#f6f8f1}
+/* ————— Impaginazione a colonne pari (tutte le sezioni dei due OS) —————
+   Le schede di una stessa fila finiscono alla stessa altezza: le colonne si stirano fino alla più alta,
+   l'ultima scheda di ogni colonna riempie lo spazio che resta, i telefoni di anteprima tengono la loro forma. */
+:is(.quote-layout,.fid-layout,.app-layout,.home-live,.qr-layout,.home-grid){align-items:stretch}
+:is(.quote-layout,.fid-layout,.app-layout,.home-live,.qr-layout,.home-grid)>:is(.module-side,.home-side,div:not([class*="panel"]):not(:has(.guest-phone,.phone-mock))){display:flex;flex-direction:column;gap:14px;align-content:normal}
+:is(.quote-layout,.fid-layout,.app-layout,.home-live,.qr-layout,.home-grid)>:is(.module-side,.home-side,div:not([class*="panel"]))>:is(.workspace-panel,.feed-panel):last-child{flex:1 1 auto}
+/* se in fondo alla colonna c'è una nota (non una scheda), si allunga l'ultima scheda prima della nota */
+:is(.quote-layout,.fid-layout,.app-layout,.home-live,.qr-layout,.home-grid)>:is(.module-side,.home-side,div:not([class*="panel"])):has(>:last-child:not(.workspace-panel,.feed-panel))>.workspace-panel:nth-last-child(2){flex:1 1 auto}
+:is(.quote-layout,.fid-layout,.app-layout,.home-live,.qr-layout,.home-grid)>:has(.guest-phone,.phone-mock){align-self:start}
+:is(.quote-layout,.fid-layout,.app-layout,.home-live,.qr-layout,.home-grid)>.workspace-panel{display:flex;flex-direction:column}
+/* gli avvisi e i riquadri di Otto in fondo a una colonna non si stirano: si stira la scheda prima */
+
+.fixed-scroll{align-content:start;justify-content:flex-start}
+/* home: il feed riempie lo spazio accanto alla pianta, senza allungare la fila */
+.home-side>.feed-panel{display:flex;flex-direction:column;min-height:0}
+.home-side .fixed-scroll.is-live{flex:1 1 0;height:auto;min-height:200px}
+/* negli elenchi che si scorrono le schede tengono sempre la loro altezza: si scorre, non si schiaccia */
+.fixed-scroll{grid-auto-rows:max-content}
+.fixed-scroll>*{flex-shrink:0;min-height:min-content}

@@ -456,3 +456,17 @@
 /* cucina: ogni colonna ha la sua altezza e si scorre, l'intestazione resta in vista */
 .kds-col{height:580px;min-height:0;overflow:auto;overscroll-behavior:contain;scrollbar-width:thin}
 .kds-col>header{position:sticky;top:0;z-index:2;background:inherit}
+/* Cassa: chiusura di cassa e fatture affiancate sotto la tabella dei documenti */
+.duo-row{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px;align-items:stretch;margin-top:16px}
+@media(max-width:900px){.duo-row{grid-template-columns:minmax(0,1fr)}}
+/* Recensioni: elenco che si scorre a sinistra, riepilogo fermo a destra */
+.rv-panel .review-list{display:grid;gap:10px;padding:12px 14px 14px}
+.rv-panel .review{margin:0;box-shadow:none;max-width:none}
+.rv-score{display:flex;align-items:baseline;gap:10px;padding:16px 20px 8px}
+.rv-score strong{font-size:38px;font-weight:600;letter-spacing:-1px;color:#1d2b20}
+.rv-score .stars{color:#e2a72b;font-size:16px;letter-spacing:1px}.rv-score .stars i{color:#dfe3d8;font-style:normal}
+.rv-score small{font-size:11.5px;color:#7b886b}
+.rv-bar{display:grid;grid-template-columns:34px 1fr 22px;align-items:center;gap:10px;padding:4px 20px;font-size:12px;color:#5d6b52}
+.rv-bar i{display:block;height:7px;border-radius:4px;background:#eef1e8;overflow:hidden}.rv-bar i b{display:block;height:100%;background:#e2b14f;border-radius:4px}
+.rv-bar em{font-style:normal;text-align:right}
+.rv-summary .mini-row:first-of-type{margin-top:10px}

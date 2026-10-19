@@ -66,7 +66,7 @@ function render() {
   main.innerHTML = pages[id] ? pages[id]() : `<div class="empty-state"><h2>Questo spazio non esiste.</h2><a class="btn btn-primary" href="#home">Torna al servizio${icon('arrow')}</a></div>`;
   mountGame(id, main);
   // elenchi vivi in riquadri fissi che si scorrono (con la lente quando sono lunghi): la pagina non cambia altezza
-  enhancePanels(main, id, ({home:['.feed-list'], fatture:['.table-scroll'], delivery:['.table-scroll'], recensioni_ai:['.review-list'], centralino_ai:['.review-list']})[id]);
+  enhancePanels(main, id, ({home:['.feed-list'], fatture:['.table-scroll'], delivery:['.table-scroll'], recensioni_ai:['.review-list'], centralino_ai:['.review-list', '.call-grid']})[id]);
  } catch (err) { main.innerHTML = sectionError(err); }
  syncCounts();
 }
@@ -301,10 +301,21 @@ function centralino() {
  <div data-anchor="centralino"></div>
  <div class="call-grid">${D.liveCalls.filter(c => c.live).map(c => `<article class="workspace-panel call live-call"><div class="panel-title"><h2>${esc(c.caller)}</h2><span class="badge badge-red"><span class="live-dot red"></span> In corso</span></div><div class="transcript"><div class="bubble caller row-in">${esc(c.text)}</div><div class="bubble typing"><i></i><i></i><i></i></div></div></article>`).join('')}${D.calls.map(c => `<article class="workspace-panel call"><div class="panel-title"><h2>${esc(c.caller)}</h2><span>${badge(c.outcome, 'badge-green')} <small class="muted">${c.time}</small></span></div><div class="transcript"><div class="bubble caller">${esc(c.text)}</div><div class="bubble agent"><small>${icon('sparkle')} Otto</small>${esc(c.reply)}</div></div></article>`).join('')}</div>`;
 }
+// Recensioni: a sinistra l'elenco che si scorre (con la lente), a destra il riepilogo che resta fermo.
+function reviewSummary() {
+ const rs = D.reviews, n = rs.length || 1, avg = rs.reduce((t, r) => t + r.stars, 0) / n, todo = rs.filter(r => !ui.done.reviews.includes(r.who)).length;
+ const bySource = [...new Set(rs.map(r => r.source))].map(src => [src, rs.filter(r => r.source === src).length]);
+ return `<div class="workspace-panel rv-summary"><div class="panel-title"><h2>${icon('star')} Com’è andata</h2>${badge(`${rs.length} recensioni`)}</div>
+  <div class="rv-score"><strong>${avg.toFixed(1).replace('.', ',')}</strong><span class="stars">${'★'.repeat(Math.round(avg))}<i>${'★'.repeat(5 - Math.round(avg))}</i></span><small>media delle ultime recensioni</small></div>
+  ${[5, 4, 3, 2, 1].map(k => { const c = rs.filter(r => r.stars === k).length; return `<div class="rv-bar"><span>${k} ★</span><i><b style="width:${Math.round(c / n * 100)}%"></b></i><em>${c}</em></div>`; }).join('')}
+  <div class="mini-row"><span><b>Risposte da approvare</b><small>bozze pronte nel tuo tono</small></span><b>${todo}</b></div>
+  ${bySource.map(([src, c]) => `<div class="mini-row"><span><b>${esc(src)}</b></span><span class="muted">${c}</span></div>`).join('')}</div>`;
+}
 function recensioni() {
  return `${heading('INTELLIGENZA ARTIFICIALE · 06', 'Recensioni AI', 'Ogni recensione letta da Otto, con una risposta nel tuo tono pronta da approvare.')}
- <div class="review-list"><div data-anchor="recensioni"></div>${D.reviews.map(r => { const done = ui.done.reviews.includes(r.who); return `<article class="workspace-panel review ${done ? 'done' : ''}"><div class="rv-head"><span class="stars">${'★'.repeat(r.stars)}<i>${'★'.repeat(5 - r.stars)}</i></span><b>${esc(r.who)}</b><small>${r.source}</small>${done ? badge('Risposta pubblicata', 'badge-green') : ''}</div><p class="rv-text">“${esc(r.text)}”</p>${ottoNote(r.draft, r.stars < 3 ? 'warn' : '')}${done ? '' : `<div class="detail-actions">${btn('Approva e pubblica', `review:${r.who}`, 'btn-primary', 'check')}</div>`}</article>`; }).join('')}</div>
- ${ottoNote('Tema ricorrente nell’ultimo mese: **attesa sui secondi il sabato**. Lo stesso dato emerge dai tempi della cucina.', 'info')}`;
+ <div class="quote-layout"><section class="workspace-panel rv-panel"><div class="panel-title"><h2>Le ultime recensioni</h2>${badge('Bozze di Otto', 'badge-green')}</div><div class="review-list"><div data-anchor="recensioni"></div>${D.reviews.map(r => { const done = ui.done.reviews.includes(r.who); return `<article class="workspace-panel review ${done ? 'done' : ''}"><div class="rv-head"><span class="stars">${'★'.repeat(r.stars)}<i>${'★'.repeat(5 - r.stars)}</i></span><b>${esc(r.who)}</b><small>${r.source}</small>${done ? badge('Risposta pubblicata', 'badge-green') : ''}</div><p class="rv-text">“${esc(r.text)}”</p>${ottoNote(r.draft, r.stars < 3 ? 'warn' : '')}${done ? '' : `<div class="detail-actions">${btn('Approva e pubblica', `review:${r.who}`, 'btn-primary', 'check')}</div>`}</article>`; }).join('')}</div>
+</section>
+ <aside class="module-side">${reviewSummary()}${ottoNote('Tema ricorrente nell’ultimo mese: **attesa sui secondi il sabato**. Lo stesso dato emerge dai tempi della cucina.', 'info')}</aside></div>`;
 }
 function whatsapp() {
  return `${heading('CLIENTI & MARKETING · 07', 'WhatsApp & campagne', 'Promemoria automatici e campagne preparate da Otto, solo agli ospiti che hanno dato il consenso.')}
@@ -364,8 +375,8 @@ function fatture() {
   <div class="ade-row ok"><span>${icon('check')}</span><div><b>Stripe riconciliato con i corrispettivi</b><small>Ogni pagamento dal QR emette il documento commerciale con lo stesso importo: l’incrocio dell’Agenzia con i dati dei pagamenti torna sempre.</small></div></div>
   <div class="ade-row next"><span>${icon('clock')}</span><div><b>Dal 2027 la cassa può diventare software</b><small>L’Agenzia sta introducendo soluzioni software certificate per memorizzare e trasmettere i corrispettivi da PC, tablet o SmartPOS. CS Restaurant OS è pensato per diventare la tua cassa.</small></div></div></div>
   ${ottoPanel('IL PUNTO DI OTTO', `${SV.name === 'pranzo' ? 'Oggi a pranzo' : 'Stasera'} **${pays.length} documenti commerciali**, ${sent} già trasmessi. La cena dello **Studio Marchetti** va fatturata: ho preparato la fattura elettronica con i dati dell’ultima volta.`)}
-  ${cashClose(pays)}
-  <div class="workspace-panel"><div class="panel-title"><h2>Fatture</h2></div>${D.invoices.map(f => `<div class="mini-row"><span><b>${f.n} · ${esc(f.to)}</b><small>${euro(f.amount)}</small></span>${badge(f.state, f.state.includes('SDI') ? 'badge-green' : 'badge-amber')}</div>`).join('')}</div></aside></div>
+</aside></div>
+ <div class="duo-row">${cashClose(pays)}<div class="workspace-panel"><div class="panel-title"><h2>Fatture</h2></div>${D.invoices.map(f => `<div class="mini-row"><span><b>${f.n} · ${esc(f.to)}</b><small>${euro(f.amount)}</small></span>${badge(f.state, f.state.includes('SDI') ? 'badge-green' : 'badge-amber')}</div>`).join('')}</div></div>
  <div class="notice">${icon('info')}<p>Anteprima dimostrativa: nessun collegamento reale con l’Agenzia delle Entrate o con Stripe. Date e regole fiscali vanno sempre verificate con il tuo commercialista.</p></div>`;
 }
 
@@ -457,9 +468,9 @@ function brandPage() {
     <div class="push-draft"><span class="eyebrow">BOZZA DI OTTO · ${esc(a.draft.seg.toUpperCase())}</span><b>${esc(a.draft.title)}</b><p>${esc(a.draft.text)}</p>${btn('Programma per venerdì alle 11', 'push-send', 'btn-primary', 'send')}</div>
     ${a.pushes.map(p => `<div class="mini-row"><span><b>${esc(p.title)}</b><small>${esc(p.seg)} · ${fmtPts(p.sent)} inviate · ${p.when}</small></span>${badge(`${p.open}% aperte`, p.open >= 50 ? 'badge-green' : '')}</div>`).join('')}</div>
    <div class="workspace-panel"><div class="panel-title"><h2>Sugli store</h2></div>${a.store.map(([k, v, st]) => `<div class="ade-row ${st === 'ok' ? 'ok' : 'next'}"><span>${icon(st === 'ok' ? 'check' : 'clock')}</span><div><b>${k}</b><small>${v}</small></div></div>`).join('')}</div>
-   ${ottoPanel('COLLEGATA A TUTTO', 'Prenotazioni, card e ordini dell’app arrivano negli stessi posti di sala, fidelity e delivery. **Un ordine dall’app non paga commissioni**: su 41 ordini di ottobre sono circa **€ 420** risparmiati.')}
   </aside>
- </div>`;
+ </div>
+ ${ottoPanel('COLLEGATA A TUTTO', 'Prenotazioni, card e ordini dell’app arrivano negli stessi posti di sala, fidelity e delivery. **Un ordine dall’app non paga commissioni**: su 41 ordini di ottobre sono circa **€ 420** risparmiati.')}`;
 }
 
 // ————— DELIVERY —————
