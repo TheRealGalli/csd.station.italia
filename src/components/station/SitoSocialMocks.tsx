@@ -29,7 +29,7 @@ export function SiteMock({ three = false }: { three?: boolean }) {
 }
 
 export function ModelMock() {
-  return <div className="mk-model" aria-hidden="true"><div className="mk-orbit"/><div className="mk-loop-rocket"><ModelLoop kind="rocket"/></div><span>SATURN V · MODELLO NASA</span></div>;
+  return <div className="mk-model" aria-hidden="true"><div className="mk-loop-otto"><ModelLoop kind="otto"/></div><span>OTTO · PEZZO PER PEZZO</span></div>;
 }
 
 // Social: il profilo Instagram di CSD Station, con i caroselli veri. Avatar e caroselli aprono il profilo.

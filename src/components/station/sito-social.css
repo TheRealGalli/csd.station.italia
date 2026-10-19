@@ -207,6 +207,11 @@
 .model-loop canvas{width:100%;height:100%;display:block}
 .mk-loop-house{width:12em;height:10em;margin:-.5em -1em -.5em 0}
 .mk-model{width:100%;height:100%;align-content:center}
-.mk-loop-rocket{width:34em;height:18em;position:relative;z-index:1}
-.mk-model .mk-orbit{width:26em;margin-left:-13em;margin-top:-5.5em}
+.mk-loop-otto{width:34em;height:19em;position:relative;z-index:1;margin-top:-1em}
 .mk-model>span{position:absolute;bottom:1.6em}
+
+/* Sito React: il browser esce dalla scheda, sopra e sotto, come appoggiato sopra */
+.web-card:has(.mk-shop){overflow:visible;position:relative;z-index:2}
+.web-card-head:has(.mk-shop){overflow:visible;border-radius:8px 8px 0 0}
+.web-card-head .mk-browser:has(.mk-shop){transform:rotate(-4deg) translateY(-1.3em) scale(1.22);box-shadow:1.4em 1.8em 3.4em #0009}
+.web-card:hover .web-card-head .mk-browser:has(.mk-shop){transform:rotate(-2.5deg) translateY(-1.7em) scale(1.26)}
