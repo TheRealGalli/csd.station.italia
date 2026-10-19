@@ -90,7 +90,7 @@ export const challenges = [
    {label:'Sposta i prodotti, chiama il tecnico, registra', ok:true, why:'{temp} è sopra i 4 °C: i prodotti si salvano spostandoli subito e la non conformità registrata protegge il locale in un controllo.'},
    {label:'Segna “OK”, è solo un grado o due', why:'Sopra i 4 °C {content_short} si rovinano, e un registro falso in un controllo ASL è un problema serio.'}
   ],
-  vars:[{fridge:'1', temp:'7 °C', who:'Karim', content:'burrata, mascarpone, guanciale', content_short:'burrata e mascarpone'}, {fridge:'2', temp:'6 °C', who:'Davide', content:'controfiletto, uova, pecorino', content_short:'carne e uova'}]},
+  vars:[{fridge:'1', temp:'7 °C', who:'Andrea', content:'burrata, mascarpone, guanciale', content_short:'burrata e mascarpone'}, {fridge:'2', temp:'6 °C', who:'Davide', content:'controfiletto, uova, pecorino', content_short:'carne e uova'}]},
  // ————— livello 3: errori sottili, a tempo —————
  {id:'r-fattura', level:3, page:'fatture', title:'La fattura di {client}',
   text:'Otto ha preparato la fattura elettronica della cena aziendale di stasera (**{amount}**) **con i dati dell’ultima volta**. La invii?',

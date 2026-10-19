@@ -256,8 +256,8 @@ export const grants = [
  {id:'giovani', title:'Nuova impresa giovanile e femminile · ristorazione', who:'Invitalia (esempio)', deadline:'a sportello', days:null, fit:'Bassa', pct:0, cap:0, kind:'Finanziamento agevolato', spend:'Avvio di nuove imprese con meno di 36 mesi', our:0, state:'Non compatibile', docs:[], note:'Il locale è aperto dal 2019: **oltre i 36 mesi** richiesti. Lo tengo d’occhio per un eventuale secondo locale.'}
 ];
 export const grantHistory = [{title:'Ristori per la ristorazione 2021', amount:4200, state:'Incassato'}, {title:'Credito d’imposta sanificazione 2020', amount:1150, state:'Compensato in F24'}];
-export const staff = [{name:persona.name, role:'Titolare', shift:'18–24'}, {name:'Davide', role:'Chef', shift:'17–24'}, {name:'Sofia', role:'Sala', shift:'18:30–24'}, {name:'Karim', role:'Cucina', shift:'17–23'}, {name:'Elena', role:'Sala', shift:'19–24'}];
-export const haccp = [{task:'Temperatura frigo 1 (≤ 4°C)', done:true, by:'Karim · 17:05'}, {task:'Temperatura abbattitore', done:true, by:'Davide · 17:30'}, {task:'Sanificazione piani di lavoro', done:false, by:'A fine servizio · entro le 24:00', when:'end'}, {task:'Etichettatura preparazioni', done:false, by:'Entro le 23:00'}];
+export const staff = [{name:persona.name, role:'Titolare', shift:'18–24'}, {name:'Davide', role:'Chef', shift:'17–24'}, {name:'Sofia', role:'Sala', shift:'18:30–24'}, {name:'Andrea', role:'Cucina', shift:'17–23'}, {name:'Elena', role:'Sala', shift:'19–24'}];
+export const haccp = [{task:'Temperatura frigo 1 (≤ 4°C)', done:true, by:'Andrea · 17:05'}, {task:'Temperatura abbattitore', done:true, by:'Davide · 17:30'}, {task:'Sanificazione piani di lavoro', done:false, by:'A fine servizio · entro le 24:00', when:'end'}, {task:'Etichettatura preparazioni', done:false, by:'Entro le 23:00'}];
 
 // Trigger in entrata: telefono, recensioni, WhatsApp, fornitori. Arrivano a ciclo come in un servizio vero.
 let inbound = [];
@@ -653,7 +653,7 @@ export const deliveryMenu = [
 ];
 export const dmenu = id => deliveryMenu.find(x => x.id === id);
 export const delivery = {orders:[], cfg:{gap:[70, 110], accept:35, patience:50, rate:1, autoAccept:false, autoHand:false, bonus:0}, on:false, seq:4820};
-const riders = ['Ahmed', 'Yuki', 'Samir', 'Giorgia', 'Ivan', 'Matteo', 'Fatima', 'Kevin'];
+const riders = ['Luca', 'Giorgia', 'Marco', 'Sara', 'Davide', 'Matteo', 'Chiara', 'Simone'];
 const dWho = ['Marco R.', 'Chiara B.', 'Ufficio Arno Tech', 'Davide L.', 'Irene P.', 'Famiglia Conti', 'Sara M.', 'Tommaso G.', 'Elisa F.', 'Luca D.'];
 const zones = [['Campo di Marte', 2.1], ['Santo Spirito', 1.4], ['Novoli', 4.2], ['Gavinana', 3.3], ['Rifredi', 3.8], ['Sant’Ambrogio', .9], ['Coverciano', 4.6]];
 export const dPrep = o => Math.round((18 + 6 * o.items.reduce((n, [, q]) => n + q, 0)) * kitchen.speed); // secondi nella sfida
