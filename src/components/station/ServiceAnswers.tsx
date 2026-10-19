@@ -1,8 +1,8 @@
 import { ChevronDown } from 'lucide-react';
-import { consultingFaq, nfcFaq, trainingFaq } from '@/seo/content';
+import { consultingFaq, nfcFaq, trainingFaq, webFaq } from '@/seo/content';
 import type { ServiceMode } from '@/seo/routes';
 
 export function ServiceAnswers({ mode }: { mode: ServiceMode }) {
-  const questions = mode === 'nfc' ? nfcFaq : mode === 'training' ? trainingFaq : consultingFaq;
+  const questions = mode === 'nfc' ? nfcFaq : mode === 'web' ? webFaq : mode === 'training' ? trainingFaq : consultingFaq;
   return <div className="service-answers">{questions.map(([question, answer]) => <details key={question}><summary>{question}<ChevronDown size={18}/></summary><p>{answer}</p></details>)}</div>;
 }

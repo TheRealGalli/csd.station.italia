@@ -11,12 +11,14 @@ Le card NFC aprono un collegamento: non pubblicano recensioni. I report misurano
 - [Consulenza AI, informatica e automazioni](https://csd-station.it/index.md): processi, strumenti Google, software, hardware e inventario NFC.
 - [Training AI per aziende e PMI](https://csd-station.it/training-ai/index.md): formazione personalizzata per team, utilizzo consapevole e gestione dei dati.
 - [Card, plate e stand NFC](https://csd-station.it/card-nfc/index.md): prodotti per facilitare le recensioni su Google Maps, prezzi e servizio incluso.
+- [Sito & Social](https://csd-station.it/sito-social/index.md): siti in React, siti 3D, modelli 3D e gestione social a canone mensile per attività locali.
 
 ## Pagine web
 
 - [Consulenza](https://csd-station.it/)
 - [Training](https://csd-station.it/training-ai/)
 - [Prodotti NFC](https://csd-station.it/card-nfc/)
+- [Sito & Social](https://csd-station.it/sito-social/)
 
 ## Optional
 

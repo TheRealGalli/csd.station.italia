@@ -3,7 +3,7 @@ import { Link, useLocation } from 'react-router-dom';
 import { ArrowUpRight, ArrowRight, ArrowDown, Zap, Workflow, ScanLine, Boxes, ShieldCheck, Check, Mail, FileText, Database, Activity, Radio, Play, RotateCcw, Plus, Minus, BarChart3, Nfc, Cpu, GraduationCap } from 'lucide-react';
 import portrait from '@/assets/profile-web.jpg';
 import card from '@/assets/nfc-card.jpg';
-import { getOsProduct, getServiceMode, osPaths, servicePaths } from '@/seo/routes';
+import { getOsProduct, getServiceMode, osPaths, servicePaths, type ServiceMode } from '@/seo/routes';
 import { consultingIntro, nfcIntro } from '@/seo/content';
 import { ServiceAnswers } from './ServiceAnswers';
 import plate from '@/assets/nfc-plate.png';
@@ -14,6 +14,7 @@ import NfcTapDemo from './NfcTapDemo';
 import { MobileConsulting, MobileNfc } from './MobileLanding';
 import Training, { trainingContact } from './Training';
 import { OttoIcon } from './OttoIcon';
+import SitoSocial, { webContact } from './SitoSocial';
 const OttoGlyph = ({ size = 18 }: { size?: number }) => <OttoIcon mood="read" size={size}/>;
 
 const whatsapp = (message: string) => `https://wa.me/393518628203?text=${encodeURIComponent(message)}`;
@@ -49,13 +50,14 @@ export function StationHeader() {
   const location = useLocation();
   const os = getOsProduct(location.pathname);
   const mode = os ? null : getServiceMode(location.pathname, location.search);
-  const contactHref = os ? whatsapp(`Ciao Carlo! Vorrei avere più informazioni su ${os === 'restaurant' ? 'CS Restaurant OS' : 'CS Notaro OS'}.`) : mode === 'training' ? trainingContact : mode === 'nfc' ? whatsapp('Ciao Carlo! Vorrei informazioni sulle card e sui prodotti NFC di CSD Station.') : consultingContact;
+  const contactHref = os ? whatsapp(`Ciao Carlo! Vorrei avere più informazioni su ${os === 'restaurant' ? 'CS Restaurant OS' : 'CS Notaro OS'}.`) : mode === 'training' ? trainingContact : mode === 'web' ? webContact : mode === 'nfc' ? whatsapp('Ciao Carlo! Vorrei informazioni sulle card e sui prodotti NFC di CSD Station.') : consultingContact;
   return <header className="station-header"><div className="station-nav wrap">
     <Link to="/" aria-label="CSD Station, homepage" onClick={() => window.scrollTo({top: 0, behavior: 'instant' as ScrollBehavior})}><Brand/></Link>
     <nav className="station-links" id="station-navigation" aria-label="Navigazione principale">
       <Link className={mode === 'automazioni' ? 'active' : ''} aria-current={mode === 'automazioni' ? 'page' : undefined} to={servicePaths.automazioni}>Consulenza AI</Link>
       <Link className={mode === 'training' ? 'active' : ''} aria-current={mode === 'training' ? 'page' : undefined} to={servicePaths.training}>Training</Link>
       <Link className={mode === 'nfc' ? 'active' : ''} aria-current={mode === 'nfc' ? 'page' : undefined} to={servicePaths.nfc}>Card NFC <span className="nav-dot"/></Link>
+      <Link className={mode === 'web' ? 'active' : ''} aria-current={mode === 'web' ? 'page' : undefined} to={servicePaths.web}>Sito & Social</Link>
       <DemoMenu active={os}/>
     </nav>
     <a className="station-button small nav-contact" href={contactHref} target="_blank" rel="noreferrer">Parliamone <ArrowUpRight size={16}/></a>
@@ -64,9 +66,14 @@ export function StationHeader() {
 
 export function StationFooter() { return <footer className="station-footer"><div className="wrap footer-top"><Link to="/" aria-label="CSD Station homepage"><Brand/></Link><p>Tecnologia che lavora.<br/>Tempo che torna tuo.</p><div><a href="mailto:carlo@csd-station.it">carlo@csd-station.it <ArrowUpRight size={16}/></a><span>Dalla Toscana, in tutta Italia.</span></div></div><div className="wrap footer-bottom"><span>© {new Date().getFullYear()} CSD Station · Carlo Galli · P.IVA 01630510525</span><div><Link to="/privacy-policy/">Privacy consulenza</Link><Link to="/nfc/privacy-policy/">Privacy NFC</Link><Link to="/terms-of-service/">Termini consulenza</Link><Link to="/nfc/terms-of-service/">Termini NFC</Link><Link to="/cookie-policy/">Cookie</Link></div></div></footer>; }
 function Eyebrow({children}: {children: React.ReactNode}) { return <div className="station-eyebrow"><span/>{children}</div>; }
-function Contact({nfc = false}: {nfc?: boolean}) { return <section className={`contact-section ${nfc ? 'nfc-contact' : ''}`} id={nfc ? 'nfc-booking' : 'booking'}><div className="wrap contact-inner"><div><Eyebrow>IL PROSSIMO PASSO È SEMPLICE</Eyebrow><h2>{nfc ? <>La tua prossima recensione<br/>inizia con un tap.</> : <>Partiamo da ciò che<br/>ti fa perdere tempo.</>}</h2><p>{nfc ? 'Scegli il formato. Alla configurazione pensiamo noi.' : 'Raccontami su WhatsApp come lavori e dove perdi tempo. Capiamo insieme da dove cominciare.'}</p></div><div className="contact-actions"><a className="station-button" href={nfc ? whatsapp('Ciao Carlo! Vorrei informazioni sui prodotti NFC di CSD Station.') : processContact} target="_blank" rel="noreferrer">{nfc ? 'Scrivimi su WhatsApp' : 'Parliamone su WhatsApp'}<ArrowUpRight size={18}/></a><span>{nfc ? 'Preventivo e dettagli di spedizione su richiesta' : 'Un contatto diretto con Carlo, senza appuntamento'}</span><a className="contact-email" href="mailto:carlo@csd-station.it">Oppure scrivimi un’email <ArrowRight size={15}/></a></div></div></section>; }
-function FAQ({nfc = false}: {nfc?: boolean}) {
-  return <section className="faq-section wrap"><div><Eyebrow>PRIMA DI COMINCIARE</Eyebrow><h2>Qualche risposta,<br/>senza complicazioni.</h2></div><ServiceAnswers mode={nfc ? 'nfc' : 'automazioni'}/></section>;
+const contactCopy = {
+  automazioni: { id: 'booking', title: <>Partiamo da ciò che<br/>ti fa perdere tempo.</>, text: 'Raccontami su WhatsApp come lavori e dove perdi tempo. Capiamo insieme da dove cominciare.', href: processContact, cta: 'Parliamone su WhatsApp', note: 'Un contatto diretto con Carlo, senza appuntamento' },
+  nfc: { id: 'nfc-booking', title: <>La tua prossima recensione<br/>inizia con un tap.</>, text: 'Scegli il formato. Alla configurazione pensiamo noi.', href: whatsapp('Ciao Carlo! Vorrei informazioni sui prodotti NFC di CSD Station.'), cta: 'Scrivimi su WhatsApp', note: 'Preventivo e dettagli di spedizione su richiesta' },
+  web: { id: 'web-contatto', title: <>Raccontami la tua attività.<br/>Partiamo da lì.</>, text: 'Mandami il link del tuo sito o del tuo profilo. Ti dico cosa farei e da quale formato partire.', href: webContact, cta: 'Scrivimi su WhatsApp', note: 'Posti limitati: seguo poche attività per volta' },
+};
+function Contact({mode = 'automazioni'}: {mode?: Exclude<ServiceMode, 'training'>}) { const c = contactCopy[mode]; return <section className={`contact-section ${mode !== 'automazioni' ? 'nfc-contact' : ''}`} id={c.id}><div className="wrap contact-inner"><div><Eyebrow>IL PROSSIMO PASSO È SEMPLICE</Eyebrow><h2>{c.title}</h2><p>{c.text}</p></div><div className="contact-actions"><a className="station-button" href={c.href} target="_blank" rel="noreferrer">{c.cta}<ArrowUpRight size={18}/></a><span>{c.note}</span><a className="contact-email" href="mailto:carlo@csd-station.it">Oppure scrivimi un’email <ArrowRight size={15}/></a></div></div></section>; }
+function FAQ({mode = 'automazioni'}: {mode?: ServiceMode}) {
+  return <section className="faq-section wrap"><div><Eyebrow>PRIMA DI COMINCIARE</Eyebrow><h2>Qualche risposta,<br/>senza complicazioni.</h2></div><ServiceAnswers mode={mode}/></section>;
 }
 
 function TimeCalculator() {
@@ -98,7 +105,7 @@ function NfcPage() {
  <section className="product-section" id="prodotti"><div className="wrap"><div className="section-heading"><div><Eyebrow>TROVA IL TUO FORMATO</Eyebrow><h2>Stessa semplicità.<br/>Tre modi di usarla.</h2></div><p>Configurazione, QR code e report mensili inclusi. Scegli il supporto più adatto al tuo spazio.</p></div><div className="products-grid">{products.map((p,i)=><article className={`product-card ${i===2?'product-card-stand':''}`} key={p.name}><div className={`catalog-image ${i===2?'catalog-image-stand':''}`}><img src={p.image} alt={p.name} loading="lazy"/><span>0{i+1}</span></div><div className="product-card-content"><h3>{p.name}</h3><p>{p.description}</p><div className="price-row"><strong>{p.price}</strong><span>una tantum</span></div><a className="station-button" href={whatsapp(`Ciao Carlo! Mi interessa ${p.name} (${p.price}) di CSD Station. Vorrei informazioni su configurazione e spedizione.`)} target="_blank" rel="noreferrer">Richiedi {i===0?'la card':i===1?'la plate':'lo stand'} <ArrowUpRight size={17}/></a></div></article>)}</div><p className="catalog-note">Per quantità, personalizzazioni e costi di spedizione, richiedi un preventivo prima dell’ordine.</p></div></section>
  <section className="nfc-included wrap" id="nfc-value"><div className="section-heading"><div><Eyebrow>OLTRE IL SUPPORTO</Eyebrow><h2>Il valore continua.<br/>Anche dopo il tap.</h2></div><p>Il supporto è solo l’inizio. La configurazione e i report rendono il servizio completo.</p></div><div className="included-grid">{[{icon:ScanLine,title:'Pronto per la tua attività',text:'Configuriamo il collegamento alla tua scheda Google e il QR code.'},{icon:BarChart3,title:'Report mensili inclusi',text:'Ricevi le metriche di utilizzo del collegamento per capire quando viene aperto.'},{icon:Zap,title:'Nessun canone mensile',text:'Acquisto una tantum. I dettagli del servizio sono nei termini dedicati ai prodotti NFC.'}].map(v=><article key={v.title}><v.icon size={28}/><h3>{v.title}</h3><p>{v.text}</p></article>)}</div></section>
  <div className="wrap nfc-crosslink"><div><span>HAI IN MENTE UN ALTRO UTILIZZO?</span><h3>L’NFC può anche organizzare il tuo lavoro.</h3><p>Inventario, identificazione di oggetti, tracciamento: progettiamo una soluzione dedicata.</p></div><Link className="text-link" to={servicePaths.automazioni}>Scopri la consulenza <ArrowUpRight size={18}/></Link></div>
- <FAQ nfc/><Contact nfc/>
+ <FAQ mode="nfc"/><Contact mode="nfc"/>
  </>;
 }
 const compactQuery = '(max-width: 767px)';
@@ -118,9 +125,9 @@ export default function Station() {
  }, [mode, location.pathname, location.hash, location.key]);
  useEffect(() => {
    const isDark = compact || mode === 'training';
-   const bg = isDark ? '#152016' : mode === 'nfc' ? '#131b13' : '#f6f7f2';
+   const bg = isDark ? '#152016' : mode === 'nfc' || mode === 'web' ? '#131b13' : '#f6f7f2';
    document.documentElement.style.backgroundColor = bg;
    document.body.style.backgroundColor = bg;
  }, [compact, mode]);
- return <div className={`station-site ${mode === 'nfc' ? 'nfc-site' : mode === 'training' ? 'training-site' : ''} ${compact ? 'compact-site' : ''}`}><a className="station-skip" href="#main-content">Vai al contenuto</a><StationHeader/><main id="main-content">{mode === 'training' ? <Training/> : compact ? mode === 'nfc' ? <MobileNfc products={products} whatsapp={whatsapp}/> : <MobileConsulting contact={processContact} skills={skills}/> : mode === 'nfc' ? <NfcPage/> : <Home/>}</main><StationFooter/></div>;
+ return <div className={`station-site ${mode === 'nfc' ? 'nfc-site' : mode === 'web' ? 'nfc-site web-site' : mode === 'training' ? 'training-site' : ''} ${compact ? 'compact-site' : ''}`}><a className="station-skip" href="#main-content">Vai al contenuto</a><StationHeader/><main id="main-content">{mode === 'training' ? <Training/> : mode === 'web' ? <><SitoSocial/><FAQ mode="web"/><Contact mode="web"/></> : compact ? mode === 'nfc' ? <MobileNfc products={products} whatsapp={whatsapp}/> : <MobileConsulting contact={processContact} skills={skills}/> : mode === 'nfc' ? <NfcPage/> : <Home/>}</main><StationFooter/></div>;
 }

@@ -19,6 +19,7 @@ export const AppContent = () => (
         <Route path="/" element={<Index />} />
         <Route path="/card-nfc/" element={<Index />} />
         <Route path="/training-ai/" element={<Index />} />
+        <Route path="/sito-social/" element={<Index />} />
         <Route path="/restaurant-os/" element={<OsDemo product="restaurant" />} />
         <Route path="/notaro-os/" element={<OsDemo product="notaro" />} />
         <Route path="/privacy-policy" element={<PrivacyPolicy />} />

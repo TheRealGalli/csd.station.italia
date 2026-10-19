@@ -28,10 +28,10 @@ try {
     }
   }
   // Regenerate from actual rendered pages on every build, avoiding stale parallel copy.
-  await writeFile('dist/llms-full.txt', `# CSD Station\n\nVersione testuale delle tre pagine servizi. Esempi e simulazioni descritti nelle pagine non sono casi cliente o risultati garantiti.\n\n${documents.join('\n---\n\n')}`);
+  await writeFile('dist/llms-full.txt', `# CSD Station\n\nVersione testuale delle pagine servizi. Esempi e simulazioni descritti nelle pagine non sono casi cliente o risultati garantiti.\n\n${documents.join('\n---\n\n')}`);
   const locations = [...Object.values(servicePaths), '/privacy-policy/', '/terms-of-service/', '/nfc/privacy-policy/', '/nfc/terms-of-service/', '/cookie-policy/'];
   await writeFile('dist/sitemap.xml', `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${locations.map(path => `  <url><loc>${origin}${path}</loc></url>`).join('\n')}\n</urlset>\n`);
-  console.log(`SEO: ${buildPaths.length} pagine HTML + 404, 3 versioni Markdown, llms-full.txt e sitemap generati.`);
+  console.log(`SEO: ${buildPaths.length} pagine HTML + 404, ${documents.length} versioni Markdown, llms-full.txt e sitemap generati.`);
 } finally {
   await rm(temporary, { recursive: true, force: true });
 }

@@ -1,4 +1,4 @@
-import { consultingIntro, nfcIntro, trainingIntro } from './content';
+import { consultingIntro, nfcIntro, trainingIntro, webIntro } from './content';
 import { getOsProduct, getServiceMode, legalPaths, normalizePath, osPaths, servicePaths, type ServiceMode } from './routes';
 
 export const origin = 'https://csd-station.it';
@@ -6,8 +6,9 @@ const titles: Record<ServiceMode, string> = {
   automazioni: 'Consulenza AI, informatica e automazioni per PMI | CSD Station',
   nfc: 'Card, plate e stand NFC per recensioni Google | CSD Station',
   training: 'Training AI aziendale e formazione per PMI | CSD Station',
+  web: 'Siti web, siti 3D e gestione social per attività locali | CSD Station',
 };
-const descriptions = { automazioni: consultingIntro, nfc: nfcIntro, training: trainingIntro };
+const descriptions = { automazioni: consultingIntro, nfc: nfcIntro, training: trainingIntro, web: webIntro };
 const legalNames = ['Privacy consulenza', 'Termini consulenza', 'Privacy NFC', 'Termini NFC', 'Cookie policy'];
 export const buildPaths = [...Object.values(servicePaths), ...legalPaths, '/privacy-policy-nfc/', '/terms-of-service-nfc/', ...Object.values(osPaths)];
 const osPages = {
@@ -29,7 +30,7 @@ export function getPageMeta(pathname: string, search = '') {
   const legal = legalPaths.indexOf(canonicalPath);
   const found = service || legal >= 0;
   const name = service ? titles[mode] : found ? `${legalNames[legal]} | CSD Station` : 'Pagina non trovata | CSD Station';
-  const description = service ? descriptions[mode] : found ? `${legalNames[legal]} di CSD Station: informazioni su servizi, condizioni e gestione dei dati.` : 'La pagina richiesta non è disponibile. Scopri consulenza AI, training aziendali e prodotti NFC di CSD Station.';
+  const description = service ? descriptions[mode] : found ? `${legalNames[legal]} di CSD Station: informazioni su servizi, condizioni e gestione dei dati.` : 'La pagina richiesta non è disponibile. Scopri consulenza AI, training aziendali, prodotti NFC, siti e social di CSD Station.';
   const url = origin + canonicalPath;
   const organization = {
     '@type': 'Organization', '@id': `${origin}/#organization`, name: 'CSD Station', url: `${origin}/`,
@@ -44,12 +45,12 @@ export function getPageMeta(pathname: string, search = '') {
   if (service) graph.push({
     '@type': 'Service', '@id': `${url}#service`, name: name.replace(' | CSD Station', ''), description, url,
     provider: { '@id': organization['@id'] }, areaServed: { '@type': 'Country', name: 'Italia' },
-    serviceType: mode === 'training' ? ['Training AI aziendale', 'Formazione AI per PMI'] : mode === 'nfc' ? ['Card NFC per recensioni Google', 'Plate adesive NFC', 'Stand NFC'] : ['Consulenza AI', 'Consulenza informatica', 'Automazioni aziendali', 'Consulenza hardware e NFC'],
+    serviceType: mode === 'training' ? ['Training AI aziendale', 'Formazione AI per PMI'] : mode === 'web' ? ['Realizzazione siti web', 'Siti web 3D', 'Modelli 3D', 'Gestione social media', 'Clipping video'] : mode === 'nfc' ? ['Card NFC per recensioni Google', 'Plate adesive NFC', 'Stand NFC'] : ['Consulenza AI', 'Consulenza informatica', 'Automazioni aziendali', 'Consulenza hardware e NFC'],
   });
   if (service && canonicalPath !== '/') graph.push({
     '@type': 'BreadcrumbList', itemListElement: [
       { '@type': 'ListItem', position: 1, name: 'CSD Station', item: `${origin}/` },
-      { '@type': 'ListItem', position: 2, name: mode === 'training' ? 'Training AI' : 'Card NFC', item: url },
+      { '@type': 'ListItem', position: 2, name: mode === 'training' ? 'Training AI' : mode === 'web' ? 'Sito & Social' : 'Card NFC', item: url },
     ],
   });
   return { name, description, url, found, demo: false, service, mode, markdown: service ? `${url}index.md` : null, graph: { '@context': 'https://schema.org', '@graph': graph } };

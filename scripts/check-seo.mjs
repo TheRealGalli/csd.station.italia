@@ -5,7 +5,7 @@ import { htmlToMarkdown } from './seo-markdown.mjs';
 
 const origin = 'https://csd-station.it';
 const read = path => readFile(`dist/${path}`, 'utf8');
-const pages = ['/', '/card-nfc/', '/training-ai/'];
+const pages = ['/', '/card-nfc/', '/training-ai/', '/sito-social/'];
 const descriptions = new Set();
 for (const path of pages) {
   const html = await read(`${path.slice(1)}index.html`);
@@ -32,7 +32,7 @@ for (const path of pages) {
   assert.ok(markdown.length > 1500, `Substantive transcript: ${path}`);
   assert.ok(!markdown.includes('<svg'));
 }
-assert.equal(descriptions.size, 3, 'Distinct descriptions');
+assert.equal(descriptions.size, pages.length, 'Distinct descriptions');
 const sitemap = await read('sitemap.xml');
 for (const match of sitemap.matchAll(/<loc>([^<]+)<\/loc>/g)) {
   const url = new URL(match[1]);
@@ -65,5 +65,6 @@ assert.equal(canonicalNavigation('/non-esiste', '', ''), null);
 assert.equal(getServiceMode('/card-nfc/', '?mode=training'), 'nfc');
 assert.equal(getServiceMode('/nfc/privacy-policy/'), 'nfc');
 assert.equal(getServiceMode('/training-ai/'), 'training');
+assert.equal(getServiceMode('/sito-social'), 'web');
 assert.equal(htmlToMarkdown('<h1>Ciao &amp; benvenuto</h1><div aria-hidden="true"><span>decorazione</span></div><details><summary>Domanda</summary><p>Risposta <strong>utile</strong>.</p></details><button>Avvia</button>'), '## Ciao & benvenuto\n\nDomanda\n\nRisposta utile.');
 console.log('SEO verificata: HTML, canonical, metadati, schema, asset, sitemap, trascrizioni, 404 e compatibilità dei vecchi link.');
