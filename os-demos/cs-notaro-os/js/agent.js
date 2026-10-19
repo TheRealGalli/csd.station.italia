@@ -1,6 +1,7 @@
 // Otto: un unico agente per tutti i moduli. In questa anteprima le risposte sono scenari dimostrativi
 // costruiti sui dati di demo.js. Il contratto (passaggi → risposta → documento → azioni) è quello
 // che il backend reale dovrà restituire.
+import {persona} from './persona.js';
 import {sources as S, practices, tasks, mails, calls, deadlines, person} from './demo.js';
 
 const hit = (text, words) => words.some(w => text.includes(w));
@@ -31,7 +32,7 @@ const scenarios = {
    {label:'Immobile', value:'Firenze, Via dei Tigli 12, int. 4', source:S.preliminare},
    {label:'Dati catastali', value:'Fg. 42 · Part. 318 · Sub. 8', source:S.visura, warn:'La bozza d’atto riporta Sub. 6'},
    {label:'Data di stipula', value:'24/10/2026 · ore 10:30', source:S.agenda},
-   {label:'Notaio rogante', value:'Notaio Andrea Conti', source:'Anagrafica studio'},
+   {label:'Notaio rogante', value:`Notaio ${persona.name}`, source:'Anagrafica studio'},
    {label:'IBAN parte venditrice', value:'', source:'', missing:'Non presente nei documenti: da chiedere all’avv. Lorenzi'}
   ]},
   actions:[{label:'Scarica PDF compilato', act:'download-form', icon:'download'},{label:'Prepara la risposta alla banca', act:'go:posta', icon:'message'},{label:'Chiedi l’IBAN su WhatsApp', act:'go:whatsapp', icon:'arrow'}]
@@ -55,14 +56,14 @@ const scenarios = {
   steps:['Scelgo il modello “Compravendita con mutuo” v7','Compilo le parti dalle anagrafiche verificate','Inserisco le clausole dal clausolario dello studio','Applico le correzioni del confronto (Sub. 8)','Segno i punti che richiedono la tua decisione'],
   reply:'La bozza è pronta: **comparsa e 5 articoli**. Ogni clausola indica da dove arriva. Ho lasciato evidenziati i due punti su cui serve la tua decisione.',
   artifact:{type:'draft', title:'Compravendita con mutuo · Rossi / Verdi · bozza v3', clauses:[
-   {head:'Comparsa', text:'Avanti a me, Notaio Andrea Conti, sono presenti: Anna Verdi, venditrice; Mario Rossi e Chiara Fabbri, acquirenti, della cui identità personale io Notaio sono certo.', source:'Modello studio v7 · anagrafiche verificate'},
+   {head:'Comparsa', text:`Avanti a me, Notaio ${persona.name}, sono presenti: Anna Verdi, venditrice; Mario Rossi e Chiara Fabbri, acquirenti, della cui identità personale io Notaio sono certo.`, source:'Modello studio v7 · anagrafiche verificate'},
    {head:'Art. 1 · Oggetto', text:'La venditrice vende agli acquirenti, che acquistano in parti uguali, l’appartamento in Firenze, Via dei Tigli 12, int. 4, censito al Catasto Fabbricati al foglio 42, particella 318, subalterno 8.', source:'Visura 17/10 · corretto da Sub. 6'},
    {head:'Art. 2 · Prezzo', text:'Il prezzo è convenuto in € 245.000,00, di cui € 24.500,00 già versati a titolo di caparra confirmatoria.', source:'Preliminare 02/09 · p. 2', decide:'Caparra: € 24.500 (preliminare) o € 25.000 (bozza v2)?'},
    {head:'Art. 3 · Garanzie', text:'La venditrice garantisce la piena proprietà e la libertà da pesi, ipoteche e trascrizioni pregiudizievoli, salvo l’ipoteca del 2011 che sarà cancellata a seguito dell’estinzione contestuale del mutuo.', source:'Clausolario C-12 · ispezione ipotecaria 17/10'},
    {head:'Art. 4 · Dichiarazioni urbanistiche', text:'La venditrice dichiara che l’immobile è stato costruito in data anteriore al 1° settembre 1967 e che successivamente non sono stati eseguiti interventi soggetti a titolo abilitativo.', source:'Clausolario C-31 v4', decide:'Agibilità non ancora ricevuta: mantenere la clausola?'},
    {head:'Art. 5 · Agevolazioni', text:'Gli acquirenti chiedono l’applicazione delle agevolazioni per l’acquisto della prima casa e rendono le relative dichiarazioni.', source:'Clausolario C-44'}
   ]},
-  actions:[{label:'Esporta in Word', act:'toast:Esportazione disponibile con il backend', icon:'download'},{label:'Invia al notaio per approvazione', act:'toast:Inviata ad Andrea Conti per approvazione', icon:'arrow'}]
+  actions:[{label:'Esporta in Word', act:'toast:Esportazione disponibile con il backend', icon:'download'},{label:'Invia al notaio per approvazione', act:`toast:Inviata a ${persona.name} per approvazione`, icon:'arrow'}]
  }),
  'confronto-statuto': () => ({
   steps:['Apro statuto Lumen Tech v2 (archivio) e v3 (email della commercialista)','Confronto articolo per articolo','Verifico la coerenza con le clausole societarie dello studio'],
@@ -129,7 +130,7 @@ const known = [
  [['nome completo','mutuatario','intestatario'], 'Mario Rossi'], [['cognome'], 'Rossi'], [['nome'], 'Mario'], [['codice fiscale','cf','fiscal'], 'RSSMRA85M01D612X'],
  [['comune','città','citta'], 'Firenze'], [['indirizzo','via','residenza'], 'Via dei Tigli 12'],
  [['foglio'], '42'], [['particella','mappale'], '318'], [['subalterno','sub'], '8'],
- [['importo'], '180.000,00'], [['prezzo'], '245.000,00'], [['data'], '24/10/2026'], [['notaio'], 'Andrea Conti'],
+ [['importo'], '180.000,00'], [['prezzo'], '245.000,00'], [['data'], '24/10/2026'], [['notaio'], persona.name],
  [['provincia'], 'FI'], [['cap'], '50123']
 ];
 export function proposeValues(fields) {

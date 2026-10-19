@@ -453,3 +453,6 @@
 .grant .otto-note{margin:0}
 @media(max-width:1100px){.grant-facts{grid-template-columns:1fr 1fr}}
 @media(max-width:760px){.grant-docs ul{grid-template-columns:1fr}}
+/* cucina: ogni colonna ha la sua altezza e si scorre, l'intestazione resta in vista */
+.kds-col{height:580px;min-height:0;overflow:auto;overscroll-behavior:contain;scrollbar-width:thin}
+.kds-col>header{position:sticky;top:0;z-index:2;background:inherit}

@@ -1,3 +1,4 @@
+import {persona} from './persona.js';
 import {icon, otto} from './icons.js';
 import {modules, groups, groupNotes, moduleById} from './modules.js';
 import {state, esc, rich, toggle, reset, persist} from './store.js';
@@ -5,6 +6,7 @@ import * as D from './demo.js';
 import {studioScenario, studioSuggestions, askOtto, ottoSuggestions, proposeValues} from './agent.js';
 import {inspect, fillNative, formPdf} from './pdf-core.js';
 import {startTour} from './tour.js';
+import {enhancePanels} from './panels.js';
 import {initGame, gameChip, mountGame, gameInvite, missionPanel, gameOn, openShop, gameIntro, ecoPoints, gamePaused, penalty, gameLevel, setPressure, later} from './game.js';
 import {story} from './story.js';
 import * as P from './pressure.js';
@@ -61,7 +63,7 @@ function shell() {
   <a href="#home" class="brand" aria-label="CSD Station, oggi in studio">${brand()}</a>
   <div class="workspace-switch static"><span class="workspace-icon">${icon('book')}</span><span><strong>${esc(D.studio.name)}</strong><small>${esc(D.studio.city)} · studio dimostrativo</small></span></div>
   <nav><div class="nav-group">${navItem('home', 'Oggi in studio', 'home')}${navItem('modules', 'L’ecosistema', 'flow')}</div>${navGroups}</nav>
-  <div class="sidebar-bottom"><button class="plan-mini" data-action="otto"><span class="plan-orbit">${icon('otto-happy')}</span><span>Chiedi a Otto<small>Un solo assistente per tutto lo studio</small></span>${icon('chevron')}</button>${navItem('settings', 'Impostazioni', 'settings')}<button class="account" data-action="account"><span class="avatar">AC</span><span>Andrea Conti<small>Notaio titolare</small></span>${icon('down')}</button></div>
+  <div class="sidebar-bottom"><button class="plan-mini" data-action="otto"><span class="plan-orbit">${icon('otto-happy')}</span><span>Chiedi a Otto<small>Un solo assistente per tutto lo studio</small></span>${icon('chevron')}</button>${navItem('settings', 'Impostazioni', 'settings')}<button class="account" data-action="account"><span class="avatar">${persona.initials}</span><span>${persona.name}<small>Notaio titolare</small></span>${icon('down')}</button></div>
  </aside><div class="mobile-scrim" data-action="sidebar"></div>
  <div class="app-body"><header class="topbar"><div class="breadcrumbs"><button class="icon-btn mobile-toggle" data-action="sidebar" aria-label="Apri navigazione" aria-controls="workspace-navigation" aria-expanded="false">${icon('list')}</button><span>Studio</span>${icon('chevron')}<strong id="crumb"></strong></div>
   <div class="topbar-actions">${gameChip()}<button class="search-trigger" data-action="search" aria-label="Cerca nella Station">${icon('search')}<span>Cerca</span><kbd>⌘ K</kbd></button><button class="ask-otto" data-action="otto">${icon('otto-happy')}<span>Chiedi a Otto</span></button><button class="demo-btn" data-action="tour" aria-label="Demo interattiva" title="Demo interattiva"><i></i><span>Demo interattiva</span></button></div></header>
@@ -84,6 +86,8 @@ function render() {
  try {
  main.innerHTML = pages[id] ? pages[id]() : `<div class="empty-state"><span class="empty-icon">${icon('search')}</span><h2>Questo spazio non esiste.</h2><p>Torna a “Oggi in studio”.</p><a class="btn btn-primary" href="#home">Torna a oggi${icon('arrow')}</a></div>`;
  mountGame(id, main);
+ // elenchi vivi in riquadri fissi che si scorrono (con la lente quando sono lunghi): la pagina non cambia altezza
+ enhancePanels(main, id, ({posta:['.list-pane'], centralino:['.list-pane'], whatsapp:['.list-pane'], scadenze:['.filing-list', '.timeline']})[id]);
  if (id === 'studio') afterStudioRender();
  } catch (err) {
   // mai una pagina bianca: lo diciamo, e si riparte da uno stato pulito
@@ -100,7 +104,7 @@ function home() {
   {icon:'scan', text:'Rossi / Verdi: subalterno 8 o 6? Perizia e visura dicono 8, la bozza 6.', go:'studio', label:'Apri nello Studio'},
   {icon:'shield', text:'Lumen Tech: il socio Helix Ventures (40%) richiede l’identificazione del titolare effettivo.', go:'antiriciclaggio', label:'Vedi la verifica'}
  ];
- return `${heading(today().toUpperCase(), `${NOW.greet}, Notaio Conti.`, 'Otto ha già letto ciò che è arrivato. Ecco lo studio di oggi.')}
+ return `${heading(today().toUpperCase(), `${NOW.greet}, Notaio ${persona.last}.`, 'Otto ha già letto ciò che è arrivato. Ecco lo studio di oggi.')}
  <section class="briefing">
   <div class="briefing-copy"><span class="eyebrow"><span class="live-dot"></span> IL PUNTO DI OTTO · AGGIORNATO ALLE ${new Intl.DateTimeFormat('it-IT', {hour:'2-digit', minute:'2-digit', timeZone:'Europe/Rome'}).format(new Date())}</span>
    <h2>${NOW.part === 'mattina' ? 'Stamattina' : 'Oggi'} ho letto <b>${D.mails.length} email</b> e gestito <b>${D.calls.length} chiamate</b>.<br>Ho preparato <b>${D.mails.filter(m => m.draft).length} bozze</b> e distribuito <b>${D.tasks.length} attività</b> nel team.</h2>
@@ -535,7 +539,7 @@ function action(a) {
  if (a === 'download-form') { ecoPoints('form', 3, 'Modulo scaricato'); return downloadForm(); }
  if (a.startsWith('handle:')) { const on = toggle('handled', a.slice(7)); if (on) ecoPoints('handle', 4, 'Email gestita', a.slice(7), {born:D.mails.find(m => m.id === a.slice(7))?.at}); toast(on ? 'Approvata. In anteprima nessuna email viene inviata.' : 'Email riaperta.'); return shell(); }
  if (a.startsWith('send:')) { toggle('sent', a.slice(5)); ecoPoints('send', 4, 'Messaggio inviato', a.slice(5), {born:D.chats.find(c => c.id === a.slice(5))?.at}); toast('Messaggio segnato come inviato. In anteprima non parte nulla.'); return shell(); }
- if (a === 'account') return show(`<span class="dialog-kicker">IL TUO STUDIO</span><h2 id="dialog-title">Andrea Conti</h2><p class="dialog-description">Notaio titolare · ${esc(D.studio.name)}. L’accesso CSD Station sarà collegato al servizio.</p>`);
+ if (a === 'account') return show(`<span class="dialog-kicker">IL TUO STUDIO</span><h2 id="dialog-title">${persona.name}</h2><p class="dialog-description">Notaio titolare · ${esc(D.studio.name)}. L’accesso CSD Station sarà collegato al servizio.</p>`);
  if (a === 'reset') { stopRun(); reset(); ui.studio.messages = []; ui.studio.artifact = null; ui.otto = []; toast('Demo ripristinata.'); return shell(); }
 }
 function syncNavigation() {

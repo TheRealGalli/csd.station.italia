@@ -2,6 +2,7 @@
 // Ogni capitolo ha più varianti (variants): a ogni partita se ne estrae una a caso, così due serate non sono mai uguali.
 // Ogni variante ha un antagonista vero del mestiere, sposta le missioni verso le sue sezioni (bias)
 // e stringe una regola del gioco (rules), che torna com'era alla fine del capitolo.
+import {persona} from './persona.js';
 import * as D from './demo.js';
 
 // rules: [[oggetto, chiave, valore o funzione del valore attuale], …] → apply(on) che cambia e poi ripristina
@@ -27,8 +28,8 @@ export const story = {
     outro:['Visto? Il locale gira, e tu sai dove mettere le mani.', 'Però sul retro si sente un furgone che fa manovra…'],
     goal:tasks3},
    {title:'Il primo turno', narrator:'Otto maître', role:'otto-bow',
-    intro:['Benvenuto all’Osteria del Borgo! Marta mi ha detto che stasera sei tu il responsabile di sala.', 'Io sono il sistema: comande, cucina, frigo, cassa e telefono. **Quando serve una persona, il quadrato rosso in alto ti chiama.**', 'Si comincia piano: tre cose da sistemare, e intanto ti guardi intorno.'],
-    outro:['Primo turno superato, e senza un piatto freddo.', 'Ma Marta ha una faccia strana: qualcosa sta per succedere…'],
+    intro:[`Benvenuto all’Osteria del Borgo! ${persona.first} mi ha detto che stasera sei tu il responsabile di sala.`, 'Io sono il sistema: comande, cucina, frigo, cassa e telefono. **Quando serve una persona, il quadrato rosso in alto ti chiama.**', 'Si comincia piano: tre cose da sistemare, e intanto ti guardi intorno.'],
+    outro:['Primo turno superato, e senza un piatto freddo.', `Ma ${persona.first} ha una faccia strana: qualcosa sta per succedere…`],
     goal:tasks3},
    {title:'Il servizio comincia', narrator:'Otto cuoco', role:'otto-chef',
     intro:['Davide accende i fornelli, Sofia sistema i coperti. Io? Sono già al lavoro su tutto il resto.', 'Il QR prende gli ordini, la cucina li riceve, il magazzino si scala da solo.', 'Ti chiamo io quando serve una mano vera. **Il primo obiettivo è semplice**: tre compiti.'],
@@ -79,7 +80,7 @@ export const story = {
     apply:rules([[D.fridgeCfg, 'rate', 2.4]])},
    {title:'Il controllo della Finanza', narrator:'Otto cassiere', role:'otto-inspector',
     intro:['Due signori in borghese chiedono di parlare con la titolare: **Guardia di Finanza, controllo sugli scontrini**.', 'Ogni incasso deve avere il suo documento commerciale, ogni fattura il codice giusto, ogni spesa del bando la sua carta.', 'Arriveranno più conti, fatture e domande sui contributi. Niente panico: Otto ha registrato tutto.'],
-    outro:['Il verbale dice: “Corrispettivi regolarmente trasmessi”. Marta può respirare.'],
+    outro:[`Il verbale dice: “Corrispettivi regolarmente trasmessi”. ${persona.first} può respirare.`],
     goal:{type:'missions', n:2, pages:['fatture', 'sala', 'bandi'], label:'Vinci 2 missioni di Cassa, Sala o Bandi'}, bias:['fatture', 'sala', 'bandi']},
    {title:'Il tavolo dei celiaci', narrator:'Otto cuoco', role:'otto-chef',
     intro:['Il tavolo 6 ha prenotato per una festa: tre ospiti sono **celiaci** e uno è allergico alle uova.', 'In cucina si lavora con il doppio dell’attenzione, e **le comande possono aspettare un po’ meno**.', 'Allergeni giusti sul menu, comande chiare in cucina, risposte precise al telefono.'],

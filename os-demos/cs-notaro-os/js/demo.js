@@ -1,10 +1,11 @@
 // Studio dimostrativo. Persone, pratiche, numeri di repertorio, banche e documenti sono INVENTATI.
 // Ogni modulo legge da qui: è il "mondo" condiviso che l'AI vede quando lavora.
+import {persona} from './persona.js';
 
-export const studio = {name:'Studio Notarile Conti & Associati', city:'Firenze', notary:'Notaio Andrea Conti'};
+export const studio = {name:persona.studio, city:'Firenze', notary:`Notaio ${persona.name}`};
 
 export const team = [
- {id:'AC', name:'Andrea Conti', role:'Notaio titolare', load:62, present:true},
+ {id:'AC', name:persona.name, role:'Notaio titolare', load:62, present:true},
  {id:'EF', name:'Elena Ferri', role:'Notaio associato', load:48, present:true},
  {id:'GM', name:'Giulia Marchi', role:'Pratiche immobiliari', load:86, present:true},
  {id:'LB', name:'Luca Benassi', role:'Societario', load:57, present:true},
@@ -29,7 +30,7 @@ export const mails = [
   body:'Gentile Notaio, in allegato delibera, perizia e modulo di richiesta erogazione per il mutuo intestato ai sigg. Rossi e Fabbri. Vi chiediamo di restituire il modulo compilato e di confermare la data di stipula. Cordiali saluti, Ufficio mutui.',
   understood:'La banca ha deliberato il mutuo di € 180.000 e chiede il modulo di erogazione compilato. La perizia indica il subalterno 8, la bozza d’atto riporta il 6.',
   prepared:[{icon:'file',text:'Modulo di erogazione compilato (9 campi su 10)',go:'studio:erogazione'},{icon:'message',text:'Bozza di risposta con conferma stipula del 24 ottobre'},{icon:'scan',text:'Discrepanza sul subalterno segnalata a Giulia'}],
-  draft:'Gentili, confermiamo la stipula per il 24 ottobre alle 10:30 presso il nostro studio. In allegato il modulo di erogazione compilato. Resta da indicare l’IBAN del conto della parte venditrice, che richiediamo al legale. Cordiali saluti, Studio Notarile Conti & Associati.'},
+  draft:`Gentili, confermiamo la stipula per il 24 ottobre alle 10:30 presso il nostro studio. In allegato il modulo di erogazione compilato. Resta da indicare l’IBAN del conto della parte venditrice, che richiediamo al legale. Cordiali saluti, ${persona.studio}.`},
  {id:'m2', from:'Avv. Federica Lorenzi', address:'studio@lorenzi.example', time:'08:52', subject:'Rossi/Verdi – APE e planimetria', practice:'P-184', priority:'media', assignee:'GM', kind:'Legale',
   attachments:['APE_2026.pdf','Planimetria_catastale.pdf'],
   body:'Buongiorno, per conto della sig.ra Verdi trasmetto APE e planimetria. L’agibilità segue a breve.',

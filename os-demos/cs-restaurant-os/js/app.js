@@ -1,7 +1,9 @@
+import {persona} from './persona.js';
 import {icon, otto} from './icons.js';
 import {modules, groups, groupNotes, moduleById} from './modules.js';
 import * as D from './demo.js';
 import {startTour} from './tour.js';
+import {enhancePanels} from './panels.js';
 import {initGame, gameChip, mountGame, gameInvite, gameOn, openShop, gameIntro, ecoPoints, missionPanel, gamePaused, isReserved, penalty, gameLevel, ottoMessage, setPressure, later, gameState, pickOne} from './game.js';
 import {story} from './story.js';
 import {challenges} from './challenges.js';
@@ -44,7 +46,7 @@ function shell() {
   <div class="workspace-switch static"><span class="workspace-icon">${icon('store')}</span><span><strong>${esc(D.restaurant.name)}</strong><small>${esc(D.restaurant.city)} · ristorante dimostrativo</small></span></div>
   <nav><div class="nav-group">${navItem('home', SV.title, 'home', '<span class="live-dot"></span>')}${navItem('modules', 'L’ecosistema', 'flow')}</div>
   ${Object.entries(groups).map(([g, l]) => `<span class="nav-label">${l.toUpperCase()}</span>${modules.filter(m => m.group === g).map(m => navItem(m.id, m.title, m.icon, extra(m))).join('')}`).join('')}</nav>
-  <div class="sidebar-bottom"><button class="plan-mini" data-action="otto"><span class="plan-orbit">${icon('otto-happy')}</span><span>Chiedi a Otto<small>Un solo assistente per tutto il locale</small></span>${icon('chevron')}</button>${navItem('settings', 'Impostazioni', 'settings')}<button class="account" data-action="account"><span class="avatar">MR</span><span>Marta Rinaldi<small>Titolare</small></span>${icon('down')}</button></div>
+  <div class="sidebar-bottom"><button class="plan-mini" data-action="otto"><span class="plan-orbit">${icon('otto-happy')}</span><span>Chiedi a Otto<small>Un solo assistente per tutto il locale</small></span>${icon('chevron')}</button>${navItem('settings', 'Impostazioni', 'settings')}<button class="account" data-action="account"><span class="avatar">${persona.initials}</span><span>${persona.name}<small>Titolare</small></span>${icon('down')}</button></div>
  </aside><div class="mobile-scrim" data-action="sidebar"></div>
  <div class="app-body"><header class="topbar"><div class="breadcrumbs"><button class="icon-btn mobile-toggle" data-action="sidebar" aria-label="Apri navigazione" aria-controls="workspace-navigation" aria-expanded="false">${icon('list')}</button><span>Locale</span>${icon('chevron')}<strong id="crumb"></strong></div>
   <div class="topbar-actions">${gameChip()}<button class="search-trigger" data-action="search" aria-label="Cerca">${icon('search')}<span>Cerca</span><kbd>⌘ K</kbd></button><button class="ask-otto" data-action="otto">${icon('otto-happy')}<span>Chiedi a Otto</span></button><button class="demo-btn" data-action="tour" aria-label="Demo interattiva" title="Demo interattiva"><i></i><span>Demo interattiva</span></button></div></header>
@@ -63,6 +65,8 @@ function render() {
  try {
   main.innerHTML = pages[id] ? pages[id]() : `<div class="empty-state"><h2>Questo spazio non esiste.</h2><a class="btn btn-primary" href="#home">Torna al servizio${icon('arrow')}</a></div>`;
   mountGame(id, main);
+  // elenchi vivi in riquadri fissi che si scorrono (con la lente quando sono lunghi): la pagina non cambia altezza
+  enhancePanels(main, id, ({home:['.feed-list'], fatture:['.table-scroll'], delivery:['.table-scroll'], recensioni_ai:['.review-list'], centralino_ai:['.review-list']})[id]);
  } catch (err) { main.innerHTML = sectionError(err); }
  syncCounts();
 }
@@ -108,7 +112,7 @@ function kpis() {
 // ————— IL SERVIZIO DI STASERA —————
 function home() {
  const low = D.lowStock();
- return `${heading(`SERVIZIO DI ${SV.name.toUpperCase()} · ${NOW.weekday.toUpperCase()} · DALLE ${SV.start}`, `${NOW.greet}, Marta.`, 'Il locale in tempo reale. Otto tiene d’occhio tutto il resto.', `<span class="live-pill"><span class="live-dot"></span>Live</span>`)}
+ return `${heading(`SERVIZIO DI ${SV.name.toUpperCase()} · ${NOW.weekday.toUpperCase()} · DALLE ${SV.start}`, `${NOW.greet}, ${persona.first}.`, 'Il locale in tempo reale. Otto tiene d’occhio tutto il resto.', `<span class="live-pill"><span class="live-dot"></span>Live</span>`)}
  ${kpis()}
  <section class="home-live">
   <div class="workspace-panel"><div class="panel-title"><h2>La sala adesso</h2><a class="text-link" href="#sala">Apri la sala${icon('arrow')}</a></div><div class="floor mini">${floorTables(true)}</div></div>
@@ -557,7 +561,7 @@ function action(a) {
  if (k === 'review') { ui.done.reviews.push(a.slice(7)); ecoPoints('review', 4, 'Recensione pubblicata', a.slice(7)); toast('Risposta pubblicata (demo).'); return shell(); }
  if (a === 'fid-campaign') { const sg = D.segments.find(x => x.id === (ui.fidSeg || 'oro')), n = D.members.filter(sg.test).filter(m => m.wa).length; ecoPoints('fid-campaign', 3, 'Campagna pronta', sg.id); return toast(`Campagna “${sg.name}” pronta per ${n} ospiti con consenso: parte dopo la tua approvazione (demo).`); }
  if (a === 'push-send') { const dr = D.appCfg.draft; if (dr.sent) return toast('Notifica già programmata.'); dr.sent = true; D.appCfg.pushes.unshift({title:dr.title, text:dr.text, seg:dr.seg, sent:0, open:0, when:'ven 11:00'}); ecoPoints('push', 3, 'Notifica programmata'); toast('Notifica programmata per venerdì alle 11 (demo).'); return render(); }
- if (a === 'account') return show(`<span class="dialog-kicker">IL TUO LOCALE</span><h2 id="dialog-title">Marta Rinaldi</h2><p class="dialog-description">Titolare · ${esc(D.restaurant.name)}. L’accesso CSD Station sarà collegato al servizio.</p>`);
+ if (a === 'account') return show(`<span class="dialog-kicker">IL TUO LOCALE</span><h2 id="dialog-title">${persona.name}</h2><p class="dialog-description">Titolare · ${esc(D.restaurant.name)}. L’accesso CSD Station sarà collegato al servizio.</p>`);
 }
 function syncNavigation() {
  const side = document.querySelector('.sidebar'), body = document.querySelector('.app-body');

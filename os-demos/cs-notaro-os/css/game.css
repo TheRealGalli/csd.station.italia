@@ -553,3 +553,19 @@ body:has(.game-pressure) .live-stack{top:136px}
 .shop-list.fixed .shop-item small{font-size:11.5px}
 .shop-item.owned{opacity:.55;cursor:default}
 .shop-item.owned em{color:#c5f476;font-style:normal;text-transform:uppercase;font-size:10.5px;letter-spacing:1px}
+/* ————— Riquadri fissi (panels.js): gli elenchi che crescono si scorrono dentro la loro scheda ————— */
+.fixed-scroll{max-height:440px;overflow:auto;overscroll-behavior:contain;scrollbar-width:thin;scrollbar-color:#cfd8c4 transparent}
+.fixed-scroll.is-live{height:440px}
+.fixed-scroll thead th{position:sticky;top:0;z-index:1;background:var(--surface,#fff);box-shadow:0 1px 0 var(--line,#e3e8da)}
+.fixed-scroll [hidden]{display:none!important}
+.list-pane.fixed-scroll{max-height:620px}.list-pane.fixed-scroll.is-live{height:620px}
+.list-pane.fixed-scroll .filter-tabs{position:sticky;top:0;z-index:2;background:#fff}
+.panel-none{padding:22px 18px;font-size:12.5px;color:#8b947f;text-align:center;margin:0}
+.panel-title:has(.panel-search){gap:12px}
+.panel-search{display:inline-flex;align-items:center;gap:6px;margin-left:auto;border:1px solid var(--line,#e3e8da);border-radius:9px;padding:5px 9px;background:#fff;color:#7b886b}
+.panel-search .icon{width:14px;height:14px;fill:none;stroke:currentColor;stroke-width:2}
+.panel-search input{border:0;outline:0;background:transparent;font:inherit;font-size:12px;width:130px;color:#26331f}
+.panel-search:focus-within{border-color:#9cc46a;box-shadow:0 0 0 3px #c5f47644}
+/* schede affiancate: allineate in alto, mai stirate dal contenuto dell'altra colonna */
+.quote-layout,.sala-layout,.module-workspace,.qr-layout,.split{align-items:start}
+.filter-tabs .panel-search{margin-left:auto}.filter-tabs .panel-search input{width:90px}

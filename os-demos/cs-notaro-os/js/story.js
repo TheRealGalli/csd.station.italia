@@ -2,6 +2,7 @@
 // Ogni capitolo ha più varianti (variants): a ogni partita se ne estrae una a caso, così due settimane non sono mai uguali.
 // Ogni variante ha un antagonista vero del mestiere, sposta le missioni verso le sue sezioni (bias)
 // e stringe una regola del gioco (rules), che torna com'era alla fine del capitolo.
+import {persona} from './persona.js';
 import {studioCfg, lobbyCfg} from './pressure.js';
 
 // rules: [[oggetto, chiave, valore o funzione del valore attuale], …] → apply(on) che cambia e poi ripristina
@@ -14,18 +15,18 @@ export const story = {
  // la schermata finale: anche questa cambia; {capitoli} diventa l'elenco dei capitoli giocati in mezzo
  finale:[
   {kicker:'STUDIO CHIUSO', title:'Hai completato la settimana in studio', text:'Atti firmati, termini rispettati, nessuna sanzione. {capitoli}: lo studio ha retto a tutto, **con te alle decisioni e Otto a fare il resto**.', wa, waLabel:'Vorrei più informazioni'},
-  {kicker:'VENERDÌ · 19:30', title:'Hai completato la settimana in studio', text:'Il notaio Conti chiude il repertorio e spegne la luce. Tra {capitoli}, nessun termine è scaduto e **ogni firma è arrivata con le verifiche fatte**.', wa, waLabel:'Vorrei più informazioni'},
+  {kicker:'VENERDÌ · 19:30', title:'Hai completato la settimana in studio', text:`Il notaio ${persona.last} chiude il repertorio e spegne la luce. Tra {capitoli}, nessun termine è scaduto e **ogni firma è arrivata con le verifiche fatte**.`, wa, waLabel:'Vorrei più informazioni'},
   {kicker:'REPERTORIO CHIUSO', title:'Hai completato la settimana in studio', text:'Giulia archivia l’ultima pratica, Paolo torna dalle ferie e trova tutto in ordine. {capitoli}: settimana superata, e lunedì Otto avrà già letto la posta.', wa, waLabel:'Vorrei più informazioni'}
  ],
  ending:'La settimana è chiusa: atti firmati, termini rispettati, nessuna sanzione. **Puoi continuare a giocare quanto vuoi.**',
  chapters:[
   {variants:[
    {title:'Il primo giorno', narrator:'Otto del notaio', role:'otto-notary',
-    intro:['Buongiorno! Lunedì mattina, Studio Conti & Associati.', 'Io leggo la posta, rispondo al telefono, preparo i moduli e tengo d’occhio le scadenze.', 'Tu intervieni quando serve una persona. Cominciamo dalle cose semplici.'],
+    intro:[`Buongiorno! Lunedì mattina, ${persona.studio.replace('Studio Notarile ', 'Studio ')}.`, 'Io leggo la posta, rispondo al telefono, preparo i moduli e tengo d’occhio le scadenze.', 'Tu intervieni quando serve una persona. Cominciamo dalle cose semplici.'],
     outro:['Ottimo inizio: la coda si muove e lo studio respira.', 'Però è appena arrivata una busta piena di documenti…'],
     goal:tasks3},
    {title:'Lunedì mattina', narrator:'Otto segretario', role:'otto-phone',
-    intro:['Sono le nove, la sala d’attesa si riempie e il telefono ha già squillato tre volte.', 'Il notaio Conti è in stipula fino a mezzogiorno: **lo studio lo teniamo noi due**. Io leggo, smisto e preparo; tu decidi.', 'Il quadrato rosso in alto ti chiama quando serve. Tre compiti per cominciare.'],
+    intro:['Sono le nove, la sala d’attesa si riempie e il telefono ha già squillato tre volte.', `Il notaio ${persona.last} è in stipula fino a mezzogiorno: **lo studio lo teniamo noi due**. Io leggo, smisto e preparo; tu decidi.`, 'Il quadrato rosso in alto ti chiama quando serve. Tre compiti per cominciare.'],
     outro:['Mezzogiorno: il notaio esce dalla sala e trova tutto in ordine.', 'Ma nel pomeriggio arriva una pratica complicata…'],
     goal:tasks3},
    {title:'Il nuovo collaboratore', narrator:'Otto del notaio', role:'otto-notary',
