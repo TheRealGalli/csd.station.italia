@@ -189,7 +189,7 @@ function kds() {
   const d = D.dish(l.dish), sel = ui.ticket === l.id;
   const timer = state === 'waiting' ? bar(l.at, D.waitMax(), 'wait') : state === 'cooking' ? bar(l.cookAt || now, D.cookTime(d), 'cook') : bar(l.readyAt || now, k.passTime, 'pass');
   const action = state === 'waiting' ? (full ? `<span class="tk-full">Fornelli pieni · ${cooking}/${k.cap}</span>` : `<button class="tk-go" data-cook="${l.id}">Metti sui fornelli ${icon('arrow')}</button>`)
-   : state === 'cooking' ? (l.cooked ? (D.autoOn('pass') ? `<span class="tk-next">${icon('check')} Cotto · va al pass da solo</span>` : `<button class="tk-go" data-pass="${l.id}">Cotto · manda al pass ${icon('arrow')}</button>`) : `<span class="tk-next">In cottura · ${D.cookTime(d)} s</span>`)
+   : state === 'cooking' ? (l.cooked ? (D.autoOn('pass') ? `<span class="tk-next">${icon('check')} Cotto · va al pass da solo</span>` : `<button class="tk-go" data-pass="${l.id}">Cotto · manda al pass ${icon('arrow')}</button>`) : `<span class="tk-next">In cottura · <b data-cook-left="${l.id}">${Math.max(0, Math.ceil(D.cookTime(d) - (now - (l.cookAt || now)) / 1000))}</b> s</span>`)
    : D.autoOn('serve') ? `<span class="tk-next">${icon('check')} Il cameriere lo porta</span>` : `<button class="tk-go" data-serve="${l.id}">Servi al tavolo ${icon('arrow')}</button>`;
   return `<article class="ticket ${now - l.at < 2500 ? 'row-in' : ''} ${sel ? 'selected' : ''}" data-ticket="${l.id}" tabindex="0" role="button" aria-expanded="${sel}"><span class="tk-top"><b>${l.table}</b><small>${state === 'cooking' ? icon('clock') : ''}</small></span><span class="tk-dish">${l.qty}× ${esc(d.name)}</span>${d.allergens.length ? `<span class="tk-all">${d.allergens.map(a => `<i>${a}</i>`).join('')}</span>` : ''}${l.cooked && state === 'cooking' ? '' : timer}${sel || state !== 'waiting' ? action : D.autoOn('cook') ? '<span class="tk-next">Va sui fornelli da solo</span>' : '<span class="tk-next">Tocca per aprire</span>'}</article>`;
  };
@@ -531,8 +531,12 @@ setInterval(() => {
   const reds = fr.red.length + (h.waiting ? 1 : 0) + (h.pass ? 1 : 0) + (dr.red.length ? 1 : 0);
   if (reds) penalty(Math.min(2, reds), fr.red.length ? 'Cella fuori norma' : h.waiting ? 'Comande ferme' : h.pass ? 'Piatti fermi al pass' : 'Ospiti in attesa');
   const was = ui.kitchenHot || {}; ui.kitchenHot = h;
-  if ((was.waiting !== h.waiting || was.pass !== h.pass || h.handover) && route() === 'kds') render();
+  // la cucina si ridisegna appena un piatto cambia stato (cotto, al pass, servito, nuova comanda), non solo uscendo e rientrando
+  const ksig = D.kitchenLines().map(l => `${l.id}${l.state}${l.cooked ? 1 : 0}`).join(',') + D.autoOn('cook') + D.autoOn('pass') + D.autoOn('serve');
+  const kchanged = ksig !== ui.kitchenSig; ui.kitchenSig = ksig;
+  if ((kchanged || was.waiting !== h.waiting || was.pass !== h.pass || h.handover) && route() === 'kds') { const y = scrollY; render(); scrollTo(0, y); }
   else if (route() === 'kds' && D.kitchen.autoUntil > Date.now() && Date.now() % 5000 < 1000) liveRefresh(); // il conto alla rovescia della cucina automatica
+  if (route() === 'kds') document.querySelectorAll('[data-cook-left]').forEach(e => { const l = D.kitchenLines().find(x => x.id === e.dataset.cookLeft); if (l) e.textContent = Math.max(0, Math.ceil(D.cookTime(D.dish(l.dish)) - (Date.now() - (l.cookAt || Date.now())) / 1000)); });
   // cosa sta facendo perdere punti, e dove andare a sistemarlo
   const pr = [];
   if (h.waiting) pr.push({page:'kds', label:'Comande ferme in cucina'});

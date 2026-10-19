@@ -334,14 +334,21 @@ function giveBack(ms, live = true) {
  openMissions().forEach(m => { m.created = later(m.created, ms); }); openTasks().forEach(t => { t.created = later(t.created, ms); });
  if (live) try { hooks.freeze?.(ms); } catch (err) { console.warn('Sfida di Otto · tempo fermo', err); }
 }
-function tick() {
+// Il conto del tempo fermo si fa ogni quarto di secondo (errore massimo 0,25 s quando una nuvoletta si chiude),
+// mentre la logica del gioco gira una volta al secondo.
+let lastLogic = Date.now();
+function account() {
  const now = Date.now(), dt = Math.max(0, Math.min(now - lastTick, 6 * 3600e3)); lastTick = now;
  if (!S.started) { wasFrozen = true; return; }
  const frozen = frozenNow(), held = frozen || wasFrozen; wasFrozen = frozen;
  if (held) giveBack(dt);
- if (frozen) return;
  // pausa caffè della Bottega: si ferma tutto, sezioni vive comprese
- if (!held && now < S.fx.freezeUntil) giveBack(dt);
+ else if (now < S.fx.freezeUntil) giveBack(dt);
+}
+function tick() {
+ account();
+ const now = Date.now(), dt = Math.max(0, Math.min(now - lastLogic, 6 * 3600e3)); lastLogic = now;
+ if (!S.started || frozenNow()) return;
  taskDirector();
  openMissions().forEach(m => { if (!m.armed) m.created = later(m.created, dt); });
  for (const m of openMissions()) if (missionLeft(m) <= 0) resolveMission(m, {pts:-8, label:'Tempo scaduto', why:'Nessuno ha deciso in tempo: Otto ha scelto da solo seguendo le regole e ti segnala il caso da ricontrollare. Una decisione lasciata a metà costa meno di una sbagliata, ma costa.'});
@@ -359,6 +366,7 @@ function tick() {
 // i battiti del gioco non devono mai fermare la pagina: un errore si registra e si va avanti
 const safe = (fn, name) => () => { try { fn(); } catch (err) { console.warn(`Sfida di Otto · ${name}`, err); } };
 setInterval(safe(tick, 'tempo'), 1000);
+setInterval(safe(account, 'tempo fermo'), 250);
 // Esc chiude la Bottega
 document.addEventListener('keydown', e => { if (e.key === 'Escape' && document.querySelector('.otto-shop')) { document.querySelector('.otto-shop').remove(); S.shopNote = ''; } });
 // tornando sulla scheda il conto del tempo fermo si fa subito, prima che le app controllino cosa è in rosso
