@@ -83,15 +83,25 @@ function VideoCard({ v, onOpen }: { v: Demo; onOpen: () => void }) {
   </article>;
 }
 
-// La card dietro il video anticipa la scena successiva (il video cambia settore ogni 5 secondi).
-const heroScenes = [
-  { sector: 'Università', title: 'Come arrivano gli studenti', bars: [46, 38, 52, 74] },
-  { sector: 'Ristorante', title: 'Coperti della settimana', bars: [40, 55, 70, 95] },
-  { sector: 'Negozio', title: 'Lancio del nuovo prodotto', bars: [30, 48, 66, 82] },
-  { sector: 'Azienda', title: 'Risultati del trimestre', bars: [62, 58, 74, 88] },
-  { sector: 'Startup', title: 'Il mercato che puntiamo', bars: [90, 60, 38, 20] },
-  { sector: 'Officina', title: 'Tagliandi e revisioni', bars: [52, 21, 13, 34] },
+// La card dietro il video anticipa la scena successiva (il video cambia settore ogni 5 secondi),
+// ognuna con la sua piccola animazione: barre, linea, prodotto, numeri, cerchi, auto.
+type Peek = 'bars' | 'line' | 'product' | 'kpi' | 'funnel' | 'garage';
+const heroScenes: { sector: string; title: string; kind: Peek }[] = [
+  { sector: 'Università', title: 'Come arrivano gli studenti', kind: 'bars' },
+  { sector: 'Ristorante', title: 'Coperti della settimana', kind: 'line' },
+  { sector: 'Negozio', title: 'Borraccia in alluminio', kind: 'product' },
+  { sector: 'Azienda', title: 'Risultati del trimestre', kind: 'kpi' },
+  { sector: 'Startup', title: 'Il mercato che puntiamo', kind: 'funnel' },
+  { sector: 'Officina', title: 'Tagliandi e revisioni', kind: 'garage' },
 ];
+function PeekVisual({ kind }: { kind: Peek }) {
+  if (kind === 'bars') return <div className="mh-bars">{[46, 38, 52, 74, 30].map((h, k) => <i key={k} style={{ height: `${h}%`, animationDelay: `${k * .08}s` }}/>)}</div>;
+  if (kind === 'line') return <svg className="mh-line" viewBox="0 0 240 80" preserveAspectRatio="none"><polyline pathLength={1} points="4,60 42,50 80,54 118,40 156,32 194,8 236,20"/><circle cx="194" cy="8" r="5"/></svg>;
+  if (kind === 'product') return <div className="mh-product"><img src="/video-slide/peek-bottiglia.png" alt=""/><span>19,90 €</span></div>;
+  if (kind === 'kpi') return <div className="mh-kpi">{[['1,24 M€', 82], ['318', 64], ['22%', 48]].map(([n, w], k) => <div key={k} style={{ animationDelay: `${k * .1}s` }}><b>{n}</b><i style={{ width: `${w}%`, animationDelay: `${.3 + k * .1}s` }}/></div>)}</div>;
+  if (kind === 'funnel') return <div className="mh-funnel">{[0, 1, 2].map(k => <i key={k} style={{ animationDelay: `${k * .15}s` }}/>)}<span>120k clienti</span></div>;
+  return <div className="mh-garage"><img src="/video-slide/peek-auto.png" alt=""/><span>52 tagliandi</span></div>;
+}
 
 export default function MediaPage({ children }: { children?: React.ReactNode }) {
   const [open, setOpen] = useState<Demo | null>(null), [peek, setPeek] = useState(1);
@@ -108,7 +118,7 @@ export default function MediaPage({ children }: { children?: React.ReactNode }) 
       <a className="station-button" href="#slide">Guarda gli esempi <ArrowDown size={18}/></a>
       <div className="nfc-benefits"><span><Check size={15}/> 15 slide a 49 €</span><span><Check size={15}/> Video da 99 € ogni 2 minuti</span></div>
     </div><div className="media-hero-art" aria-hidden="true">
-      <div className="mh-slide" key={peek}><span className="ms-eyebrow">PROSSIMA · {heroScenes[peek].sector.toUpperCase()}</span><b>{heroScenes[peek].title}</b><div className="mh-bars">{heroScenes[peek].bars.map((h, k) => <i key={k} style={{ height: `${h}%`, animationDelay: `${k * .08}s` }}/>)}</div></div>
+      <div className="mh-slide" key={peek}><span className="ms-eyebrow">PROSSIMA · {heroScenes[peek].sector.toUpperCase()}</span><b>{heroScenes[peek].title}</b><PeekVisual kind={heroScenes[peek].kind}/></div>
       <div className="mh-video"><video onTimeUpdate={e => setPeek((Math.floor(e.currentTarget.currentTime / 5) + 1) % heroScenes.length)} src="/video-slide/media-motion.mp4" poster="/video-slide/media-motion.jpg" autoPlay muted loop playsInline preload="metadata"/><span className="mh-rec"><i/> MOTION</span></div>
       <span className="product-float mh-chip"><OttoIcon mood="happy" size={18}/> OTTO TI GUIDA</span>
     </div></div></section>
