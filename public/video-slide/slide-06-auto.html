@@ -3,7 +3,7 @@
 <title>Studio colore · Slide CSD Station</title>
 <style>
 /* Presentazione auto: 8 pagine statiche 16:9, stessi comandi della presentazione Università */
-:root{--bg:#030705;--lime:#c5f476;--ink:#172015}
+:root{--bg:#101510;--lime:#c5f476;--ink:#172015}
 *{box-sizing:border-box}
 html,body{height:100%;margin:0}
 body{background:var(--bg);color:#f6f7f2;font-family:'Avenir Next','Helvetica Neue',Arial,sans-serif;overflow:hidden;display:flex;flex-direction:column}
@@ -18,8 +18,9 @@ button:focus-visible{outline:3px solid var(--lime);outline-offset:4px}
 .shine.go{animation:sweep 1.6s cubic-bezier(.4,0,.2,1) .35s}
 @keyframes sweep{0%{background-position:150% 0;opacity:1}100%{background-position:-60% 0;opacity:1}}
 .deck img.out{opacity:0;transform:scale(.98) translateX(-2%)}
-footer{display:flex;align-items:center;justify-content:space-between;gap:2vw;padding:1.6vh 4.5vw 2vh;flex:none;border-top:1px solid #c5f47622;background:#0b110b}
-footer button{padding:1.1vh 1.6vw;border-radius:6px;background:var(--lime);color:var(--ink);border:1px solid var(--lime);font-size:clamp(12px,1.2vw,15px)}
+footer{display:flex;align-items:center;justify-content:space-between;gap:2vw;padding:1.8vh 4.5vw 1.6vh;flex:none}
+.note{padding:0 4.5vw 1.8vh;font-size:clamp(9px,.9vw,11px);color:#6f8360;flex:none}
+footer button{padding:1.2vh 1.6vw;border-radius:6px;background:var(--lime);color:var(--ink);border:1px solid var(--lime);font-size:clamp(12px,1.2vw,15px)}
 footer button:disabled{opacity:.3;cursor:default}
 .dots{display:flex;gap:6px;align-items:center}
 .dots i{width:26px;height:4px;border-radius:4px;background:#34462a;transition:background .3s,width .3s}
@@ -29,6 +30,7 @@ footer button:disabled{opacity:.3;cursor:default}
 <body>
 <main class="deck" id="deck" aria-live="polite"><div class="shine" id="shine"></div></main>
 <footer><button id="prev">← Indietro</button><div class="dots" id="dots"></div><button id="next">Avanti →</button></footer>
+<div class="note">Concept con immagini generate: finiture indicative, nessuna affiliazione con il marchio. Usa anche le frecce della tastiera.</div>
 <script>
 const alts=['Un’icona, sei colori','Rosso brillante','Argento satinato','Blu notte','Bianco perla','Giallo acceso','Questione di dettagli','Qual è il tuo colore?'];
 const deck=document.getElementById('deck'),dots=document.getElementById('dots');

@@ -106,3 +106,4 @@
 
 /* Video & Slide è solo desktop: niente voce nel menu da telefono */
 @media(max-width:767px){.station-links a.nav-media{display:none}}
+@media(pointer:coarse) and (max-height:500px){.station-links a.nav-media{display:none}}

@@ -112,16 +112,21 @@ function NfcPage() {
  </>;
 }
 const compactQuery = '(max-width: 767px)';
-function subscribeCompact(callback: () => void) {
- const media = window.matchMedia(compactQuery);
+// Video & Slide per ora è solo da computer: conta come telefono anche lo smartphone tenuto in orizzontale
+const phoneQuery = '(max-width: 767px), (pointer: coarse) and (max-height: 500px)';
+const subscribeTo = (query: string) => (callback: () => void) => {
+ const media = window.matchMedia(query);
  media.addEventListener('change', callback);
  return () => media.removeEventListener('change', callback);
-}
+};
+const subscribeCompact = subscribeTo(compactQuery), subscribePhone = subscribeTo(phoneQuery);
 
 export default function Station() {
- const compact = useSyncExternalStore(subscribeCompact, () => window.matchMedia(compactQuery).matches, () => false);
+ const narrow = useSyncExternalStore(subscribeCompact, () => window.matchMedia(compactQuery).matches, () => false);
+ const phone = useSyncExternalStore(subscribePhone, () => window.matchMedia(phoneQuery).matches, () => false);
  const location = useLocation();
  const mode = getServiceMode(location.pathname, location.search);
+ const compact = narrow || (mode === 'media' && phone);
  useEffect(() => {
    if (location.hash) { const timer = setTimeout(() => document.getElementById(location.hash.slice(1))?.scrollIntoView({behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'instant' as ScrollBehavior : 'smooth'}), 50); return () => clearTimeout(timer); }
    window.scrollTo({top:0, behavior:'instant' as ScrollBehavior});
@@ -132,5 +137,5 @@ export default function Station() {
    document.documentElement.style.backgroundColor = bg;
    document.body.style.backgroundColor = bg;
  }, [compact, mode]);
- return <div className={`station-site ${mode === 'nfc' ? 'nfc-site' : mode === 'web' ? 'nfc-site web-site' : mode === 'media' ? 'nfc-site web-site media-site' : mode === 'training' ? 'training-site' : ''} ${compact ? 'compact-site' : ''}`}><a className="station-skip" href="#main-content">Vai al contenuto</a><StationHeader/><main id="main-content">{mode === 'training' ? <Training/> : mode === 'media' ? compact ? <MediaMobile/> : <MediaPage><FAQ mode="media"/><Contact mode="media"/></MediaPage> : mode === 'web' ? compact ? <SitoSocialMobile/> : <SitoSocial><FAQ mode="web"/><Contact mode="web"/></SitoSocial> : compact ? mode === 'nfc' ? <MobileNfc products={products} whatsapp={whatsapp}/> : <MobileConsulting contact={processContact} skills={skills}/> : mode === 'nfc' ? <NfcPage/> : <Home/>}</main><StationFooter/></div>;
+ return <div className={`station-site ${mode === 'nfc' ? 'nfc-site' : mode === 'web' ? 'nfc-site web-site' : mode === 'media' ? 'nfc-site web-site media-site' : mode === 'training' ? 'training-site' : ''} ${compact ? 'compact-site' : ''}`}><a className="station-skip" href="#main-content">Vai al contenuto</a><StationHeader/><main id="main-content">{mode === 'training' ? <Training/> : mode === 'media' ? compact ? <MediaMobile/> : <><div className="media-desktop"><MediaPage><FAQ mode="media"/><Contact mode="media"/></MediaPage></div><div className="media-phone"><MediaMobile/></div></> : mode === 'web' ? compact ? <SitoSocialMobile/> : <SitoSocial><FAQ mode="web"/><Contact mode="web"/></SitoSocial> : compact ? mode === 'nfc' ? <MobileNfc products={products} whatsapp={whatsapp}/> : <MobileConsulting contact={processContact} skills={skills}/> : mode === 'nfc' ? <NfcPage/> : <Home/>}</main><StationFooter/></div>;
 }

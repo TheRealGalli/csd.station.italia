@@ -107,10 +107,17 @@ footer button:disabled{opacity:.3;cursor:default}
 .compare>div{position:absolute;inset:0;padding:5% 6%;transition:opacity .5s}
 .before{font-size:clamp(7px,.78vw,10px);line-height:1.45;color:#57604f}
 .before .w{display:inline-block;will-change:transform}
+.before .pp{margin:.8vh 0 0;font-size:inherit;line-height:inherit;color:inherit;max-width:none}
+.before table{width:100%;border-collapse:collapse;margin:1vh 0;font-size:.95em}
+.before caption{text-align:left;font-weight:700;color:#3d4a33;margin-bottom:3px}
+.before th,.before td{border-bottom:1px solid #d6dccb;padding:2px 4px;text-align:left}
+.before .fn{display:block;margin-top:.8vh;font-size:.85em;color:#8a917f}
+.before .pg{position:absolute;right:6%;bottom:5%;font-size:.9em;color:#8a917f}
 .before h4{font-size:clamp(11px,1.15vw,15px);margin:0 0 1vh;color:#222}
 .after{opacity:0;display:flex;flex-direction:column;justify-content:flex-start;padding-top:4%!important}
 .compare.is-after .before{opacity:0}.compare.is-after .after{opacity:1}
 .after h4{margin:.6vh 0 0;font-size:clamp(17px,2.1vw,28px);letter-spacing:-.03em;line-height:1.1}
+.after .lead{margin:.5vh 0 0;font-size:clamp(10px,1vw,13px);line-height:1.35;color:#4d5a42;max-width:none}
 .after .from{font:600 clamp(8px,.8vw,10px)/1 ui-monospace,monospace;letter-spacing:.14em;color:#7b9262}
 .after>*{opacity:0;transform:translateY(14px);transition:opacity .45s,transform .6s cubic-bezier(.3,1.5,.5,1)}
 .compare.is-after .after>*{opacity:1;transform:none}
@@ -119,25 +126,26 @@ footer button:disabled{opacity:.3;cursor:default}
 .hb>div{display:grid;grid-template-columns:1fr auto;align-items:center;gap:2px 8px;font-size:clamp(9px,.95vw,12px)}
 .hb span{grid-column:1/-1}
 .hb i{height:9px;border-radius:9px;background:#e3e9da;position:relative;overflow:hidden}
-.hb i:after{content:'';position:absolute;inset:0;width:calc(var(--v)*2.2%);max-width:100%;border-radius:9px;background:linear-gradient(90deg,#9fc35c,#c5f476);transform:scaleX(0);transform-origin:left;transition:transform .9s cubic-bezier(.3,1.3,.5,1) calc(.5s + var(--k)*.15s)}
-.hb .a i:after{background:#bfc8b1}
+.hb i:after{content:'';position:absolute;inset:0;width:calc(var(--v)*2.2%);max-width:100%;border-radius:9px;background:var(--c);transform:scaleX(0);transform-origin:left;transition:transform .9s cubic-bezier(.3,1.3,.5,1) calc(.5s + var(--k)*.15s)}
 .compare.is-after .hb i:after{transform:scaleX(1)}
 .hb i:before{content:'';position:absolute;top:0;bottom:0;width:30%;background:linear-gradient(90deg,transparent,#fff9,transparent);z-index:1;animation:shine 2.6s ease-in-out infinite;animation-delay:calc(var(--k)*.3s)}
 @keyframes shine{from{left:-30%}to{left:110%}}
-.hb b{font-size:clamp(10px,1vw,13px)}
-.donut{position:relative;width:36%;flex:none;aspect-ratio:1;border-radius:50%;background:conic-gradient(var(--lime) calc(var(--p)*1%),#dfe6d4 0);display:grid;place-items:center;--p:0;transition:--p 1.2s}
-.donut b{width:64%;aspect-ratio:1;border-radius:50%;background:var(--paper);display:grid;place-items:center;font-size:clamp(20px,3vw,40px);font-weight:600}
+.hb b{font-size:clamp(10px,1vw,13px);color:var(--c);filter:brightness(.8)}
+.donut{position:relative;width:29%;flex:none;aspect-ratio:1;border-radius:50%;background:#e9eee2;display:grid;place-items:center;--p:0}
+.donut:before{content:'';position:absolute;inset:0;border-radius:50%;background:conic-gradient(#9fc35c 0 40%,#e0896b 0 70%,#4fa79e 0 90%,#e4c76b 0);-webkit-mask:conic-gradient(#000 calc(var(--p)*1%),transparent 0);mask:conic-gradient(#000 calc(var(--p)*1%),transparent 0)}
+.donut b{position:relative;z-index:1;line-height:1;font-size:clamp(16px,2.2vw,30px)!important;width:64%;aspect-ratio:1;border-radius:50%;background:var(--paper);display:grid;place-items:center;font-weight:600}
 .after-row{display:flex;align-items:center;gap:6%;margin-top:3%}
-.compare.is-after .donut{animation:donut-in .9s cubic-bezier(.3,1.6,.5,1) .2s both,donut-breathe 3.5s ease-in-out 1.4s infinite}
-@keyframes donut-in{from{transform:scale(.3) rotate(-120deg);opacity:0}to{transform:none;opacity:1}}
-@keyframes donut-breathe{50%{transform:scale(1.05)}}
+.compare.is-after .donut{animation:donut-in .8s cubic-bezier(.3,1.5,.5,1) .2s both,donut-breathe 4s ease-in-out 1.2s infinite}
+.donut .dl{position:absolute;z-index:2;left:0;right:0;top:66%;text-align:center;font-style:normal;font-size:clamp(7px,.7vw,9px);color:#6d7a62;letter-spacing:.06em}
+@keyframes donut-in{from{transform:scale(.85) rotate(-40deg);opacity:0}to{transform:none;opacity:1}}
+@keyframes donut-breathe{50%{transform:scale(1.02)}}
 .sum{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:3%}
 .sum div{padding:7px 8px;border-radius:8px;background:#fff;border:1px solid #dfe6d4;font-size:clamp(8px,.82vw,11px);line-height:1.3;color:#3d4a33}
 .sum b{display:block;font-size:clamp(9px,.9vw,12px);color:#1d2b16;margin:2px 0}
 .sum em{font-style:normal;font-size:1.3em}
 .ppl-t{margin-top:auto;padding-top:9px;font:600 clamp(8px,.85vw,11px)/1 ui-monospace,monospace;letter-spacing:.12em;color:#5f8a2a;text-transform:uppercase}
 .ppl{display:grid;grid-template-columns:repeat(10,1fr);gap:6px;margin-top:1.4vh}
-.ppl i svg{width:100%;display:block}
+.ppl i svg{width:62%;display:block;margin:0 auto}
 .ppl i.g svg{fill:#9fc35c}.ppl i.a svg{fill:#cfd5c2}
 .compare.is-after .ppl i{animation:ppl 4.2s cubic-bezier(.3,1.6,.5,1) infinite;animation-delay:calc(var(--k)*.12s)}
 @keyframes ppl{0%{transform:scale(.3) translateY(10px);opacity:0}12%{transform:scale(1.15);opacity:1}18%,82%{transform:none;opacity:1}92%,100%{transform:scale(.3) translateY(10px);opacity:0}}
@@ -145,7 +153,7 @@ footer button:disabled{opacity:.3;cursor:default}
 .legend i{display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:6px;vertical-align:-1px}.legend i.g{background:#9fc35c}.legend i.a{background:#cfd5c2}
 .before mark{background:none;color:#2d4a1f;font-weight:700;box-shadow:inset 0 -.45em 0 #c5f47699;animation:hl 2.4s ease-in-out infinite}
 @keyframes hl{50%{box-shadow:inset 0 -1.1em 0 #c5f476cc}}
-.before:after{content:'Prima: un paragrafo da leggere';position:absolute;left:6%;bottom:5%;font:600 clamp(9px,.9vw,11px)/1 ui-monospace,monospace;letter-spacing:.12em;color:#a33;text-transform:uppercase}
+.before:after{content:'Prima: una pagina da leggere';position:absolute;left:6%;bottom:5%;font:600 clamp(9px,.9vw,11px)/1 ui-monospace,monospace;letter-spacing:.12em;color:#a33;text-transform:uppercase}
 .gains{list-style:none;margin:0 0 2.2vh;padding:0;display:grid;gap:.9vh}
 .gains li{font-size:clamp(11px,1.15vw,15px);color:#d9e3cf;opacity:.25;transform:translateX(-10px);transition:opacity .4s,transform .5s cubic-bezier(.3,1.5,.5,1)}
 .gains li:before{content:'→ ';color:var(--lime)}
@@ -267,8 +275,7 @@ footer button:disabled{opacity:.3;cursor:default}
 <section class="slide s1" data-done="1">
   <div><span class="label">Tesi · tesine · lezioni</span>
     <h1>Da <em>110 e lode.</em></h1>
-    <p>La discussione dura pochi minuti: con le slide animate la commissione capisce subito il tuo lavoro, e tu lo racconti senza perdere il filo.</p>
-    <button class="act solid" data-do="start">Inizia la presentazione →</button></div>
+    <p>La discussione dura pochi minuti: con le slide animate la commissione capisce subito il tuo lavoro, e tu lo racconti senza perdere il filo.</p></div>
   <div class="visual"><div class="minis"><div class="mini m1"><small>RISULTATI</small><span class="mb"><i style="height:40%"></i><i style="height:65%"></i><i style="height:90%"></i><i style="height:55%"></i></span></div><div class="mini m2"><small>METODO</small><span class="md"></span></div><div class="mini m3"><small>DOMANDA</small><span class="ml"><i></i><i></i><i></i></span></div></div><img class="cut corona" id="corona" src="uni/corona.webp" alt="Neolaureato con la corona d'alloro"></div>
 </section>
 
@@ -285,15 +292,19 @@ footer button:disabled{opacity:.3;cursor:default}
   <div><span class="label">Prima e dopo / 03</span>
     <h1>Stesso dato.<br><em>Altro effetto.</em></h1>
     <p>Il contenuto resta il tuo: noi lo studiamo e cambiamo il modo in cui arriva.</p>
-    <ul class="gains"><li><b>120 parole</b> diventano una frase</li><li><b>5 percentuali</b> diventano un grafico</li><li><b>2 secondi</b> per capire il risultato</li></ul>
+    <ul class="gains"><li><b>Una pagina intera</b> diventa una scheda</li><li><b>5 percentuali</b> diventano un grafico</li><li><b>2 secondi</b> per capire il risultato</li></ul>
     <div class="switch" role="group" aria-label="Confronto"><button aria-pressed="true" data-do="before">Prima</button><button aria-pressed="false" data-do="after">Dopo</button></div><span class="hint" id="cmpHint">Premi “Dopo”: le parole cadono e restano i dati</span></div>
   <div class="visual"><div class="compare" id="compare">
-    <div class="before"><h4>3.2 Risultati dell'indagine sulla mobilità</h4>Dal questionario somministrato a un campione di 240 studenti nel periodo considerato emerge che il mezzo di trasporto più utilizzato per raggiungere la sede è costituito da autobus e treno <mark>(40%)</mark>, seguito dall'automobile privata <mark>(30%)</mark>, dalla bicicletta <mark>(20%)</mark> e infine dagli spostamenti a piedi <mark>(10%)</mark>. Complessivamente la quota di studenti che utilizza modalità alternative all'automobile risulta <mark>pari al 70% del campione</mark>, dato che suggerisce una propensione significativa verso forme di mobilità sostenibile, pur con le limitazioni metodologiche descritte nel paragrafo 2.4 relative alla rappresentatività del campione e all'assenza di informazioni su distanza e frequenza degli spostamenti, che verranno discusse nelle conclusioni.</div>
-    <div class="after"><small class="from">DAL PARAGRAFO 3.2 · 240 STUDENTI</small><h4>7 studenti su 10<br>arrivano senza auto</h4>
-      <div class="after-row"><div class="donut" id="donut"><b id="donutN">0%</b></div><div class="hb"><div class="g" style="--v:40;--k:0"><span>🚌 Bus e treno</span><i></i><b>40%</b></div><div class="a" style="--v:30;--k:1"><span>🚗 Auto</span><i></i><b>30%</b></div><div class="g" style="--v:20;--k:2"><span>🚲 Bici</span><i></i><b>20%</b></div><div class="g" style="--v:10;--k:3"><span>🚶 A piedi</span><i></i><b>10%</b></div></div></div>
+    <div class="before"><h4>3.2 Risultati dell'indagine sulla mobilità</h4>Dal questionario somministrato a un campione di 240 studenti nel periodo considerato emerge che il mezzo di trasporto più utilizzato per raggiungere la sede è costituito da autobus e treno <mark>(40%)</mark>, seguito dall'automobile privata <mark>(30%)</mark>, dalla bicicletta <mark>(20%)</mark> e infine dagli spostamenti a piedi <mark>(10%)</mark>. Complessivamente la quota di studenti che utilizza modalità alternative all'automobile risulta <mark>pari al 70% del campione</mark>, dato che suggerisce una propensione significativa verso forme di mobilità sostenibile, pur con le limitazioni metodologiche descritte nel paragrafo 2.4 relative alla rappresentatività del campione e all'assenza di informazioni su distanza e frequenza degli spostamenti, che verranno discusse nelle conclusioni.
+      <p class="pp">Il dato relativo alla bicicletta, pur minoritario, assume rilievo se confrontato con la distanza media dichiarata dagli studenti residenti in città, mentre la quota di spostamenti a piedi resta contenuta e riconducibile prevalentemente agli studenti fuori sede che alloggiano in prossimità della sede universitaria¹.</p>
+      <table><caption>Tabella 3.1 · Mezzo di trasporto principale (n = 240)</caption><tr><th>Mezzo</th><th>Studenti</th><th>Quota</th></tr><tr><td>Autobus e treno</td><td>96</td><td>40%</td></tr><tr><td>Automobile</td><td>72</td><td>30%</td></tr><tr><td>Bicicletta</td><td>48</td><td>20%</td></tr><tr><td>A piedi</td><td>24</td><td>10%</td></tr></table>
+      <p class="pp">I risultati, letti nel complesso, confermano l’ipotesi iniziale e verranno ripresi nel capitolo 4, dedicato alle proposte operative per l’ateneo.</p>
+      <small class="fn">¹ Dati simulati a scopo dimostrativo, campione ipotetico di 240 studenti, ottobre 2026.</small><span class="pg">— 27 —</span></div>
+    <div class="after"><small class="from">DAL PARAGRAFO 3.2 · 240 STUDENTI</small><h4>7 studenti su 10<br>arrivano senza auto</h4><p class="lead">Bus e treno sono il mezzo più usato; l’auto si ferma al 30%.</p>
+      <div class="after-row"><div class="donut" id="donut"><b id="donutN">0%</b><i class="dl">senza auto</i></div><div class="hb"><div class="g" style="--v:40;--k:0;--c:#9fc35c"><span>🚌 Bus e treno</span><i></i><b>40%</b></div><div class="a" style="--v:30;--k:1;--c:#e0896b"><span>🚗 Auto</span><i></i><b>30%</b></div><div class="g" style="--v:20;--k:2;--c:#4fa79e"><span>🚲 Bici</span><i></i><b>20%</b></div><div class="g" style="--v:10;--k:3;--c:#e4c76b"><span>🚶 A piedi</span><i></i><b>10%</b></div></div></div>
       <div class="sum"><div><em>📋</em><b>Il metodo</b>Questionario a 240 studenti, una sola risposta.</div><div><em>🚌</em><b>Il risultato</b>Bus e treno sono il mezzo più usato.</div><div><em>⚠️</em><b>I limiti</b>Campione simulato, niente distanze.</div></div>
       <small class="ppl-t">Dopo: un colpo d’occhio · 7 su 10 senza auto</small><div class="ppl"><i style="--k:0" class="g"><svg viewBox="0 0 24 32"><circle cx="12" cy="7" r="6"/><path d="M2 31c0-8 4-13 10-13s10 5 10 13z"/></svg></i><i style="--k:1" class="g"><svg viewBox="0 0 24 32"><circle cx="12" cy="7" r="6"/><path d="M2 31c0-8 4-13 10-13s10 5 10 13z"/></svg></i><i style="--k:2" class="g"><svg viewBox="0 0 24 32"><circle cx="12" cy="7" r="6"/><path d="M2 31c0-8 4-13 10-13s10 5 10 13z"/></svg></i><i style="--k:3" class="g"><svg viewBox="0 0 24 32"><circle cx="12" cy="7" r="6"/><path d="M2 31c0-8 4-13 10-13s10 5 10 13z"/></svg></i><i style="--k:4" class="g"><svg viewBox="0 0 24 32"><circle cx="12" cy="7" r="6"/><path d="M2 31c0-8 4-13 10-13s10 5 10 13z"/></svg></i><i style="--k:5" class="g"><svg viewBox="0 0 24 32"><circle cx="12" cy="7" r="6"/><path d="M2 31c0-8 4-13 10-13s10 5 10 13z"/></svg></i><i style="--k:6" class="g"><svg viewBox="0 0 24 32"><circle cx="12" cy="7" r="6"/><path d="M2 31c0-8 4-13 10-13s10 5 10 13z"/></svg></i><i style="--k:7" class="a"><svg viewBox="0 0 24 32"><circle cx="12" cy="7" r="6"/><path d="M2 31c0-8 4-13 10-13s10 5 10 13z"/></svg></i><i style="--k:8" class="a"><svg viewBox="0 0 24 32"><circle cx="12" cy="7" r="6"/><path d="M2 31c0-8 4-13 10-13s10 5 10 13z"/></svg></i><i style="--k:9" class="a"><svg viewBox="0 0 24 32"><circle cx="12" cy="7" r="6"/><path d="M2 31c0-8 4-13 10-13s10 5 10 13z"/></svg></i></div>
-      <div class="legend"><span><i class="g"></i>Senza auto · 168</span><span><i class="a"></i>In auto · 72</span><span>Dati simulati</span></div></div>
+      <div class="legend"><span><i class="g"></i>Senza auto · 168</span><span><i class="a"></i>In auto · 72</span><span>Dati simulati · 240 studenti</span></div></div>
     </div>
   </div></div>
 </section>
@@ -359,7 +370,15 @@ const $=s=>document.querySelector(s), slides=[...document.querySelectorAll('.sli
 let index=0;
 $('#otto').innerHTML=otto;
 // cosa dice Otto su ogni slide, prima e dopo l'interazione
-const lines=[['Ciao! Sono Otto, ti accompagno tra le slide.','Premi Avanti e partiamo.'],['Troppe pagine? Proviamo a sfoltire.','Una slide, un’idea. Molto meglio.'],['Guarda la differenza: premi “Dopo”.','Lo stesso paragrafo, letto in un secondo.'],['Svela i dati uno alla volta.','Ecco la conclusione che volevi far arrivare.'],['Gira le schede, una per volta.','Tre occasioni, tre presentazioni diverse.'],['Rispondi come farebbe la classe.','I risultati appaiono mentre la classe risponde!'],['Tre passi e hai finito.','Ti consegniamo tutto, pronto da presentare.'],['Ci vediamo alla discussione!','Complimenti, è fatta!']];
+const lines=[
+  ['Ciao, sono Otto! Premi Avanti e partiamo.','Ciao, sono Otto! Premi Avanti e partiamo.'],
+  ['Ottanta pagine? Proviamo a sfoltire.','Da 80 pagine a 30 slide: c’è tutto, senza muri di testo.'],
+  ['Premi “Dopo” e guarda cosa succede alle parole.','Stessa pagina, ma si capisce al primo sguardo.'],
+  ['Un clic, un dato: tocca a te.','Ecco la conclusione che volevi far arrivare.'],
+  ['Gira le schede, una alla volta.','Tre occasioni, tre presentazioni diverse.'],
+  ['Rispondi come farebbe la classe.','Ecco i risultati, in diretta.'],
+  ['Premi “Passo successivo” per scoprire come lavoriamo.','Tre passi, e la presentazione è pronta.'],
+  ['La tua tesi merita slide così. Premi “Festeggia”!','Quando vuoi, scrivimi su WhatsApp.']];
 // dentro il sito il fumetto lo mostra la pagina, fuori dal riquadro; aperta da sola, lo mostra la slide
 const embedded=window.parent!==window;if(embedded)document.body.classList.add('embedded');
 const say=(t,happy=false)=>{if(embedded){parent.postMessage({csd:'otto',text:t,happy},location.origin);return}const b=$('#say');b.classList.remove('show');setTimeout(()=>{b.textContent=t;b.classList.add('show')},120)};
@@ -385,7 +404,7 @@ document.addEventListener('click',e=>{const b=e.target.closest('[data-do]');if(!
     if(!after){SFX.click();resetWords();cmp.classList.remove('is-after');s.classList.remove('cmp-after');$('#cmpHint').textContent='Premi “Dopo”: le parole cadono e restano i dati';return}
     // le parole del paragrafo cadono per gravità, poi la scheda si riempie con i dati
     cmp.dataset.busy=1;SFX.click();dropWords();for(let k=0;k<14;k++)SFX.tick(.1+k*.07);SFX.rise(1.05);SFX.pop(1.35);
-    setTimeout(()=>{cmp.classList.add('is-after');s.classList.add('cmp-after');$('#cmpHint').textContent='Torna su “Prima” per confrontare';let p=0;const t=setInterval(()=>{p=Math.min(70,p+2);$('#donut').style.setProperty('--p',p);$('#donutN').textContent=p+'%';if(p===70){clearInterval(t);delete cmp.dataset.busy;done(s)}},18)},1150)}
+    setTimeout(()=>{cmp.classList.add('is-after');s.classList.add('cmp-after');$('#cmpHint').textContent='Torna su “Prima” per confrontare';let p=0;const t=setInterval(()=>{p=Math.min(100,p+2.5);$('#donut').style.setProperty('--p',p);$('#donutN').firstChild.textContent=Math.round(p*.7)+'%';if(p===100){clearInterval(t);delete cmp.dataset.busy;done(s)}},18)},1150)}
   if(a==='reveal'){if(revealed<4&&!b.disabled){SFX.click(.48);SFX.pop(.64)}const bars=[...document.querySelectorAll('#bars div')];if(revealed>=bars.length||b.disabled)return;const k=revealed,bar=bars[k],m=$('#mano');revealed++;b.disabled=true;pointAt(k);setTimeout(()=>{m.classList.remove('tap');void m.offsetWidth;m.classList.add('tap')},480);setTimeout(()=>{bar.classList.add('on');const em=bar.querySelector('em');em.textContent=em.dataset.v;$('#revealHint').textContent=revealed+' di 4 dati mostrati';b.disabled=false;if(revealed===bars.length){b.classList.add('done');setTimeout(()=>{bars[1].classList.add('dim');$('#verdict').classList.add('show');m.style.opacity=0;done(s)},700)}},640)}
   if(a==='flip'&&!b.classList.contains('open')){SFX.flip();b.classList.add('open');flipped++;$('#flipHint').textContent='Clicca sulle schede · '+flipped+' di 3';if(flipped===3)done(s)}
   if(a==='answer'){const q=$('#quiz');if(q.classList.contains('answered'))return;if(b.hasAttribute('data-right'))SFX.right();else{SFX.buzz();SFX.right(.3)}q.classList.add('answered');q.querySelectorAll('button').forEach(x=>x.classList.add(x.hasAttribute('data-right')?'right':(x===b?'wrong':'')||'x'));setTimeout(()=>done(s),700)}

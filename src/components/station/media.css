@@ -198,3 +198,6 @@
 .mh-note{top:-40px}
 .mh-click{left:-44px;top:250px}
 @media(max-width:1100px){.mh-video{width:390px}.mh-slide{width:270px}}
+/* pagina prerenderizzata: sul telefono si vede subito l'invito ad aprirla dal computer, mai la versione desktop */
+.media-phone{display:none}
+@media(max-width:767px),(pointer:coarse) and (max-height:500px){.media-desktop{display:none}.media-phone{display:block}}
