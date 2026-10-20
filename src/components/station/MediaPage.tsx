@@ -140,9 +140,13 @@ function OttoRunner({ hit, textRef, boxRef }: { hit: number; textRef: React.RefO
   }, [hit, boxRef, textRef]);
   useEffect(() => {
     if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
-    let raf = 0, last = performance.now(), lastRaf = 0;
+    let raf = 0, last = performance.now(), lastRaf = 0, visible = true;
+    // fuori dallo schermo Otto si ferma: niente calcoli inutili mentre si legge il resto della pagina
+    const io = new IntersectionObserver(([e]) => { visible = e.isIntersecting; last = performance.now(); });
+    if (boxRef.current) io.observe(boxRef.current);
     const G = 900, SIZE = 16, CEIL = -13, RUN = 62;
     const step = (now: number) => {
+      if (!visible) return;
       const dt = Math.min(.05, (now - last) / 1000); last = now;
       const p = st.current, box = boxRef.current, text = textRef.current, node = el.current;
       if (box && text && node) {
@@ -170,7 +174,7 @@ function OttoRunner({ hit, textRef, boxRef }: { hit: number; textRef: React.RefO
     raf = requestAnimationFrame(frame);
     // se il browser non concede fotogrammi (scheda o pannello in secondo piano) la fisica va avanti a timer
     const backup = setInterval(() => { if (performance.now() - lastRaf > 120) step(performance.now()); }, 40);
-    return () => { cancelAnimationFrame(raf); clearInterval(backup); };
+    return () => { cancelAnimationFrame(raf); clearInterval(backup); io.disconnect(); };
   }, [boxRef, textRef]);
   return <span className="mh-runner" ref={el} aria-hidden="true"><OttoIcon mood="happy" size={16}/></span>;
 }

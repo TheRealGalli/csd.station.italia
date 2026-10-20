@@ -46,11 +46,10 @@ p{font-size:clamp(13px,1.45vw,19px);line-height:1.55;color:#b3c2a3;margin:0 0 2.
 .visual{position:relative;height:100%;min-height:0;margin-right:12vw}
 .s1 .visual,.s8 .visual{margin-right:0}
 /* foto scontornate: bordo bianco da adesivo, come ritagliate e incollate */
-.cut{position:absolute;filter:drop-shadow(0 0 0 #fff) drop-shadow(3px 0 0 #fff) drop-shadow(-3px 0 0 #fff) drop-shadow(0 3px 0 #fff) drop-shadow(0 -3px 0 #fff) drop-shadow(10px 18px 18px #0008)}
+.cut{position:absolute;filter:drop-shadow(10px 18px 16px #0007)}
+.slide:not(.on),.slide:not(.on) *{animation-play-state:paused!important}
 .otto-wrap{position:absolute;right:0;bottom:2vh;transform:scale(.62);transform-origin:bottom right;z-index:3}
 .otto-wrap.big{transform:scale(.9)}
-.otto.throwing .arm-right{animation:otto-throw .6s cubic-bezier(.3,1.4,.5,1)!important}
-@keyframes otto-throw{0%{transform:rotate(-17deg)}35%{transform:rotate(40deg)}70%{transform:rotate(-170deg)}100%{transform:rotate(-17deg)}}
 .say{position:absolute;right:2.5vw;bottom:25vh;max-width:12em;padding:1.2vh 1vw;border-radius:12px 12px 2px 12px;background:var(--lime);color:var(--ink);box-shadow:0 8px 20px #0007;font-size:clamp(10px,1.05vw,14px);line-height:1.35;opacity:0;transform:translateY(10px) scale(.95);transition:.45s cubic-bezier(.2,.9,.3,1.3);z-index:4}
 .say.show{opacity:1;transform:none}
 .embedded .say,.embedded .otto-wrap{display:none}
@@ -67,35 +66,28 @@ footer button:disabled{opacity:.3;cursor:default}
 /* 1 copertina */
 /* il tocco sale ruotando, ricade e rimbalza tre volte sempre più basso, schiacciandosi a ogni contatto */
 
-.s1.landed .lode{animation:stamp .6s cubic-bezier(.2,.9,.3,1.6)}
-@keyframes stamp{0%{transform:rotate(-6deg) scale(1)}40%{transform:rotate(-10deg) scale(1.25)}100%{transform:rotate(-6deg) scale(1)}}
 .lode{position:absolute;right:6%;bottom:16%;padding:1.2vh 1.2vw;border-radius:10px;background:var(--lime);color:var(--ink);font-weight:700;font-size:clamp(16px,2.4vw,34px);transform:rotate(-6deg) scale(0);transition:transform .5s cubic-bezier(.2,.9,.3,1.6);z-index:2}
-.s1.landed .lode{transform:rotate(-6deg) scale(1)}
-.s1 .corona{left:6%;bottom:0;height:96%;transform:translateY(110%) scaleX(-1);transition:transform 1s cubic-bezier(.2,.8,.2,1) .15s}
-.s1.on .corona{transform:translateY(4%) scaleX(-1) rotate(2deg)}
-.s1 .tocco{position:absolute;right:1.5%;bottom:24%;width:16%;z-index:4;transform:rotate(-18deg);transform-origin:50% 100%}
-.intro{position:absolute;inset:0;z-index:8;display:grid;place-content:center;justify-items:center;gap:2vh;background:radial-gradient(ellipse at 50% 50%,#101510cc,#080c08f2 70%);backdrop-filter:blur(3px);transition:opacity .5s,visibility .5s}
-.intro.gone{opacity:0;visibility:hidden}
-.intro small{font-size:clamp(11px,1.1vw,14px);color:var(--muted);letter-spacing:.06em}
-.act.big{font-size:clamp(16px,1.8vw,24px);padding:2vh 2.6vw;animation:nudge 1.6s ease-in-out infinite}
-.bubbly{position:absolute;inset:0;z-index:9;pointer-events:none;visibility:hidden;transform:translateY(calc(100% + 40px));background:linear-gradient(#f9e7a0,#e8bd4c 60%,#d9a531);transition:transform 1.5s cubic-bezier(.45,0,.3,1)}
-.bubbly.full,.bubbly.drain{visibility:visible}
-.bubbly.full{transform:translateY(0)}
-.bubbly.drain{transform:translateY(calc(100% + 40px));transition-duration:1s}
-.bubbly svg{position:absolute;left:0;top:-28px;width:200%;height:30px;animation:waves 1.6s linear infinite}
-@keyframes waves{to{transform:translateX(-50%)}}
-.bubbly i{position:absolute;bottom:-20px;border-radius:50%;border:1.5px solid #fff9;background:#fff3;animation:bub linear infinite}
-@keyframes bub{to{transform:translateY(-110vh)}}
-.bubbly b{position:absolute;inset:0;display:grid;place-items:center;font-size:clamp(34px,6vw,88px);font-weight:600;letter-spacing:-.04em;color:#5a3d07;opacity:0;transform:scale(.8);transition:.5s cubic-bezier(.3,1.6,.5,1) .7s}
-.bubbly.full b{opacity:1;transform:none}
+.s1 .corona{right:10%;bottom:0;height:96%;z-index:2;transform:translateY(110%) rotate(4deg);transition:transform 1s cubic-bezier(.2,.8,.2,1) .15s}
+.s1.on .corona{transform:translateY(4%) rotate(-2deg)}
+/* tre mini slide della tesi che entrano dietro al ragazzo e fluttuano piano */
+.minis{position:absolute;inset:0}
+.mini{position:absolute;width:30%;aspect-ratio:16/10;border-radius:10px;background:var(--paper);color:var(--ink);padding:3%;box-shadow:8px 14px 26px #0008;opacity:0;transition:opacity .5s,transform 1s cubic-bezier(.3,1.4,.5,1)}
+.mini small{display:block;font:600 clamp(7px,.7vw,9px)/1 ui-monospace,monospace;letter-spacing:.14em;color:#7b9262;margin-bottom:8%}
+.m1{left:2%;top:10%;transform:translate(60%,40%) rotate(0) scale(.6)}.m2{left:6%;top:48%;transform:translate(60%,-20%) scale(.6)}.m3{right:0;top:2%;transform:translate(-40%,60%) scale(.6)}
+.s1.on .mini{opacity:1}.s1.on .m1{transform:rotate(-8deg);transition-delay:.5s}.s1.on .m2{transform:rotate(5deg);transition-delay:.65s}.s1.on .m3{transform:rotate(7deg);transition-delay:.8s}
+.s1.on .minis{animation:drift 7s ease-in-out 1.8s infinite}
+@keyframes drift{0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}}
+.mb{display:flex;align-items:flex-end;gap:8%;height:58%}.mb i{flex:1;border-radius:3px 3px 0 0;background:linear-gradient(#c5f476,#86a356)}
+.md{display:block;width:52%;aspect-ratio:1;margin:0 auto;border-radius:50%;background:conic-gradient(#9fc35c 0 70%,#dfe6d4 0)}
+.ml{display:grid;gap:9%}.ml i{display:block;height:7px;border-radius:7px;background:#dfe6d4}.ml i:first-child{width:80%;background:#1d2b16}.ml i:nth-child(2){width:95%}.ml i:nth-child(3){width:60%}
 .lode small{display:block;font-size:.38em;font-weight:500;letter-spacing:.2em}
 
 /* 2 il problema */
-.s2 .libri{left:18%;bottom:0;height:92%;transform-origin:50% 100%}
+.s2 .libri{left:40%;bottom:0;height:88%;transform-origin:50% 100%}
 .s2 .libri{transition:transform 1.6s cubic-bezier(.3,1.3,.5,1)}
 .s2.cut-done .libri{transform:scale(.42) translateY(4%)}
 .sheet{position:absolute;width:clamp(40px,5vw,66px);aspect-ratio:3/4;border-radius:3px;box-shadow:2px 5px 10px #0007;z-index:3;pointer-events:none;background:repeating-linear-gradient(transparent 0 7px,#c9cfbf 7px 8px) center 10px/68% calc(100% - 18px) no-repeat,#f7f8f2}
-.counter{position:absolute;left:0;top:2%;text-align:left;z-index:5}
+.counter{position:absolute;left:-4%;top:0;text-align:left;z-index:5}
 .counter b{display:block;font-size:clamp(46px,7.5vw,108px);font-weight:500;line-height:1;color:var(--lime);letter-spacing:-.05em}
 .counter span{font-size:clamp(11px,1.2vw,15px);color:var(--muted)}
 .one{position:absolute;left:8%;right:4%;top:34%;z-index:4;padding:3vh 2vw;border-radius:14px;background:var(--paper);color:var(--ink);transform:translateY(-40vh) rotate(-8deg);opacity:0;transition:transform .8s cubic-bezier(.3,1.5,.5,1) 1.5s,opacity .2s 1.5s}
@@ -109,13 +101,13 @@ footer button:disabled{opacity:.3;cursor:default}
 .before{font-size:clamp(7px,.78vw,10px);line-height:1.45;color:#57604f}
 .before .w{display:inline-block;will-change:transform}
 .before h4{font-size:clamp(11px,1.15vw,15px);margin:0 0 1vh;color:#222}
-.after{opacity:0;display:flex;flex-direction:column;justify-content:center}
+.after{opacity:0;display:flex;flex-direction:column;justify-content:flex-start;padding-top:4%!important}
 .compare.is-after .before{opacity:0}.compare.is-after .after{opacity:1}
 .after h4{margin:.6vh 0 0;font-size:clamp(17px,2.1vw,28px);letter-spacing:-.03em;line-height:1.1}
 .after .from{font:600 clamp(8px,.8vw,10px)/1 ui-monospace,monospace;letter-spacing:.14em;color:#7b9262}
 .after>*{opacity:0;transform:translateY(14px);transition:opacity .45s,transform .6s cubic-bezier(.3,1.5,.5,1)}
 .compare.is-after .after>*{opacity:1;transform:none}
-.compare.is-after .after>:nth-child(2){transition-delay:.1s}.compare.is-after .after>:nth-child(3){transition-delay:.25s}.compare.is-after .after>:nth-child(4){transition-delay:.45s}.compare.is-after .after>:nth-child(5){transition-delay:.6s}
+.compare.is-after .after>:nth-child(2){transition-delay:.1s}.compare.is-after .after>:nth-child(3){transition-delay:.25s}.compare.is-after .after>:nth-child(4){transition-delay:.45s}.compare.is-after .after>:nth-child(5){transition-delay:.55s}.compare.is-after .after>:nth-child(6){transition-delay:.65s}
 .hb{flex:1;display:grid;gap:1.1vh}
 .hb>div{display:grid;grid-template-columns:1fr auto;align-items:center;gap:2px 8px;font-size:clamp(9px,.95vw,12px)}
 .hb span{grid-column:1/-1}
@@ -132,7 +124,8 @@ footer button:disabled{opacity:.3;cursor:default}
 .donut:after{content:'';position:absolute;inset:0;border-radius:50%;background:conic-gradient(from 0deg,transparent 0 82%,#ffffffaa 90%,transparent 96%);-webkit-mask:radial-gradient(circle,transparent 63%,#000 64%);mask:radial-gradient(circle,transparent 63%,#000 64%);animation:sweep 3.2s linear infinite;opacity:0}
 .compare.is-after .donut:after{opacity:1}
 @keyframes sweep{to{transform:rotate(360deg)}}
-.ppl{display:grid;grid-template-columns:repeat(10,1fr);gap:6px;margin-top:4%}
+.ppl-t{margin-top:auto;font:600 clamp(8px,.85vw,11px)/1 ui-monospace,monospace;letter-spacing:.12em;color:#5f8a2a;text-transform:uppercase}
+.ppl{display:grid;grid-template-columns:repeat(10,1fr);gap:6px;margin-top:1.4vh}
 .ppl i svg{width:100%;display:block}
 .ppl i.g svg{fill:#9fc35c}.ppl i.a svg{fill:#cfd5c2}
 .compare.is-after .ppl i{animation:ppl 4.2s cubic-bezier(.3,1.6,.5,1) infinite;animation-delay:calc(var(--k)*.12s)}
@@ -142,7 +135,6 @@ footer button:disabled{opacity:.3;cursor:default}
 .before mark{background:none;color:#2d4a1f;font-weight:700;box-shadow:inset 0 -.45em 0 #c5f47699;animation:hl 2.4s ease-in-out infinite}
 @keyframes hl{50%{box-shadow:inset 0 -1.1em 0 #c5f476cc}}
 .before:after{content:'Prima: un paragrafo da leggere';position:absolute;left:6%;bottom:5%;font:600 clamp(9px,.9vw,11px)/1 ui-monospace,monospace;letter-spacing:.12em;color:#a33;text-transform:uppercase}
-.after:before{content:'Dopo: un colpo d’occhio';position:absolute;left:6%;bottom:5%;font:600 clamp(9px,.9vw,11px)/1 ui-monospace,monospace;letter-spacing:.12em;color:#5f8a2a;text-transform:uppercase}
 .gains{list-style:none;margin:0 0 2.2vh;padding:0;display:grid;gap:.9vh}
 .gains li{font-size:clamp(11px,1.15vw,15px);color:#d9e3cf;opacity:.25;transform:translateX(-10px);transition:opacity .4s,transform .5s cubic-bezier(.3,1.5,.5,1)}
 .gains li:before{content:'→ ';color:var(--lime)}
@@ -176,7 +168,7 @@ footer button:disabled{opacity:.3;cursor:default}
 .flip .front{background:var(--card);border:1px solid var(--line)}
 .flip .front b{font-size:clamp(16px,2vw,28px);font-weight:500;letter-spacing:-.03em}
 .flip .front small{font-size:clamp(9px,.9vw,11px);letter-spacing:.2em;color:var(--lime)}
-.flip .front img{align-self:center;height:52%;max-width:88%;object-fit:contain;filter:drop-shadow(0 0 0 #fff) drop-shadow(2px 0 0 #fff) drop-shadow(-2px 0 0 #fff) drop-shadow(0 2px 0 #fff) drop-shadow(0 -2px 0 #fff) drop-shadow(6px 12px 12px #0009);animation:float 4s ease-in-out infinite}
+.flip .front img{align-self:center;height:52%;max-width:88%;object-fit:contain;filter:drop-shadow(6px 12px 10px #0008);animation:float 4s ease-in-out infinite}
 .flip:nth-child(2) .front img{animation-delay:-1.3s}.flip:nth-child(3) .front img{animation-delay:-2.6s}
 @keyframes float{0%,100%{transform:translateY(0) rotate(-3deg)}50%{transform:translateY(-8px) rotate(2deg)}}
 .flip{opacity:0;translate:0 30px;transition:transform .7s cubic-bezier(.2,.8,.2,1),opacity .5s,translate .7s cubic-bezier(.3,1.4,.5,1)}
@@ -218,9 +210,9 @@ footer button:disabled{opacity:.3;cursor:default}
 @keyframes wave{50%{height:100%}}
 
 /* 6 per il professore */
-.lap{position:absolute;left:0;right:0;top:50%;transform:translateY(-50%) rotate(-2deg);aspect-ratio:800/486}
+.lap{position:absolute;left:0;right:0;top:50%;transform:translateY(-50%) rotate(-2deg);aspect-ratio:812/498}
 .s6 .laptop{position:static;width:100%;display:block}
-.screen{position:absolute;left:15.4%;top:7.6%;width:69.8%;height:71.6%;border-radius:4px;background:var(--paper);color:var(--ink);padding:4% 5%;overflow:hidden}
+.screen{position:absolute;left:15.9%;top:8.6%;width:68.7%;height:69.9%;border-radius:4px;background:var(--paper);color:var(--ink);padding:4% 5%;overflow:hidden}
 .screen small{font-size:clamp(7px,.75vw,10px);letter-spacing:.2em;color:#6d8257}
 .screen b{display:block;font-size:clamp(10px,1.25vw,17px);margin:.6vh 0 1.2vh;letter-spacing:-.02em}
 .quiz{display:grid;gap:.8vh}
@@ -257,14 +249,12 @@ footer button:disabled{opacity:.3;cursor:default}
 <header><b>CSD Station</b><div class="hdr"><span>SLIDE INTERATTIVE / UNIVERSITÀ</span><button id="mute" aria-pressed="false" title="Effetti sonori">🔊 Audio</button></div></header>
 <main class="deck" id="deck">
 
-<section class="slide s1" data-need="throw">
+<section class="slide s1" data-done="1">
   <div><span class="label">Tesi · tesine · lezioni</span>
     <h1>Da <em>110 e lode.</em></h1>
     <p>La discussione dura pochi minuti: con le slide animate la commissione capisce subito il tuo lavoro, e tu lo racconti senza perdere il filo.</p>
-    <button class="act" data-do="throw" id="rethrow">Lancia di nuovo 🎓</button></div>
-  <div class="visual"><img class="cut corona" id="corona" src="uni/corona.webp" alt="Neolaureato con la corona d'alloro"><div class="lode">110<small>E LODE</small></div></div>
-  <img class="cut tocco" id="cap" src="uni/tocco.webp" alt="">
-  <div class="intro" id="intro"><span class="label">Presentazione interattiva</span><button class="act solid big" data-do="throw">Lancia il tocco 🎓</button><small>Premi per avviare la presentazione</small></div>
+    <button class="act solid" data-do="start">Inizia la presentazione →</button></div>
+  <div class="visual"><div class="minis"><div class="mini m1"><small>RISULTATI</small><span class="mb"><i style="height:40%"></i><i style="height:65%"></i><i style="height:90%"></i><i style="height:55%"></i></span></div><div class="mini m2"><small>METODO</small><span class="md"></span></div><div class="mini m3"><small>DOMANDA</small><span class="ml"><i></i><i></i><i></i></span></div></div><img class="cut corona" id="corona" src="uni/corona.webp" alt="Neolaureato con la corona d'alloro"></div>
 </section>
 
 <section class="slide s2" data-need="trim">
@@ -286,7 +276,7 @@ footer button:disabled{opacity:.3;cursor:default}
     <div class="before"><h4>3.2 Risultati dell'indagine sulla mobilità</h4>Dal questionario somministrato a un campione di 240 studenti nel periodo considerato emerge che il mezzo di trasporto più utilizzato per raggiungere la sede è costituito da autobus e treno <mark>(40%)</mark>, seguito dall'automobile privata <mark>(30%)</mark>, dalla bicicletta <mark>(20%)</mark> e infine dagli spostamenti a piedi <mark>(10%)</mark>. Complessivamente la quota di studenti che utilizza modalità alternative all'automobile risulta <mark>pari al 70% del campione</mark>, dato che suggerisce una propensione significativa verso forme di mobilità sostenibile, pur con le limitazioni metodologiche descritte nel paragrafo 2.4 relative alla rappresentatività del campione e all'assenza di informazioni su distanza e frequenza degli spostamenti, che verranno discusse nelle conclusioni.</div>
     <div class="after"><small class="from">DAL PARAGRAFO 3.2 · 240 STUDENTI</small><h4>7 studenti su 10<br>arrivano senza auto</h4>
       <div class="after-row"><div class="donut" id="donut"><b id="donutN">0%</b></div><div class="hb"><div class="g" style="--v:40;--k:0"><span>🚌 Bus e treno</span><i></i><b>40%</b></div><div class="a" style="--v:30;--k:1"><span>🚗 Auto</span><i></i><b>30%</b></div><div class="g" style="--v:20;--k:2"><span>🚲 Bici</span><i></i><b>20%</b></div><div class="g" style="--v:10;--k:3"><span>🚶 A piedi</span><i></i><b>10%</b></div></div></div>
-      <div class="ppl"><i style="--k:0" class="g"><svg viewBox="0 0 24 32"><circle cx="12" cy="7" r="6"/><path d="M2 31c0-8 4-13 10-13s10 5 10 13z"/></svg></i><i style="--k:1" class="g"><svg viewBox="0 0 24 32"><circle cx="12" cy="7" r="6"/><path d="M2 31c0-8 4-13 10-13s10 5 10 13z"/></svg></i><i style="--k:2" class="g"><svg viewBox="0 0 24 32"><circle cx="12" cy="7" r="6"/><path d="M2 31c0-8 4-13 10-13s10 5 10 13z"/></svg></i><i style="--k:3" class="g"><svg viewBox="0 0 24 32"><circle cx="12" cy="7" r="6"/><path d="M2 31c0-8 4-13 10-13s10 5 10 13z"/></svg></i><i style="--k:4" class="g"><svg viewBox="0 0 24 32"><circle cx="12" cy="7" r="6"/><path d="M2 31c0-8 4-13 10-13s10 5 10 13z"/></svg></i><i style="--k:5" class="g"><svg viewBox="0 0 24 32"><circle cx="12" cy="7" r="6"/><path d="M2 31c0-8 4-13 10-13s10 5 10 13z"/></svg></i><i style="--k:6" class="g"><svg viewBox="0 0 24 32"><circle cx="12" cy="7" r="6"/><path d="M2 31c0-8 4-13 10-13s10 5 10 13z"/></svg></i><i style="--k:7" class="a"><svg viewBox="0 0 24 32"><circle cx="12" cy="7" r="6"/><path d="M2 31c0-8 4-13 10-13s10 5 10 13z"/></svg></i><i style="--k:8" class="a"><svg viewBox="0 0 24 32"><circle cx="12" cy="7" r="6"/><path d="M2 31c0-8 4-13 10-13s10 5 10 13z"/></svg></i><i style="--k:9" class="a"><svg viewBox="0 0 24 32"><circle cx="12" cy="7" r="6"/><path d="M2 31c0-8 4-13 10-13s10 5 10 13z"/></svg></i></div>
+      <small class="ppl-t">Dopo: un colpo d’occhio · 7 su 10 senza auto</small><div class="ppl"><i style="--k:0" class="g"><svg viewBox="0 0 24 32"><circle cx="12" cy="7" r="6"/><path d="M2 31c0-8 4-13 10-13s10 5 10 13z"/></svg></i><i style="--k:1" class="g"><svg viewBox="0 0 24 32"><circle cx="12" cy="7" r="6"/><path d="M2 31c0-8 4-13 10-13s10 5 10 13z"/></svg></i><i style="--k:2" class="g"><svg viewBox="0 0 24 32"><circle cx="12" cy="7" r="6"/><path d="M2 31c0-8 4-13 10-13s10 5 10 13z"/></svg></i><i style="--k:3" class="g"><svg viewBox="0 0 24 32"><circle cx="12" cy="7" r="6"/><path d="M2 31c0-8 4-13 10-13s10 5 10 13z"/></svg></i><i style="--k:4" class="g"><svg viewBox="0 0 24 32"><circle cx="12" cy="7" r="6"/><path d="M2 31c0-8 4-13 10-13s10 5 10 13z"/></svg></i><i style="--k:5" class="g"><svg viewBox="0 0 24 32"><circle cx="12" cy="7" r="6"/><path d="M2 31c0-8 4-13 10-13s10 5 10 13z"/></svg></i><i style="--k:6" class="g"><svg viewBox="0 0 24 32"><circle cx="12" cy="7" r="6"/><path d="M2 31c0-8 4-13 10-13s10 5 10 13z"/></svg></i><i style="--k:7" class="a"><svg viewBox="0 0 24 32"><circle cx="12" cy="7" r="6"/><path d="M2 31c0-8 4-13 10-13s10 5 10 13z"/></svg></i><i style="--k:8" class="a"><svg viewBox="0 0 24 32"><circle cx="12" cy="7" r="6"/><path d="M2 31c0-8 4-13 10-13s10 5 10 13z"/></svg></i><i style="--k:9" class="a"><svg viewBox="0 0 24 32"><circle cx="12" cy="7" r="6"/><path d="M2 31c0-8 4-13 10-13s10 5 10 13z"/></svg></i></div>
       <div class="legend"><span><i class="g"></i>Senza auto · 168</span><span><i class="a"></i>In auto · 72</span><span>Dati simulati</span></div></div>
     </div>
   </div></div>
@@ -343,7 +333,7 @@ footer button:disabled{opacity:.3;cursor:default}
   <div class="visual"><img class="cut laureata" src="uni/laureata.webp" alt="Neolaureata con il diploma"></div>
 </section>
 
-<div class="bubbly" id="bubbly"><svg viewBox="0 0 200 30" preserveAspectRatio="none"><path d="M0 18 Q12.5 6 25 18 T50 18 T75 18 T100 18 T125 18 T150 18 T175 18 T200 18 V30 H0Z" fill="#f9e7a0"/></svg><b>Cin cin! 🥂</b></div><div class="otto-wrap" id="otto"></div><div class="say" id="say"></div><div class="confetti" id="confetti"></div>
+<div class="otto-wrap" id="otto"></div><div class="say" id="say"></div><div class="confetti" id="confetti"></div>
 </main>
 <footer><button id="prev">← Indietro</button><div class="dots" id="dots"></div><button id="next">Avanti →</button></footer>
 <div class="note">Caso dimostrativo CSD Station: dati simulati. Foto da Unsplash. Usa anche le frecce della tastiera.</div>
@@ -353,30 +343,36 @@ const $=s=>document.querySelector(s), slides=[...document.querySelectorAll('.sli
 let index=0;
 $('#otto').innerHTML=otto;
 // cosa dice Otto su ogni slide, prima e dopo l'interazione
-const lines=[['Ho il tocco pronto: premi e lo lancio!','Centro! Ora brindiamo.'],['Troppe pagine? Proviamo a sfoltire.','Una slide, un’idea. Molto meglio.'],['Guarda la differenza: premi “Dopo”.','Lo stesso paragrafo, letto in un secondo.'],['Svela i dati uno alla volta.','Ecco la conclusione che volevi far arrivare.'],['Gira le schede, una per volta.','Tre occasioni, tre presentazioni diverse.'],['Rispondi come farebbe la classe.','I risultati appaiono mentre la classe risponde!'],['Tre passi e hai finito.','Ti consegniamo tutto, pronto da presentare.'],['Ci vediamo alla discussione!','Complimenti, è fatta!']];
+const lines=[['Ciao! Sono Otto, ti accompagno tra le slide.','Premi Avanti e partiamo.'],['Troppe pagine? Proviamo a sfoltire.','Una slide, un’idea. Molto meglio.'],['Guarda la differenza: premi “Dopo”.','Lo stesso paragrafo, letto in un secondo.'],['Svela i dati uno alla volta.','Ecco la conclusione che volevi far arrivare.'],['Gira le schede, una per volta.','Tre occasioni, tre presentazioni diverse.'],['Rispondi come farebbe la classe.','I risultati appaiono mentre la classe risponde!'],['Tre passi e hai finito.','Ti consegniamo tutto, pronto da presentare.'],['Ci vediamo alla discussione!','Complimenti, è fatta!']];
 // dentro il sito il fumetto lo mostra la pagina, fuori dal riquadro; aperta da sola, lo mostra la slide
 const embedded=window.parent!==window;if(embedded)document.body.classList.add('embedded');
 const say=(t,happy=false)=>{if(embedded){parent.postMessage({csd:'otto',text:t,happy},location.origin);return}const b=$('#say');b.classList.remove('show');setTimeout(()=>{b.textContent=t;b.classList.add('show')},120)};
-const SFX=(()=>{let ctx=null,muted=false;
-  const ac=()=>{if(!ctx)ctx=new(window.AudioContext||window.webkitAudioContext)();if(ctx.state==='suspended')ctx.resume();return ctx};
-  const tone=(f,d,o={})=>{if(muted)return;const c=ac(),t=c.currentTime+(o.delay||0),os=c.createOscillator(),g=c.createGain();os.type=o.type||'sine';os.frequency.setValueAtTime(f,t);if(o.slide)os.frequency.exponentialRampToValueAtTime(Math.max(30,f*o.slide),t+d);g.gain.setValueAtTime(0,t);g.gain.linearRampToValueAtTime(o.vol||.15,t+.008);g.gain.exponentialRampToValueAtTime(.0008,t+d);os.connect(g).connect(c.destination);os.start(t);os.stop(t+d+.05)};
-  const noise=(d,o={})=>{if(muted)return;const c=ac(),t=c.currentTime+(o.delay||0),buf=c.createBuffer(1,Math.ceil(c.sampleRate*d),c.sampleRate),ch=buf.getChannelData(0);for(let i=0;i<ch.length;i++)ch[i]=Math.random()*2-1;const src=c.createBufferSource();src.buffer=buf;const fl=c.createBiquadFilter();fl.type='bandpass';fl.frequency.setValueAtTime(o.freq||1200,t);if(o.sweep)fl.frequency.exponentialRampToValueAtTime((o.freq||1200)*o.sweep,t+d);fl.Q.value=o.q||.9;const g=c.createGain();g.gain.setValueAtTime(o.vol||.1,t);g.gain.exponentialRampToValueAtTime(.0008,t+d);src.connect(fl).connect(g).connect(c.destination);src.start(t)};
+const SFX=(()=>{let ctx=null,out=null,muted=false;const names=['click','swish','pop','paper','flip','tick','rise','right','wrong','sparkle','thud','land','jingle1','jingle2'];
+  // i file si scaricano subito (sono piccoli), ma si decodificano solo dopo il primo clic, quando il browser permette l'audio
+  const raw={},buf={};names.forEach(n=>raw[n]=fetch('sfx/'+n+'.mp3').then(r=>r.arrayBuffer()).catch(()=>null));
+  const ac=()=>{if(!ctx){ctx=new(window.AudioContext||window.webkitAudioContext)();const comp=ctx.createDynamicsCompressor();comp.threshold.value=-14;comp.ratio.value=6;out=ctx.createGain();out.gain.value=.8;out.connect(comp).connect(ctx.destination);
+      names.forEach(n=>raw[n].then(ab=>ab&&ctx.decodeAudioData(ab.slice(0))).then(b=>{if(b)buf[n]=b}).catch(()=>{}))}
+    if(ctx.state==='suspended')ctx.resume();return ctx};
+  let last={};
+  const play=(n,o={})=>{if(muted)return;const c=ac(),b=buf[n];if(!b)return;const t=c.currentTime+(o.delay||0);
+    if(!o.delay&&last[n]&&c.currentTime-last[n]<.035)return; last[n]=c.currentTime; // niente raffiche dello stesso suono
+    const src=c.createBufferSource(),g=c.createGain();src.buffer=b;src.playbackRate.value=o.rate||1;g.gain.value=o.vol??.8;src.connect(g).connect(out);src.start(t)};
   return{
-    swish:()=>noise(.22,{freq:700,sweep:3,vol:.06}),
-    click:(delay=0)=>tone(1500,.045,{type:'square',vol:.035,delay}),
-    pop:(delay=0)=>tone(480,.13,{slide:2.4,vol:.15,delay}),
-    whoosh:(delay=0)=>noise(.5,{freq:350,sweep:7,vol:.2,delay}),
-    thud:(delay=0,vol=.28)=>{tone(150,.2,{slide:.45,vol,delay});noise(.08,{freq:500,vol:vol*.4,delay})},
-    paper:(delay=0)=>noise(.14,{freq:2800+Math.random()*1500,q:1.4,vol:.07,delay}),
-    tick:(delay=0)=>tone(2100+Math.random()*600,.03,{type:'triangle',vol:.035,delay}),
-    rise:(delay=0)=>tone(260,.55,{type:'triangle',slide:3.2,vol:.1,delay}),
-    flip:()=>noise(.28,{freq:1600,sweep:.35,vol:.11}),
-    buzz:()=>tone(170,.22,{type:'sawtooth',vol:.05}),
-    right:(delay=0)=>{tone(660,.16,{vol:.13,delay});tone(990,.28,{vol:.13,delay:delay+.11})},
-    chime:(delay=0)=>[523,659,784,1047].forEach((f,k)=>tone(f,.45,{type:'triangle',vol:.1,delay:delay+k*.08})),
-    fanfare:()=>{const seq=[[523,0],[659,.12],[784,.24],[1047,.36],[784,.6],[1047,.72],[1319,.96]];for(let r=0;r<3;r++)seq.forEach(([f,d])=>tone(f,.35,{type:'triangle',vol:.1,delay:r*1.9+d}));for(let k=0;k<26;k++)tone(500+Math.random()*700,.1,{slide:2,vol:.07,delay:.2+Math.random()*5.6});noise(1.4,{freq:5000,q:.5,vol:.04,delay:.1});noise(1.4,{freq:5000,q:.5,vol:.04,delay:2})},
-    fizz:()=>{noise(2.4,{freq:6500,q:.4,vol:.05});noise(1.2,{freq:900,sweep:2.5,vol:.08});for(let k=0;k<18;k++)tone(900+Math.random()*1400,.05,{type:'triangle',vol:.03,delay:Math.random()*2.2})},
-    toggle(){muted=!muted;return muted}};
+    swish:()=>play('swish',{vol:.45}),
+    click:(delay=0)=>play('click',{delay,vol:.7}),
+    pop:(delay=0)=>play('pop',{delay,vol:.75}),
+    whoosh:(delay=0)=>play('swish',{delay,vol:.6,rate:.85}),
+    thud:(delay=0,vol=.6)=>play('thud',{delay,vol:Math.min(1,vol*2.2)}),
+    land:(delay=0)=>play('land',{delay,vol:.7}),
+    paper:(delay=0)=>play('paper',{delay,vol:.45,rate:.9+Math.random()*.3}),
+    tick:(delay=0)=>play('tick',{delay,vol:.35,rate:.9+Math.random()*.4}),
+    rise:(delay=0)=>play('rise',{delay,vol:.6}),
+    flip:()=>play('flip',{vol:.6}),
+    buzz:()=>play('wrong',{vol:.55}),
+    right:(delay=0)=>play('right',{delay,vol:.7}),
+    chime:(delay=0)=>play('sparkle',{delay,vol:.6}),
+    fanfare:()=>{play('jingle1',{vol:.75});play('jingle2',{delay:1.9,vol:.75});play('jingle1',{delay:3.8,vol:.6,rate:1.12});for(let k=0;k<10;k++)play('sparkle',{delay:.3+k*.55,vol:.35,rate:.8+Math.random()*.6})},
+    toggle(){muted=!muted;if(ctx)muted?ctx.suspend():ctx.resume();return muted}};
 })();
 $('#mute').onclick=()=>{const m=SFX.toggle();$('#mute').setAttribute('aria-pressed',m);$('#mute').textContent=m?'🔇 Audio':'🔊 Audio'};
 const dots=$('#dots');slides.forEach(()=>dots.append(document.createElement('i')));
@@ -388,13 +384,13 @@ const done=s=>{s.dataset.done=1;ready()};
 // interazioni
 let revealed=0,flipped=0,step=1;
 document.addEventListener('click',e=>{const b=e.target.closest('[data-do]');if(!b)return;const s=b.closest('.slide'),a=b.dataset.do;
-  if(a==='throw'){throwCap(s)}
+  if(a==='start'){SFX.swish();go(1)}
   if(a==='trim'){b.classList.add('done');s.classList.add('cut-done');const v=s.querySelector('.visual'),lb=s.querySelector('.libri').getBoundingClientRect(),vb=v.getBoundingClientRect();
     // sedici pagine si staccano dalla pila e volano via, ognuna con la sua traiettoria
-    for(let k=0;k<16;k++){const p=document.createElement('i');p.className='sheet';p.style.left=(lb.left-vb.left+lb.width*(.25+Math.random()*.4))+'px';p.style.top=(lb.top-vb.top+lb.height*(.1+Math.random()*.5))+'px';v.append(p);SFX.paper(k*.055);
+    for(let k=0;k<16;k++){const p=document.createElement('i');p.className='sheet';p.style.left=(lb.left-vb.left+lb.width*(.25+Math.random()*.4))+'px';p.style.top=(lb.top-vb.top+lb.height*(.1+Math.random()*.5))+'px';v.append(p);if(k%3===0)SFX.paper(k*.055);
       const dx=(Math.random()<.5?-1:1)*(80+Math.random()*260),up=-(120+Math.random()*180),r=(Math.random()-.5)*720;
       p.animate([{transform:'translate(0,0) rotate(0)',opacity:1},{transform:`translate(${dx*.55}px,${up}px) rotate(${r*.5}deg)`,opacity:1,offset:.45},{transform:`translate(${dx}px,${up*.2+260}px) rotate(${r}deg)`,opacity:0}],{duration:1300+Math.random()*500,delay:k*55,easing:'cubic-bezier(.25,.6,.4,1)',fill:'forwards'}).onfinish=()=>p.remove()}
-    SFX.thud(2.2,.2);let n=80;const t=setInterval(()=>{n=Math.max(1,Math.round(n*.8));$('#pages').textContent=n;SFX.tick();if(n===1){clearInterval(t);$('#pages').nextElementSibling.textContent='idea per slide';done(s)}},85)}
+    SFX.land(2.2);let n=80;const t=setInterval(()=>{n=Math.max(1,Math.round(n*.8));$('#pages').textContent=n;SFX.tick();if(n===1){clearInterval(t);$('#pages').nextElementSibling.textContent='idea per slide';done(s)}},85)}
   if(a==='before'||a==='after'){const after=a==='after',cmp=$('#compare');if(after===cmp.classList.contains('is-after')||cmp.dataset.busy)return;s.querySelectorAll('.switch button').forEach(x=>x.setAttribute('aria-pressed',x===b));
     if(!after){SFX.click();resetWords();cmp.classList.remove('is-after');s.classList.remove('cmp-after');$('#cmpHint').textContent='Premi “Dopo”: le parole cadono e restano i dati';return}
     // le parole del paragrafo cadono per gravità, poi la scheda si riempie con i dati
@@ -414,26 +410,6 @@ document.addEventListener('click',e=>{const b=e.target.closest('[data-do]');if(!
 function dropWords(){const box=$('#compare').getBoundingClientRect();document.querySelectorAll('.before .w').forEach(w=>{const r=w.getBoundingClientRect(),fall=box.bottom-r.top+30+Math.random()*80,d=Math.random()*380+(r.top-box.top)/box.height*320;
   w.animate([{transform:'none'},{transform:`translate(${(Math.random()-.5)*50}px,${fall}px) rotate(${(Math.random()-.5)*200}deg)`}],{duration:600+Math.random()*350,delay:d,easing:'cubic-bezier(.55,0,1,.45)',fill:'forwards'})})}
 function resetWords(){document.querySelectorAll('.before .w').forEach(w=>w.getAnimations().forEach(a=>a.cancel()))}
-let throwing=false;
-function throwCap(s){if(throwing)return;throwing=true;$('#intro').classList.add('gone');s.classList.remove('landed');
-  const cap=$('#cap'),cor=$('#corona'),vis=cor.parentElement;cap.getAnimations().forEach(a=>a.cancel());
-  // bersaglio: la cima della corona d'alloro, calcolata sulla posizione finale (non su quella dell'animazione d'ingresso)
-  const headX=vis.offsetLeft+cor.offsetLeft+cor.offsetWidth*.5,headY=vis.offsetTop+cor.offsetTop+cor.offsetHeight*(.04+.03);
-  const tx=headX-(cap.offsetLeft+cap.offsetWidth/2),ty=headY-(cap.offsetTop+cap.offsetHeight*.92),apex=-Math.max(140,innerHeight*.42);
-  if(embedded)parent.postMessage({csd:'otto',action:'throw'},location.origin);else{const o=document.querySelector('.otto');o.classList.add('throwing');setTimeout(()=>o.classList.remove('throwing'),700)}
-  SFX.whoosh(.15);SFX.thud(1.26,.28);SFX.thud(1.58,.15);SFX.thud(1.76,.07);SFX.pop(1.32);
-  cap.animate([
-    {transform:'rotate(-18deg)',easing:'cubic-bezier(.2,.7,.4,1)'},
-    {transform:`translate(${tx*.55}px,${ty+apex}px) rotate(-200deg)`,offset:.42,easing:'cubic-bezier(.6,0,.9,.5)'},
-    {transform:`translate(${tx}px,${ty}px) rotate(-352deg) scale(1.1,.84)`,offset:.7,easing:'cubic-bezier(.2,.7,.4,1)'},
-    {transform:`translate(${tx+8}px,${ty-42}px) rotate(-360deg) scale(.97,1.04)`,offset:.8,easing:'cubic-bezier(.6,0,.9,.5)'},
-    {transform:`translate(${tx}px,${ty}px) rotate(-362deg) scale(1.05,.93)`,offset:.88,easing:'cubic-bezier(.2,.7,.4,1)'},
-    {transform:`translate(${tx-3}px,${ty-12}px) rotate(-360deg)`,offset:.94},
-    {transform:`translate(${tx}px,${ty}px) rotate(-356deg)`}],{duration:1800,delay:150,fill:'forwards'});
-  setTimeout(()=>s.classList.add('landed'),1450);
-  setTimeout(()=>{const bb=$('#bubbly');bb.querySelectorAll('i').forEach(i=>i.remove());for(let k=0;k<36;k++){const i=document.createElement('i');const z=4+Math.random()*12;i.style.cssText=`left:${Math.random()*100}%;width:${z}px;height:${z}px;animation-duration:${1.6+Math.random()*2}s;animation-delay:${Math.random()*1.5}s`;bb.append(i)}
-    bb.classList.remove('drain');bb.classList.add('full');SFX.fizz();done(s)},2500);
-  setTimeout(()=>{go(1);const bb=$('#bubbly');bb.classList.remove('full');bb.classList.add('drain');setTimeout(()=>bb.classList.remove('drain'),1100);throwing=false},4700)}
 function pointAt(k){const bar=document.querySelectorAll('#bars div')[k],m=$('#mano'),v=m.parentElement;if(!bar||!v.offsetWidth)return;const vb=v.getBoundingClientRect(),i=bar.querySelector('i').getBoundingClientRect();m.style.left=(i.left-vb.left+i.width*.45)+'px';m.style.top=(i.top-vb.top-m.offsetHeight*.62)+'px'}
 new MutationObserver(()=>{if(slides[3].classList.contains('on'))setTimeout(()=>pointAt(Math.max(0,revealed-1)),60)}).observe(slides[3],{attributes:true,attributeFilter:['class']});
 window.addEventListener('resize',()=>pointAt(Math.max(0,revealed-1)));
