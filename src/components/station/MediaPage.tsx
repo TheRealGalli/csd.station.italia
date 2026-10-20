@@ -136,13 +136,13 @@ export default function MediaPage({ children }: { children?: React.ReactNode }) 
       <p>{mediaIntro}</p>
       <a className="station-button" href="#slide">Guarda gli esempi <ArrowDown size={18}/></a>
       <div className="nfc-benefits"><span><Check size={15}/> 15 slide a 49 €</span><span><Check size={15}/> Video da 99 € ogni 2 minuti</span></div>
-    </div><div className="media-hero-art" aria-hidden="true">
-      <div className="mh-slide"><div className="mh-peek" key={peek}><span className="ms-eyebrow">PROSSIMA · {heroScenes[peek].sector.toUpperCase()}</span><b>{heroScenes[peek].title}</b><PeekVisual kind={heroScenes[peek].kind}/></div></div>
-      <div className="mh-video"><video onTimeUpdate={e => setPeek((Math.floor(e.currentTarget.currentTime / 5) + 1) % heroScenes.length)} src="/video-slide/media-motion.mp4" poster="/video-slide/media-motion.jpg" autoPlay muted loop playsInline preload="metadata"/><span className="mh-rec"><i/> MOTION</span></div>
-      <span className="product-float mh-chip" key={`otto-${(peek + 5) % 6}`}><OttoIcon mood={ottoLines[(peek + 5) % 6].mood} size={18}/> {ottoLines[(peek + 5) % 6].text} <i>{ottoLines[(peek + 5) % 6].emoji}</i></span>
-      <div className="mh-prep"><OttoIcon mood="read" size={15}/><div><b>OTTO PREPARA LE SLIDE</b><span><i/></span></div><em><u/><u/><u/></em></div>
-      <div className="mh-click"><span>Avanti →</span><svg viewBox="0 0 24 28" width="18" height="21"><path d="M2 2 L2 22 L8 16 L12 26 L16 24 L12 14 L20 14 Z" fill="#f8faf3" stroke="#1d2b16" strokeWidth="1.6" strokeLinejoin="round"/></svg><small>UN CLIC, UN PASSO</small></div>
-      <div className="mh-sectors">{['Università', 'Ristorante', 'Negozio', 'Azienda', 'Startup', 'Concessionarie e autofficine'].map((l, k) => <span key={l} className={k === (peek + 5) % 6 ? 'on' : undefined}>{l.toUpperCase()}</span>)}</div>
+    </div><div className="media-hero-art">
+      <div className="mh-slide" aria-hidden="true"><div className="mh-peek" key={peek}><span className="ms-eyebrow">PROSSIMA · {heroScenes[peek].sector.toUpperCase()}</span><b>{heroScenes[peek].title}</b><PeekVisual kind={heroScenes[peek].kind}/></div></div>
+      <div className="mh-video" aria-hidden="true"><video onTimeUpdate={e => setPeek((Math.floor(e.currentTarget.currentTime / 5) + 1) % heroScenes.length)} src="/video-slide/media-motion.mp4" poster="/video-slide/media-motion.jpg" autoPlay muted loop playsInline preload="metadata"/><span className="mh-rec"><i/> MOTION</span></div>
+      <span className="product-float mh-chip" aria-hidden="true"><span className={`mh-chip-in in-${(peek + 5) % 4}`} key={`otto-${(peek + 5) % 6}`}><OttoIcon mood={ottoLines[(peek + 5) % 6].mood} size={18}/> {ottoLines[(peek + 5) % 6].text} <i>{ottoLines[(peek + 5) % 6].emoji}</i></span></span>
+      <div className="mh-note" aria-hidden="true"><b>COME LAVORO</b><ul><li>Studio del contenuto e del pubblico</li><li>Coerenza in ogni slide</li><li>Pensate per essere condivise</li></ul><small>Qualità sì, viralità garantita no.</small></div>
+      <a className="mh-click" href={whatsapp('Ciao Carlo! Vorrei slide e video come quelli della pagina Video & Slide.')} target="_blank" rel="noreferrer"><span>Voglio slide così</span><svg viewBox="0 0 24 28" width="18" height="21" aria-hidden="true"><path d="M2 2 L2 22 L8 16 L12 26 L16 24 L12 14 L20 14 Z" fill="#f8faf3" stroke="#1d2b16" strokeWidth="1.6" strokeLinejoin="round"/></svg><small>SCRIVIMI SU WHATSAPP</small></a>
+      <div className="mh-sectors" aria-hidden="true">{['Università', 'Ristorante', 'Negozio', 'Azienda', 'Startup', 'Concessionarie e autofficine'].map((l, k) => <span key={l} className={k === (peek + 5) % 6 ? 'on' : undefined}>{l.toUpperCase()}</span>)}</div>
     </div></div></section>
 
     <section className="media-section media-slides" id="slide"><div className="wrap media-slides-inner">
