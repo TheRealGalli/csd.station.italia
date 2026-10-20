@@ -3,7 +3,7 @@ import { Link, useLocation } from 'react-router-dom';
 import { ArrowUpRight, ArrowRight, ArrowDown, Zap, Workflow, ScanLine, Boxes, ShieldCheck, Check, Mail, FileText, Database, Activity, Radio, Play, RotateCcw, Plus, Minus, BarChart3, Nfc, Cpu, GraduationCap } from 'lucide-react';
 import portrait from '@/assets/profile-web.jpg';
 import card from '@/assets/nfc-card.jpg';
-import { getOsProduct, getServiceMode, osPaths, servicePaths, type ServiceMode } from '@/seo/routes';
+import { getOsProduct, getServiceMode, legalPaths, normalizePath, osPaths, servicePaths, type ServiceMode } from '@/seo/routes';
 import { consultingIntro, nfcIntro } from '@/seo/content';
 import { ServiceAnswers } from './ServiceAnswers';
 import plate from '@/assets/nfc-plate.png';
@@ -50,7 +50,9 @@ function DemoMenu({ active }: { active: ReturnType<typeof getOsProduct> }) {
 export function StationHeader() {
   const location = useLocation();
   const os = getOsProduct(location.pathname);
-  const mode = os ? null : getServiceMode(location.pathname, location.search);
+  // nelle pagine Privacy e Termini il menu resta uguale, senza voci evidenziate
+  const legal = [...legalPaths, '/privacy-policy-nfc/', '/terms-of-service-nfc/'].includes(normalizePath(location.pathname));
+  const mode = os || legal ? null : getServiceMode(location.pathname, location.search);
   const contactHref = os ? whatsapp(`Ciao Carlo! Vorrei avere più informazioni su ${os === 'restaurant' ? 'CS Restaurant OS' : 'CS Notaro OS'}.`) : mode === 'training' ? trainingContact : mode === 'web' ? webContact : mode === 'media' ? mediaContact : mode === 'nfc' ? whatsapp('Ciao Carlo! Vorrei informazioni sulle card e sui prodotti NFC di CSD Station.') : consultingContact;
   return <header className="station-header"><div className="station-nav wrap">
     <Link to="/" aria-label="CSD Station, homepage" onClick={() => window.scrollTo({top: 0, behavior: 'instant' as ScrollBehavior})}><Brand/></Link>
@@ -66,7 +68,7 @@ export function StationHeader() {
   </div></header>;
 }
 
-export function StationFooter() { return <footer className="station-footer"><div className="wrap footer-top"><Link to="/" aria-label="CSD Station homepage"><Brand/></Link><p>Tecnologia che lavora.<br/>Tempo che torna tuo.</p><div><a href="mailto:carlo@csd-station.it">carlo@csd-station.it <ArrowUpRight size={16}/></a><span>Dalla Toscana, in tutta Italia.</span></div></div><div className="wrap footer-bottom"><span>© {new Date().getFullYear()} CSD Station · Carlo Galli · P.IVA 01630510525</span><div><Link to="/privacy-policy/">Privacy consulenza</Link><Link to="/nfc/privacy-policy/">Privacy NFC</Link><Link to="/terms-of-service/">Termini consulenza</Link><Link to="/nfc/terms-of-service/">Termini NFC</Link><Link to="/cookie-policy/">Cookie</Link></div></div></footer>; }
+export function StationFooter() { return <footer className="station-footer"><div className="wrap footer-top"><Link to="/" aria-label="CSD Station homepage"><Brand/></Link><p>Tecnologia che lavora.<br/>Tempo che torna tuo.</p><div><a href="mailto:carlo@csd-station.it">carlo@csd-station.it <ArrowUpRight size={16}/></a><span>Dalla Toscana, in tutta Italia.</span></div></div><div className="wrap footer-bottom"><span>© {new Date().getFullYear()} CSD Station · Carlo Galli · P.IVA 01630510525</span><div><Link to="/privacy-policy/">Privacy</Link><Link to="/terms-of-service/">Termini</Link></div></div></footer>; }
 function Eyebrow({children}: {children: React.ReactNode}) { return <div className="station-eyebrow"><span/>{children}</div>; }
 const contactCopy = {
   automazioni: { id: 'booking', title: <>Partiamo da ciò che<br/>ti fa perdere tempo.</>, text: 'Raccontami su WhatsApp come lavori e dove perdi tempo. Capiamo insieme da dove cominciare.', href: processContact, cta: 'Parliamone su WhatsApp', note: 'Un contatto diretto con Carlo, senza appuntamento' },

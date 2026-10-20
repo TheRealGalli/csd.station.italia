@@ -10,7 +10,10 @@ const titles: Record<ServiceMode, string> = {
   media: 'Video motion e slide interattive su misura | CSD Station',
 };
 const descriptions = { automazioni: consultingIntro, nfc: nfcIntro, training: trainingIntro, web: webIntro, media: mediaIntro };
-const legalNames = ['Privacy consulenza', 'Termini consulenza', 'Privacy NFC', 'Termini NFC', 'Cookie policy'];
+// i vecchi indirizzi legali (NFC, cookie) restano raggiungibili ma puntano alle due pagine uniche
+const legalNames = ['Privacy', 'Termini', 'Privacy', 'Termini', 'Privacy'];
+const legalCanonical = ['/privacy-policy/', '/terms-of-service/', '/privacy-policy/', '/terms-of-service/', '/privacy-policy/'];
+const legalDescriptions = ['Privacy di CSD Station: come trattiamo i dati per consulenza AI, Card NFC, training, Sito & Social e Video & Slide. Il sito non usa cookie.', 'Termini di CSD Station: condizioni generali e regole di consulenza AI, Card NFC, training, Sito & Social e Video & Slide, con sconto studenti.'];
 export const buildPaths = [...Object.values(servicePaths), ...legalPaths, '/privacy-policy-nfc/', '/terms-of-service-nfc/', ...Object.values(osPaths)];
 const osPages = {
   restaurant: { name: 'CS Restaurant OS · demo | CSD Station', description: 'Demo dimostrativa di CS Restaurant OS: sala, cucina, cassa e magazzino collegati in tempo reale, con un assistente AI e WhatsApp. Sistema non ancora rilasciato.' },
@@ -31,8 +34,8 @@ export function getPageMeta(pathname: string, search = '') {
   const legal = legalPaths.indexOf(canonicalPath);
   const found = service || legal >= 0;
   const name = service ? titles[mode] : found ? `${legalNames[legal]} | CSD Station` : 'Pagina non trovata | CSD Station';
-  const description = service ? descriptions[mode] : found ? `${legalNames[legal]} di CSD Station: informazioni su servizi, condizioni e gestione dei dati.` : 'La pagina richiesta non è disponibile. Scopri consulenza AI, training aziendali, prodotti NFC, siti e social di CSD Station.';
-  const url = origin + canonicalPath;
+  const description = service ? descriptions[mode] : found ? legalDescriptions[legalNames[legal] === 'Privacy' ? 0 : 1] : 'La pagina richiesta non è disponibile. Scopri consulenza AI, training aziendali, prodotti NFC, siti e social di CSD Station.';
+  const url = origin + (legal >= 0 ? legalCanonical[legal] : canonicalPath);
   const organization = {
     '@type': 'Organization', '@id': `${origin}/#organization`, name: 'CSD Station', url: `${origin}/`,
     logo: `${origin}/csd-brand.png`, email: 'carlo@csd-station.it', telephone: '+393518628203',

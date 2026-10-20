@@ -21,7 +21,7 @@ const previews = [
 
 const sites = [
   { name: 'Sito standard', price: 'da 344 €', unit: 'una tantum', mock: 'site', description: 'Un sito moderno e veloce. Chi ti cerca trova subito quello che serve.', points: ['Ottimizzato per smartphone', 'Menu, orari, mappa e WhatsApp', 'SEO locale e scheda Google collegata'] },
-  { name: 'Sito motion graphic', price: 'da 744 €', unit: 'una tantum', mock: '3d', description: 'Il sito standard con animazioni in movimento: le sezioni prendono vita mentre scorri.', points: ['Animazioni e transizioni in movimento', 'Scene animate con il modello che hai già', 'Più sezioni: storia, eventi, galleria'] },
+  { name: 'Sito motion graphic', price: 'da 744 €', unit: 'una tantum', mock: '3d', description: 'Il sito standard con animazioni in movimento: le sezioni prendono vita mentre scorri.', points: ['Animazioni e transizioni in movimento', 'Grafiche animate su misura per la tua attività', 'Più sezioni: storia, eventi, galleria'] },
   { name: 'Montaggio e clipping video', price: 'Su preventivo', unit: 'in base al progetto', mock: 'video', description: 'Dall’idea al video finito: animazioni in motion e montaggio di video anche molto lunghi.', points: ['Animazioni in motion, anche su video reali', 'Montaggio di video lunghi, anche podcast oltre l’ora', 'Clip verticali pronte per Instagram e TikTok'] },
 ];
 
@@ -107,7 +107,7 @@ export default function SitoSocial({ children }: { children?: React.ReactNode })
     </div></Reveal>
 
     <Reveal as="section" className="web-social wrap" id="social">
-      <div className="section-heading"><div><Eyebrow>02 / I SOCIAL</Eyebrow><h2>Ogni mese, contenuti pronti.<br/><span>Tu approvi, io pubblico.</span></h2></div><p>Instagram, TikTok, YouTube Shorts e Facebook. Caroselli, reel e video animati, da approvare con un messaggio.</p></div>
+      <div className="section-heading"><div><Eyebrow>02 / I SOCIAL</Eyebrow><h2>Ogni mese, contenuti pronti.<br/><span>Tu approvi e pubblichi.</span></h2></div><p>Instagram, TikTok, YouTube Shorts e Facebook. Caroselli, reel e video animati, da approvare con un messaggio.</p></div>
       <div className="web-social-layout">
         <div className="web-plans">{plans.map(p => <article key={p.name} className="web-plan">
           <h3>{p.name}</h3>
@@ -123,7 +123,7 @@ export default function SitoSocial({ children }: { children?: React.ReactNode })
         <li><span>01</span> Pianifichiamo insieme il mese.</li>
         <li><span>02</span> Mi mandi i video dal telefono, oppure giriamo mezza giornata insieme.</li>
         <li><span>03</span> Otto ti manda i contenuti su WhatsApp: approvi o chiedi una modifica.</li>
-        <li><span>04</span> Pubblico e ti mando un riepilogo a fine mese.</li>
+        <li><span>04</span> Ricevi i file pronti e li pubblichi quando vuoi.</li>
       </ol>
     </Reveal>
 
@@ -149,7 +149,7 @@ export default function SitoSocial({ children }: { children?: React.ReactNode })
       <div className="included-grid">{[
         { icon: Users, title: 'Posti limitati', text: 'Seguo al massimo 6 attività per volta. Così ognuna ha il tempo e l’attenzione che merita.' },
         { icon: Camera, title: 'Solo materiale vero', text: 'I tuoi piatti, il tuo locale, le tue persone. L’AI aiuta a montare e animare, non a inventare.' },
-        { icon: ShieldCheck, title: 'Niente promesse gonfiate', text: 'Non garantisco follower, prenotazioni o vendite. Nel riepilogo mensile trovi i dati che le piattaforme rendono disponibili.' },
+        { icon: ShieldCheck, title: 'Niente promesse gonfiate', text: 'Non garantisco follower, prenotazioni o vendite: garantisco contenuti curati, pronti da pubblicare.' },
       ].map(v => <article key={v.title}><v.icon size={28}/><h3>{v.title}</h3><p>{v.text}</p></article>)}</div>
     </section>
 
@@ -171,7 +171,7 @@ export function SitoSocialMobile() {
       points: ['Pensato prima di tutto per lo smartphone', 'Menu, orari, mappa e WhatsApp', 'SEO locale e scheda Google collegata'],
       cta: 'Ciao Carlo! Mi interessa il Sito standard per la mia attività.' },
     { n: '03', eyebrow: 'SITO MOTION', title: <>Il sito che<br/><em>prende vita.</em></>, price: 'da 744 €', unit: 'una tantum', mock: <MotionVideo/>,
-      points: ['Animazioni e transizioni in movimento', 'Scene animate con il modello che hai già', 'Più sezioni: storia, eventi, galleria'],
+      points: ['Animazioni e transizioni in movimento', 'Grafiche animate su misura per la tua attività', 'Più sezioni: storia, eventi, galleria'],
       cta: 'Ciao Carlo! Mi interessa il Sito motion per la mia attività.' },
   ];
   return <div className="mobile-landing mobile-web">

@@ -2,11 +2,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
 import OsDemo from "./components/station/OsDemo";
-import PrivacyPolicy from "./pages/PrivacyPolicy";
-import TermsOfService from "./pages/TermsOfService";
-import NfcPrivacyPolicy from "./pages/NfcPrivacyPolicy";
-import NfcTermsOfService from "./pages/NfcTermsOfService";
-import { CookiePolicy } from "./pages/CookiePolicy";
+import Legal from "./pages/Legal";
 import { ScrollToTop } from "./components/ScrollToTop";
 import { RouteSeo } from "./seo/RouteSeo";
 import { SiteModeProvider } from "./context/SiteModeContext";
@@ -23,13 +19,14 @@ export const AppContent = () => (
         <Route path="/video-slide/" element={<Index />} />
         <Route path="/restaurant-os/" element={<OsDemo product="restaurant" />} />
         <Route path="/notaro-os/" element={<OsDemo product="notaro" />} />
-        <Route path="/privacy-policy" element={<PrivacyPolicy />} />
-        <Route path="/terms-of-service" element={<TermsOfService />} />
-        <Route path="/nfc/privacy-policy" element={<NfcPrivacyPolicy />} />
-        <Route path="/nfc/terms-of-service" element={<NfcTermsOfService />} />
-        <Route path="/privacy-policy-nfc" element={<NfcPrivacyPolicy />} />
-        <Route path="/terms-of-service-nfc" element={<NfcTermsOfService />} />
-        <Route path="/cookie-policy" element={<CookiePolicy />} />
+        {/* Privacy e Termini: i vecchi indirizzi aprono la stessa pagina alla sezione giusta */}
+        <Route path="/privacy-policy" element={<Legal doc="privacy" />} />
+        <Route path="/terms-of-service" element={<Legal doc="termini" />} />
+        <Route path="/nfc/privacy-policy" element={<Legal doc="privacy" />} />
+        <Route path="/nfc/terms-of-service" element={<Legal doc="termini" />} />
+        <Route path="/privacy-policy-nfc" element={<Legal doc="privacy" />} />
+        <Route path="/terms-of-service-nfc" element={<Legal doc="termini" />} />
+        <Route path="/cookie-policy" element={<Legal doc="privacy" />} />
         <Route path="*" element={<NotFound />} />
       </Routes>
     </SiteModeProvider>
