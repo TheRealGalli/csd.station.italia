@@ -15,6 +15,7 @@ import { MobileConsulting, MobileNfc } from './MobileLanding';
 import Training, { trainingContact } from './Training';
 import { OttoIcon } from './OttoIcon';
 import SitoSocial, { SitoSocialMobile, webContact } from './SitoSocial';
+import MediaPage, { MediaMobile, mediaContact } from './MediaPage';
 const OttoGlyph = ({ size = 18 }: { size?: number }) => <OttoIcon mood="read" size={size}/>;
 
 const whatsapp = (message: string) => `https://wa.me/393518628203?text=${encodeURIComponent(message)}`;
@@ -50,7 +51,7 @@ export function StationHeader() {
   const location = useLocation();
   const os = getOsProduct(location.pathname);
   const mode = os ? null : getServiceMode(location.pathname, location.search);
-  const contactHref = os ? whatsapp(`Ciao Carlo! Vorrei avere più informazioni su ${os === 'restaurant' ? 'CS Restaurant OS' : 'CS Notaro OS'}.`) : mode === 'training' ? trainingContact : mode === 'web' ? webContact : mode === 'nfc' ? whatsapp('Ciao Carlo! Vorrei informazioni sulle card e sui prodotti NFC di CSD Station.') : consultingContact;
+  const contactHref = os ? whatsapp(`Ciao Carlo! Vorrei avere più informazioni su ${os === 'restaurant' ? 'CS Restaurant OS' : 'CS Notaro OS'}.`) : mode === 'training' ? trainingContact : mode === 'web' ? webContact : mode === 'media' ? mediaContact : mode === 'nfc' ? whatsapp('Ciao Carlo! Vorrei informazioni sulle card e sui prodotti NFC di CSD Station.') : consultingContact;
   return <header className="station-header"><div className="station-nav wrap">
     <Link to="/" aria-label="CSD Station, homepage" onClick={() => window.scrollTo({top: 0, behavior: 'instant' as ScrollBehavior})}><Brand/></Link>
     <nav className="station-links" id="station-navigation" aria-label="Navigazione principale">
@@ -58,6 +59,7 @@ export function StationHeader() {
       <Link className={mode === 'training' ? 'active' : ''} aria-current={mode === 'training' ? 'page' : undefined} to={servicePaths.training}>Training</Link>
       <Link className={mode === 'nfc' ? 'active' : ''} aria-current={mode === 'nfc' ? 'page' : undefined} to={servicePaths.nfc}>Card NFC</Link>
       <Link className={`nav-web ${mode === 'web' ? 'active' : ''}`} aria-current={mode === 'web' ? 'page' : undefined} to={servicePaths.web}>Sito & Social</Link>
+      <Link className={`nav-media ${mode === 'media' ? 'active' : ''}`} aria-current={mode === 'media' ? 'page' : undefined} to={servicePaths.media}>Video & Slide</Link>
       <DemoMenu active={os}/>
     </nav>
     <a className="station-button small nav-contact" href={contactHref} target="_blank" rel="noreferrer">Parliamone <ArrowUpRight size={16}/></a>
@@ -70,6 +72,7 @@ const contactCopy = {
   automazioni: { id: 'booking', title: <>Partiamo da ciò che<br/>ti fa perdere tempo.</>, text: 'Raccontami su WhatsApp come lavori e dove perdi tempo. Capiamo insieme da dove cominciare.', href: processContact, cta: 'Parliamone su WhatsApp', note: 'Un contatto diretto con Carlo, senza appuntamento' },
   nfc: { id: 'nfc-booking', title: <>La tua prossima recensione<br/>inizia con un tap.</>, text: 'Scegli il formato. Alla configurazione pensiamo noi.', href: whatsapp('Ciao Carlo! Vorrei informazioni sui prodotti NFC di CSD Station.'), cta: 'Scrivimi su WhatsApp', note: 'Preventivo e dettagli di spedizione su richiesta' },
   web: { id: 'web-contatto', title: <>Raccontami la tua attività.<br/>Partiamo da lì.</>, text: 'Mandami il link del tuo sito o del tuo profilo. Ti dico cosa farei e da quale formato partire.', href: webContact, cta: 'Scrivimi su WhatsApp', note: 'Posti limitati: seguo poche attività per volta' },
+  media: { id: 'media-contatto', title: <>Hai una presentazione<br/>da far muovere?</>, text: 'Mandami testi, dati o la bozza delle slide: ti dico cosa si può fare e in quanto tempo.', href: mediaContact, cta: 'Scrivimi su WhatsApp', note: 'Video da 99 € ogni 2 minuti · 15 slide a 49 €' },
 };
 function Contact({mode = 'automazioni'}: {mode?: Exclude<ServiceMode, 'training'>}) { const c = contactCopy[mode]; return <section className={`contact-section ${mode !== 'automazioni' ? 'nfc-contact' : ''}`} id={c.id}><div className="wrap contact-inner"><div><Eyebrow>IL PROSSIMO PASSO È SEMPLICE</Eyebrow><h2>{c.title}</h2><p>{c.text}</p></div><div className="contact-actions"><a className="station-button" href={c.href} target="_blank" rel="noreferrer">{c.cta}<ArrowUpRight size={18}/></a><span>{c.note}</span><a className="contact-email" href="mailto:carlo@csd-station.it">Oppure scrivimi un’email <ArrowRight size={15}/></a></div></div></section>; }
 function FAQ({mode = 'automazioni'}: {mode?: ServiceMode}) {
@@ -125,9 +128,9 @@ export default function Station() {
  }, [mode, location.pathname, location.hash, location.key]);
  useEffect(() => {
    const isDark = compact || mode === 'training';
-   const bg = isDark ? '#152016' : mode === 'nfc' || mode === 'web' ? '#131b13' : '#f6f7f2';
+   const bg = isDark ? '#152016' : mode === 'nfc' || mode === 'web' || mode === 'media' ? '#131b13' : '#f6f7f2';
    document.documentElement.style.backgroundColor = bg;
    document.body.style.backgroundColor = bg;
  }, [compact, mode]);
- return <div className={`station-site ${mode === 'nfc' ? 'nfc-site' : mode === 'web' ? 'nfc-site web-site' : mode === 'training' ? 'training-site' : ''} ${compact ? 'compact-site' : ''}`}><a className="station-skip" href="#main-content">Vai al contenuto</a><StationHeader/><main id="main-content">{mode === 'training' ? <Training/> : mode === 'web' ? compact ? <SitoSocialMobile/> : <SitoSocial><FAQ mode="web"/><Contact mode="web"/></SitoSocial> : compact ? mode === 'nfc' ? <MobileNfc products={products} whatsapp={whatsapp}/> : <MobileConsulting contact={processContact} skills={skills}/> : mode === 'nfc' ? <NfcPage/> : <Home/>}</main><StationFooter/></div>;
+ return <div className={`station-site ${mode === 'nfc' ? 'nfc-site' : mode === 'web' ? 'nfc-site web-site' : mode === 'media' ? 'nfc-site web-site media-site' : mode === 'training' ? 'training-site' : ''} ${compact ? 'compact-site' : ''}`}><a className="station-skip" href="#main-content">Vai al contenuto</a><StationHeader/><main id="main-content">{mode === 'training' ? <Training/> : mode === 'media' ? compact ? <MediaMobile/> : <MediaPage><FAQ mode="media"/><Contact mode="media"/></MediaPage> : mode === 'web' ? compact ? <SitoSocialMobile/> : <SitoSocial><FAQ mode="web"/><Contact mode="web"/></SitoSocial> : compact ? mode === 'nfc' ? <MobileNfc products={products} whatsapp={whatsapp}/> : <MobileConsulting contact={processContact} skills={skills}/> : mode === 'nfc' ? <NfcPage/> : <Home/>}</main><StationFooter/></div>;
 }

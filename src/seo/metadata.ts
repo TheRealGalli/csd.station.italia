@@ -1,4 +1,4 @@
-import { consultingIntro, nfcIntro, trainingIntro, webIntro } from './content';
+import { consultingIntro, mediaIntro, nfcIntro, trainingIntro, webIntro } from './content';
 import { getOsProduct, getServiceMode, legalPaths, normalizePath, osPaths, servicePaths, type ServiceMode } from './routes';
 
 export const origin = 'https://csd-station.it';
@@ -7,8 +7,9 @@ const titles: Record<ServiceMode, string> = {
   nfc: 'Card, plate e stand NFC per recensioni Google | CSD Station',
   training: 'Training AI aziendale e formazione per PMI | CSD Station',
   web: 'Siti web, montaggio video e gestione social per attività locali | CSD Station',
+  media: 'Video motion e slide interattive su misura | CSD Station',
 };
-const descriptions = { automazioni: consultingIntro, nfc: nfcIntro, training: trainingIntro, web: webIntro };
+const descriptions = { automazioni: consultingIntro, nfc: nfcIntro, training: trainingIntro, web: webIntro, media: mediaIntro };
 const legalNames = ['Privacy consulenza', 'Termini consulenza', 'Privacy NFC', 'Termini NFC', 'Cookie policy'];
 export const buildPaths = [...Object.values(servicePaths), ...legalPaths, '/privacy-policy-nfc/', '/terms-of-service-nfc/', ...Object.values(osPaths)];
 const osPages = {
@@ -45,12 +46,12 @@ export function getPageMeta(pathname: string, search = '') {
   if (service) graph.push({
     '@type': 'Service', '@id': `${url}#service`, name: name.replace(' | CSD Station', ''), description, url,
     provider: { '@id': organization['@id'] }, areaServed: { '@type': 'Country', name: 'Italia' },
-    serviceType: mode === 'training' ? ['Training AI aziendale', 'Formazione AI per PMI'] : mode === 'web' ? ['Siti web', 'Siti con animazioni (motion)', 'Montaggio e clipping video', 'Gestione social media'] : mode === 'nfc' ? ['Card NFC per recensioni Google', 'Plate adesive NFC', 'Stand NFC'] : ['Consulenza AI', 'Consulenza informatica', 'Automazioni aziendali', 'Consulenza hardware e NFC'],
+    serviceType: mode === 'training' ? ['Training AI aziendale', 'Formazione AI per PMI'] : mode === 'media' ? ['Video motion interattivi', 'Slide interattive', 'Presentazioni per Google Slides'] : mode === 'web' ? ['Siti web', 'Siti con animazioni (motion)', 'Montaggio e clipping video', 'Gestione social media'] : mode === 'nfc' ? ['Card NFC per recensioni Google', 'Plate adesive NFC', 'Stand NFC'] : ['Consulenza AI', 'Consulenza informatica', 'Automazioni aziendali', 'Consulenza hardware e NFC'],
   });
   if (service && canonicalPath !== '/') graph.push({
     '@type': 'BreadcrumbList', itemListElement: [
       { '@type': 'ListItem', position: 1, name: 'CSD Station', item: `${origin}/` },
-      { '@type': 'ListItem', position: 2, name: mode === 'training' ? 'Training AI' : mode === 'web' ? 'Sito & Social' : 'Card NFC', item: url },
+      { '@type': 'ListItem', position: 2, name: mode === 'training' ? 'Training AI' : mode === 'web' ? 'Sito & Social' : mode === 'media' ? 'Video & Slide' : 'Card NFC', item: url },
     ],
   });
   return { name, description, url, found, demo: false, service, mode, markdown: service ? `${url}index.md` : null, graph: { '@context': 'https://schema.org', '@graph': graph } };

@@ -5,7 +5,7 @@ import { htmlToMarkdown } from './seo-markdown.mjs';
 
 const origin = 'https://csd-station.it';
 const read = path => readFile(`dist/${path}`, 'utf8');
-const pages = ['/', '/card-nfc/', '/training-ai/', '/sito-social/'];
+const pages = ['/', '/card-nfc/', '/training-ai/', '/sito-social/', '/video-slide/'];
 const descriptions = new Set();
 for (const path of pages) {
   const html = await read(`${path.slice(1)}index.html`);

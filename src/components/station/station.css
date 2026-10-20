@@ -103,3 +103,6 @@
 .nav-demo-pop a.active b{color:#c5f476}
 @media(max-width:1023px){.nav-demo{display:none!important}}
 
+
+/* Video & Slide è solo desktop: niente voce nel menu da telefono */
+@media(max-width:767px){.station-links a.nav-media{display:none}}
