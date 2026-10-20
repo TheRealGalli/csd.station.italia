@@ -28,11 +28,14 @@ header{display:flex;justify-content:space-between;align-items:center;padding:2.6
 header b{font-size:clamp(15px,2vw,22px);font-weight:500}
 header span{font-size:clamp(9px,1vw,12px);letter-spacing:.25em;color:var(--muted)}
 .hdr{display:flex;align-items:center;gap:1.4vw}
-#mute{border:1px solid var(--line);background:transparent;color:var(--lime);border-radius:20px;padding:.6vh .9vw;font-size:clamp(10px,.95vw,12px)}
-#mute[aria-pressed=true]{color:var(--muted);text-decoration:line-through}
 .deck{position:relative;flex:1;min-height:0}
 .slide{position:absolute;inset:0;padding:3vh 4.5vw;display:grid;grid-template-columns:1.05fr 1fr;gap:4vw;align-items:center;opacity:0;visibility:hidden;transition:opacity .5s,visibility .5s}
 .slide.on{opacity:1;visibility:visible}
+.slide>div:first-child>*{opacity:0;transform:translateY(18px);transition:opacity .5s,transform .7s cubic-bezier(.2,.8,.2,1)}
+.slide.on>div:first-child>*{opacity:1;transform:none}
+.slide.on>div:first-child>:nth-child(2){transition-delay:.07s}.slide.on>div:first-child>:nth-child(3){transition-delay:.14s}.slide.on>div:first-child>:nth-child(4){transition-delay:.21s}.slide.on>div:first-child>:nth-child(5){transition-delay:.28s}.slide.on>div:first-child>:nth-child(6){transition-delay:.35s}
+.slide:not(.s4) .visual{transform:translateX(28px) scale(.97);transition:transform .9s cubic-bezier(.2,.8,.2,1) .1s}
+.slide.on:not(.s4) .visual{transform:none}
 .label{color:var(--lime);font-size:clamp(10px,1.1vw,13px);letter-spacing:.3em;text-transform:uppercase}
 h1{font-weight:500;font-size:clamp(26px,4.4vw,62px);letter-spacing:-.045em;line-height:1.04;margin:1.6vh 0 2vh}
 h1 em{font-style:normal;color:var(--lime)}
@@ -87,16 +90,20 @@ footer button:disabled{opacity:.3;cursor:default}
 .s2 .libri{transition:transform 1.6s cubic-bezier(.3,1.3,.5,1)}
 .s2.cut-done .libri{transform:scale(.42) translateY(4%)}
 .sheet{position:absolute;width:clamp(40px,5vw,66px);aspect-ratio:3/4;border-radius:3px;box-shadow:2px 5px 10px #0007;z-index:3;pointer-events:none;background:repeating-linear-gradient(transparent 0 7px,#c9cfbf 7px 8px) center 10px/68% calc(100% - 18px) no-repeat,#f7f8f2}
-.counter{position:absolute;left:-4%;top:0;text-align:left;z-index:5}
-.counter b{display:block;font-size:clamp(46px,7.5vw,108px);font-weight:500;line-height:1;color:var(--lime);letter-spacing:-.05em}
-.counter span{font-size:clamp(11px,1.2vw,15px);color:var(--muted)}
+.counter{position:absolute;left:0;bottom:4%;z-index:5;padding:1.4vh 1.2vw 1.2vh;background:#f3f0e4;color:var(--ink);border-radius:3px;box-shadow:6px 10px 18px #0007;transform:rotate(-4deg);transition:transform .5s cubic-bezier(.3,1.6,.5,1)}
+.counter:before{content:'';position:absolute;left:50%;top:-8px;width:44px;height:14px;margin-left:-22px;background:#c5f47699;transform:rotate(4deg)}
+.counter:after{content:'';position:absolute;right:-30px;top:30%;width:28px;height:2px;background:#f3f0e4;transform:rotate(-28deg);transform-origin:left}
+.s2.trimmed .counter{transform:rotate(2deg) scale(1.08)}
+.s2.trimmed .counter b{color:#5f8a2a}
+.counter b{display:block;font-size:clamp(30px,4.2vw,58px);font-weight:600;line-height:1;color:#1d2b16;letter-spacing:-.05em}
+.counter span{font-size:clamp(9px,.95vw,12px);color:#5d6e4f}
 .one{position:absolute;left:8%;right:4%;top:34%;z-index:4;padding:3vh 2vw;border-radius:14px;background:var(--paper);color:var(--ink);transform:translateY(-40vh) rotate(-8deg);opacity:0;transition:transform .8s cubic-bezier(.3,1.5,.5,1) 1.5s,opacity .2s 1.5s}
 .one small{font-size:clamp(9px,.95vw,12px);letter-spacing:.25em;color:#6d8257}
 .one strong{display:block;font-size:clamp(18px,2.4vw,32px);font-weight:600;letter-spacing:-.03em;margin-top:1vh}
 .s2.cut-done .one{transform:rotate(-2deg);opacity:1}
 
 /* 3 prima e dopo */
-.compare{position:absolute;inset:6% 0 14%;border-radius:14px;overflow:hidden;background:var(--paper);color:var(--ink)}
+.compare{position:absolute;inset:2% 0 6%;border-radius:14px;overflow:hidden;background:var(--paper);color:var(--ink)}
 .compare>div{position:absolute;inset:0;padding:5% 6%;transition:opacity .5s}
 .before{font-size:clamp(7px,.78vw,10px);line-height:1.45;color:#57604f}
 .before .w{display:inline-block;will-change:transform}
@@ -107,7 +114,7 @@ footer button:disabled{opacity:.3;cursor:default}
 .after .from{font:600 clamp(8px,.8vw,10px)/1 ui-monospace,monospace;letter-spacing:.14em;color:#7b9262}
 .after>*{opacity:0;transform:translateY(14px);transition:opacity .45s,transform .6s cubic-bezier(.3,1.5,.5,1)}
 .compare.is-after .after>*{opacity:1;transform:none}
-.compare.is-after .after>:nth-child(2){transition-delay:.1s}.compare.is-after .after>:nth-child(3){transition-delay:.25s}.compare.is-after .after>:nth-child(4){transition-delay:.45s}.compare.is-after .after>:nth-child(5){transition-delay:.55s}.compare.is-after .after>:nth-child(6){transition-delay:.65s}
+.compare.is-after .after>:nth-child(2){transition-delay:.1s}.compare.is-after .after>:nth-child(3){transition-delay:.25s}.compare.is-after .after>:nth-child(4){transition-delay:.45s}.compare.is-after .after>:nth-child(5){transition-delay:.55s}.compare.is-after .after>:nth-child(6){transition-delay:.65s}.compare.is-after .after>:nth-child(7){transition-delay:.75s}
 .hb{flex:1;display:grid;gap:1.1vh}
 .hb>div{display:grid;grid-template-columns:1fr auto;align-items:center;gap:2px 8px;font-size:clamp(9px,.95vw,12px)}
 .hb span{grid-column:1/-1}
@@ -120,11 +127,15 @@ footer button:disabled{opacity:.3;cursor:default}
 .hb b{font-size:clamp(10px,1vw,13px)}
 .donut{position:relative;width:36%;flex:none;aspect-ratio:1;border-radius:50%;background:conic-gradient(var(--lime) calc(var(--p)*1%),#dfe6d4 0);display:grid;place-items:center;--p:0;transition:--p 1.2s}
 .donut b{width:64%;aspect-ratio:1;border-radius:50%;background:var(--paper);display:grid;place-items:center;font-size:clamp(20px,3vw,40px);font-weight:600}
-.after-row{display:flex;align-items:center;gap:6%;margin-top:4%}
-.donut:after{content:'';position:absolute;inset:0;border-radius:50%;background:conic-gradient(from 0deg,transparent 0 82%,#ffffffaa 90%,transparent 96%);-webkit-mask:radial-gradient(circle,transparent 63%,#000 64%);mask:radial-gradient(circle,transparent 63%,#000 64%);animation:sweep 3.2s linear infinite;opacity:0}
-.compare.is-after .donut:after{opacity:1}
-@keyframes sweep{to{transform:rotate(360deg)}}
-.ppl-t{margin-top:auto;font:600 clamp(8px,.85vw,11px)/1 ui-monospace,monospace;letter-spacing:.12em;color:#5f8a2a;text-transform:uppercase}
+.after-row{display:flex;align-items:center;gap:6%;margin-top:3%}
+.compare.is-after .donut{animation:donut-in .9s cubic-bezier(.3,1.6,.5,1) .2s both,donut-breathe 3.5s ease-in-out 1.4s infinite}
+@keyframes donut-in{from{transform:scale(.3) rotate(-120deg);opacity:0}to{transform:none;opacity:1}}
+@keyframes donut-breathe{50%{transform:scale(1.05)}}
+.sum{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:3%}
+.sum div{padding:7px 8px;border-radius:8px;background:#fff;border:1px solid #dfe6d4;font-size:clamp(8px,.82vw,11px);line-height:1.3;color:#3d4a33}
+.sum b{display:block;font-size:clamp(9px,.9vw,12px);color:#1d2b16;margin:2px 0}
+.sum em{font-style:normal;font-size:1.3em}
+.ppl-t{margin-top:auto;padding-top:9px;font:600 clamp(8px,.85vw,11px)/1 ui-monospace,monospace;letter-spacing:.12em;color:#5f8a2a;text-transform:uppercase}
 .ppl{display:grid;grid-template-columns:repeat(10,1fr);gap:6px;margin-top:1.4vh}
 .ppl i svg{width:100%;display:block}
 .ppl i.g svg{fill:#9fc35c}.ppl i.a svg{fill:#cfd5c2}
@@ -177,6 +188,7 @@ footer button:disabled{opacity:.3;cursor:default}
 .flip .back{background:var(--paper);color:var(--ink);transform:rotateY(180deg);font-size:clamp(11px,1.2vw,15px);line-height:1.45}
 .flip .back b{font-size:clamp(13px,1.4vw,18px)}
 .s5,.s6{grid-template-columns:.8fr 1.35fr}
+.s3{grid-template-columns:.78fr 1.4fr}
 .flip .back{padding:2.2vh 1.1vw;justify-content:flex-start;gap:1.2vh;background:radial-gradient(circle at 1px 1px,#d8dfcc 1px,transparent 0) 0 0/12px 12px,var(--paper)}
 .flip .back b{display:block;font-size:clamp(13px,1.35vw,18px);line-height:1.2}
 .flip .back p{margin:0;font-size:clamp(10px,1vw,13px);line-height:1.4;color:#4d5a42}
@@ -241,12 +253,12 @@ footer button:disabled{opacity:.3;cursor:default}
 .confetti{position:absolute;inset:0;pointer-events:none;overflow:hidden;z-index:5}
 .confetti i{position:absolute;top:-4vh;width:9px;height:14px;border-radius:2px;animation:fall 1.8s cubic-bezier(.3,.6,.6,1) forwards}
 @keyframes fall{0%{transform:translate(0,0) rotate(0)}50%{transform:translate(4vw,55vh) rotate(300deg)}100%{transform:translate(-3vw,112vh) rotate(720deg)}}
-.s8.party .laureata{animation:hop .55s cubic-bezier(.3,0,.5,1) 10 alternate}
+.s8.party .laureata{animation:hop .55s cubic-bezier(.3,0,.5,1) 8 alternate}
 @keyframes hop{to{transform:translateY(-4vh) rotate(-2deg)}}
 @media(prefers-reduced-motion:reduce){*{transition-duration:.01s!important;animation:none!important}}
 </style></head>
 <body>
-<header><b>CSD Station</b><div class="hdr"><span>SLIDE INTERATTIVE / UNIVERSITÀ</span><button id="mute" aria-pressed="false" title="Effetti sonori">🔊 Audio</button></div></header>
+<header><b>CSD Station</b><div class="hdr"><span>SLIDE INTERATTIVE / UNIVERSITÀ</span></div></header>
 <main class="deck" id="deck">
 
 <section class="slide s1" data-done="1">
@@ -276,6 +288,7 @@ footer button:disabled{opacity:.3;cursor:default}
     <div class="before"><h4>3.2 Risultati dell'indagine sulla mobilità</h4>Dal questionario somministrato a un campione di 240 studenti nel periodo considerato emerge che il mezzo di trasporto più utilizzato per raggiungere la sede è costituito da autobus e treno <mark>(40%)</mark>, seguito dall'automobile privata <mark>(30%)</mark>, dalla bicicletta <mark>(20%)</mark> e infine dagli spostamenti a piedi <mark>(10%)</mark>. Complessivamente la quota di studenti che utilizza modalità alternative all'automobile risulta <mark>pari al 70% del campione</mark>, dato che suggerisce una propensione significativa verso forme di mobilità sostenibile, pur con le limitazioni metodologiche descritte nel paragrafo 2.4 relative alla rappresentatività del campione e all'assenza di informazioni su distanza e frequenza degli spostamenti, che verranno discusse nelle conclusioni.</div>
     <div class="after"><small class="from">DAL PARAGRAFO 3.2 · 240 STUDENTI</small><h4>7 studenti su 10<br>arrivano senza auto</h4>
       <div class="after-row"><div class="donut" id="donut"><b id="donutN">0%</b></div><div class="hb"><div class="g" style="--v:40;--k:0"><span>🚌 Bus e treno</span><i></i><b>40%</b></div><div class="a" style="--v:30;--k:1"><span>🚗 Auto</span><i></i><b>30%</b></div><div class="g" style="--v:20;--k:2"><span>🚲 Bici</span><i></i><b>20%</b></div><div class="g" style="--v:10;--k:3"><span>🚶 A piedi</span><i></i><b>10%</b></div></div></div>
+      <div class="sum"><div><em>📋</em><b>Il metodo</b>Questionario a 240 studenti, una sola risposta.</div><div><em>🚌</em><b>Il risultato</b>Bus e treno sono il mezzo più usato.</div><div><em>⚠️</em><b>I limiti</b>Campione simulato, niente distanze.</div></div>
       <small class="ppl-t">Dopo: un colpo d’occhio · 7 su 10 senza auto</small><div class="ppl"><i style="--k:0" class="g"><svg viewBox="0 0 24 32"><circle cx="12" cy="7" r="6"/><path d="M2 31c0-8 4-13 10-13s10 5 10 13z"/></svg></i><i style="--k:1" class="g"><svg viewBox="0 0 24 32"><circle cx="12" cy="7" r="6"/><path d="M2 31c0-8 4-13 10-13s10 5 10 13z"/></svg></i><i style="--k:2" class="g"><svg viewBox="0 0 24 32"><circle cx="12" cy="7" r="6"/><path d="M2 31c0-8 4-13 10-13s10 5 10 13z"/></svg></i><i style="--k:3" class="g"><svg viewBox="0 0 24 32"><circle cx="12" cy="7" r="6"/><path d="M2 31c0-8 4-13 10-13s10 5 10 13z"/></svg></i><i style="--k:4" class="g"><svg viewBox="0 0 24 32"><circle cx="12" cy="7" r="6"/><path d="M2 31c0-8 4-13 10-13s10 5 10 13z"/></svg></i><i style="--k:5" class="g"><svg viewBox="0 0 24 32"><circle cx="12" cy="7" r="6"/><path d="M2 31c0-8 4-13 10-13s10 5 10 13z"/></svg></i><i style="--k:6" class="g"><svg viewBox="0 0 24 32"><circle cx="12" cy="7" r="6"/><path d="M2 31c0-8 4-13 10-13s10 5 10 13z"/></svg></i><i style="--k:7" class="a"><svg viewBox="0 0 24 32"><circle cx="12" cy="7" r="6"/><path d="M2 31c0-8 4-13 10-13s10 5 10 13z"/></svg></i><i style="--k:8" class="a"><svg viewBox="0 0 24 32"><circle cx="12" cy="7" r="6"/><path d="M2 31c0-8 4-13 10-13s10 5 10 13z"/></svg></i><i style="--k:9" class="a"><svg viewBox="0 0 24 32"><circle cx="12" cy="7" r="6"/><path d="M2 31c0-8 4-13 10-13s10 5 10 13z"/></svg></i></div>
       <div class="legend"><span><i class="g"></i>Senza auto · 168</span><span><i class="a"></i>In auto · 72</span><span>Dati simulati</span></div></div>
     </div>
@@ -328,7 +341,7 @@ footer button:disabled{opacity:.3;cursor:default}
 <section class="slide s8" data-need="party">
   <div><span class="label">La tua presentazione / 08</span>
     <h1>Pronti per<br><em>il 110 e lode?</em></h1>
-    <div class="prices"><div class="price"><b>49 €</b><span>15 slide interattive, effetti sonori inclusi</span></div><div class="price"><b>99 €</b><span>ogni 2 minuti di video motion</span></div></div>
+    <div class="prices"><div class="price"><b>49 €</b><span>15 slide interattive</span></div><div class="price"><b>99 €</b><span>ogni 2 minuti di video motion</span></div></div>
     <button class="act solid" data-do="party">Festeggia 🎉</button> <a class="act" href="https://wa.me/393518628203?text=Ciao%20Carlo!%20Vorrei%20le%20slide%20animate%20per%20la%20mia%20tesi." target="_blank" rel="noopener">Scrivici su WhatsApp</a></div>
   <div class="visual"><img class="cut laureata" src="uni/laureata.webp" alt="Neolaureata con il diploma"></div>
 </section>
@@ -347,34 +360,8 @@ const lines=[['Ciao! Sono Otto, ti accompagno tra le slide.','Premi Avanti e par
 // dentro il sito il fumetto lo mostra la pagina, fuori dal riquadro; aperta da sola, lo mostra la slide
 const embedded=window.parent!==window;if(embedded)document.body.classList.add('embedded');
 const say=(t,happy=false)=>{if(embedded){parent.postMessage({csd:'otto',text:t,happy},location.origin);return}const b=$('#say');b.classList.remove('show');setTimeout(()=>{b.textContent=t;b.classList.add('show')},120)};
-const SFX=(()=>{let ctx=null,out=null,muted=false;const names=['click','swish','pop','paper','flip','tick','rise','right','wrong','sparkle','thud','land','jingle1','jingle2'];
-  // i file si scaricano subito (sono piccoli), ma si decodificano solo dopo il primo clic, quando il browser permette l'audio
-  const raw={},buf={};names.forEach(n=>raw[n]=fetch('sfx/'+n+'.mp3').then(r=>r.arrayBuffer()).catch(()=>null));
-  const ac=()=>{if(!ctx){ctx=new(window.AudioContext||window.webkitAudioContext)();const comp=ctx.createDynamicsCompressor();comp.threshold.value=-14;comp.ratio.value=6;out=ctx.createGain();out.gain.value=.8;out.connect(comp).connect(ctx.destination);
-      names.forEach(n=>raw[n].then(ab=>ab&&ctx.decodeAudioData(ab.slice(0))).then(b=>{if(b)buf[n]=b}).catch(()=>{}))}
-    if(ctx.state==='suspended')ctx.resume();return ctx};
-  let last={};
-  const play=(n,o={})=>{if(muted)return;const c=ac(),b=buf[n];if(!b)return;const t=c.currentTime+(o.delay||0);
-    if(!o.delay&&last[n]&&c.currentTime-last[n]<.035)return; last[n]=c.currentTime; // niente raffiche dello stesso suono
-    const src=c.createBufferSource(),g=c.createGain();src.buffer=b;src.playbackRate.value=o.rate||1;g.gain.value=o.vol??.8;src.connect(g).connect(out);src.start(t)};
-  return{
-    swish:()=>play('swish',{vol:.45}),
-    click:(delay=0)=>play('click',{delay,vol:.7}),
-    pop:(delay=0)=>play('pop',{delay,vol:.75}),
-    whoosh:(delay=0)=>play('swish',{delay,vol:.6,rate:.85}),
-    thud:(delay=0,vol=.6)=>play('thud',{delay,vol:Math.min(1,vol*2.2)}),
-    land:(delay=0)=>play('land',{delay,vol:.7}),
-    paper:(delay=0)=>play('paper',{delay,vol:.45,rate:.9+Math.random()*.3}),
-    tick:(delay=0)=>play('tick',{delay,vol:.35,rate:.9+Math.random()*.4}),
-    rise:(delay=0)=>play('rise',{delay,vol:.6}),
-    flip:()=>play('flip',{vol:.6}),
-    buzz:()=>play('wrong',{vol:.55}),
-    right:(delay=0)=>play('right',{delay,vol:.7}),
-    chime:(delay=0)=>play('sparkle',{delay,vol:.6}),
-    fanfare:()=>{play('jingle1',{vol:.75});play('jingle2',{delay:1.9,vol:.75});play('jingle1',{delay:3.8,vol:.6,rate:1.12});for(let k=0;k<10;k++)play('sparkle',{delay:.3+k*.55,vol:.35,rate:.8+Math.random()*.6})},
-    toggle(){muted=!muted;if(ctx)muted?ctx.suspend():ctx.resume();return muted}};
-})();
-$('#mute').onclick=()=>{const m=SFX.toggle();$('#mute').setAttribute('aria-pressed',m);$('#mute').textContent=m?'🔇 Audio':'🔊 Audio'};
+// le slide si vendono senza audio: le chiamate restano ma non suonano
+const SFX=new Proxy({},{get:()=>()=>{}});
 const dots=$('#dots');slides.forEach(()=>dots.append(document.createElement('i')));
 const ready=()=>{$('#next').classList.toggle('ready',index<slides.length-1);say(lines[index][1],true);document.querySelector('.otto').classList.add('otto-happy')};
 function go(i){index=Math.max(0,Math.min(slides.length-1,i));slides.forEach((s,k)=>s.classList.toggle('on',k===index));[...dots.children].forEach((d,k)=>d.classList.toggle('on',k===index));$('#prev').disabled=index===0;$('#next').disabled=index===slides.length-1;$('#next').classList.remove('ready');const o=document.querySelector('.otto');o.classList.remove('otto-happy');$('#otto').classList.toggle('big',index===0);say(lines[index][0]);if(slides[index].dataset.done)ready()}
@@ -390,7 +377,7 @@ document.addEventListener('click',e=>{const b=e.target.closest('[data-do]');if(!
     for(let k=0;k<16;k++){const p=document.createElement('i');p.className='sheet';p.style.left=(lb.left-vb.left+lb.width*(.25+Math.random()*.4))+'px';p.style.top=(lb.top-vb.top+lb.height*(.1+Math.random()*.5))+'px';v.append(p);if(k%3===0)SFX.paper(k*.055);
       const dx=(Math.random()<.5?-1:1)*(80+Math.random()*260),up=-(120+Math.random()*180),r=(Math.random()-.5)*720;
       p.animate([{transform:'translate(0,0) rotate(0)',opacity:1},{transform:`translate(${dx*.55}px,${up}px) rotate(${r*.5}deg)`,opacity:1,offset:.45},{transform:`translate(${dx}px,${up*.2+260}px) rotate(${r}deg)`,opacity:0}],{duration:1300+Math.random()*500,delay:k*55,easing:'cubic-bezier(.25,.6,.4,1)',fill:'forwards'}).onfinish=()=>p.remove()}
-    SFX.land(2.2);let n=80;const t=setInterval(()=>{n=Math.max(1,Math.round(n*.8));$('#pages').textContent=n;SFX.tick();if(n===1){clearInterval(t);$('#pages').nextElementSibling.textContent='idea per slide';done(s)}},85)}
+    SFX.land(2.2);let n=80;const t=setInterval(()=>{n=Math.max(30,n-3);$('#pages').textContent=n;if(n===30){clearInterval(t);$('#pages').textContent='30 slide';$('#pages').nextElementSibling.innerHTML='per 80 pagine · 2 pacchetti da 49 €';s.classList.add('trimmed');done(s)}},60)}
   if(a==='before'||a==='after'){const after=a==='after',cmp=$('#compare');if(after===cmp.classList.contains('is-after')||cmp.dataset.busy)return;s.querySelectorAll('.switch button').forEach(x=>x.setAttribute('aria-pressed',x===b));
     if(!after){SFX.click();resetWords();cmp.classList.remove('is-after');s.classList.remove('cmp-after');$('#cmpHint').textContent='Premi “Dopo”: le parole cadono e restano i dati';return}
     // le parole del paragrafo cadono per gravità, poi la scheda si riempie con i dati
@@ -400,10 +387,14 @@ document.addEventListener('click',e=>{const b=e.target.closest('[data-do]');if(!
   if(a==='flip'&&!b.classList.contains('open')){SFX.flip();b.classList.add('open');flipped++;$('#flipHint').textContent='Clicca sulle schede · '+flipped+' di 3';if(flipped===3)done(s)}
   if(a==='answer'){const q=$('#quiz');if(q.classList.contains('answered'))return;if(b.hasAttribute('data-right'))SFX.right();else{SFX.buzz();SFX.right(.3)}q.classList.add('answered');q.querySelectorAll('button').forEach(x=>x.classList.add(x.hasAttribute('data-right')?'right':(x===b?'wrong':'')||'x'));setTimeout(()=>done(s),700)}
   if(a==='step'){SFX.click();SFX.pop(.1);const st=document.querySelectorAll('#steps .step');if(step<st.length){st[step].classList.add('on');step++;$('#stepHint').textContent=step+' di 3'}if(step===st.length){b.classList.add('done');done(s)}}
-  if(a==='party'){if(b.disabled)return;b.disabled=true;b.classList.add('done');s.classList.add('party');SFX.fanfare();const c=$('#confetti');c.innerHTML='';
-    // quattro ondate di coriandoli in sei secondi
-    for(let w=0;w<4;w++)setTimeout(()=>{for(let k=0;k<55;k++){const i=document.createElement('i');i.style.left=Math.random()*100+'%';i.style.background=['#c5f476','#f6f7f2','#7b9262','#e4c76b','#9fc35c'][k%5];i.style.width=6+Math.random()*7+'px';i.style.animationDelay=Math.random()*.9+'s';i.style.animationDuration=2.4+Math.random()*1.6+'s';c.append(i);i.addEventListener('animationend',()=>i.remove())}},w*1300);
-    setTimeout(()=>{s.classList.remove('party');done(s)},6200)}
+  if(a==='party'){if(b.disabled)return;b.disabled=true;b.classList.add('done');s.classList.add('party');const c=$('#confetti'),W=c.clientWidth,H=c.clientHeight,cols=['#c5f476','#f6f7f2','#9fc35c','#e4c76b','#7b9262'];
+    // due cannoni in basso sparano per tre secondi senza pause; ogni coriandolo segue una parabola con gravità e ondeggia
+    const shoot=()=>{for(const side of [0,1]){const i=document.createElement('i'),x0=side?W*.96:W*.04,y0=H*.98,ang=(side?-1:1)*(.18+Math.random()*.42),v=H*(1.25+Math.random()*.6),vx=Math.sin(ang)*v,vy=-Math.cos(ang)*v,g=H*1.6,T=2.6+Math.random()*1.2,spin=(Math.random()-.5)*1800,sway=12+Math.random()*24;
+      i.style.cssText=`left:${x0}px;top:${y0}px;background:${cols[(Math.random()*5)|0]};width:${5+Math.random()*7}px;height:${8+Math.random()*8}px;animation:none`;c.append(i);
+      const kf=[];for(let k=0;k<=12;k++){const t=k/12*T,drag=1-Math.min(.55,t*.18);kf.push({transform:`translate(${vx*t*drag+Math.sin(t*6)*sway}px,${vy*t+.5*g*t*t}px) rotate(${spin*t/T}deg) rotateX(${t*540}deg)`,opacity:k>10?0:1})}
+      i.animate(kf,{duration:T*1000,easing:'linear',fill:'forwards'}).onfinish=()=>i.remove()}};
+    let n=0;const gun=setInterval(()=>{shoot();if(++n>75)clearInterval(gun)},40);
+    setTimeout(()=>{s.classList.remove('party');done(s)},5200)}
 });
 // il paragrafo di prima viene spezzato in parole, così può cadere pezzo per pezzo
 (function(){const root=document.querySelector('.before');const walk=n=>[...n.childNodes].forEach(c=>{if(c.nodeType===3){const f=document.createDocumentFragment();c.textContent.split(/(\s+)/).forEach(w=>{if(!w)return;if(/^\s+$/.test(w))f.append(w);else{const sp=document.createElement('span');sp.className='w';sp.textContent=w;f.append(sp)}});c.replaceWith(f)}else if(c.nodeType===1)walk(c)});walk(root)})();
