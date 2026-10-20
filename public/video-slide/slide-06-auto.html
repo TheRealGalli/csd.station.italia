@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="it"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Studio colore · Slide CSD Station</title>
+<style>
+/* Presentazione auto: 8 pagine statiche 16:9, stessi comandi della presentazione Università */
+:root{--bg:#030705;--lime:#c5f476;--ink:#172015}
+*{box-sizing:border-box}
+html,body{height:100%;margin:0}
+body{background:var(--bg);color:#f6f7f2;font-family:'Avenir Next','Helvetica Neue',Arial,sans-serif;overflow:hidden;display:flex;flex-direction:column}
+button{font:inherit;cursor:pointer}
+button:focus-visible{outline:3px solid var(--lime);outline-offset:4px}
+.deck{position:relative;flex:1;min-height:0;overflow:hidden;cursor:pointer}
+.deck img{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;opacity:0;transform:scale(1.04) translateX(2%);transition:opacity .6s,transform 1.1s cubic-bezier(.2,.8,.2,1)}
+.deck img.on{opacity:1;transform:none}
+.deck img.out{opacity:0;transform:scale(.98) translateX(-2%)}
+footer{display:flex;align-items:center;justify-content:space-between;gap:2vw;padding:1.6vh 4.5vw 2vh;flex:none;border-top:1px solid #c5f47622;background:#0b110b}
+footer button{padding:1.1vh 1.6vw;border-radius:6px;background:var(--lime);color:var(--ink);border:1px solid var(--lime);font-size:clamp(12px,1.2vw,15px)}
+footer button:disabled{opacity:.3;cursor:default}
+.dots{display:flex;gap:6px;align-items:center}
+.dots i{width:26px;height:4px;border-radius:4px;background:#34462a;transition:background .3s,width .3s}
+.dots i.on{background:var(--lime);width:40px}
+@media(prefers-reduced-motion:reduce){.deck img{transition:opacity .2s}}
+</style></head>
+<body>
+<main class="deck" id="deck" aria-live="polite"></main>
+<footer><button id="prev">← Indietro</button><div class="dots" id="dots"></div><button id="next">Avanti →</button></footer>
+<script>
+const alts=['Un’icona, sei colori','Rosso brillante','Argento satinato','Blu notte','Bianco perla','Giallo acceso','Questione di dettagli','Qual è il tuo colore?'];
+const deck=document.getElementById('deck'),dots=document.getElementById('dots');
+const imgs=alts.map((a,k)=>{const i=new Image();i.src='auto/slide-0'+(k+1)+'.webp';i.alt=a;i.decoding='async';deck.append(i);dots.append(document.createElement('i'));return i});
+let index=-1;
+function go(n){n=Math.max(0,Math.min(imgs.length-1,n));if(n===index)return;if(imgs[index]){imgs[index].classList.remove('on');imgs[index].classList.add('out')}
+  index=n;imgs.forEach((im,k)=>{if(k!==index&&!im.classList.contains('out'))im.classList.remove('on')});const cur=imgs[index];cur.classList.remove('out');void cur.offsetWidth;cur.classList.add('on');
+  setTimeout(()=>imgs.forEach((im,k)=>{if(k!==index)im.classList.remove('out')}),650);
+  [...dots.children].forEach((d,k)=>d.classList.toggle('on',k===index));document.getElementById('prev').disabled=index===0;document.getElementById('next').disabled=index===imgs.length-1}
+document.getElementById('prev').onclick=()=>go(index-1);document.getElementById('next').onclick=()=>go(index+1);
+deck.onclick=()=>go(index+1);
+window.addEventListener('keydown',e=>{if(e.key==='ArrowRight')go(index+1);if(e.key==='ArrowLeft')go(index-1)});
+go(0);
+</script>
+</body></html>

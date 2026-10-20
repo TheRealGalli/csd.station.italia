@@ -25,7 +25,7 @@ const videos: Demo[] = [
 type Deck = { sector: string; src?: string; slides?: number };
 const decks: Deck[] = [
   { sector: 'Università', src: '/video-slide/slide-01-universita.html', slides: 8 },
-  { sector: 'Prodotto' }, { sector: 'Azienda' }, { sector: 'Ristorante' }, { sector: 'Startup' }, { sector: 'Concessionarie e autofficine' },
+  { sector: 'Prodotto' }, { sector: 'Azienda' }, { sector: 'Ristorante' }, { sector: 'Startup' }, { sector: 'Concessionarie e autofficine', src: '/video-slide/slide-06-auto.html', slides: 8 },
 ];
 
 function SlideDeck() {
@@ -35,6 +35,7 @@ function SlideDeck() {
   // Il riquadro ha la stessa altezza per tutte le slide: si misura la slide più alta e la si usa per tutte.
   // Con la pagina prerenderizzata l'iframe può finire di caricare prima di React: per questo si aggancia da un effetto.
   useEffect(() => {
+    setHeight(0); // ogni presentazione riparte dal riquadro standard
     const frame = frameRef.current; if (!frame) return;
     let observer: ResizeObserver | undefined;
     const fit = () => {

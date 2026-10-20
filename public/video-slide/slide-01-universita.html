@@ -63,19 +63,32 @@ footer button:disabled{opacity:.3;cursor:default}
 .s1.on .corona{transform:translateY(4%) rotate(-2deg)}
 .s1 .tocco{left:0;top:6%;width:38%;transform:translate(-60%,-40%) rotate(-40deg);opacity:0;transition:transform 1s cubic-bezier(.3,1.4,.5,1) .5s,opacity .4s .5s}
 .s1.on .tocco{transform:rotate(-12deg);opacity:1}
-.s1.thrown .tocco{animation:throw 1.1s cubic-bezier(.3,0,.6,1) forwards}
-@keyframes throw{0%{transform:rotate(-12deg)}35%{transform:translateY(-55vh) rotate(200deg)}100%{transform:translateY(0) rotate(348deg)}}
+.s1 .visual{--floor:36vh}
+.s1.thrown .tocco{transform-origin:50% 100%;animation:throw 2s linear forwards}
+/* il tocco sale ruotando, ricade e rimbalza tre volte sempre più basso, schiacciandosi a ogni contatto */
+@keyframes throw{
+0%{transform:rotate(-12deg);animation-timing-function:cubic-bezier(.15,.7,.35,1)}
+30%{transform:translate(14%,-58vh) rotate(250deg);animation-timing-function:cubic-bezier(.65,0,.9,.55)}
+55%{transform:translate(28%,var(--floor)) rotate(356deg) scale(1.1,.82);animation-timing-function:cubic-bezier(.2,.7,.4,1)}
+67%{transform:translate(33%,calc(var(--floor) - 13vh)) rotate(362deg) scale(.97,1.04);animation-timing-function:cubic-bezier(.6,0,.9,.5)}
+77%{transform:translate(36%,var(--floor)) rotate(360deg) scale(1.06,.9);animation-timing-function:cubic-bezier(.2,.7,.4,1)}
+85%{transform:translate(38%,calc(var(--floor) - 4.5vh)) rotate(359deg);animation-timing-function:cubic-bezier(.6,0,.9,.5)}
+92%{transform:translate(39%,var(--floor)) rotate(360deg) scale(1.03,.95)}
+100%{transform:translate(39%,var(--floor)) rotate(352deg)}}
+.s1.landed .lode{animation:stamp .6s cubic-bezier(.2,.9,.3,1.6)}
+@keyframes stamp{0%{transform:rotate(-6deg) scale(1)}40%{transform:rotate(-10deg) scale(1.25)}100%{transform:rotate(-6deg) scale(1)}}
 .lode{position:absolute;left:4%;bottom:12%;padding:1.2vh 1.2vw;border-radius:10px;background:var(--lime);color:var(--ink);font-weight:700;font-size:clamp(16px,2.4vw,34px);transform:rotate(-6deg) scale(0);transition:transform .6s cubic-bezier(.2,.9,.3,1.5) 1s;z-index:2}
 .s1.on .lode{transform:rotate(-6deg) scale(1)}
 .lode small{display:block;font-size:.38em;font-weight:500;letter-spacing:.2em}
 
 /* 2 il problema */
-.s2 .libri{left:18%;bottom:0;height:92%;transition:transform .6s cubic-bezier(.5,0,.7,.4),opacity .5s}
-.s2.cut-done .libri{transform:translate(40%,-30%) rotate(30deg) scale(.4);opacity:0}
+.s2 .libri{left:18%;bottom:0;height:92%;transform-origin:50% 100%}
+.s2.cut-done .libri{animation:topple 1.1s forwards}
+@keyframes topple{0%{transform:none}12%{transform:rotate(-5deg)}26%{transform:rotate(6deg)}40%{transform:rotate(-3deg);opacity:1;animation-timing-function:cubic-bezier(.5,0,.8,.3)}100%{transform:translate(70%,-35%) rotate(48deg) scale(.45);opacity:0}}
 .counter{position:absolute;right:6%;top:8%;text-align:right}
 .counter b{display:block;font-size:clamp(46px,7.5vw,108px);font-weight:500;line-height:1;color:var(--lime);letter-spacing:-.05em}
 .counter span{font-size:clamp(11px,1.2vw,15px);color:var(--muted)}
-.one{position:absolute;left:8%;right:8%;top:30%;padding:3vh 2vw;border-radius:14px;background:var(--paper);color:var(--ink);transform:scale(.6) rotate(-4deg);opacity:0;transition:.6s cubic-bezier(.2,.9,.3,1.3) .35s}
+.one{position:absolute;left:8%;right:8%;top:30%;padding:3vh 2vw;border-radius:14px;background:var(--paper);color:var(--ink);transform:translateY(-40vh) rotate(-8deg);opacity:0;transition:transform .8s cubic-bezier(.3,1.5,.5,1) .7s,opacity .2s .7s}
 .one small{font-size:clamp(9px,.95vw,12px);letter-spacing:.25em;color:#6d8257}
 .one strong{display:block;font-size:clamp(18px,2.4vw,32px);font-weight:600;letter-spacing:-.03em;margin-top:1vh}
 .s2.cut-done .one{transform:rotate(-2deg);opacity:1}
@@ -97,11 +110,15 @@ footer button:disabled{opacity:.3;cursor:default}
 /* 4 dato per dato */
 .bars{position:absolute;inset:22% 2% 12%;display:flex;align-items:flex-end;gap:5%}
 .bars div{flex:1;height:100%;display:flex;flex-direction:column;justify-content:flex-end;align-items:center;gap:1vh}
-.bars i{display:block;width:100%;border-radius:10px 10px 0 0;background:linear-gradient(#d9f7a3,#86a356);transform:scaleY(0);transform-origin:bottom;transition:transform .8s cubic-bezier(.2,.9,.3,1.2)}
-.bars em{font-style:normal;font-weight:600;font-size:clamp(14px,1.7vw,22px);opacity:0;transition:opacity .3s .5s}
+.bars i{position:relative;display:block;width:100%;border-radius:10px 10px 0 0;border:2px dashed #3c4f2e;border-bottom:0;background:repeating-linear-gradient(135deg,#1b2718 0 8px,#151d13 8px 16px)}
+.bars i:after{content:'';position:absolute;inset:-2px -2px 0;border-radius:10px 10px 0 0;background:linear-gradient(#d9f7a3,#86a356);transform:scaleY(0);transform-origin:bottom;transition:transform .9s cubic-bezier(.3,1.6,.5,1)}
+.bars em{font-style:normal;font-weight:600;font-size:clamp(14px,1.7vw,22px);color:#4d6339;transition:color .3s .4s,transform .5s cubic-bezier(.3,1.8,.5,1) .4s}
 .bars span{font-size:clamp(10px,1.05vw,13px);color:var(--muted)}
-.bars div.on i{transform:scaleY(1)}.bars div.on em{opacity:1}
-.bars div.dim i{background:linear-gradient(#5d7444,#3c4f2e)}
+.bars div.on i:after{transform:scaleY(1)}.bars div.on em{color:var(--paper);transform:scale(1.15)}
+.bars div.dim i:after{background:linear-gradient(#5d7444,#3c4f2e)}
+.s4 .mano{width:34%;z-index:4;pointer-events:none;transition:left .55s cubic-bezier(.3,1.3,.5,1),top .55s cubic-bezier(.3,1.3,.5,1),opacity .4s;transform-origin:15% 30%}
+.s4 .mano.tap{animation:tap .35s ease-out}
+@keyframes tap{50%{transform:scale(.9) rotate(-6deg)}}
 .verdict{position:absolute;left:4%;right:30%;top:0;padding:1.4vh 1.2vw;border-radius:10px;background:var(--lime);color:var(--ink);font-weight:600;font-size:clamp(12px,1.35vw,18px);transform:translateY(-12px);opacity:0;transition:.5s}
 .verdict.show{transform:none;opacity:1}
 
@@ -113,7 +130,12 @@ footer button:disabled{opacity:.3;cursor:default}
 .flip .front{background:var(--card);border:1px solid var(--line)}
 .flip .front b{font-size:clamp(16px,2vw,28px);font-weight:500;letter-spacing:-.03em}
 .flip .front small{font-size:clamp(9px,.9vw,11px);letter-spacing:.2em;color:var(--lime)}
-.flip .front i{font-style:normal;font-size:clamp(28px,4vw,54px)}
+.flip .front img{align-self:center;height:52%;max-width:88%;object-fit:contain;filter:drop-shadow(0 0 0 #fff) drop-shadow(2px 0 0 #fff) drop-shadow(-2px 0 0 #fff) drop-shadow(0 2px 0 #fff) drop-shadow(0 -2px 0 #fff) drop-shadow(6px 12px 12px #0009);animation:float 4s ease-in-out infinite}
+.flip:nth-child(2) .front img{animation-delay:-1.3s}.flip:nth-child(3) .front img{animation-delay:-2.6s}
+@keyframes float{0%,100%{transform:translateY(0) rotate(-3deg)}50%{transform:translateY(-8px) rotate(2deg)}}
+.flip{opacity:0;translate:0 30px;transition:transform .7s cubic-bezier(.2,.8,.2,1),opacity .5s,translate .7s cubic-bezier(.3,1.4,.5,1)}
+.s5.on .flip{opacity:1;translate:0 0}.s5.on .flip:nth-child(2){transition-delay:0s,.12s,.12s}.s5.on .flip:nth-child(3){transition-delay:0s,.24s,.24s}
+.flip:not(.open):hover{transform:rotateY(-8deg) rotateX(4deg)}
 .flip .back{background:var(--paper);color:var(--ink);transform:rotateY(180deg);font-size:clamp(11px,1.2vw,15px);line-height:1.45}
 .flip .back b{font-size:clamp(13px,1.4vw,18px)}
 .s5,.s6{grid-template-columns:.8fr 1.35fr}
@@ -161,7 +183,7 @@ footer button:disabled{opacity:.3;cursor:default}
   <div><span class="label">Tesi · tesine · lezioni</span>
     <h1>Da <em>110 e lode.</em></h1>
     <p>La discussione dura pochi minuti: con le slide animate la commissione capisce subito il tuo lavoro, e tu lo racconti senza perdere il filo.</p>
-    <button class="act solid" data-do="throw">Lancia il tocco 🎓</button><span class="hint">Clicca per iniziare</span></div>
+    <button class="act solid" data-do="throw">Lancia il tocco 🎓</button><span class="hint">Clicca e guarda dove atterra</span></div>
   <div class="visual"><img class="cut corona" src="uni/corona.webp" alt="Neolaureato con la corona d'alloro"><img class="cut tocco" src="uni/tocco.webp" alt=""><div class="lode">110<small>E LODE</small></div></div>
 </section>
 
@@ -191,7 +213,7 @@ footer button:disabled{opacity:.3;cursor:default}
     <p>Il grafico si svela quando lo decidi tu, così l'attenzione resta sul dato di cui stai parlando e non su quelli che vengono dopo.</p>
     <button class="act" data-do="reveal">Mostra il prossimo dato →</button><span class="hint" id="revealHint">0 di 4 dati mostrati</span></div>
   <div class="visual"><div class="verdict" id="verdict">Conclusione: 70% usa un'alternativa all'auto</div>
-    <div class="bars" id="bars"><div><em>40%</em><i style="height:100%"></i><span>Bus e treno</span></div><div><em>30%</em><i style="height:75%"></i><span>Auto</span></div><div><em>20%</em><i style="height:50%"></i><span>Bici</span></div><div><em>10%</em><i style="height:25%"></i><span>A piedi</span></div></div></div>
+    <div class="bars" id="bars"><div><em data-v="40%">?</em><i style="height:100%"></i><span>Bus e treno</span></div><div><em data-v="30%">?</em><i style="height:75%"></i><span>Auto</span></div><div><em data-v="20%">?</em><i style="height:50%"></i><span>Bici</span></div><div><em data-v="10%">?</em><i style="height:25%"></i><span>A piedi</span></div></div><img class="cut mano" id="mano" src="uni/mano.webp" alt=""></div>
 </section>
 
 <section class="slide s5" data-need="flip3">
@@ -200,9 +222,9 @@ footer button:disabled{opacity:.3;cursor:default}
     <p>Gira le tre schede: per ogni occasione la presentazione lavora in modo diverso.</p>
     <span class="hint" id="flipHint">Clicca sulle schede · 0 di 3</span></div>
   <div class="visual"><div class="flips">
-    <button class="flip" data-do="flip"><span class="front"><small>LAUREA</small><i>🎓</i><b>Tesi</b></span><span class="back"><b>La commissione segue il filo.</b><br>Capitoli, metodo e risultati in sequenza: tu parli, il grafico arriva al momento giusto.</span></button>
-    <button class="flip" data-do="flip"><span class="front"><small>MATURITÀ</small><i>🗺️</i><b>Tesina</b></span><span class="back"><b>Le materie si collegano.</b><br>Una mappa che si apre al clic e mostra i collegamenti tra storia, scienze e letteratura.</span></button>
-    <button class="flip" data-do="flip"><span class="front"><small>ESAMI</small><i>💬</i><b>Orale</b></span><span class="back"><b>Le slide ti fanno da scaletta.</b><br>Una parola chiave per slide: niente da leggere, solo da raccontare.</span></button>
+    <button class="flip" data-do="flip"><span class="front"><small>LAUREA</small><img src="uni/libri.webp" alt="Libri"><b>Tesi</b></span><span class="back"><b>La commissione segue il filo.</b><br>Capitoli, metodo e risultati in sequenza: tu parli, il grafico arriva al momento giusto.</span></button>
+    <button class="flip" data-do="flip"><span class="front"><small>MATURITÀ</small><img src="uni/mappamondo.webp" alt="Mappamondo"><b>Tesina</b></span><span class="back"><b>Le materie si collegano.</b><br>Una mappa che si apre al clic e mostra i collegamenti tra storia, scienze e letteratura.</span></button>
+    <button class="flip" data-do="flip"><span class="front"><small>ESAMI</small><img src="uni/microfono.webp" alt="Microfono"><b>Orale</b></span><span class="back"><b>Le slide ti fanno da scaletta.</b><br>Una parola chiave per slide: niente da leggere, solo da raccontare.</span></button>
   </div></div>
 </section>
 
@@ -257,15 +279,18 @@ const done=s=>{s.dataset.done=1;ready()};
 // interazioni
 let revealed=0,flipped=0,step=1;
 document.addEventListener('click',e=>{const b=e.target.closest('[data-do]');if(!b)return;const s=b.closest('.slide'),a=b.dataset.do;
-  if(a==='throw'){s.classList.remove('thrown');void s.offsetWidth;s.classList.add('thrown');setTimeout(()=>{done(s);go(1)},1150)}
+  if(a==='throw'){s.classList.remove('thrown','landed');void s.offsetWidth;s.classList.add('thrown');setTimeout(()=>s.classList.add('landed'),1100);setTimeout(()=>done(s),2000)}
   if(a==='trim'){b.classList.add('done');s.classList.add('cut-done');let n=80;const t=setInterval(()=>{n=Math.max(1,Math.round(n*.72));$('#pages').textContent=n;if(n===1){clearInterval(t);$('#pages').nextElementSibling.textContent='idea per slide';done(s)}},70)}
   if(a==='before'||a==='after'){const after=a==='after';s.querySelectorAll('.switch button').forEach(x=>x.setAttribute('aria-pressed',x===b));$('#compare').classList.toggle('is-after',after);if(after){let p=0;const t=setInterval(()=>{p=Math.min(70,p+2);$('#donut').style.setProperty('--p',p);$('#donutN').textContent=p+'%';if(p===70){clearInterval(t);done(s)}},18)}}
-  if(a==='reveal'){const bars=[...document.querySelectorAll('#bars div')];if(revealed<bars.length){bars[revealed].classList.add('on');revealed++;$('#revealHint').textContent=revealed+' di 4 dati mostrati'}if(revealed===bars.length){b.classList.add('done');bars[1].classList.add('dim');$('#verdict').classList.add('show');done(s)}}
+  if(a==='reveal'){const bars=[...document.querySelectorAll('#bars div')];if(revealed<bars.length){const bar=bars[revealed],m=$('#mano');pointAt(revealed);m.classList.remove('tap');void m.offsetWidth;m.classList.add('tap');setTimeout(()=>{bar.classList.add('on');const em=bar.querySelector('em');em.textContent=em.dataset.v},250);revealed++;$('#revealHint').textContent=revealed+' di 4 dati mostrati';setTimeout(()=>{if(revealed<bars.length)pointAt(revealed)},900)}if(revealed===bars.length){b.classList.add('done');setTimeout(()=>{bars[1].classList.add('dim');$('#verdict').classList.add('show');$('#mano').style.opacity=0;done(s)},900)}}
   if(a==='flip'&&!b.classList.contains('open')){b.classList.add('open');flipped++;$('#flipHint').textContent='Clicca sulle schede · '+flipped+' di 3';if(flipped===3)done(s)}
   if(a==='answer'){const q=$('#quiz');if(q.classList.contains('answered'))return;q.classList.add('answered');q.querySelectorAll('button').forEach(x=>x.classList.add(x.hasAttribute('data-right')?'right':(x===b?'wrong':'')||'x'));setTimeout(()=>done(s),700)}
   if(a==='step'){const st=document.querySelectorAll('#steps .step');if(step<st.length){st[step].classList.add('on');step++;$('#stepHint').textContent=step+' di 3'}if(step===st.length){b.classList.add('done');done(s)}}
   if(a==='party'){const c=$('#confetti');c.innerHTML='';for(let k=0;k<70;k++){const i=document.createElement('i');i.style.left=Math.random()*100+'%';i.style.background=['#c5f476','#f6f7f2','#7b9262','#e4c76b'][k%4];i.style.animationDelay=Math.random()*.5+'s';i.style.animationDuration=1.4+Math.random()+'s';c.append(i)}done(s)}
 });
+function pointAt(k){const bar=document.querySelectorAll('#bars div')[k],m=$('#mano'),v=m.parentElement;if(!bar||!v.offsetWidth)return;const vb=v.getBoundingClientRect(),i=bar.querySelector('i').getBoundingClientRect();m.style.left=(i.left-vb.left+i.width*.45)+'px';m.style.top=(i.top-vb.top-m.offsetHeight*.62)+'px'}
+new MutationObserver(()=>{if(slides[3].classList.contains('on'))setTimeout(()=>pointAt(Math.min(revealed,3)),60)}).observe(slides[3],{attributes:true,attributeFilter:['class']});
+window.addEventListener('resize',()=>pointAt(Math.min(revealed,3)));
 go(Number(location.hash.replace('#slide-',''))-1||0);
 </script>
 </body></html>
