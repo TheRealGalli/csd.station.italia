@@ -238,10 +238,12 @@ export default function MediaPage({ children }: { children?: React.ReactNode }) 
 }
 
 // Da telefono la sezione non è ancora pronta: un invito ad aprirla dal computer.
-export function MediaMobile() {
+// fallback: dentro la pagina prerenderizzata il titolo è un h2, per non avere due h1 insieme alla versione desktop
+export function MediaMobile({ fallback = false }: { fallback?: boolean }) {
+  const Title = fallback ? 'h2' : 'h1';
   return <div className="mobile-landing"><section className="mobile-section media-mobile">
     <span className="mobile-eyebrow"><i/> VIDEO & SLIDE</span>
-    <h1>Questa sezione<br/><em>si apre dal computer.</em></h1>
+    <Title className="mm-title">Questa sezione<br/><em>si apre dal computer.</em></Title>
     <p>Slide interattive da 49 € ogni 15 e video motion da 99 € ogni 2 minuti: gli esempi sono pensati per lo schermo grande.</p>
     <div className="media-mobile-icon"><Monitor size={40}/></div>
     <a className="mobile-primary" href={mediaContact} target="_blank" rel="noreferrer">Scrivimi su WhatsApp <ArrowUpRight size={20}/></a>

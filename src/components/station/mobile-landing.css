@@ -6,7 +6,7 @@
 .mobile-section+.mobile-section{padding-top:40px}
 .mobile-eyebrow{display:flex;gap:8px;align-items:center;font:10px ui-monospace,monospace;letter-spacing:1px;color:#a8bd94;margin-bottom:22px;line-height:1.6}
 .mobile-eyebrow i{width:5px;height:5px;border-radius:50%;background:#c5f476;box-shadow:0 0 12px #c5f47470}
-.mobile-landing h1{font-size:clamp(37px,10.8vw,61px);letter-spacing:-.055em;line-height:1.06;font-weight:500}
+.mobile-landing h1,.mobile-landing .mm-title{font-size:clamp(37px,10.8vw,61px);letter-spacing:-.055em;line-height:1.06;font-weight:500}
 .mobile-landing h1 em,.mobile-landing h2 em{font-style:normal;color:#c5f476}
 .station-site .mobile-landing h2{font-size:clamp(29px,8vw,43px);line-height:1.12;letter-spacing:-.045em;margin-bottom:24px}
 .mobile-landing p{font-size:15px;line-height:1.65;color:#b5c3aa}
