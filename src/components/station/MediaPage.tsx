@@ -29,7 +29,7 @@ const decks: Deck[] = [
 ];
 
 function SlideDeck() {
-  const [i, setI] = useState(0), [height, setHeight] = useState(0);
+  const [i, setI] = useState(0), [height, setHeight] = useState(0), [say, setSay] = useState('');
   const deck = decks[i];
   const frameRef = useRef<HTMLIFrameElement>(null);
   // Il riquadro ha la stessa altezza per tutte le slide: si misura la slide più alta e la si usa per tutte.
@@ -64,9 +64,18 @@ function SlideDeck() {
     fit(); frame.addEventListener('load', fit);
     return () => { frame.removeEventListener('load', fit); observer?.disconnect(); };
   }, [deck.src]);
+  // Le battute di Otto arrivano dalla presentazione e si leggono fuori dal riquadro, accanto a lui.
+  useEffect(() => {
+    setSay('');
+    const listen = (e: MessageEvent) => { if (e.source === frameRef.current?.contentWindow && e.data?.csd === 'otto') setSay(String(e.data.text || '')); };
+    window.addEventListener('message', listen); return () => window.removeEventListener('message', listen);
+  }, [deck.src]);
   return <div className="ms-deck">
     <div className="ms-tabs" role="tablist" aria-label="Presentazioni per settore">{decks.map((d, k) => <button key={d.sector} type="button" role="tab" aria-selected={k === i} disabled={!d.src} onClick={() => setI(k)}>{d.sector}{d.src ? null : <small>In arrivo</small>}</button>)}</div>
-    <div className="ms-stage" style={height ? { height } : undefined}>{deck.src && <iframe key={deck.src} src={deck.src} title={`Slide interattive: ${deck.sector}`} ref={frameRef}/>}</div>
+    <div className="ms-frame">
+      <div className="ms-stage" style={height ? { height } : undefined}>{deck.src && <iframe key={deck.src} src={deck.src} title={`Slide interattive: ${deck.sector}`} ref={frameRef}/>}</div>
+      {say && <p className="ms-say" key={say} aria-live="polite"><OttoIcon mood="happy" size={16}/>{say}</p>}
+    </div>
     <p className="ms-hint">{deck.slides ?? 15} slide · clicca dentro le slide per proseguire, o usa le frecce · <a href={deck.src} target="_blank" rel="noreferrer">apri a schermo intero <ArrowUpRight size={13}/></a></p>
   </div>;
 }
@@ -86,6 +95,15 @@ function VideoCard({ v, onOpen }: { v: Demo; onOpen: () => void }) {
 
 // La card dietro il video anticipa la scena successiva (il video cambia settore ogni 5 secondi),
 // ognuna con la sua piccola animazione: barre, linea, prodotto, numeri, cerchi, auto.
+// Il bollino di Otto cambia mestiere con il settore in onda.
+const ottoLines: { text: string; emoji: string; mood: 'awake' | 'happy' | 'wink' | 'read' | 'think' }[] = [
+  { text: 'OTTO TI AIUTA A STUDIARE', emoji: '🎓', mood: 'read' },
+  { text: 'OTTO RISTORATORE', emoji: '🍝', mood: 'happy' },
+  { text: 'OTTO TI CONSIGLIA', emoji: '🛍️', mood: 'wink' },
+  { text: 'OTTO CALCOLA', emoji: '📊', mood: 'think' },
+  { text: 'OTTO FA IL PITCH', emoji: '🚀', mood: 'awake' },
+  { text: 'OTTO TI GUIDA', emoji: '🔧', mood: 'happy' },
+];
 type Peek = 'bars' | 'line' | 'product' | 'kpi' | 'funnel' | 'garage';
 const heroScenes: { sector: string; title: string; kind: Peek }[] = [
   { sector: 'Università', title: 'Come arrivano gli studenti', kind: 'bars' },
@@ -121,7 +139,9 @@ export default function MediaPage({ children }: { children?: React.ReactNode }) 
     </div><div className="media-hero-art" aria-hidden="true">
       <div className="mh-slide"><div className="mh-peek" key={peek}><span className="ms-eyebrow">PROSSIMA · {heroScenes[peek].sector.toUpperCase()}</span><b>{heroScenes[peek].title}</b><PeekVisual kind={heroScenes[peek].kind}/></div></div>
       <div className="mh-video"><video onTimeUpdate={e => setPeek((Math.floor(e.currentTarget.currentTime / 5) + 1) % heroScenes.length)} src="/video-slide/media-motion.mp4" poster="/video-slide/media-motion.jpg" autoPlay muted loop playsInline preload="metadata"/><span className="mh-rec"><i/> MOTION</span></div>
-      <span className="product-float mh-chip"><OttoIcon mood="happy" size={18}/> OTTO TI GUIDA</span>
+      <span className="product-float mh-chip" key={`otto-${(peek + 5) % 6}`}><OttoIcon mood={ottoLines[(peek + 5) % 6].mood} size={18}/> {ottoLines[(peek + 5) % 6].text} <i>{ottoLines[(peek + 5) % 6].emoji}</i></span>
+      <div className="mh-prep"><OttoIcon mood="read" size={15}/><div><b>OTTO PREPARA LE SLIDE</b><span><i/></span></div><em><u/><u/><u/></em></div>
+      <div className="mh-click"><span>Avanti →</span><svg viewBox="0 0 24 28" width="18" height="21"><path d="M2 2 L2 22 L8 16 L12 26 L16 24 L12 14 L20 14 Z" fill="#f8faf3" stroke="#1d2b16" strokeWidth="1.6" strokeLinejoin="round"/></svg><small>UN CLIC, UN PASSO</small></div>
       <div className="mh-sectors">{['Università', 'Ristorante', 'Negozio', 'Azienda', 'Startup', 'Concessionarie e autofficine'].map((l, k) => <span key={l} className={k === (peek + 5) % 6 ? 'on' : undefined}>{l.toUpperCase()}</span>)}</div>
     </div></div></section>
 

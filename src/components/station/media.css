@@ -9,7 +9,9 @@
 .mh-slide b{font-size:15px;font-weight:600;margin-top:6px}
 .mh-bars{flex:1;display:flex;align-items:flex-end;gap:10px;margin-top:10px}
 .mh-bars i{flex:1;border-radius:4px 4px 0 0;background:linear-gradient(#c5f476,#7b9262);transform-origin:bottom;animation:mh-rise .7s cubic-bezier(.2,.9,.3,1.2) both}
-.mh-chip{right:auto;left:40px;top:auto;bottom:40px}
+.mh-chip{right:auto;left:-26px;top:206px;bottom:auto;z-index:3;white-space:nowrap;transform:rotate(-4deg);animation:mh-chip-in .5s cubic-bezier(.3,1.6,.5,1) both}
+.mh-chip i{font-style:normal;font-size:13px}
+@keyframes mh-chip-in{from{transform:rotate(-10deg) scale(.6);opacity:0}to{transform:rotate(-4deg) scale(1);opacity:1}}
 @keyframes mh-blink{50%{opacity:0}}
 @keyframes mh-grow{0%,100%{transform:scaleY(1)}50%{transform:scaleY(.82)}}
 .media-section{padding-block:90px}
@@ -138,9 +140,36 @@
 @keyframes mh-fill{from{transform:scaleX(0)}to{transform:scaleX(1)}}
 @media(prefers-reduced-motion:reduce){.mh-slide *{animation:none!important;stroke-dashoffset:0!important;transform:none!important;opacity:1!important}}
 
-/* etichette dei settori serviti: quella del settore in onda nel video si accende */
-.mh-sectors{position:absolute;left:225px;right:0;bottom:6px;display:flex;flex-wrap:wrap;gap:9px 8px;justify-content:flex-end}
-.mh-sectors span{padding:9px 11px;background:#2d3e24;border:1px solid #78925a;border-radius:6px;color:#d2eab9;font:9px ui-monospace,monospace;letter-spacing:.5px;transition:background .4s,color .4s,border-color .4s,transform .4s}
-.mh-sectors span:nth-child(odd){transform:rotate(-3deg)}
-.mh-sectors span:nth-child(even){transform:rotate(3deg)}
-.mh-sectors span.on{background:#c5f476;border-color:#c5f476;color:#1f3a00;transform:rotate(0) translateY(-4px)}
+/* etichette dei settori serviti, sparse come bigliettini: quella del settore in onda nel video si accende */
+.mh-sectors{position:absolute;inset:0;pointer-events:none}
+.mh-sectors span{position:absolute;padding:9px 12px;background:#2d3e24;border:1px solid #78925a;border-radius:6px;color:#d2eab9;font:9px ui-monospace,monospace;letter-spacing:.5px;white-space:nowrap;transition:background .4s,color .4s,border-color .4s,transform .45s cubic-bezier(.3,1.6,.5,1)}
+.mh-sectors span:nth-child(1){left:150px;top:318px;transform:rotate(-5deg)}
+.mh-sectors span:nth-child(2){left:296px;top:326px;transform:rotate(4deg)}
+.mh-sectors span:nth-child(3){left:440px;top:314px;transform:rotate(-2deg)}
+.mh-sectors span:nth-child(4){left:120px;top:376px;transform:rotate(6deg)}
+.mh-sectors span:nth-child(5){left:250px;top:384px;transform:rotate(-6deg)}
+.mh-sectors span:nth-child(6){left:368px;top:372px;transform:rotate(3deg)}
+.mh-sectors span.on{background:#c5f476;border-color:#c5f476;color:#1f3a00;transform:rotate(0) translateY(-6px) scale(1.08)}
+/* card motion: Otto che prepara le slide (in alto a destra) e il clic che fa avanzare (in basso a sinistra) */
+.mh-prep{position:absolute;right:-18px;top:18px;z-index:3;display:flex;align-items:center;gap:9px;padding:10px 12px;border-radius:8px;background:#f8faf3;color:#1d2b16;box-shadow:10px 14px 30px #0007;transform:rotate(4deg);animation:mh-bob 5s ease-in-out infinite}
+.mh-prep b{display:block;font:8px ui-monospace,monospace;letter-spacing:1px;margin-bottom:6px}
+.mh-prep span{display:block;width:110px;height:5px;border-radius:5px;background:#dfe6d4;overflow:hidden}
+.mh-prep span i{display:block;height:100%;border-radius:5px;background:#9fc35c;animation:mh-load 3.2s cubic-bezier(.5,0,.3,1) infinite}
+.mh-prep em{display:flex;gap:3px}.mh-prep u{width:4px;height:4px;border-radius:50%;background:#7b9262;animation:mh-dot 1s ease-in-out infinite}.mh-prep u:nth-child(2){animation-delay:.15s}.mh-prep u:nth-child(3){animation-delay:.3s}
+.mh-click{position:absolute;left:-34px;top:300px;z-index:3;display:grid;justify-items:start;gap:7px;padding:11px 12px 9px;border-radius:8px;background:#1d2b16;border:1px solid #4d6339;box-shadow:10px 14px 30px #0007;transform:rotate(-6deg);animation:mh-bob 6s ease-in-out -2s infinite}
+.mh-click>span{padding:6px 10px;border-radius:5px;background:#c5f476;color:#1f3a00;font-size:10px;font-weight:600;animation:mh-press 2.4s ease-in-out infinite}
+.mh-click svg{position:absolute;left:58px;top:20px;animation:mh-cursor 2.4s ease-in-out infinite}
+.mh-click small{font:7px ui-monospace,monospace;letter-spacing:1px;color:#a4b594}
+@keyframes mh-bob{0%,100%{translate:0 0}50%{translate:0 -6px}}
+@keyframes mh-load{0%{width:0}70%,100%{width:100%}}
+@keyframes mh-dot{50%{transform:translateY(-3px);opacity:.4}}
+@keyframes mh-cursor{0%{transform:translate(26px,18px)}40%{transform:translate(0,0)}48%{transform:translate(0,0) scale(.85)}56%,70%{transform:translate(0,0)}100%{transform:translate(26px,18px)}}
+@keyframes mh-press{0%,40%,58%,100%{transform:scale(1);box-shadow:0 0 0 0 #c5f47600}48%{transform:scale(.92);box-shadow:0 0 0 6px #c5f47655}}
+@media(prefers-reduced-motion:reduce){.mh-prep,.mh-click,.mh-click *,.mh-prep *{animation:none!important}}
+/* il fumetto di Otto, fuori dal riquadro della presentazione */
+.ms-frame{position:relative;max-width:1040px;margin:0 auto}
+.ms-say{position:absolute;left:calc(100% + 16px);bottom:118px;width:178px;margin:0;padding:12px 14px;border-radius:14px 14px 14px 3px;background:#c5f476;color:#1f3a00;font-size:13px;line-height:1.4;box-shadow:0 12px 26px #101a1630;animation:ms-say .45s cubic-bezier(.3,1.5,.5,1) both}
+.ms-say svg{display:block;margin-bottom:6px}
+.ms-say:before{content:'';position:absolute;left:-7px;bottom:12px;border:7px solid transparent;border-right-color:#c5f476;border-left:0}
+@keyframes ms-say{from{opacity:0;transform:translateX(-12px) scale(.9)}to{opacity:1;transform:none}}
+@media(max-width:1340px){.ms-say{left:auto;right:150px;bottom:150px}}
