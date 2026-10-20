@@ -18,14 +18,14 @@ const videos: Demo[] = [
   { n: '03', title: 'Report aziendale', note: 'Numeri e grafici che si capiscono al primo sguardo.' },
   { n: '04', title: 'Menu e locale', note: 'Piatti, orari e prenotazioni, raccontati in motion.' },
   { n: '05', title: 'Pitch per investitori', note: 'Problema, soluzione, mercato: tutto in un minuto.' },
-  { n: '06', title: 'Onboarding clienti', note: 'Come funziona il servizio, passo per passo.' },
+  { n: '06', title: 'Concessionarie e autofficine', note: 'Tagliandi, revisioni e offerte, spiegati in 30 secondi.' },
 ];
 
 // Slide interattive vere, una presentazione da 15 slide per settore (file HTML autonomi in /video-slide/).
 type Deck = { sector: string; src?: string };
 const decks: Deck[] = [
   { sector: 'Università', src: '/video-slide/slide-01-universita.html' },
-  { sector: 'Prodotto' }, { sector: 'Azienda' }, { sector: 'Ristorante' }, { sector: 'Startup' }, { sector: 'Servizi' },
+  { sector: 'Prodotto' }, { sector: 'Azienda' }, { sector: 'Ristorante' }, { sector: 'Startup' }, { sector: 'Concessionarie e autofficine' },
 ];
 
 function SlideDeck() {
