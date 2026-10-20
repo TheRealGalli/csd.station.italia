@@ -22,9 +22,9 @@ const videos: Demo[] = [
 ];
 
 // Slide interattive vere, una presentazione da 15 slide per settore (file HTML autonomi in /video-slide/).
-type Deck = { sector: string; src?: string };
+type Deck = { sector: string; src?: string; slides?: number };
 const decks: Deck[] = [
-  { sector: 'Università', src: '/video-slide/slide-01-universita.html' },
+  { sector: 'Università', src: '/video-slide/slide-01-universita.html', slides: 8 },
   { sector: 'Prodotto' }, { sector: 'Azienda' }, { sector: 'Ristorante' }, { sector: 'Startup' }, { sector: 'Concessionarie e autofficine' },
 ];
 
@@ -66,7 +66,7 @@ function SlideDeck() {
   return <div className="ms-deck">
     <div className="ms-tabs" role="tablist" aria-label="Presentazioni per settore">{decks.map((d, k) => <button key={d.sector} type="button" role="tab" aria-selected={k === i} disabled={!d.src} onClick={() => setI(k)}>{d.sector}{d.src ? null : <small>In arrivo</small>}</button>)}</div>
     <div className="ms-stage" style={height ? { height } : undefined}>{deck.src && <iframe key={deck.src} src={deck.src} title={`Slide interattive: ${deck.sector}`} ref={frameRef}/>}</div>
-    <p className="ms-hint">15 slide · usa le frecce o i pulsanti dentro la presentazione · <a href={deck.src} target="_blank" rel="noreferrer">apri a schermo intero <ArrowUpRight size={13}/></a></p>
+    <p className="ms-hint">{deck.slides ?? 15} slide · clicca dentro le slide per proseguire, o usa le frecce · <a href={deck.src} target="_blank" rel="noreferrer">apri a schermo intero <ArrowUpRight size={13}/></a></p>
   </div>;
 }
 
