@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { ArrowDown, ArrowUpRight, Check, Clapperboard, Monitor, Play, Presentation, X } from 'lucide-react';
 import { mediaIntro } from '@/seo/content';
 import { OttoIcon } from './OttoIcon';
+import { Otto } from './StationExperiences';
 import './media.css';
 
 // Video & Slide: vetrina delle slide interattive (49 € ogni 15) e dei video motion (99 € ogni 2 minuti).
@@ -29,7 +30,7 @@ const decks: Deck[] = [
 ];
 
 function SlideDeck() {
-  const [i, setI] = useState(0), [height, setHeight] = useState(0), [say, setSay] = useState('');
+  const [i, setI] = useState(0), [height, setHeight] = useState(0), [say, setSay] = useState(''), [happy, setHappy] = useState(false);
   const deck = decks[i];
   const frameRef = useRef<HTMLIFrameElement>(null);
   // Il riquadro ha la stessa altezza per tutte le slide: si misura la slide più alta e la si usa per tutte.
@@ -67,14 +68,15 @@ function SlideDeck() {
   // Le battute di Otto arrivano dalla presentazione e si leggono fuori dal riquadro, accanto a lui.
   useEffect(() => {
     setSay('');
-    const listen = (e: MessageEvent) => { if (e.source === frameRef.current?.contentWindow && e.data?.csd === 'otto') setSay(String(e.data.text || '')); };
+    const listen = (e: MessageEvent) => { if (e.source === frameRef.current?.contentWindow && e.data?.csd === 'otto') { setSay(String(e.data.text || '')); setHappy(!!e.data.happy); } };
     window.addEventListener('message', listen); return () => window.removeEventListener('message', listen);
   }, [deck.src]);
   return <div className="ms-deck">
     <div className="ms-tabs" role="tablist" aria-label="Presentazioni per settore">{decks.map((d, k) => <button key={d.sector} type="button" role="tab" aria-selected={k === i} disabled={!d.src} onClick={() => setI(k)}>{d.sector}{d.src ? null : <small>In arrivo</small>}</button>)}</div>
     <div className="ms-frame">
       <div className="ms-stage" style={height ? { height } : undefined}>{deck.src && <iframe key={deck.src} src={deck.src} title={`Slide interattive: ${deck.sector}`} ref={frameRef}/>}</div>
-      {say && <p className="ms-say" key={say} aria-live="polite"><OttoIcon mood="happy" size={16}/>{say}</p>}
+      {say && <div className="ms-otto" aria-hidden="true"><Otto mood={happy ? 'happy' : 'awake'}/></div>}
+      {say && <p className="ms-say" key={say} aria-live="polite">{say}</p>}
     </div>
     <p className="ms-hint">{deck.slides ?? 15} slide · clicca dentro le slide per proseguire, o usa le frecce · <a href={deck.src} target="_blank" rel="noreferrer">apri a schermo intero <ArrowUpRight size={13}/></a></p>
   </div>;
@@ -209,7 +211,7 @@ export default function MediaPage({ children }: { children?: React.ReactNode }) 
       <div className="section-heading"><div><Eyebrow>03 / PREZZI</Eyebrow><h2>Due formati.<br/>Prezzi chiari.</h2></div><p>Si parte dai tuoi contenuti: testi, dati e immagini. Al resto pensiamo noi, dall’idea al file finito.</p></div>
       <div className="mp-grid">
         <article className="mp-card"><Presentation size={28}/><h3>Slide interattive</h3><div className="price-row"><strong>49 €</strong><span>pacchetto da 15 slide</span></div>
-          <ul className="web-points">{['Layout moderni e coerenti', 'Grafici e numeri leggibili', 'Presentazione web o esportazione per Google Slides', 'Otto e il tuo marchio, se vuoi'].map(p => <li key={p}><Check size={14}/>{p}</li>)}</ul>
+          <ul className="web-points">{['Layout moderni e coerenti', 'Grafici e numeri leggibili', 'Effetti sonori a ogni clic, inclusi', 'Presentazione web o esportazione per Google Slides', 'Otto e il tuo marchio, se vuoi'].map(p => <li key={p}><Check size={14}/>{p}</li>)}</ul>
           <a className="station-button" href={whatsapp('Ciao Carlo! Mi interessano le slide interattive (49 € per 15 slide).')} target="_blank" rel="noreferrer">Richiedi le slide <ArrowUpRight size={17}/></a></article>
         <article className="mp-card"><Clapperboard size={28}/><h3>Video motion interattivo</h3><div className="price-row"><strong>99 €</strong><span>ogni 2 minuti di contenuto</span></div>
           <ul className="web-points">{['Grafiche, testi e dati animati', 'Otto come guida in ogni scena', 'Musica ed effetti sonori, senza voce fuori campo', 'Full HD 1920×1080, pronto per il web'].map(p => <li key={p}><Check size={14}/>{p}</li>)}</ul>

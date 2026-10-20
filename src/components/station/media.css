@@ -185,11 +185,12 @@
 @media(prefers-reduced-motion:reduce){.mh-note,.mh-click,.mh-click *,.mh-note *,.mh-chip-in{animation:none!important}.mh-note li:after{opacity:1}}
 /* il fumetto di Otto, fuori dal riquadro della presentazione */
 .ms-frame{position:relative;max-width:1040px;margin:0 auto}
-.ms-say{position:absolute;left:calc(100% + 16px);bottom:118px;width:178px;margin:0;padding:12px 14px;border-radius:14px 14px 14px 3px;background:#c5f476;color:#1f3a00;font-size:13px;line-height:1.4;box-shadow:0 12px 26px #101a1630;animation:ms-say .45s cubic-bezier(.3,1.5,.5,1) both}
-.ms-say svg{display:block;margin-bottom:6px}
-.ms-say:before{content:'';position:absolute;left:-7px;bottom:12px;border:7px solid transparent;border-right-color:#c5f476;border-left:0}
-@keyframes ms-say{from{opacity:0;transform:translateX(-12px) scale(.9)}to{opacity:1;transform:none}}
-@media(max-width:1340px){.ms-say{left:auto;right:150px;bottom:150px}}
+/* Otto sta sul bordo del riquadro, con il braccio fuori; il fumetto sopra di lui, fuori dalla slide */
+.ms-otto{position:absolute;right:-62px;bottom:62px;z-index:3;width:150px;height:195px;transform:scale(.62);transform-origin:bottom right;pointer-events:none}
+.ms-say{position:absolute;left:calc(100% - 30px);bottom:200px;z-index:4;width:184px;margin:0;padding:12px 14px;border-radius:14px 14px 14px 3px;background:#c5f476;color:#1f3a00;font-size:13px;line-height:1.4;box-shadow:0 12px 26px #101a1630;animation:ms-say .45s cubic-bezier(.3,1.5,.5,1) both}
+.ms-say:before{content:'';position:absolute;left:18px;bottom:-7px;border:7px solid transparent;border-top-color:#c5f476;border-bottom:0}
+@keyframes ms-say{from{opacity:0;transform:translateY(10px) scale(.9)}to{opacity:1;transform:none}}
+@media(max-width:1340px){.ms-otto{right:-20px}.ms-say{left:auto;right:30px}}
 /* Otto che corre nel bollino: la posizione la calcola la fisica in JavaScript */
 .mh-chip{position:absolute}
 .mh-chip-in{position:relative;z-index:1}
