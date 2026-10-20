@@ -150,16 +150,6 @@
 @keyframes mh-fill{from{transform:scaleX(0)}to{transform:scaleX(1)}}
 @media(prefers-reduced-motion:reduce){.mh-slide *{animation:none!important;stroke-dashoffset:0!important;transform:none!important;opacity:1!important}}
 
-/* etichette dei settori serviti, sparse come bigliettini: quella del settore in onda nel video si accende */
-.mh-sectors{position:absolute;inset:0;pointer-events:none}
-.mh-sectors span{position:absolute;padding:9px 12px;background:#2d3e24;border:1px solid #78925a;border-radius:6px;color:#d2eab9;font:9px ui-monospace,monospace;letter-spacing:.5px;white-space:nowrap;transition:background .4s,color .4s,border-color .4s,transform .45s cubic-bezier(.3,1.6,.5,1)}
-.mh-sectors span:nth-child(1){left:175px;top:322px;transform:rotate(-5deg)}
-.mh-sectors span:nth-child(2){left:300px;top:330px;transform:rotate(4deg)}
-.mh-sectors span:nth-child(3){left:425px;top:318px;transform:rotate(-2deg)}
-.mh-sectors span:nth-child(4){left:160px;top:372px;transform:rotate(5deg)}
-.mh-sectors span:nth-child(5){left:262px;top:380px;transform:rotate(-5deg)}
-.mh-sectors span:nth-child(6){left:360px;top:368px;transform:rotate(3deg)}
-.mh-sectors span.on{background:#c5f476;border-color:#c5f476;color:#1f3a00;transform:rotate(0) translateY(-6px) scale(1.08)}
 /* card motion: Otto che prepara le slide (in alto a destra) e il clic che fa avanzare (in basso a sinistra) */
 /* nota a mano sul metodo, come un foglietto attaccato con lo scotch: le spunte si accendono in loop */
 .mh-note{position:absolute;right:-48px;top:-98px;z-index:3;width:184px;padding:14px 14px 10px;background:#f3f0e4;color:#1d2b16;box-shadow:10px 14px 30px #0007;transform:rotate(4deg);clip-path:polygon(0 3%,8% 0,22% 2%,40% 0,58% 2%,76% 0,92% 2%,100% 0,100% 97%,90% 100%,70% 98%,50% 100%,30% 98%,12% 100%,0 98%);animation:mh-bob 5s ease-in-out infinite}
@@ -196,3 +186,15 @@
 .mh-chip-in{position:relative;z-index:1}
 .mh-runner{position:absolute;left:0;top:50%;margin-top:-8px;width:16px;height:16px;color:#c5f476;transform-origin:50% 100%;will-change:transform;filter:drop-shadow(0 2px 2px #0006)}
 .mh-runner svg{display:block}
+/* Otto sulla pagina fa il gesto del lancio quando la slide 1 parte */
+.ms-otto.throwing .arm-right{animation:otto-throw .6s cubic-bezier(.3,1.4,.5,1)!important}
+@keyframes otto-throw{0%{transform:rotate(-17deg)}35%{transform:rotate(40deg)}70%{transform:rotate(-170deg)}100%{transform:rotate(-17deg)}}
+/* hero più grande e più in basso, senza etichette sotto: il bollino di Otto in basso, un po' di traverso */
+.media-hero-art{height:470px}
+.mh-video{top:96px;width:480px}
+.mh-slide{top:34px;width:330px}
+.mh-chip{left:190px;top:392px;width:290px;padding:0 18px;justify-content:flex-start;transform:rotate(-3deg)}
+.mh-chip-in{gap:8px;font-size:10px;letter-spacing:.06em}
+.mh-note{top:-40px}
+.mh-click{left:-44px;top:250px}
+@media(max-width:1100px){.mh-video{width:390px}.mh-slide{width:270px}}
