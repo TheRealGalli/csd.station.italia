@@ -12,14 +12,14 @@ export const mediaContact = whatsapp('Ciao Carlo! Vorrei informazioni su video m
 function Eyebrow({ children }: { children: React.ReactNode }) { return <div className="station-eyebrow"><span/>{children}</div>; }
 
 type Demo = { n: string; title: string; note: string; src?: string; poster?: string };
-// Video demo da 30 secondi, 1920×1080. Il primo è definito; gli altri titoli sono segnaposto da confermare.
+// Video demo da 30 secondi, 1920×1080, con colonna sonora originale composta per ciascuno.
 const videos: Demo[] = [
-  { n: '01', title: 'Università e tesine', note: 'Tesi e tesine: dalla domanda ai risultati, in 30 secondi.', src: '/video-slide/video-01-universita.mp4', poster: '/video-slide/video-01-universita.jpg' },
-  { n: '02', title: 'Lancio di un prodotto', note: 'Il prodotto, i vantaggi, il prezzo. Chiaro e veloce.' },
-  { n: '03', title: 'Report aziendale', note: 'Numeri e grafici che si capiscono al primo sguardo.' },
-  { n: '04', title: 'Menu e locale', note: 'Piatti, orari e prenotazioni, raccontati in motion.' },
-  { n: '05', title: 'Pitch per investitori', note: 'Problema, soluzione, mercato: tutto in un minuto.' },
-  { n: '06', title: 'Concessionarie e autofficine', note: 'Tagliandi, revisioni e offerte, spiegati in 30 secondi.' },
+  { n: '01', title: 'Università e tesine', note: 'Da una tesi di 80 pagine a 10 minuti chiari, in 30 secondi.', src: '/video-slide/film-universita.mp4', poster: '/video-slide/film-universita.jpg' },
+  { n: '02', title: 'Immobili e progetti', note: 'Dal terreno alla casa finita: un progetto raccontato in 30 secondi.', src: '/video-slide/film-casa.mp4', poster: '/video-slide/film-casa.jpg' },
+  { n: '03', title: 'Veicoli e colori', note: 'Un’icona, sei colori: uno studio colore in 30 secondi.', src: '/video-slide/film-veicoli.mp4', poster: '/video-slide/film-veicoli.jpg' },
+  { n: '04', title: 'Lancio di un prodotto', note: 'Il prodotto, i vantaggi, il prezzo. Chiaro e veloce.' },
+  { n: '05', title: 'Report aziendale', note: 'Numeri e grafici che si capiscono al primo sguardo.' },
+  { n: '06', title: 'Menu e locale', note: 'Piatti, orari e prenotazioni, raccontati in motion.' },
 ];
 
 // Slide interattive vere, una presentazione da 15 slide per settore (file HTML autonomi in /video-slide/).
@@ -208,7 +208,7 @@ export default function MediaPage({ children }: { children?: React.ReactNode }) 
     </div></section>
 
     <section className="media-section wrap" id="video">
-      <div className="section-heading"><div><Eyebrow>02 / VIDEO MOTION</Eyebrow><h2>Sei esempi da 30 secondi.<br/><span>Nessuna voce, solo ritmo.</span></h2></div><p>Grafiche animate, dati verosimili e Otto che guida lo sguardo. Musica di sottofondo ed effetti sonori sincronizzati a ogni clic.</p></div>
+      <div className="section-heading"><div><Eyebrow>02 / VIDEO MOTION</Eyebrow><h2>Sei esempi da 30 secondi.<br/><span>Nessuna voce, solo ritmo.</span></h2></div><p>Grafiche animate, dati verosimili e Otto che guida lo sguardo. Ogni video ha la sua musica originale, a tempo con le scene.</p></div>
       <div className="mv-grid">{videos.map(v => <VideoCard key={v.n} v={v} onOpen={() => setOpen(v)}/>)}</div>
     </section>
 
