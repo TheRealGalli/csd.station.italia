@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { ArrowDown, ArrowUpRight, Check, ChevronLeft, ChevronRight, Clapperboard, Monitor, Play, Presentation, X } from 'lucide-react';
+import { ArrowDown, ArrowUpRight, Check, Clapperboard, Monitor, Play, Presentation, X } from 'lucide-react';
 import { mediaIntro } from '@/seo/content';
 import { OttoIcon } from './OttoIcon';
 import './media.css';
@@ -13,7 +13,7 @@ function Eyebrow({ children }: { children: React.ReactNode }) { return <div clas
 type Demo = { n: string; title: string; note: string; src?: string; poster?: string };
 // Video demo da 30 secondi, 1920×1080. Il primo è definito; gli altri titoli sono segnaposto da confermare.
 const videos: Demo[] = [
-  { n: '01', title: 'Presentazione universitaria', note: 'Tesi e tesine: dalla domanda ai risultati, in 30 secondi.' },
+  { n: '01', title: 'Università e tesine', note: 'Tesi e tesine: dalla domanda ai risultati, in 30 secondi.', src: '/video-slide/video-01-universita.mp4', poster: '/video-slide/video-01-universita.jpg' },
   { n: '02', title: 'Lancio di un prodotto', note: 'Il prodotto, i vantaggi, il prezzo. Chiaro e veloce.' },
   { n: '03', title: 'Report aziendale', note: 'Numeri e grafici che si capiscono al primo sguardo.' },
   { n: '04', title: 'Menu e locale', note: 'Piatti, orari e prenotazioni, raccontati in motion.' },
@@ -21,40 +21,28 @@ const videos: Demo[] = [
   { n: '06', title: 'Onboarding clienti', note: 'Come funziona il servizio, passo per passo.' },
 ];
 
-// Slide d'esempio, in HTML. Quando arrivano quelle vere si sostituiscono con immagini o componenti.
-type Slide = { kind: 'title' | 'list' | 'chart' | 'quote' | 'end'; eyebrow: string; title: string; body?: string[]; values?: [string, number][] };
-const slides: Slide[] = [
-  { kind: 'title', eyebrow: 'TESINA · ESEMPIO', title: 'Energia solare in Toscana', body: ['Quanto produce, quanto costa, quanto conviene.'] },
-  { kind: 'list', eyebrow: '01 / DI COSA PARLIAMO', title: 'Tre domande', body: ['Quanta energia producono i tetti toscani?', 'Quanto si risparmia in bolletta?', 'In quanti anni si ripaga un impianto?'] },
-  { kind: 'chart', eyebrow: '02 / PRODUZIONE', title: 'kWh per kW installato, all’anno', values: [['Firenze', 1240], ['Siena', 1290], ['Pisa', 1270], ['Grosseto', 1350]] },
-  { kind: 'quote', eyebrow: '03 / IL PUNTO', title: '«In media un impianto domestico si ripaga in 6–8 anni.»', body: ['Stima su un impianto da 4 kW con detrazioni.'] },
-  { kind: 'end', eyebrow: '04 / CONCLUSIONE', title: 'Conviene, se il tetto è giusto.', body: ['Esposizione a sud, poche ombre, consumi di giorno.'] },
+// Slide interattive vere, una presentazione da 15 slide per settore (file HTML autonomi in /video-slide/).
+type Deck = { sector: string; src?: string };
+const decks: Deck[] = [
+  { sector: 'Università', src: '/video-slide/slide-01-universita.html' },
+  { sector: 'Prodotto' }, { sector: 'Azienda' }, { sector: 'Ristorante' }, { sector: 'Startup' }, { sector: 'Servizi' },
 ];
 
-function SlideView({ s, active }: { s: Slide; active: boolean }) {
-  const max = Math.max(...(s.values ?? [['', 1]]).map(v => v[1]));
-  return <div className={`ms-slide ms-${s.kind} ${active ? 'on' : ''}`}>
-    <span className="ms-eyebrow">{s.eyebrow}</span>
-    <h3>{s.title}</h3>
-    {s.kind === 'list' && <ol>{s.body!.map((b, i) => <li key={b} style={{ transitionDelay: `${.15 + i * .12}s` }}><span>{i + 1}</span>{b}</li>)}</ol>}
-    {s.kind === 'chart' && <div className="ms-chart">{s.values!.map(([label, v], i) => <div key={label}><b style={{ height: `${(v / max) * 100}%`, transitionDelay: `${.15 + i * .1}s` }}><em>{v.toLocaleString('it-IT')}</em></b><span>{label}</span></div>)}</div>}
-    {(s.kind === 'title' || s.kind === 'quote' || s.kind === 'end') && s.body?.map(b => <p key={b}>{b}</p>)}
-    <span className="ms-otto" aria-hidden="true"><OttoIcon mood={s.kind === 'end' ? 'happy' : 'read'} size={22}/></span>
-    <span className="ms-brand">CSD STATION</span>
-  </div>;
-}
-
 function SlideDeck() {
-  const [i, setI] = useState(0);
-  const go = (n: number) => setI(Math.max(0, Math.min(slides.length - 1, n)));
-  return <div className="ms-deck" tabIndex={0} aria-label="Slide interattive d’esempio: usa le frecce" onKeyDown={e => { if (e.key === 'ArrowRight') go(i + 1); if (e.key === 'ArrowLeft') go(i - 1); }}>
-    <div className="ms-stage">
-      {slides.map((s, k) => <SlideView key={k} s={s} active={k === i}/>)}
-      <button type="button" className="ms-arrow l" aria-label="Slide precedente" disabled={i === 0} onClick={() => go(i - 1)}><ChevronLeft size={20}/></button>
-      <button type="button" className="ms-arrow r" aria-label="Slide successiva" disabled={i === slides.length - 1} onClick={() => go(i + 1)}><ChevronRight size={20}/></button>
-      <span className="ms-progress" style={{ transform: `scaleX(${(i + 1) / slides.length})` }}/>
-    </div>
-    <div className="ms-thumbs">{slides.map((s, k) => <button key={k} type="button" aria-pressed={k === i} onClick={() => setI(k)}><span>{String(k + 1).padStart(2, '0')}</span>{s.title.replace(/[«»]/g, '').slice(0, 26)}</button>)}</div>
+  const [i, setI] = useState(0), [height, setHeight] = useState(0);
+  const deck = decks[i];
+  // il riquadro prende l'altezza della presentazione, slide per slide: niente barre di scorrimento interne
+  const fit = (e: React.SyntheticEvent<HTMLIFrameElement>) => {
+    const doc = e.currentTarget.contentDocument; if (!doc) return;
+    // dentro il riquadro l'altezza la decide il contenuto, non la finestra (la presentazione usa min-height in vh)
+    const st = doc.createElement('style'); st.textContent = 'main{min-height:0!important}'; doc.head.append(st);
+    const measure = () => setHeight(doc.body.scrollHeight + 2); // +2: il bordo del riquadro
+    measure(); new ResizeObserver(measure).observe(doc.body);
+  };
+  return <div className="ms-deck">
+    <div className="ms-tabs" role="tablist" aria-label="Presentazioni per settore">{decks.map((d, k) => <button key={d.sector} type="button" role="tab" aria-selected={k === i} disabled={!d.src} onClick={() => setI(k)}>{d.sector}{d.src ? null : <small>In arrivo</small>}</button>)}</div>
+    <div className="ms-stage" style={height ? { height } : undefined}>{deck.src && <iframe key={deck.src} src={deck.src} title={`Slide interattive: ${deck.sector}`} onLoad={fit}/>}</div>
+    <p className="ms-hint">15 slide · usa le frecce o i pulsanti dentro la presentazione · <a href={deck.src} target="_blank" rel="noreferrer">apri a schermo intero <ArrowUpRight size={13}/></a></p>
   </div>;
 }
 
@@ -92,7 +80,7 @@ export default function MediaPage({ children }: { children?: React.ReactNode }) 
     </div></div></section>
 
     <section className="media-section media-slides" id="slide"><div className="wrap media-slides-inner">
-      <div className="section-heading"><div><Eyebrow>01 / SLIDE INTERATTIVE</Eyebrow><h2>Presentazioni che<br/><span>si sfogliano da sole.</span></h2></div><p>Layout moderni per presentazioni web, esportabili per Google Slides. Prova a sfogliare l’esempio con le frecce.</p></div>
+      <div className="section-heading"><div><Eyebrow>01 / SLIDE INTERATTIVE</Eyebrow><h2>Presentazioni che<br/><span>si sfogliano da sole.</span></h2></div><p>Layout moderni per presentazioni web, esportabili per Google Slides. Sfoglia la presentazione d’esempio per l’università.</p></div>
       <SlideDeck/>
     </div></section>
 
