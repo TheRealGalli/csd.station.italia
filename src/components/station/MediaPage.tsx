@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { ArrowDown, ArrowUpRight, Check, Clapperboard, Monitor, Play, Presentation, X } from 'lucide-react';
+import { GraduationCap, ArrowDown, ArrowUpRight, Check, Clapperboard, Monitor, Play, Presentation, X } from 'lucide-react';
 import { mediaIntro } from '@/seo/content';
 import { OttoIcon } from './OttoIcon';
 import { Otto } from './StationExperiences';
@@ -17,7 +17,7 @@ const videos: Demo[] = [
   { n: '01', title: 'Università e tesine', note: 'Da una tesi di 80 pagine a 10 minuti chiari, in 30 secondi.', src: '/video-slide/film-universita.mp4', poster: '/video-slide/film-universita.jpg', start: 1.6 },
   { n: '02', title: 'Immobili e progetti', note: 'Dal terreno alla casa finita: un progetto raccontato in 30 secondi.', src: '/video-slide/film-casa.mp4', poster: '/video-slide/film-casa.jpg' },
   { n: '03', title: 'Veicoli e colori', note: 'Un’icona, sei colori: uno studio colore in 30 secondi.', src: '/video-slide/film-veicoli.mp4', poster: '/video-slide/film-veicoli.jpg', start: 2.5 },
-  { n: '04', title: 'Lancio di un prodotto', note: 'Il prodotto, i vantaggi, il prezzo. Chiaro e veloce.' },
+  { n: '04', title: 'Lancio di un prodotto', note: 'Sette gusti, una linea: CSD Pop raccontata in 30 secondi.', src: '/video-slide/film-prodotto.mp4', poster: '/video-slide/film-prodotto.jpg', start: 1.6 },
   { n: '05', title: 'Report aziendale', note: 'Numeri e grafici che si capiscono al primo sguardo.' },
   { n: '06', title: 'Menu e locale', note: 'Piatti, orari e prenotazioni, raccontati in motion.' },
 ];
@@ -219,7 +219,7 @@ export default function MediaPage({ children }: { children?: React.ReactNode }) 
       <h1>Le idee si capiscono<br/><span>quando si muovono.</span></h1>
       <p>{mediaIntro}</p>
       <a className="station-button" href="#slide">Guarda gli esempi <ArrowDown size={18}/></a>
-      <div className="nfc-benefits"><span><Check size={15}/> 15 slide a 49 €</span><span><Check size={15}/> Video da 99 € ogni 2 minuti</span></div>
+      <div className="nfc-benefits"><span><Check size={15}/> 15 slide a 49 €</span><span><Check size={15}/> Video da 99 € ogni 2 minuti</span><span className="mh-student"><GraduationCap size={15}/> Studenti universitari: −50%</span></div>
     </div><div className="media-hero-art">
       <div className="mh-slide" aria-hidden="true"><div className="mh-peek" key={peek}><span className="ms-eyebrow">PROSSIMA · {heroScenes[peek].sector.toUpperCase()}</span><b>{heroScenes[peek].title}</b><PeekVisual kind={heroScenes[peek].kind}/></div></div>
       <div className="mh-video" aria-hidden="true"><video ref={heroVideo} onTimeUpdate={e => setPeek((Math.floor(e.currentTarget.currentTime / 5) + 1) % heroScenes.length)} src="/video-slide/media-motion.mp4" poster="/video-slide/media-motion.jpg" autoPlay muted loop playsInline preload="metadata"/><span className="mh-rec"><i/> MOTION</span></div>
@@ -248,6 +248,7 @@ export default function MediaPage({ children }: { children?: React.ReactNode }) 
           <ul className="web-points">{['Grafiche, testi e dati animati', 'Otto come guida in ogni scena', 'Musica ed effetti sonori, senza voce fuori campo', 'Full HD 1920×1080, pronto per il web'].map(p => <li key={p}><Check size={14}/>{p}</li>)}</ul>
           <a className="station-button" href={whatsapp('Ciao Carlo! Mi interessa un video motion interattivo (99 € ogni 2 minuti).')} target="_blank" rel="noreferrer">Richiedi un video <ArrowUpRight size={17}/></a></article>
       </div>
+      <a className="mp-student" href="/terms-of-service/#studenti"><GraduationCap size={22}/><span><b>Studenti universitari: 50% di sconto</b> su slide e video per tesi, tesine ed esami. Basta un documento che provi l’iscrizione.</span><ArrowUpRight size={17}/></a>
       <p className="catalog-note">Gli esempi usano un marchio dimostrativo e dati verosimili, non clienti reali. Pianoforte delle colonne sonore: Salamander Grand Piano di Alexander Holm (<a href="https://creativecommons.org/licenses/by/3.0/" target="_blank" rel="noreferrer">CC BY 3.0</a>).</p>
     </section>
 

@@ -204,3 +204,8 @@
 
 /* fuori schermo o dietro un video aperto le slide non si disegnano: il video resta fluido */
 .ms-stage.is-idle iframe{visibility:hidden}
+/* sconto studenti: un bollino in alto e una fascia sotto i prezzi */
+.mh-student{color:#2d4a1f;background:#c5f476;border-radius:20px;padding:2px 10px 2px 8px}
+.mp-student{display:flex;align-items:center;gap:14px;margin-top:18px;padding:16px 20px;border-radius:14px;background:#c5f476;color:#172015;border:1px solid #a9c95f;font-size:15px;line-height:1.45;transition:transform .2s,box-shadow .2s}
+.mp-student b{font-weight:700}.mp-student span{flex:1}
+.mp-student:hover{transform:translateY(-2px);box-shadow:0 12px 28px #2d4a1f26}

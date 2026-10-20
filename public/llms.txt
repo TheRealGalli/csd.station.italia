@@ -26,4 +26,4 @@ Le card NFC aprono un collegamento: non pubblicano recensioni. I report misurano
 
 - [Testo completo dei servizi](https://csd-station.it/llms-full.txt): generato dalle pagine a ogni build.
 - [Privacy](https://csd-station.it/privacy-policy/): dati trattati per ogni servizio; il sito non usa cookie.
-- [Termini](https://csd-station.it/terms-of-service/): condizioni generali e di ogni servizio, sconto studenti del 10% su Video & Slide.
+- [Termini](https://csd-station.it/terms-of-service/): condizioni generali e di ogni servizio, sconto studenti universitari del 50% su Video & Slide.
