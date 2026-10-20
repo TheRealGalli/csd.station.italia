@@ -98,7 +98,8 @@
 @media(prefers-reduced-motion:reduce){.mh-rec i,.mh-bars i{animation:none}.ms-slide,.ms-slide li,.ms-chart b{transition:none}}
 
 /* slide vere incorporate, con le schede per settore */
-.ms-tabs{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin-bottom:18px}
+.ms-tabs{display:flex;gap:8px;justify-content:center;flex-wrap:nowrap;margin-bottom:18px}
+.ms-tabs button{white-space:nowrap}
 .ms-tabs button{display:flex;align-items:center;gap:8px;padding:9px 16px;border-radius:20px;border:1px solid #cfdcc1;background:#f8faf3;color:#4d5a42;font-size:13px;cursor:pointer}
 .ms-tabs button small{font:9px ui-monospace,monospace;letter-spacing:1px;color:#9aa38f}
 .ms-tabs button[aria-selected=true]{background:#1d2b16;color:#e6f0da;border-color:#1d2b16}
