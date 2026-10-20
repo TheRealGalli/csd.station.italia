@@ -239,6 +239,9 @@ footer button:disabled{opacity:.3;cursor:default}
 .steps{position:absolute;inset:8% 0 16%;display:grid;gap:2vh;align-content:center}
 .step{display:flex;gap:1.2vw;align-items:center;padding:2vh 1.4vw;border-radius:12px;border:1px solid #34462a;background:#151d13;opacity:.35;transform:translateX(30px);transition:.6s cubic-bezier(.2,.8,.2,1)}
 .step.on{opacity:1;transform:none;border-color:var(--line);background:var(--card)}
+.step:not(.on){opacity:.6}
+.step .enc,.step .dec{font-family:ui-monospace,monospace;letter-spacing:.04em;color:#5d7444}
+.step b.enc,.step b.dec{color:#7b9262}
 .step i{flex:none;width:clamp(30px,3.4vw,46px);aspect-ratio:1;border-radius:50%;background:var(--lime);color:var(--ink);display:grid;place-items:center;font-style:normal;font-weight:700}
 .step b{display:block;font-size:clamp(13px,1.5vw,20px);font-weight:500}
 .step small{font-size:clamp(10px,1.05vw,13px);color:var(--muted)}
@@ -386,7 +389,7 @@ document.addEventListener('click',e=>{const b=e.target.closest('[data-do]');if(!
   if(a==='reveal'){if(revealed<4&&!b.disabled){SFX.click(.48);SFX.pop(.64)}const bars=[...document.querySelectorAll('#bars div')];if(revealed>=bars.length||b.disabled)return;const k=revealed,bar=bars[k],m=$('#mano');revealed++;b.disabled=true;pointAt(k);setTimeout(()=>{m.classList.remove('tap');void m.offsetWidth;m.classList.add('tap')},480);setTimeout(()=>{bar.classList.add('on');const em=bar.querySelector('em');em.textContent=em.dataset.v;$('#revealHint').textContent=revealed+' di 4 dati mostrati';b.disabled=false;if(revealed===bars.length){b.classList.add('done');setTimeout(()=>{bars[1].classList.add('dim');$('#verdict').classList.add('show');m.style.opacity=0;done(s)},700)}},640)}
   if(a==='flip'&&!b.classList.contains('open')){SFX.flip();b.classList.add('open');flipped++;$('#flipHint').textContent='Clicca sulle schede · '+flipped+' di 3';if(flipped===3)done(s)}
   if(a==='answer'){const q=$('#quiz');if(q.classList.contains('answered'))return;if(b.hasAttribute('data-right'))SFX.right();else{SFX.buzz();SFX.right(.3)}q.classList.add('answered');q.querySelectorAll('button').forEach(x=>x.classList.add(x.hasAttribute('data-right')?'right':(x===b?'wrong':'')||'x'));setTimeout(()=>done(s),700)}
-  if(a==='step'){SFX.click();SFX.pop(.1);const st=document.querySelectorAll('#steps .step');if(step<st.length){st[step].classList.add('on');step++;$('#stepHint').textContent=step+' di 3'}if(step===st.length){b.classList.add('done');done(s)}}
+  if(a==='step'){SFX.click();SFX.pop(.1);const st=document.querySelectorAll('#steps .step');if(step<st.length){st[step].classList.add('on');decrypt(st[step]);step++;$('#stepHint').textContent=step+' di 3'}if(step===st.length){b.classList.add('done');done(s)}}
   if(a==='party'){if(b.disabled)return;b.disabled=true;b.classList.add('done');s.classList.add('party');const c=$('#confetti'),W=c.clientWidth,H=c.clientHeight,cols=['#c5f476','#f6f7f2','#9fc35c','#e4c76b','#7b9262'];
     // due cannoni in basso sparano per tre secondi senza pause; ogni coriandolo segue una parabola con gravità e ondeggia
     const shoot=()=>{for(const side of [0,1]){const i=document.createElement('i'),x0=side?W*.96:W*.04,y0=H*.98,ang=(side?-1:1)*(.18+Math.random()*.42),v=H*(1.25+Math.random()*.6),vx=Math.sin(ang)*v,vy=-Math.cos(ang)*v,g=H*1.6,T=2.6+Math.random()*1.2,spin=(Math.random()-.5)*1800,sway=12+Math.random()*24;
@@ -401,6 +404,12 @@ document.addEventListener('click',e=>{const b=e.target.closest('[data-do]');if(!
 function dropWords(){const box=$('#compare').getBoundingClientRect();document.querySelectorAll('.before .w').forEach(w=>{const r=w.getBoundingClientRect(),fall=box.bottom-r.top+30+Math.random()*80,d=Math.random()*380+(r.top-box.top)/box.height*320;
   w.animate([{transform:'none'},{transform:`translate(${(Math.random()-.5)*50}px,${fall}px) rotate(${(Math.random()-.5)*200}deg)`}],{duration:600+Math.random()*350,delay:d,easing:'cubic-bezier(.55,0,1,.45)',fill:'forwards'})})}
 function resetWords(){document.querySelectorAll('.before .w').forEach(w=>w.getAnimations().forEach(a=>a.cancel()))}
+// slide 7: i passi non ancora sbloccati mostrano testo criptato che cambia di continuo; al clic si decifra lettera per lettera
+const GLYPHS='ABCDEFGHJKLMNPQRSTUVWXYZ0123456789#%&@$*+=<>/';
+const scramble=t=>t.replace(/\S/g,()=>GLYPHS[(Math.random()*GLYPHS.length)|0]);
+const encEls=[];document.querySelectorAll('#steps .step:not(.on)').forEach(st=>st.querySelectorAll('b,small').forEach(el=>{el.dataset.t=el.textContent;el.classList.add('enc');el.textContent=scramble(el.dataset.t);encEls.push(el)}));
+setInterval(()=>{if(!slides[6].classList.contains('on'))return;encEls.forEach(el=>{if(el.classList.contains('enc'))el.textContent=scramble(el.dataset.t)})},110);
+function decrypt(st){st.querySelectorAll('.enc').forEach(el=>{el.classList.replace('enc','dec');const t=el.dataset.t;let k=0;const steps=22;const tm=setInterval(()=>{k++;const n=Math.floor(t.length*k/steps);el.textContent=t.slice(0,n)+scramble(t.slice(n));if(k>=steps){clearInterval(tm);el.textContent=t;el.classList.remove('dec')}},28)})}
 function pointAt(k){const bar=document.querySelectorAll('#bars div')[k],m=$('#mano'),v=m.parentElement;if(!bar||!v.offsetWidth)return;const vb=v.getBoundingClientRect(),i=bar.querySelector('i').getBoundingClientRect();m.style.left=(i.left-vb.left+i.width*.45)+'px';m.style.top=(i.top-vb.top-m.offsetHeight*.62)+'px'}
 new MutationObserver(()=>{if(slides[3].classList.contains('on'))setTimeout(()=>pointAt(Math.max(0,revealed-1)),60)}).observe(slides[3],{attributes:true,attributeFilter:['class']});
 window.addEventListener('resize',()=>pointAt(Math.max(0,revealed-1)));
