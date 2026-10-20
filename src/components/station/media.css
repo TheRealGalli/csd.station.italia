@@ -8,8 +8,7 @@
 .mh-slide{position:absolute;left:10px;top:0;width:300px;aspect-ratio:16/9;border-radius:12px;background:#f8faf3;padding:18px 20px;box-shadow:14px 20px 40px #0007;transform:rotate(5deg);display:flex;flex-direction:column;color:#1d2b16}
 .mh-slide b{font-size:15px;font-weight:600;margin-top:6px}
 .mh-bars{flex:1;display:flex;align-items:flex-end;gap:10px;margin-top:10px}
-.mh-bars i{flex:1;border-radius:4px 4px 0 0;background:linear-gradient(#c5f476,#7b9262);animation:mh-grow 3s ease-in-out infinite}
-.mh-bars i:nth-child(1){height:55%}.mh-bars i:nth-child(2){height:70%;animation-delay:.2s}.mh-bars i:nth-child(3){height:62%;animation-delay:.4s}.mh-bars i:nth-child(4){height:88%;animation-delay:.6s}
+.mh-bars i{flex:1;border-radius:4px 4px 0 0;background:linear-gradient(#c5f476,#7b9262);transform-origin:bottom;animation:mh-rise .7s cubic-bezier(.2,.9,.3,1.2) both}
 .mh-chip{right:auto;left:40px;top:auto;bottom:40px}
 @keyframes mh-blink{50%{opacity:0}}
 @keyframes mh-grow{0%,100%{transform:scaleY(1)}50%{transform:scaleY(.82)}}
@@ -97,3 +96,11 @@
 .ms-hint{text-align:center;margin-top:16px;font-size:12px;color:#758467}
 .ms-hint a{color:#2d4a1f;text-decoration:underline;display:inline-flex;align-items:center;gap:3px}
 .ms-stage:has(iframe){aspect-ratio:auto;min-height:540px;background:#131b13;transition:height .3s}
+
+/* card dietro: a ogni cambio scena entra la slide successiva e le barre si ricostruiscono */
+.mh-slide{animation:mh-card .6s cubic-bezier(.2,.8,.2,1) both,mh-float 6s ease-in-out .6s infinite}
+.mh-slide b{display:-webkit-box;-webkit-line-clamp:1;-webkit-box-orient:vertical;overflow:hidden}
+@keyframes mh-card{from{opacity:0;transform:rotate(9deg) translate(-30px,14px)}to{opacity:1;transform:rotate(5deg)}}
+@keyframes mh-float{0%,100%{transform:rotate(5deg) translateY(0)}50%{transform:rotate(4deg) translateY(-6px)}}
+@keyframes mh-rise{from{transform:scaleY(0)}to{transform:scaleY(1)}}
+@media(prefers-reduced-motion:reduce){.mh-slide,.mh-bars i{animation:none}}

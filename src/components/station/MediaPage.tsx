@@ -59,8 +59,18 @@ function VideoCard({ v, onOpen }: { v: Demo; onOpen: () => void }) {
   </article>;
 }
 
+// La card dietro il video anticipa la scena successiva (il video cambia settore ogni 5 secondi).
+const heroScenes = [
+  { sector: 'Università', title: 'Come arrivano gli studenti', bars: [46, 38, 52, 74] },
+  { sector: 'Ristorante', title: 'Coperti della settimana', bars: [40, 55, 70, 95] },
+  { sector: 'Negozio', title: 'Lancio del nuovo prodotto', bars: [30, 48, 66, 82] },
+  { sector: 'Azienda', title: 'Risultati del trimestre', bars: [62, 58, 74, 88] },
+  { sector: 'Startup', title: 'Il mercato che puntiamo', bars: [90, 60, 38, 20] },
+  { sector: 'Officina', title: 'Tagliandi e revisioni', bars: [52, 21, 13, 34] },
+];
+
 export default function MediaPage({ children }: { children?: React.ReactNode }) {
-  const [open, setOpen] = useState<Demo | null>(null);
+  const [open, setOpen] = useState<Demo | null>(null), [peek, setPeek] = useState(1);
   useEffect(() => {
     if (!open) return;
     const esc = (e: KeyboardEvent) => { if (e.key === 'Escape') setOpen(null); };
@@ -74,8 +84,8 @@ export default function MediaPage({ children }: { children?: React.ReactNode }) 
       <a className="station-button" href="#slide">Guarda gli esempi <ArrowDown size={18}/></a>
       <div className="nfc-benefits"><span><Check size={15}/> 15 slide a 49 €</span><span><Check size={15}/> Video da 99 € ogni 2 minuti</span></div>
     </div><div className="media-hero-art" aria-hidden="true">
-      <div className="mh-slide"><span className="ms-eyebrow">02 / PRODUZIONE</span><b>kWh per kW installato</b><div className="mh-bars"><i/><i/><i/><i/></div></div>
-      <div className="mh-video"><video src="/video-slide/media-motion.mp4" poster="/video-slide/media-motion.jpg" autoPlay muted loop playsInline preload="metadata"/><span className="mh-rec"><i/> MOTION · 1920×1080</span></div>
+      <div className="mh-slide" key={peek}><span className="ms-eyebrow">PROSSIMA · {heroScenes[peek].sector.toUpperCase()}</span><b>{heroScenes[peek].title}</b><div className="mh-bars">{heroScenes[peek].bars.map((h, k) => <i key={k} style={{ height: `${h}%`, animationDelay: `${k * .08}s` }}/>)}</div></div>
+      <div className="mh-video"><video onTimeUpdate={e => setPeek((Math.floor(e.currentTarget.currentTime / 5) + 1) % heroScenes.length)} src="/video-slide/media-motion.mp4" poster="/video-slide/media-motion.jpg" autoPlay muted loop playsInline preload="metadata"/><span className="mh-rec"><i/> MOTION · 1920×1080</span></div>
       <span className="product-float mh-chip"><OttoIcon mood="happy" size={18}/> OTTO TI GUIDA</span>
     </div></div></section>
 
