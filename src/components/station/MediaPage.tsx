@@ -4,7 +4,7 @@ import { mediaIntro } from '@/seo/content';
 import { OttoIcon } from './OttoIcon';
 import './media.css';
 
-// Video & Slide: vetrina dei video motion (99 € ogni 2 minuti) e delle slide interattive (49 € ogni 15).
+// Video & Slide: vetrina delle slide interattive (49 € ogni 15) e dei video motion (99 € ogni 2 minuti).
 // I materiali arrivano dalla sessione di produzione (Remotion + FFmpeg): basta indicare qui src e poster.
 const whatsapp = (message: string) => `https://wa.me/393518628203?text=${encodeURIComponent(message)}`;
 export const mediaContact = whatsapp('Ciao Carlo! Vorrei informazioni su video motion e slide interattive.');
@@ -80,36 +80,36 @@ export default function MediaPage({ children }: { children?: React.ReactNode }) 
   }, [open]);
   return <>
     <section className="nfc-hero media-hero"><div className="wrap nfc-hero-layout"><div>
-      <Eyebrow>VIDEO MOTION E SLIDE INTERATTIVE</Eyebrow>
+      <Eyebrow>SLIDE INTERATTIVE E VIDEO MOTION</Eyebrow>
       <h1>Le idee si capiscono<br/><span>quando si muovono.</span></h1>
       <p>{mediaIntro}</p>
-      <a className="station-button" href="#video">Guarda gli esempi <ArrowDown size={18}/></a>
-      <div className="nfc-benefits"><span><Check size={15}/> Video da 99 € ogni 2 minuti</span><span><Check size={15}/> 15 slide a 49 €</span></div>
+      <a className="station-button" href="#slide">Guarda gli esempi <ArrowDown size={18}/></a>
+      <div className="nfc-benefits"><span><Check size={15}/> 15 slide a 49 €</span><span><Check size={15}/> Video da 99 € ogni 2 minuti</span></div>
     </div><div className="media-hero-art" aria-hidden="true">
       <div className="mh-slide"><span className="ms-eyebrow">02 / PRODUZIONE</span><b>kWh per kW installato</b><div className="mh-bars"><i/><i/><i/><i/></div></div>
-      <div className="mh-video"><video src="/sito-social/site-motion.mp4" poster="/sito-social/site-motion.jpg" autoPlay muted loop playsInline preload="metadata"/><span className="mh-rec"><i/> MOTION · 1920×1080</span></div>
+      <div className="mh-video"><video src="/video-slide/media-motion.mp4" poster="/video-slide/media-motion.jpg" autoPlay muted loop playsInline preload="metadata"/><span className="mh-rec"><i/> MOTION · 1920×1080</span></div>
       <span className="product-float mh-chip"><OttoIcon mood="happy" size={18}/> OTTO TI GUIDA</span>
     </div></div></section>
 
-    <section className="media-section wrap" id="video">
-      <div className="section-heading"><div><Eyebrow>01 / VIDEO MOTION</Eyebrow><h2>Sei esempi da 30 secondi.<br/><span>Nessuna voce, solo ritmo.</span></h2></div><p>Grafiche animate, dati verosimili e Otto che guida lo sguardo. Musica di sottofondo ed effetti sonori sincronizzati a ogni clic.</p></div>
-      <div className="mv-grid">{videos.map(v => <VideoCard key={v.n} v={v} onOpen={() => setOpen(v)}/>)}</div>
-    </section>
-
     <section className="media-section media-slides" id="slide"><div className="wrap media-slides-inner">
-      <div className="section-heading"><div><Eyebrow>02 / SLIDE INTERATTIVE</Eyebrow><h2>Presentazioni che<br/><span>si sfogliano da sole.</span></h2></div><p>Layout moderni per presentazioni web, esportabili per Google Slides. Prova a sfogliare l’esempio con le frecce.</p></div>
+      <div className="section-heading"><div><Eyebrow>01 / SLIDE INTERATTIVE</Eyebrow><h2>Presentazioni che<br/><span>si sfogliano da sole.</span></h2></div><p>Layout moderni per presentazioni web, esportabili per Google Slides. Prova a sfogliare l’esempio con le frecce.</p></div>
       <SlideDeck/>
     </div></section>
+
+    <section className="media-section wrap" id="video">
+      <div className="section-heading"><div><Eyebrow>02 / VIDEO MOTION</Eyebrow><h2>Sei esempi da 30 secondi.<br/><span>Nessuna voce, solo ritmo.</span></h2></div><p>Grafiche animate, dati verosimili e Otto che guida lo sguardo. Musica di sottofondo ed effetti sonori sincronizzati a ogni clic.</p></div>
+      <div className="mv-grid">{videos.map(v => <VideoCard key={v.n} v={v} onOpen={() => setOpen(v)}/>)}</div>
+    </section>
 
     <section className="media-section wrap" id="prezzi">
       <div className="section-heading"><div><Eyebrow>03 / PREZZI</Eyebrow><h2>Due formati.<br/>Prezzi chiari.</h2></div><p>Si parte dai tuoi contenuti: testi, dati e immagini. Al resto pensiamo noi, dall’idea al file finito.</p></div>
       <div className="mp-grid">
-        <article className="mp-card"><Clapperboard size={28}/><h3>Video motion interattivo</h3><div className="price-row"><strong>99 €</strong><span>ogni 2 minuti di contenuto</span></div>
-          <ul className="web-points">{['Grafiche, testi e dati animati', 'Otto come guida in ogni scena', 'Musica ed effetti sonori, senza voce fuori campo', 'Full HD 1920×1080, pronto per il web'].map(p => <li key={p}><Check size={14}/>{p}</li>)}</ul>
-          <a className="station-button" href={whatsapp('Ciao Carlo! Mi interessa un video motion interattivo (99 € ogni 2 minuti).')} target="_blank" rel="noreferrer">Richiedi un video <ArrowUpRight size={17}/></a></article>
         <article className="mp-card"><Presentation size={28}/><h3>Slide interattive</h3><div className="price-row"><strong>49 €</strong><span>pacchetto da 15 slide</span></div>
           <ul className="web-points">{['Layout moderni e coerenti', 'Grafici e numeri leggibili', 'Presentazione web o esportazione per Google Slides', 'Otto e il tuo marchio, se vuoi'].map(p => <li key={p}><Check size={14}/>{p}</li>)}</ul>
           <a className="station-button" href={whatsapp('Ciao Carlo! Mi interessano le slide interattive (49 € per 15 slide).')} target="_blank" rel="noreferrer">Richiedi le slide <ArrowUpRight size={17}/></a></article>
+        <article className="mp-card"><Clapperboard size={28}/><h3>Video motion interattivo</h3><div className="price-row"><strong>99 €</strong><span>ogni 2 minuti di contenuto</span></div>
+          <ul className="web-points">{['Grafiche, testi e dati animati', 'Otto come guida in ogni scena', 'Musica ed effetti sonori, senza voce fuori campo', 'Full HD 1920×1080, pronto per il web'].map(p => <li key={p}><Check size={14}/>{p}</li>)}</ul>
+          <a className="station-button" href={whatsapp('Ciao Carlo! Mi interessa un video motion interattivo (99 € ogni 2 minuti).')} target="_blank" rel="noreferrer">Richiedi un video <ArrowUpRight size={17}/></a></article>
       </div>
       <p className="catalog-note">Gli esempi usano un marchio dimostrativo e dati verosimili, non clienti reali.</p>
     </section>
@@ -131,7 +131,7 @@ export function MediaMobile() {
   return <div className="mobile-landing"><section className="mobile-section media-mobile">
     <span className="mobile-eyebrow"><i/> VIDEO & SLIDE</span>
     <h1>Questa sezione<br/><em>si apre dal computer.</em></h1>
-    <p>Video motion da 99 € ogni 2 minuti e slide interattive da 49 € ogni 15: gli esempi sono pensati per lo schermo grande.</p>
+    <p>Slide interattive da 49 € ogni 15 e video motion da 99 € ogni 2 minuti: gli esempi sono pensati per lo schermo grande.</p>
     <div className="media-mobile-icon"><Monitor size={40}/></div>
     <a className="mobile-primary" href={mediaContact} target="_blank" rel="noreferrer">Scrivimi su WhatsApp <ArrowUpRight size={20}/></a>
   </section></div>;
