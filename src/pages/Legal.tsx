@@ -200,7 +200,7 @@ const termini: Section[] = [
     </ul>
     <h3>Pacchetto Presenza</h3>
     <ul>
-      <li>90 € di attivazione una tantum e 290 € al mese, con Sito standard e Social Base inclusi; dominio intestato all’attività e gestito da noi.</li>
+      <li>90 € di attivazione una tantum e 290 € al mese, con Sito standard incluso e 10 caroselli e 6 reel al mese; dominio intestato all’attività e gestito da noi.</li>
       <li>Si può interrompere in qualsiasi momento: il sito resta online fino alla fine del mese pagato. Su richiesta trasferiamo il dominio al Cliente e consegniamo i file del sito, senza costi aggiuntivi.</li>
     </ul>
     <h3>Montaggio e clipping video</h3>

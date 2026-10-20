@@ -23,10 +23,10 @@ const videos: Demo[] = [
 ];
 
 // Slide interattive vere, una presentazione da 15 slide per settore (file HTML autonomi in /video-slide/).
-type Deck = { sector: string; src?: string; slides?: number };
+type Deck = { sector: string; src?: string; slides?: number; bg?: string };
 const decks: Deck[] = [
   { sector: 'Università', src: '/video-slide/slide-01-universita.html', slides: 8 },
-  { sector: 'Prodotto' }, { sector: 'Immobili', src: '/video-slide/casa/index.html', slides: 6 }, { sector: 'Cibo' }, { sector: 'Grafici' }, { sector: 'Veicoli', src: '/video-slide/slide-06-auto.html', slides: 8 }, { sector: 'Hardware' },
+  { sector: 'Prodotto' }, { sector: 'Immobili', src: '/video-slide/casa/index.html', slides: 6, bg: '#dfd8cd' }, { sector: 'Cibo' }, { sector: 'Grafici' }, { sector: 'Veicoli', src: '/video-slide/slide-06-auto.html', slides: 8 }, { sector: 'Hardware' },
 ];
 
 function SlideDeck() {
@@ -76,7 +76,7 @@ function SlideDeck() {
   return <div className="ms-deck">
     <div className="ms-tabs" role="tablist" aria-label="Presentazioni per settore">{decks.map((d, k) => <button key={d.sector} type="button" role="tab" aria-selected={k === i} disabled={!d.src} onClick={() => setI(k)}>{d.sector}{d.src ? null : <small>In arrivo</small>}</button>)}</div>
     <div className="ms-frame">
-      <div className="ms-stage" style={height ? { height } : undefined}>{deck.src && <iframe key={deck.src} src={deck.src} title={`Slide interattive: ${deck.sector}`} ref={frameRef}/>}</div>
+      <div className="ms-stage" style={{ ...(height ? { height } : {}), ...(deck.bg ? { background: deck.bg } : {}) }}>{deck.src && <iframe key={deck.src} src={deck.src} title={`Slide interattive: ${deck.sector}`} ref={frameRef}/>}</div>
       {say && <div className={`ms-otto${throwing ? ' throwing' : ''}`} aria-hidden="true"><Otto mood={happy ? 'happy' : 'awake'}/></div>}
       {say && <p className="ms-say" key={say} aria-live="polite">{say}</p>}
     </div>

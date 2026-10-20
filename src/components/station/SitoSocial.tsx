@@ -130,11 +130,11 @@ export default function SitoSocial({ children }: { children?: React.ReactNode })
     <section className="web-bundle" id="pacchetto"><div className="wrap web-bundle-inner">
       <div><Eyebrow>03 / IL PACCHETTO PRESENZA</Eyebrow><h2>Sito nuovo e social.<br/><span>Un solo canone.</span></h2><p>Il Sito standard è compreso nel canone. Paghi l’attivazione una volta, poi una quota fissa al mese. Nessun vincolo: puoi interrompere quando vuoi.</p></div>
       <div className="web-bundle-card">
-        <span className="web-bundle-tag">SITO STANDARD + SOCIAL BASE</span>
+        <span className="web-bundle-tag">SITO STANDARD + SOCIAL</span>
         <div className="web-bundle-price"><strong>290 €</strong><span>al mese</span></div>
         <small>+ 90 € di attivazione, una sola volta</small>
-        <ul className="web-points">{['Sito standard incluso nel canone', 'Social Base: 8 caroselli e 4 reel al mese', 'Dominio gestito da noi e intestato alla tua attività', 'Puoi interrompere in qualsiasi momento'].map(point => <li key={point}><Check size={14}/>{point}</li>)}</ul>
-        <a className="station-button" href={whatsapp('Ciao Carlo! Mi interessa il Pacchetto Presenza (Sito standard + Social Base). Possiamo parlarne?')} target="_blank" rel="noreferrer">Richiedi il pacchetto <ArrowUpRight size={17}/></a>
+        <ul className="web-points">{['Sito standard incluso nel canone', '10 caroselli e 6 reel al mese', 'Dominio gestito da noi e intestato alla tua attività', 'Puoi interrompere in qualsiasi momento'].map(point => <li key={point}><Check size={14}/>{point}</li>)}</ul>
+        <a className="station-button" href={whatsapp('Ciao Carlo! Mi interessa il Pacchetto Presenza (Sito standard, 10 caroselli e 6 reel al mese). Possiamo parlarne?')} target="_blank" rel="noreferrer">Richiedi il pacchetto <ArrowUpRight size={17}/></a>
       </div>
     </div></section>
 
