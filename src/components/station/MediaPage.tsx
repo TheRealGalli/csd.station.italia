@@ -118,9 +118,10 @@ export default function MediaPage({ children }: { children?: React.ReactNode }) 
       <a className="station-button" href="#slide">Guarda gli esempi <ArrowDown size={18}/></a>
       <div className="nfc-benefits"><span><Check size={15}/> 15 slide a 49 €</span><span><Check size={15}/> Video da 99 € ogni 2 minuti</span></div>
     </div><div className="media-hero-art" aria-hidden="true">
-      <div className="mh-slide" key={peek}><span className="ms-eyebrow">PROSSIMA · {heroScenes[peek].sector.toUpperCase()}</span><b>{heroScenes[peek].title}</b><PeekVisual kind={heroScenes[peek].kind}/></div>
+      <div className="mh-slide"><div className="mh-peek" key={peek}><span className="ms-eyebrow">PROSSIMA · {heroScenes[peek].sector.toUpperCase()}</span><b>{heroScenes[peek].title}</b><PeekVisual kind={heroScenes[peek].kind}/></div></div>
       <div className="mh-video"><video onTimeUpdate={e => setPeek((Math.floor(e.currentTarget.currentTime / 5) + 1) % heroScenes.length)} src="/video-slide/media-motion.mp4" poster="/video-slide/media-motion.jpg" autoPlay muted loop playsInline preload="metadata"/><span className="mh-rec"><i/> MOTION</span></div>
       <span className="product-float mh-chip"><OttoIcon mood="happy" size={18}/> OTTO TI GUIDA</span>
+      <div className="mh-sectors">{['Università', 'Ristorante', 'Negozio', 'Azienda', 'Startup', 'Concessionarie e autofficine'].map((l, k) => <span key={l} className={k === (peek + 5) % 6 ? 'on' : undefined}>{l.toUpperCase()}</span>)}</div>
     </div></div></section>
 
     <section className="media-section media-slides" id="slide"><div className="wrap media-slides-inner">

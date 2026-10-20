@@ -98,16 +98,18 @@
 .ms-stage:has(iframe){aspect-ratio:auto;min-height:540px;background:#131b13;transition:height .3s}
 
 /* card dietro: a ogni cambio scena entra la slide successiva e le barre si ricostruiscono */
-.mh-slide{animation:mh-card .6s cubic-bezier(.2,.8,.2,1) both,mh-float 6s ease-in-out .6s infinite}
+/* la card resta ferma e ondeggia sempre; a ogni cambio scena si rinnova solo il contenuto, in dissolvenza */
+.mh-slide{animation:mh-float 6s ease-in-out infinite}
+.mh-peek{flex:1;min-height:0;display:flex;flex-direction:column;animation:mh-in .5s cubic-bezier(.2,.8,.2,1) both}
+@keyframes mh-in{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
 .mh-slide b{display:-webkit-box;-webkit-line-clamp:1;-webkit-box-orient:vertical;overflow:hidden}
-@keyframes mh-card{from{opacity:0;transform:rotate(9deg) translate(-30px,14px)}to{opacity:1;transform:rotate(5deg)}}
 @keyframes mh-float{0%,100%{transform:rotate(5deg) translateY(0)}50%{transform:rotate(4deg) translateY(-6px)}}
 @keyframes mh-rise{from{transform:scaleY(0)}to{transform:scaleY(1)}}
 @media(prefers-reduced-motion:reduce){.mh-slide,.mh-bars i{animation:none}}
 
 /* card dietro: un'animazione diversa per ogni settore */
 .mh-slide{overflow:hidden}
-.mh-slide>:last-child{flex:1;min-height:0;margin-top:10px}
+.mh-peek>:last-child{flex:1;min-height:0;margin-top:10px}
 .mh-line{width:100%;height:100%;overflow:visible}
 .mh-line polyline{fill:none;stroke:#9fc35c;stroke-width:4;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:1;stroke-dashoffset:1;animation:mh-draw 1.2s ease-out .15s forwards}
 .mh-line circle{fill:#1d2b16;transform-box:fill-box;transform-origin:center;transform:scale(0);animation:mh-pop .4s cubic-bezier(.2,.9,.3,1.4) 1.1s forwards}
@@ -135,3 +137,10 @@
 @keyframes mh-up{from{transform:translateY(16px);opacity:0}to{transform:none;opacity:1}}
 @keyframes mh-fill{from{transform:scaleX(0)}to{transform:scaleX(1)}}
 @media(prefers-reduced-motion:reduce){.mh-slide *{animation:none!important;stroke-dashoffset:0!important;transform:none!important;opacity:1!important}}
+
+/* etichette dei settori serviti: quella del settore in onda nel video si accende */
+.mh-sectors{position:absolute;left:225px;right:0;bottom:6px;display:flex;flex-wrap:wrap;gap:9px 8px;justify-content:flex-end}
+.mh-sectors span{padding:9px 11px;background:#2d3e24;border:1px solid #78925a;border-radius:6px;color:#d2eab9;font:9px ui-monospace,monospace;letter-spacing:.5px;transition:background .4s,color .4s,border-color .4s,transform .4s}
+.mh-sectors span:nth-child(odd){transform:rotate(-3deg)}
+.mh-sectors span:nth-child(even){transform:rotate(3deg)}
+.mh-sectors span.on{background:#c5f476;border-color:#c5f476;color:#1f3a00;transform:rotate(0) translateY(-4px)}
