@@ -26,7 +26,7 @@ const videos: Demo[] = [
 type Deck = { sector: string; src?: string; slides?: number; bg?: string };
 const decks: Deck[] = [
   { sector: 'Università', src: '/video-slide/slide-01-universita.html', slides: 8 },
-  { sector: 'Prodotto' }, { sector: 'Immobili', src: '/video-slide/casa/index.html', slides: 6, bg: '#dfd8cd' }, { sector: 'Cibo' }, { sector: 'Grafici' }, { sector: 'Veicoli', src: '/video-slide/slide-06-auto.html', slides: 8 }, { sector: 'Hardware' },
+  { sector: 'Prodotto', src: '/video-slide/pop/index.html', slides: 8, bg: '#2db7f5' }, { sector: 'Immobili', src: '/video-slide/casa/index.html', slides: 6, bg: '#dfd8cd' }, { sector: 'Cibo' }, { sector: 'Grafici' }, { sector: 'Veicoli', src: '/video-slide/slide-06-auto.html', slides: 8 }, { sector: 'Hardware' },
 ];
 
 function SlideDeck() {
@@ -229,7 +229,7 @@ export default function MediaPage({ children }: { children?: React.ReactNode }) 
     </div></div></section>
 
     <section className="media-section media-slides" id="slide"><div className="wrap media-slides-inner">
-      <div className="section-heading"><div><Eyebrow>01 / SLIDE INTERATTIVE</Eyebrow><h2>Presentazioni che<br/><span>si sfogliano da sole.</span></h2></div><p>Layout moderni per presentazioni web, esportabili per Google Slides. Sfoglia la presentazione d’esempio per l’università.</p></div>
+      <div className="section-heading"><div><Eyebrow>01 / SLIDE INTERATTIVE</Eyebrow><h2>Presentazioni che<br/><span>si sfogliano da sole.</span></h2></div><p>Layout moderni per presentazioni web, esportabili per Google Slides. Sfoglia gli esempi per settore.</p></div>
       <SlideDeck/>
     </div></section>
 
