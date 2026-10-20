@@ -31,13 +31,28 @@ const decks: Deck[] = [
 function SlideDeck() {
   const [i, setI] = useState(0), [height, setHeight] = useState(0);
   const deck = decks[i];
-  // il riquadro prende l'altezza della presentazione, slide per slide: niente barre di scorrimento interne
+  // Il riquadro ha la stessa altezza per tutte le slide: si misura la slide più alta e la si usa per tutte.
   const fit = (e: React.SyntheticEvent<HTMLIFrameElement>) => {
-    const doc = e.currentTarget.contentDocument; if (!doc) return;
-    // dentro il riquadro l'altezza la decide il contenuto, non la finestra (la presentazione usa min-height in vh)
-    const st = doc.createElement('style'); st.textContent = 'main{min-height:0!important}'; doc.head.append(st);
-    const measure = () => setHeight(doc.body.scrollHeight + 2); // +2: il bordo del riquadro
-    measure(); new ResizeObserver(measure).observe(doc.body);
+    const frame = e.currentTarget, doc = frame.contentDocument, win = frame.contentWindow as (Window & { go?: (i: number) => void; index?: number }) | null;
+    if (!doc || !win) return;
+    // dentro il riquadro: niente menu a tendina (restano Avanti e Indietro), Otto più piccolo accanto ai contenuti, spazi più compatti
+    const st = doc.createElement('style');
+    st.textContent = 'main{min-height:0!important;overflow:hidden}.index select{display:none}.visual:has(.mascot){padding-right:120px}.visual .mascot{transform:scale(.5);right:0}.chart{padding:0}.cards,.cards:has(.card:nth-child(3)){padding-bottom:0}.card{padding:16px 20px;font-size:20px}.offers{font-size:52px}.row{padding:7px 0}';
+    doc.head.append(st);
+    const main = doc.querySelector('main'), slides = doc.querySelectorAll('#menu option').length;
+    const measure = () => {
+      if (main && win.go && slides) {
+        const current = Number((doc.getElementById('menu') as HTMLSelectElement | null)?.value ?? 0);
+        main.style.height = '';
+        let tallest = 0;
+        for (let k = 0; k < slides; k++) { win.go(k); tallest = Math.max(tallest, main.offsetHeight); }
+        win.go(current); main.style.height = `${tallest}px`;
+      }
+      setHeight(doc.body.scrollHeight + 2); // +2: il bordo del riquadro
+    };
+    measure();
+    let w = frame.clientWidth;
+    new ResizeObserver(() => { if (frame.clientWidth !== w) { w = frame.clientWidth; measure(); } }).observe(frame);
   };
   return <div className="ms-deck">
     <div className="ms-tabs" role="tablist" aria-label="Presentazioni per settore">{decks.map((d, k) => <button key={d.sector} type="button" role="tab" aria-selected={k === i} disabled={!d.src} onClick={() => setI(k)}>{d.sector}{d.src ? null : <small>In arrivo</small>}</button>)}</div>
