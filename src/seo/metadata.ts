@@ -6,7 +6,7 @@ const titles: Record<ServiceMode, string> = {
   automazioni: 'Consulenza AI, informatica e automazioni per PMI | CSD Station',
   nfc: 'Card, plate e stand NFC per recensioni Google | CSD Station',
   training: 'Training AI aziendale e formazione per PMI | CSD Station',
-  web: 'Siti web, montaggio video e gestione social per attività locali | CSD Station',
+  web: 'Siti web, montaggio video e contenuti social per attività locali | CSD Station',
   media: 'Video motion e slide interattive su misura | CSD Station',
 };
 const descriptions = { automazioni: consultingIntro, nfc: nfcIntro, training: trainingIntro, web: webIntro, media: mediaIntro };
@@ -46,7 +46,7 @@ export function getPageMeta(pathname: string, search = '') {
   if (service) graph.push({
     '@type': 'Service', '@id': `${url}#service`, name: name.replace(' | CSD Station', ''), description, url,
     provider: { '@id': organization['@id'] }, areaServed: { '@type': 'Country', name: 'Italia' },
-    serviceType: mode === 'training' ? ['Training AI aziendale', 'Formazione AI per PMI'] : mode === 'media' ? ['Video motion interattivi', 'Slide interattive', 'Presentazioni per Google Slides'] : mode === 'web' ? ['Siti web', 'Siti con animazioni (motion)', 'Montaggio e clipping video', 'Gestione social media'] : mode === 'nfc' ? ['Card NFC per recensioni Google', 'Plate adesive NFC', 'Stand NFC'] : ['Consulenza AI', 'Consulenza informatica', 'Automazioni aziendali', 'Consulenza hardware e NFC'],
+    serviceType: mode === 'training' ? ['Training AI aziendale', 'Formazione AI per PMI'] : mode === 'media' ? ['Video motion interattivi', 'Slide interattive', 'Presentazioni per Google Slides'] : mode === 'web' ? ['Siti web', 'Siti con motion graphic', 'Montaggio e clipping video', 'Caroselli e reel per i social'] : mode === 'nfc' ? ['Card NFC per recensioni Google', 'Plate adesive NFC', 'Stand NFC'] : ['Consulenza AI', 'Consulenza informatica', 'Automazioni aziendali', 'Consulenza hardware e NFC'],
   });
   if (service && canonicalPath !== '/') graph.push({
     '@type': 'BreadcrumbList', itemListElement: [

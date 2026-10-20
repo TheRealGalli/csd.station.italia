@@ -15,13 +15,13 @@ function Eyebrow({ children }: { children: React.ReactNode }) { return <div clas
 
 const previews = [
   { key: 'site', label: 'Sito', name: 'Sito standard', price: 'da 344 €', tag: 'SITO STANDARD' },
-  { key: '3d', label: 'Motion', name: 'Sito motion capture', price: 'da 744 €', tag: 'MOTION' },
-  { key: 'social', label: 'Social', name: 'Gestione social', price: 'da 149 €/mese', tag: 'CAROSELLI + REEL' },
+  { key: '3d', label: 'Motion', name: 'Sito motion graphic', price: 'da 744 €', tag: 'MOTION' },
+  { key: 'social', label: 'Social', name: 'Social', price: 'da 149 €/mese', tag: 'CAROSELLI + REEL' },
 ] as const;
 
 const sites = [
   { name: 'Sito standard', price: 'da 344 €', unit: 'una tantum', mock: 'site', description: 'Un sito moderno e veloce. Chi ti cerca trova subito quello che serve.', points: ['Ottimizzato per smartphone', 'Menu, orari, mappa e WhatsApp', 'SEO locale e scheda Google collegata'] },
-  { name: 'Sito motion capture', price: 'da 744 €', unit: 'una tantum', mock: '3d', description: 'Il sito standard con animazioni in movimento: le sezioni prendono vita mentre scorri.', points: ['Animazioni e transizioni in movimento', 'Scene animate con il modello che hai già', 'Più sezioni: storia, eventi, galleria'] },
+  { name: 'Sito motion graphic', price: 'da 744 €', unit: 'una tantum', mock: '3d', description: 'Il sito standard con animazioni in movimento: le sezioni prendono vita mentre scorri.', points: ['Animazioni e transizioni in movimento', 'Scene animate con il modello che hai già', 'Più sezioni: storia, eventi, galleria'] },
   { name: 'Montaggio e clipping video', price: 'Su preventivo', unit: 'in base al progetto', mock: 'video', description: 'Dall’idea al video finito: animazioni in motion e montaggio di video anche molto lunghi.', points: ['Animazioni in motion, anche su video reali', 'Montaggio di video lunghi, anche podcast oltre l’ora', 'Clip verticali pronte per Instagram e TikTok'] },
 ];
 
@@ -164,9 +164,9 @@ const instagram = 'https://www.instagram.com/carlogalli.ai';
 // Da telefono: tre blocchi leggeri, dal servizio che costa meno. Niente 3D e niente pacchetto.
 export function SitoSocialMobile() {
   const blocks = [
-    { n: '01', eyebrow: 'GESTIONE SOCIAL', title: <>Ogni mese,<br/><em>contenuti pronti.</em></>, price: 'da 149 €', unit: 'al mese', mock: <SocialMock/>,
+    { n: '01', eyebrow: 'SOCIAL', title: <>Ogni mese,<br/><em>contenuti pronti.</em></>, price: 'da 149 €', unit: 'al mese', mock: <SocialMock/>,
       points: ['8 caroselli e 4 reel al mese con Social Base', '16 caroselli, 8 reel e 10 stories con Social Plus (249 €)', 'Formati per Instagram e TikTok, approvati su WhatsApp'],
-      cta: 'Ciao Carlo! Vorrei informazioni sulla gestione dei social per la mia attività.' },
+      cta: 'Ciao Carlo! Vorrei informazioni su caroselli e reel per i social della mia attività.' },
     { n: '02', eyebrow: 'SITO STANDARD', title: <>La tua vetrina.<br/><em>Veloce e chiara.</em></>, price: 'da 344 €', unit: 'una tantum', mock: <SiteMock/>,
       points: ['Pensato prima di tutto per lo smartphone', 'Menu, orari, mappa e WhatsApp', 'SEO locale e scheda Google collegata'],
       cta: 'Ciao Carlo! Mi interessa il Sito standard per la mia attività.' },

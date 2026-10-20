@@ -265,7 +265,7 @@
 
 .web-desk-wrap>p{color:#777e70;font-size:13px;padding-bottom:6px;max-width:335px}
 
-/* Sito motion capture: la casa esce sopra la scheda invece di essere tagliata */
+/* Sito motion graphic: la casa esce sopra la scheda invece di essere tagliata */
 .web-card:has(.mk-3d){overflow:visible;position:relative;z-index:2}
 .web-card-head:has(.mk-3d){overflow:visible;border-radius:8px 8px 0 0}
 .mk-browser:has(.mk-3d){overflow:visible}
