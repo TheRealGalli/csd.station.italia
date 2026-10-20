@@ -11,12 +11,12 @@ const whatsapp = (message: string) => `https://wa.me/393518628203?text=${encodeU
 export const mediaContact = whatsapp('Ciao Carlo! Vorrei informazioni su video motion e slide interattive.');
 function Eyebrow({ children }: { children: React.ReactNode }) { return <div className="station-eyebrow"><span/>{children}</div>; }
 
-type Demo = { n: string; title: string; note: string; src?: string; poster?: string };
+type Demo = { n: string; title: string; note: string; src?: string; poster?: string; start?: number };
 // Video demo da 30 secondi, 1920×1080, con colonna sonora originale composta per ciascuno.
 const videos: Demo[] = [
-  { n: '01', title: 'Università e tesine', note: 'Da una tesi di 80 pagine a 10 minuti chiari, in 30 secondi.', src: '/video-slide/film-universita.mp4', poster: '/video-slide/film-universita.jpg' },
+  { n: '01', title: 'Università e tesine', note: 'Da una tesi di 80 pagine a 10 minuti chiari, in 30 secondi.', src: '/video-slide/film-universita.mp4', poster: '/video-slide/film-universita.jpg', start: 1.6 },
   { n: '02', title: 'Immobili e progetti', note: 'Dal terreno alla casa finita: un progetto raccontato in 30 secondi.', src: '/video-slide/film-casa.mp4', poster: '/video-slide/film-casa.jpg' },
-  { n: '03', title: 'Veicoli e colori', note: 'Un’icona, sei colori: uno studio colore in 30 secondi.', src: '/video-slide/film-veicoli.mp4', poster: '/video-slide/film-veicoli.jpg' },
+  { n: '03', title: 'Veicoli e colori', note: 'Un’icona, sei colori: uno studio colore in 30 secondi.', src: '/video-slide/film-veicoli.mp4', poster: '/video-slide/film-veicoli.jpg', start: 2.5 },
   { n: '04', title: 'Lancio di un prodotto', note: 'Il prodotto, i vantaggi, il prezzo. Chiaro e veloce.' },
   { n: '05', title: 'Report aziendale', note: 'Numeri e grafici che si capiscono al primo sguardo.' },
   { n: '06', title: 'Menu e locale', note: 'Piatti, orari e prenotazioni, raccontati in motion.' },
@@ -32,7 +32,17 @@ const decks: Deck[] = [
 function SlideDeck() {
   const [i, setI] = useState(0), [height, setHeight] = useState(0), [say, setSay] = useState(''), [happy, setHappy] = useState(false), [throwing, setThrowing] = useState(false);
   const deck = decks[i];
-  const frameRef = useRef<HTMLIFrameElement>(null);
+  const frameRef = useRef<HTMLIFrameElement>(null), stageRef = useRef<HTMLDivElement>(null), [idle, setIdle] = useState(false);
+  // fuori schermo, o con un video aperto sopra, la presentazione smette di disegnarsi
+  useEffect(() => {
+    const stage = stageRef.current; if (!stage) return;
+    let out = false;
+    const sync = () => setIdle(out || document.body.classList.contains('mv-watching'));
+    const io = new IntersectionObserver(([e]) => { out = !e.isIntersecting; sync(); }, { rootMargin: '200px' });
+    io.observe(stage);
+    const mo = new MutationObserver(sync); mo.observe(document.body, { attributes: true, attributeFilter: ['class'] });
+    return () => { io.disconnect(); mo.disconnect(); };
+  }, []);
   // Il riquadro ha la stessa altezza per tutte le slide: si misura la slide più alta e la si usa per tutte.
   // Con la pagina prerenderizzata l'iframe può finire di caricare prima di React: per questo si aggancia da un effetto.
   useEffect(() => {
@@ -76,7 +86,7 @@ function SlideDeck() {
   return <div className="ms-deck">
     <div className="ms-tabs" role="tablist" aria-label="Presentazioni per settore">{decks.map((d, k) => <button key={d.sector} type="button" role="tab" aria-selected={k === i} disabled={!d.src} onClick={() => setI(k)}>{d.sector}{d.src ? null : <small>In arrivo</small>}</button>)}</div>
     <div className="ms-frame">
-      <div className="ms-stage" style={{ ...(height ? { height } : {}), ...(deck.bg ? { background: deck.bg } : {}) }}>{deck.src && <iframe key={deck.src} src={deck.src} title={`Slide interattive: ${deck.sector}`} ref={frameRef}/>}</div>
+      <div ref={stageRef} className={`ms-stage${idle ? ' is-idle' : ''}`} style={{ ...(height ? { height } : {}), ...(deck.bg ? { background: deck.bg } : {}) }}>{deck.src && <iframe key={deck.src} src={deck.src} title={`Slide interattive: ${deck.sector}`} ref={frameRef}/>}</div>
       {say && <div className={`ms-otto${throwing ? ' throwing' : ''}`} aria-hidden="true"><Otto mood={happy ? 'happy' : 'awake'}/></div>}
       {say && <p className="ms-say" key={say} aria-live="polite">{say}</p>}
     </div>
@@ -87,7 +97,7 @@ function SlideDeck() {
 function VideoCard({ v, onOpen }: { v: Demo; onOpen: () => void }) {
   return <article className={`mv-card ${v.src ? '' : 'soon'}`}>
     <button type="button" className="mv-frame" onClick={v.src ? onOpen : undefined} disabled={!v.src} aria-label={v.src ? `Guarda: ${v.title}` : `${v.title}: in arrivo`}
-      onMouseEnter={e => e.currentTarget.querySelector('video')?.play().catch(() => {})} onMouseLeave={e => { const vid = e.currentTarget.querySelector('video'); if (vid) { vid.pause(); vid.currentTime = 0; } }}>
+      onMouseEnter={e => { const vid = e.currentTarget.querySelector('video'); if (!vid) return; if (vid.currentTime < (v.start ?? 0)) vid.currentTime = v.start ?? 0; vid.play().catch(() => {}); }} onMouseLeave={e => { const vid = e.currentTarget.querySelector('video'); if (vid) { vid.pause(); vid.currentTime = v.start ?? 0; } }}>
       {v.src ? <video src={v.src} poster={v.poster} muted loop playsInline preload="metadata"/> : <span className="mv-soon"><OttoIcon mood="think" size={34}/><b>In arrivo</b></span>}
       <span className="mv-n">{v.n}</span>
       {v.src && <span className="mv-play"><Play size={22} fill="currentColor"/></span>}
@@ -146,7 +156,7 @@ function OttoRunner({ hit, textRef, boxRef }: { hit: number; textRef: React.RefO
     if (boxRef.current) io.observe(boxRef.current);
     const G = 900, SIZE = 16, CEIL = -13, RUN = 62;
     const step = (now: number) => {
-      if (!visible) return;
+      if (!visible || document.body.classList.contains('mv-watching')) return;
       const dt = Math.min(.05, (now - last) / 1000); last = now;
       const p = st.current, box = boxRef.current, text = textRef.current, node = el.current;
       if (box && text && node) {
@@ -182,6 +192,22 @@ function OttoRunner({ hit, textRef, boxRef }: { hit: number; textRef: React.RefO
 export default function MediaPage({ children }: { children?: React.ReactNode }) {
   const [open, setOpen] = useState<Demo | null>(null), [peek, setPeek] = useState(1);
   const chipRef = useRef<HTMLSpanElement>(null), chipText = useRef<HTMLSpanElement>(null);
+  const heroVideo = useRef<HTMLVideoElement>(null);
+  // un solo video alla volta: quello aperto. L'hero si ferma fuori schermo e mentre si guarda un esempio.
+  useEffect(() => {
+    document.body.classList.toggle('mv-watching', !!open);
+    if (open) document.querySelectorAll<HTMLVideoElement>('.mv-card video').forEach(v => v.pause());
+    return () => document.body.classList.remove('mv-watching');
+  }, [open]);
+  useEffect(() => {
+    const vid = heroVideo.current; if (!vid) return;
+    let seen = true;
+    const sync = () => { if (seen && !document.body.classList.contains('mv-watching')) vid.play().catch(() => {}); else vid.pause(); };
+    const io = new IntersectionObserver(([e]) => { seen = e.isIntersecting; sync(); });
+    io.observe(vid);
+    const mo = new MutationObserver(sync); mo.observe(document.body, { attributes: true, attributeFilter: ['class'] });
+    return () => { io.disconnect(); mo.disconnect(); };
+  }, []);
   useEffect(() => {
     if (!open) return;
     const esc = (e: KeyboardEvent) => { if (e.key === 'Escape') setOpen(null); };
@@ -196,7 +222,7 @@ export default function MediaPage({ children }: { children?: React.ReactNode }) 
       <div className="nfc-benefits"><span><Check size={15}/> 15 slide a 49 €</span><span><Check size={15}/> Video da 99 € ogni 2 minuti</span></div>
     </div><div className="media-hero-art">
       <div className="mh-slide" aria-hidden="true"><div className="mh-peek" key={peek}><span className="ms-eyebrow">PROSSIMA · {heroScenes[peek].sector.toUpperCase()}</span><b>{heroScenes[peek].title}</b><PeekVisual kind={heroScenes[peek].kind}/></div></div>
-      <div className="mh-video" aria-hidden="true"><video onTimeUpdate={e => setPeek((Math.floor(e.currentTarget.currentTime / 5) + 1) % heroScenes.length)} src="/video-slide/media-motion.mp4" poster="/video-slide/media-motion.jpg" autoPlay muted loop playsInline preload="metadata"/><span className="mh-rec"><i/> MOTION</span></div>
+      <div className="mh-video" aria-hidden="true"><video ref={heroVideo} onTimeUpdate={e => setPeek((Math.floor(e.currentTarget.currentTime / 5) + 1) % heroScenes.length)} src="/video-slide/media-motion.mp4" poster="/video-slide/media-motion.jpg" autoPlay muted loop playsInline preload="metadata"/><span className="mh-rec"><i/> MOTION</span></div>
       <span className="product-float mh-chip" aria-hidden="true" ref={chipRef}><span className={`mh-chip-in in-${(peek + 5) % 4}`} key={`otto-${(peek + 5) % 6}`} ref={chipText}>{ottoLines[(peek + 5) % 6].text} <i>{ottoLines[(peek + 5) % 6].emoji}</i></span><OttoRunner hit={peek} textRef={chipText} boxRef={chipRef}/></span>
       <div className="mh-note" aria-hidden="true"><b>COME LAVORO</b><ul><li>Studio del contenuto e del pubblico</li><li>Coerenza in ogni slide</li><li>Pensate per essere condivise</li></ul><small>Qualità sì, viralità garantita no.</small></div>
       <a className="mh-click" href={whatsapp('Ciao Carlo! Vorrei slide e video come quelli della pagina Video & Slide.')} target="_blank" rel="noreferrer"><span>Voglio slide così</span><svg viewBox="0 0 24 28" width="18" height="21" aria-hidden="true"><path d="M2 2 L2 22 L8 16 L12 26 L16 24 L12 14 L20 14 Z" fill="#f8faf3" stroke="#1d2b16" strokeWidth="1.6" strokeLinejoin="round"/></svg><small>SCRIVIMI SU WHATSAPP</small></a>
@@ -229,7 +255,7 @@ export default function MediaPage({ children }: { children?: React.ReactNode }) 
 
     {open && <div className="mv-lightbox" role="dialog" aria-modal="true" aria-label={open.title} onClick={() => setOpen(null)}>
       <div className="mv-player" onClick={e => e.stopPropagation()}>
-        <video src={open.src} poster={open.poster} controls autoPlay playsInline/>
+        <video src={open.src} poster={open.poster} controls autoPlay playsInline preload="auto"/>
         <button type="button" className="mv-close" onClick={() => setOpen(null)} aria-label="Chiudi"><X size={20}/></button>
         <span className="mv-title">{open.n} · {open.title}</span>
       </div>
