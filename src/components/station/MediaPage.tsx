@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { ArrowDown, ArrowUpRight, Check, Clapperboard, Monitor, Play, Presentation, X } from 'lucide-react';
 import { mediaIntro } from '@/seo/content';
 import { OttoIcon } from './OttoIcon';
@@ -31,32 +31,41 @@ const decks: Deck[] = [
 function SlideDeck() {
   const [i, setI] = useState(0), [height, setHeight] = useState(0);
   const deck = decks[i];
+  const frameRef = useRef<HTMLIFrameElement>(null);
   // Il riquadro ha la stessa altezza per tutte le slide: si misura la slide più alta e la si usa per tutte.
-  const fit = (e: React.SyntheticEvent<HTMLIFrameElement>) => {
-    const frame = e.currentTarget, doc = frame.contentDocument, win = frame.contentWindow as (Window & { go?: (i: number) => void; index?: number }) | null;
-    if (!doc || !win) return;
-    // dentro il riquadro: niente menu a tendina (restano Avanti e Indietro), Otto più piccolo accanto ai contenuti, spazi più compatti
-    const st = doc.createElement('style');
-    st.textContent = 'main{min-height:0!important;overflow:hidden}.index select{display:none}.visual:has(.mascot){padding-right:120px}.visual .mascot{transform:scale(.5);right:0}.chart{padding:0}.cards,.cards:has(.card:nth-child(3)){padding-bottom:0}.card{padding:16px 20px;font-size:20px}.offers{font-size:52px}.row{padding:7px 0}';
-    doc.head.append(st);
-    const main = doc.querySelector('main'), slides = doc.querySelectorAll('#menu option').length;
-    const measure = () => {
-      if (main && win.go && slides) {
-        const current = Number((doc.getElementById('menu') as HTMLSelectElement | null)?.value ?? 0);
-        main.style.height = '';
-        let tallest = 0;
-        for (let k = 0; k < slides; k++) { win.go(k); tallest = Math.max(tallest, main.offsetHeight); }
-        win.go(current); main.style.height = `${tallest}px`;
-      }
-      setHeight(doc.body.scrollHeight + 2); // +2: il bordo del riquadro
+  // Con la pagina prerenderizzata l'iframe può finire di caricare prima di React: per questo si aggancia da un effetto.
+  useEffect(() => {
+    const frame = frameRef.current; if (!frame) return;
+    let observer: ResizeObserver | undefined;
+    const fit = () => {
+      const doc = frame.contentDocument, win = frame.contentWindow as (Window & { go?: (i: number) => void }) | null;
+      if (!doc || !win || !doc.getElementById('menu') || doc.getElementById('csd-fit')) return;
+      // dentro il riquadro: niente menu a tendina (restano Avanti e Indietro), Otto più piccolo accanto ai contenuti, spazi più compatti
+      const st = doc.createElement('style'); st.id = 'csd-fit';
+      st.textContent = 'main{min-height:0!important;overflow:hidden}.index select{display:none!important}.visual:has(.mascot){padding-right:120px}.visual .mascot{transform:scale(.5);right:0}.chart{padding:0}.cards,.cards:has(.card:nth-child(3)){padding-bottom:0}.card{padding:16px 20px;font-size:20px}.offers{font-size:52px}.row{padding:7px 0}';
+      doc.head.append(st);
+      const main = doc.querySelector('main'), menu = doc.getElementById('menu') as HTMLSelectElement, slides = menu.options.length;
+      const measure = () => {
+        if (main && win.go && slides) {
+          const current = Number(menu.value || 0);
+          main.style.height = '';
+          let tallest = 0;
+          for (let k = 0; k < slides; k++) { win.go(k); tallest = Math.max(tallest, main.offsetHeight); }
+          win.go(current); main.style.height = `${tallest}px`;
+        }
+        setHeight(doc.body.scrollHeight + 2); // +2: il bordo del riquadro
+      };
+      measure();
+      let w = frame.clientWidth;
+      observer = new ResizeObserver(() => { if (frame.clientWidth !== w) { w = frame.clientWidth; measure(); } });
+      observer.observe(frame);
     };
-    measure();
-    let w = frame.clientWidth;
-    new ResizeObserver(() => { if (frame.clientWidth !== w) { w = frame.clientWidth; measure(); } }).observe(frame);
-  };
+    fit(); frame.addEventListener('load', fit);
+    return () => { frame.removeEventListener('load', fit); observer?.disconnect(); };
+  }, [deck.src]);
   return <div className="ms-deck">
     <div className="ms-tabs" role="tablist" aria-label="Presentazioni per settore">{decks.map((d, k) => <button key={d.sector} type="button" role="tab" aria-selected={k === i} disabled={!d.src} onClick={() => setI(k)}>{d.sector}{d.src ? null : <small>In arrivo</small>}</button>)}</div>
-    <div className="ms-stage" style={height ? { height } : undefined}>{deck.src && <iframe key={deck.src} src={deck.src} title={`Slide interattive: ${deck.sector}`} onLoad={fit}/>}</div>
+    <div className="ms-stage" style={height ? { height } : undefined}>{deck.src && <iframe key={deck.src} src={deck.src} title={`Slide interattive: ${deck.sector}`} ref={frameRef}/>}</div>
     <p className="ms-hint">15 slide · usa le frecce o i pulsanti dentro la presentazione · <a href={deck.src} target="_blank" rel="noreferrer">apri a schermo intero <ArrowUpRight size={13}/></a></p>
   </div>;
 }
@@ -100,7 +109,7 @@ export default function MediaPage({ children }: { children?: React.ReactNode }) 
       <div className="nfc-benefits"><span><Check size={15}/> 15 slide a 49 €</span><span><Check size={15}/> Video da 99 € ogni 2 minuti</span></div>
     </div><div className="media-hero-art" aria-hidden="true">
       <div className="mh-slide" key={peek}><span className="ms-eyebrow">PROSSIMA · {heroScenes[peek].sector.toUpperCase()}</span><b>{heroScenes[peek].title}</b><div className="mh-bars">{heroScenes[peek].bars.map((h, k) => <i key={k} style={{ height: `${h}%`, animationDelay: `${k * .08}s` }}/>)}</div></div>
-      <div className="mh-video"><video onTimeUpdate={e => setPeek((Math.floor(e.currentTarget.currentTime / 5) + 1) % heroScenes.length)} src="/video-slide/media-motion.mp4" poster="/video-slide/media-motion.jpg" autoPlay muted loop playsInline preload="metadata"/><span className="mh-rec"><i/> MOTION · 1920×1080</span></div>
+      <div className="mh-video"><video onTimeUpdate={e => setPeek((Math.floor(e.currentTarget.currentTime / 5) + 1) % heroScenes.length)} src="/video-slide/media-motion.mp4" poster="/video-slide/media-motion.jpg" autoPlay muted loop playsInline preload="metadata"/><span className="mh-rec"><i/> MOTION</span></div>
       <span className="product-float mh-chip"><OttoIcon mood="happy" size={18}/> OTTO TI GUIDA</span>
     </div></div></section>
 
