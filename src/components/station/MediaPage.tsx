@@ -122,8 +122,58 @@ function PeekVisual({ kind }: { kind: Peek }) {
   return <div className="mh-garage"><img src="/video-slide/peek-auto.png" alt=""/><span>52 tagliandi</span></div>;
 }
 
+// Otto in miniatura che corre avanti e indietro nello spazio libero del bollino.
+// Quando la scritta cambia entra di colpo e lo colpisce: Otto vola, rimbalza su pavimento, soffitto e pareti
+// con gravità e schiacciamento, poi atterra e riprende a correre. Spazio stretto = percorso corto.
+function OttoRunner({ hit, textRef, boxRef }: { hit: number; textRef: React.RefObject<HTMLElement>; boxRef: React.RefObject<HTMLElement> }) {
+  const el = useRef<HTMLSpanElement>(null);
+  const st = useRef({ x: 200, y: 0, vx: 55, vy: 0, squash: 0, t: 0 });
+  useEffect(() => {
+    // colpo: spinta verso destra e verso l'alto, più forte se la nuova scritta lo invade
+    const p = st.current, box = boxRef.current, text = textRef.current; if (!box || !text) return;
+    const wall = text.offsetLeft + text.offsetWidth + 10;
+    p.vy = -(170 + Math.random() * 90); p.vx = 140 + Math.random() * 120 + (p.x < wall ? 120 : 0);
+  }, [hit, boxRef, textRef]);
+  useEffect(() => {
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    let raf = 0, last = performance.now(), lastRaf = 0;
+    const G = 900, SIZE = 16, CEIL = -13, RUN = 62;
+    const step = (now: number) => {
+      const dt = Math.min(.05, (now - last) / 1000); last = now;
+      const p = st.current, box = boxRef.current, text = textRef.current, node = el.current;
+      if (box && text && node) {
+        const left = text.offsetLeft + text.offsetWidth + 10, right = box.clientWidth - SIZE - 10;
+        const airborne = p.y < 0 || p.vy < 0;
+        if (airborne) {
+          p.vy += G * dt; p.y += p.vy * dt;
+          if (p.y >= 0) { p.y = 0; if (p.vy > 60) { p.squash = Math.min(1, p.vy / 300); p.vy = -p.vy * .55; } else p.vy = 0; }
+          if (p.y < CEIL) { p.y = CEIL; p.vy = Math.abs(p.vy) * .5; p.squash = .5; }
+          p.vx *= Math.pow(.6, dt); // l'aria lo frena un poco
+        } else {
+          // a terra corre: rallenta o accelera dolcemente verso la velocità di corsa
+          const dir = Math.sign(p.vx) || 1; p.vx += (dir * RUN - p.vx) * Math.min(1, dt * 3);
+        }
+        p.x += p.vx * dt;
+        if (p.x < left) { p.x = left; p.vx = Math.abs(p.vx) * (airborne ? .7 : 1); if (airborne) p.squash = Math.max(p.squash, .35); }
+        if (p.x > right) { p.x = Math.max(left, right); p.vx = -Math.abs(p.vx) * (airborne ? .7 : 1); if (airborne) p.squash = Math.max(p.squash, .35); }
+        p.squash = Math.max(0, p.squash - dt * 5); p.t += dt;
+        const bob = airborne ? 0 : -Math.abs(Math.sin(p.t * 14)) * 2; // passettini mentre corre
+        const sx = 1 + p.squash * .35, sy = 1 - p.squash * .35, flip = p.vx < 0 ? -1 : 1, tilt = airborne ? p.vx * .06 : flip * 6;
+        node.style.transform = `translate(${p.x}px, ${p.y + bob}px) rotate(${tilt}deg) scale(${sx * flip}, ${sy})`;
+      }
+    };
+    const frame = (now: number) => { lastRaf = performance.now(); step(now); raf = requestAnimationFrame(frame); };
+    raf = requestAnimationFrame(frame);
+    // se il browser non concede fotogrammi (scheda o pannello in secondo piano) la fisica va avanti a timer
+    const backup = setInterval(() => { if (performance.now() - lastRaf > 120) step(performance.now()); }, 40);
+    return () => { cancelAnimationFrame(raf); clearInterval(backup); };
+  }, [boxRef, textRef]);
+  return <span className="mh-runner" ref={el} aria-hidden="true"><OttoIcon mood="happy" size={16}/></span>;
+}
+
 export default function MediaPage({ children }: { children?: React.ReactNode }) {
   const [open, setOpen] = useState<Demo | null>(null), [peek, setPeek] = useState(1);
+  const chipRef = useRef<HTMLSpanElement>(null), chipText = useRef<HTMLSpanElement>(null);
   useEffect(() => {
     if (!open) return;
     const esc = (e: KeyboardEvent) => { if (e.key === 'Escape') setOpen(null); };
@@ -139,7 +189,7 @@ export default function MediaPage({ children }: { children?: React.ReactNode }) 
     </div><div className="media-hero-art">
       <div className="mh-slide" aria-hidden="true"><div className="mh-peek" key={peek}><span className="ms-eyebrow">PROSSIMA · {heroScenes[peek].sector.toUpperCase()}</span><b>{heroScenes[peek].title}</b><PeekVisual kind={heroScenes[peek].kind}/></div></div>
       <div className="mh-video" aria-hidden="true"><video onTimeUpdate={e => setPeek((Math.floor(e.currentTarget.currentTime / 5) + 1) % heroScenes.length)} src="/video-slide/media-motion.mp4" poster="/video-slide/media-motion.jpg" autoPlay muted loop playsInline preload="metadata"/><span className="mh-rec"><i/> MOTION</span></div>
-      <span className="product-float mh-chip" aria-hidden="true"><span className={`mh-chip-in in-${(peek + 5) % 4}`} key={`otto-${(peek + 5) % 6}`}><OttoIcon mood={ottoLines[(peek + 5) % 6].mood} size={18}/> {ottoLines[(peek + 5) % 6].text} <i>{ottoLines[(peek + 5) % 6].emoji}</i></span></span>
+      <span className="product-float mh-chip" aria-hidden="true" ref={chipRef}><span className={`mh-chip-in in-${(peek + 5) % 4}`} key={`otto-${(peek + 5) % 6}`} ref={chipText}><OttoIcon mood={ottoLines[(peek + 5) % 6].mood} size={18}/> {ottoLines[(peek + 5) % 6].text} <i>{ottoLines[(peek + 5) % 6].emoji}</i></span><OttoRunner hit={peek} textRef={chipText} boxRef={chipRef}/></span>
       <div className="mh-note" aria-hidden="true"><b>COME LAVORO</b><ul><li>Studio del contenuto e del pubblico</li><li>Coerenza in ogni slide</li><li>Pensate per essere condivise</li></ul><small>Qualità sì, viralità garantita no.</small></div>
       <a className="mh-click" href={whatsapp('Ciao Carlo! Vorrei slide e video come quelli della pagina Video & Slide.')} target="_blank" rel="noreferrer"><span>Voglio slide così</span><svg viewBox="0 0 24 28" width="18" height="21" aria-hidden="true"><path d="M2 2 L2 22 L8 16 L12 26 L16 24 L12 14 L20 14 Z" fill="#f8faf3" stroke="#1d2b16" strokeWidth="1.6" strokeLinejoin="round"/></svg><small>SCRIVIMI SU WHATSAPP</small></a>
       <div className="mh-sectors" aria-hidden="true">{['Università', 'Ristorante', 'Negozio', 'Azienda', 'Startup', 'Concessionarie e autofficine'].map((l, k) => <span key={l} className={k === (peek + 5) % 6 ? 'on' : undefined}>{l.toUpperCase()}</span>)}</div>

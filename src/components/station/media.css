@@ -167,8 +167,8 @@
 .mh-note b{font:8px ui-monospace,monospace;letter-spacing:1.5px;color:#7b9262}
 .mh-note ul{list-style:none;margin:8px 0 8px;padding:0;display:grid;gap:6px}
 .mh-note li{position:relative;padding-left:20px;font-size:11px;font-weight:600;letter-spacing:-.01em}
-.mh-note li:before{content:'';position:absolute;left:0;top:1px;width:12px;height:12px;border:1.5px solid #1d2b16;border-radius:3px}
-.mh-note li:after{content:'✓';position:absolute;left:2px;top:-3px;font-size:14px;color:#5f8a2a;opacity:0;animation:mh-tick 4.5s infinite}
+.mh-note li:before{content:'';position:absolute;left:0;top:1px;width:13px;height:13px;box-sizing:border-box;border:1.5px solid #1d2b16;border-radius:3px}
+.mh-note li:after{content:'✓';position:absolute;left:0;top:1px;width:13px;height:13px;display:grid;place-items:center;font-size:11px;line-height:1;font-weight:800;color:#5f8a2a;opacity:0;animation:mh-tick 4.5s infinite}
 .mh-note li:nth-child(2):after{animation-delay:.5s}.mh-note li:nth-child(3):after{animation-delay:1s}
 .mh-note small{display:block;font-size:9px;color:#7d806f;font-style:italic}
 @keyframes mh-tick{0%,8%{opacity:0;transform:scale(1.8)}14%,85%{opacity:1;transform:none}95%,100%{opacity:0}}
@@ -190,3 +190,8 @@
 .ms-say:before{content:'';position:absolute;left:-7px;bottom:12px;border:7px solid transparent;border-right-color:#c5f476;border-left:0}
 @keyframes ms-say{from{opacity:0;transform:translateX(-12px) scale(.9)}to{opacity:1;transform:none}}
 @media(max-width:1340px){.ms-say{left:auto;right:150px;bottom:150px}}
+/* Otto che corre nel bollino: la posizione la calcola la fisica in JavaScript */
+.mh-chip{position:absolute}
+.mh-chip-in{position:relative;z-index:1}
+.mh-runner{position:absolute;left:0;top:50%;margin-top:-8px;width:16px;height:16px;color:#c5f476;transform-origin:50% 100%;will-change:transform;filter:drop-shadow(0 2px 2px #0006)}
+.mh-runner svg{display:block}
