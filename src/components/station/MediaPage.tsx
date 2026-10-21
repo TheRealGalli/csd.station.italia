@@ -18,7 +18,7 @@ const videos: Demo[] = [
   { n: '02', title: 'Immobili e progetti', note: 'Dal terreno alla casa finita: un progetto raccontato in 30 secondi.', src: '/video-slide/film-casa.mp4', poster: '/video-slide/film-casa.jpg' },
   { n: '03', title: 'Veicoli e colori', note: 'Un’icona, sei colori: uno studio colore in 30 secondi.', src: '/video-slide/film-veicoli.mp4', poster: '/video-slide/film-veicoli.jpg', start: 2.5 },
   { n: '04', title: 'Lancio di un prodotto', note: 'Sette gusti, una linea: CSD Pop raccontata in 30 secondi.', src: '/video-slide/film-prodotto.mp4', poster: '/video-slide/film-prodotto.jpg', start: 1.6 },
-  { n: '05', title: 'Report aziendale', note: 'Numeri e grafici che si capiscono al primo sguardo.' },
+  { n: '05', title: 'Report aziendale', note: 'Ricavi, margine, cassa e consegne: un semestre letto in 30 secondi.', src: '/video-slide/film-report.mp4', poster: '/video-slide/film-report.jpg', start: 2.2 },
   { n: '06', title: 'Menu e locale', note: 'Piatti, orari e prenotazioni, raccontati in motion.' },
 ];
 
