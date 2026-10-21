@@ -26,7 +26,7 @@ const videos: Demo[] = [
 type Deck = { sector: string; src?: string; slides?: number; bg?: string };
 const decks: Deck[] = [
   { sector: 'Università', src: '/video-slide/slide-01-universita.html', slides: 8 },
-  { sector: 'Prodotto', src: '/video-slide/pop/index.html', slides: 8, bg: '#2db7f5' }, { sector: 'Immobili', src: '/video-slide/casa/index.html', slides: 6, bg: '#dfd8cd' }, { sector: 'Cibo' }, { sector: 'Grafici' }, { sector: 'Veicoli', src: '/video-slide/slide-06-auto.html', slides: 8 }, { sector: 'Hardware' },
+  { sector: 'Prodotto', src: '/video-slide/pop/index.html', slides: 8, bg: '#2db7f5' }, { sector: 'Immobili', src: '/video-slide/casa/index.html', slides: 6, bg: '#dfd8cd' }, { sector: 'Cibo' }, { sector: 'Report', src: '/video-slide/report/index.html', slides: 8, bg: '#0B0D10' }, { sector: 'Veicoli', src: '/video-slide/slide-06-auto.html', slides: 8 }, { sector: 'Hardware' },
 ];
 
 function SlideDeck() {
