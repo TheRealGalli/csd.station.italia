@@ -33,6 +33,16 @@ function SlideDeck() {
   const [i, setI] = useState(0), [height, setHeight] = useState(0), [say, setSay] = useState(''), [happy, setHappy] = useState(false), [throwing, setThrowing] = useState(false);
   const deck = decks[i];
   const frameRef = useRef<HTMLIFrameElement>(null), stageRef = useRef<HTMLDivElement>(null), [idle, setIdle] = useState(false);
+  // ogni presentazione sa se è quella visibile (scheda attiva, sezione a schermo, nessun video aperto): così può fermare gli effetti pesanti
+  useEffect(() => {
+    const stage = stageRef.current; if (!stage) return;
+    stage.querySelectorAll('iframe').forEach(f => { const on = f === frameRef.current && !idle; try { f.contentWindow?.postMessage({ csd: 'active', on }, location.origin); } catch { /* presentazione non ancora pronta */ } });
+  });
+  // una presentazione appena caricata chiede se è visibile
+  useEffect(() => {
+    const hello = (e: MessageEvent) => { if (e.data?.csd !== 'hello') return; const f = [...(stageRef.current?.querySelectorAll('iframe') ?? [])].find(x => x.contentWindow === e.source); if (f) (e.source as Window).postMessage({ csd: 'active', on: f === frameRef.current && !idle }, location.origin); };
+    window.addEventListener('message', hello); return () => window.removeEventListener('message', hello);
+  }, [idle]);
   const heights = useRef<Record<string, number>>({}), said = useRef<Record<string, { text: string; happy: boolean }>>({}), [warm, setWarm] = useState(false);
   // tutte le presentazioni restano caricate una sopra l'altra: cambiare categoria è istantaneo.
   // Le altre si caricano solo quando la sezione è vicina, per non appesantire l'apertura della pagina.
