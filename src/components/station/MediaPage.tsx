@@ -33,6 +33,14 @@ function SlideDeck() {
   const [i, setI] = useState(0), [height, setHeight] = useState(0), [say, setSay] = useState(''), [happy, setHappy] = useState(false), [throwing, setThrowing] = useState(false);
   const deck = decks[i];
   const frameRef = useRef<HTMLIFrameElement>(null), stageRef = useRef<HTMLDivElement>(null), [idle, setIdle] = useState(false);
+  const heights = useRef<Record<string, number>>({}), said = useRef<Record<string, { text: string; happy: boolean }>>({}), [warm, setWarm] = useState(false);
+  // tutte le presentazioni restano caricate una sopra l'altra: cambiare categoria è istantaneo.
+  // Le altre si caricano solo quando la sezione è vicina, per non appesantire l'apertura della pagina.
+  useEffect(() => {
+    const stage = stageRef.current; if (!stage) return;
+    const io = new IntersectionObserver(([e]) => { if (e.isIntersecting) { setWarm(true); io.disconnect(); } }, { rootMargin: '700px' });
+    io.observe(stage); return () => io.disconnect();
+  }, []);
   // fuori schermo, o con un video aperto sopra, la presentazione smette di disegnarsi
   useEffect(() => {
     const stage = stageRef.current; if (!stage) return;
@@ -46,16 +54,17 @@ function SlideDeck() {
   // Il riquadro ha la stessa altezza per tutte le slide: si misura la slide più alta e la si usa per tutte.
   // Con la pagina prerenderizzata l'iframe può finire di caricare prima di React: per questo si aggancia da un effetto.
   useEffect(() => {
-    setHeight(0); // ogni presentazione riparte dal riquadro standard
+    setHeight(heights.current[deck.src ?? ''] ?? 0); // ogni presentazione riparte dal suo riquadro, misurato una volta sola
     const frame = frameRef.current; if (!frame) return;
     let observer: ResizeObserver | undefined;
     const fit = () => {
       const doc = frame.contentDocument, win = frame.contentWindow as (Window & { go?: (i: number) => void }) | null;
-      if (!doc || !win || !doc.getElementById('menu') || doc.getElementById('csd-fit')) return;
+      if (!doc || !win || !doc.getElementById('menu')) return;
+      if (heights.current[deck.src ?? '']) return;
       // dentro il riquadro: niente menu a tendina (restano Avanti e Indietro), Otto più piccolo accanto ai contenuti, spazi più compatti
-      const st = doc.createElement('style'); st.id = 'csd-fit';
+      if (!doc.getElementById('csd-fit')) { const st = doc.createElement('style'); st.id = 'csd-fit';
       st.textContent = 'main{min-height:0!important;overflow:hidden}.index select{display:none!important}.visual:has(.mascot){padding-right:120px}.visual .mascot{transform:scale(.5);right:0}.chart{padding:0}.cards,.cards:has(.card:nth-child(3)){padding-bottom:0}.card{padding:16px 20px;font-size:20px}.offers{font-size:52px}.row{padding:7px 0}';
-      doc.head.append(st);
+      doc.head.append(st); }
       const main = doc.querySelector('main'), menu = doc.getElementById('menu') as HTMLSelectElement, slides = menu.options.length;
       const measure = () => {
         if (main && win.go && slides) {
@@ -65,11 +74,11 @@ function SlideDeck() {
           for (let k = 0; k < slides; k++) { win.go(k); tallest = Math.max(tallest, main.offsetHeight); }
           win.go(current); main.style.height = `${tallest}px`;
         }
-        setHeight(doc.body.scrollHeight + 2); // +2: il bordo del riquadro
+        const h = doc.body.scrollHeight + 2; heights.current[deck.src ?? ''] = h; setHeight(h); // +2: il bordo del riquadro
       };
       measure();
       let w = frame.clientWidth;
-      observer = new ResizeObserver(() => { if (frame.clientWidth !== w) { w = frame.clientWidth; measure(); } });
+      observer = new ResizeObserver(() => { if (frame.clientWidth !== w) { w = frame.clientWidth; heights.current[deck.src ?? ''] = 0; measure(); } });
       observer.observe(frame);
     };
     fit(); frame.addEventListener('load', fit);
@@ -77,16 +86,16 @@ function SlideDeck() {
   }, [deck.src]);
   // Le battute di Otto arrivano dalla presentazione e si leggono fuori dal riquadro, accanto a lui.
   useEffect(() => {
-    setSay('');
+    const last = said.current[deck.src ?? '']; setSay(last?.text ?? ''); setHappy(!!last?.happy);
     const listen = (e: MessageEvent) => { if (e.source !== frameRef.current?.contentWindow || e.data?.csd !== 'otto') return;
       if (e.data.action === 'throw') { setThrowing(true); setTimeout(() => setThrowing(false), 700); return; }
-      setSay(String(e.data.text || '')); setHappy(!!e.data.happy); };
+      said.current[deck.src ?? ''] = { text: String(e.data.text || ''), happy: !!e.data.happy }; setSay(String(e.data.text || '')); setHappy(!!e.data.happy); };
     window.addEventListener('message', listen); return () => window.removeEventListener('message', listen);
   }, [deck.src]);
   return <div className="ms-deck">
     <div className="ms-tabs" role="tablist" aria-label="Presentazioni per settore">{decks.map((d, k) => <button key={d.sector} type="button" role="tab" aria-selected={k === i} disabled={!d.src} onClick={() => setI(k)}>{d.sector}{d.src ? null : <small>In arrivo</small>}</button>)}</div>
     <div className="ms-frame">
-      <div ref={stageRef} className={`ms-stage${idle ? ' is-idle' : ''}`} style={{ ...(height ? { height } : {}), ...(deck.bg ? { background: deck.bg } : {}) }}>{deck.src && <iframe key={deck.src} src={deck.src} title={`Slide interattive: ${deck.sector}`} ref={frameRef}/>}</div>
+      <div ref={stageRef} className={`ms-stage${idle ? ' is-idle' : ''}`} style={{ ...(height ? { height } : {}), ...(deck.bg ? { background: deck.bg } : {}) }}>{decks.map((d, k) => d.src && (k === i || warm) ? <iframe key={d.src} src={d.src} title={`Slide interattive: ${d.sector}`} ref={k === i ? frameRef : undefined} className={k === i ? undefined : 'is-off'} aria-hidden={k === i ? undefined : true} tabIndex={k === i ? undefined : -1}/> : null)}</div>
       {say && <div className={`ms-otto${throwing ? ' throwing' : ''}`} aria-hidden="true"><Otto mood={happy ? 'happy' : 'awake'}/></div>}
       {say && <p className="ms-say" key={say} aria-live="polite">{say}</p>}
     </div>
