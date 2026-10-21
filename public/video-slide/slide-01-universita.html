@@ -261,6 +261,10 @@ footer button:disabled{opacity:.3;cursor:default}
 .price{padding:1.8vh 1.2vw;border:1px solid var(--line);border-radius:12px;background:var(--card);min-width:9em}
 .price b{display:block;font-size:clamp(26px,3.4vw,46px);font-weight:500;color:var(--lime);letter-spacing:-.04em;line-height:1}
 .price span{font-size:clamp(10px,1.05vw,13px);color:var(--muted)}
+/* prezzo pieno barrato e prezzo per studenti universitari */
+.price{position:relative}
+.price s{display:block;margin-bottom:.35em;font-size:clamp(12px,1.35vw,19px);color:var(--muted);text-decoration:line-through 2px #ff6b5e}
+.price em{position:absolute;top:-.95em;right:.9em;padding:.28em .7em;border-radius:20px;background:var(--lime);color:#14200f;font-weight:600;font-size:clamp(9px,.85vw,11px);line-height:1;font-style:normal;letter-spacing:.02em}
 .confetti{position:absolute;inset:0;pointer-events:none;overflow:hidden;z-index:5}
 .confetti i{position:absolute;top:-4vh;width:9px;height:14px;border-radius:2px;animation:fall 1.8s cubic-bezier(.3,.6,.6,1) forwards}
 @keyframes fall{0%{transform:translate(0,0) rotate(0)}50%{transform:translate(4vw,55vh) rotate(300deg)}100%{transform:translate(-3vw,112vh) rotate(720deg)}}
@@ -355,7 +359,7 @@ footer button:disabled{opacity:.3;cursor:default}
 <section class="slide s8" data-need="party">
   <div><span class="label">La tua presentazione / 08</span>
     <h1>Pronti per<br><em>il 110 e lode?</em></h1>
-    <div class="prices"><div class="price"><b>49 €</b><span>15 slide interattive</span></div><div class="price"><b>99 €</b><span>ogni 2 minuti di video motion</span></div></div>
+    <div class="prices"><div class="price"><em>Studenti −50%</em><s>49 €</s><b>24,50 €</b><span>15 slide interattive</span></div><div class="price"><em>Studenti −50%</em><s>99 €</s><b>49,50 €</b><span>ogni 2 minuti di video motion</span></div></div>
     <button class="act solid" data-do="party">Festeggia 🎉</button> <a class="act" href="https://wa.me/393518628203?text=Ciao%20Carlo!%20Vorrei%20le%20slide%20animate%20per%20la%20mia%20tesi." target="_blank" rel="noopener">Scrivici su WhatsApp</a></div>
   <div class="visual"><img class="cut laureata" src="uni/laureata.webp" alt="Neolaureata con il diploma"></div>
 </section>
