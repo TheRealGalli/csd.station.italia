@@ -1,9 +1,9 @@
 import { useState, useRef, useEffect } from "react";
 import { useScrollReveal } from "@/hooks/useScrollReveal";
 import { ArrowRight, Star, Zap, ShieldCheck, BarChart3 } from "lucide-react";
-import nfcCardImg from "@/assets/nfc-card.jpg";
-import nfcPlateImg from "@/assets/nfc-plate.png";
-import nfcStandImg from "@/assets/nfc-stand.png";
+import nfcCardImg from "@/assets/nfc-card.webp";
+import nfcPlateImg from "@/assets/nfc-plate.webp";
+import nfcStandImg from "@/assets/nfc-stand.webp";
 
 const NFC_MODELS = [
   {

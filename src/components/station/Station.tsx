@@ -2,12 +2,12 @@ import { useEffect, useState, useSyncExternalStore } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { ArrowUpRight, ArrowRight, ArrowDown, Zap, Workflow, ScanLine, Boxes, ShieldCheck, Check, Mail, FileText, Database, Activity, Radio, Play, RotateCcw, Plus, Minus, BarChart3, Nfc, Cpu, GraduationCap } from 'lucide-react';
 import portrait from '@/assets/profile-web.jpg';
-import card from '@/assets/nfc-card.jpg';
+import card from '@/assets/nfc-card.webp';
 import { getOsProduct, getServiceMode, legalPaths, normalizePath, osPaths, servicePaths, type ServiceMode } from '@/seo/routes';
 import { consultingIntro, nfcIntro } from '@/seo/content';
 import { ServiceAnswers } from './ServiceAnswers';
-import plate from '@/assets/nfc-plate.png';
-import stand from '@/assets/nfc-stand.png';
+import plate from '@/assets/nfc-plate.webp';
+import stand from '@/assets/nfc-stand.webp';
 import './station.css';
 import { GuidedDemo, OttoHero } from './StationExperiences';
 import NfcTapDemo from './NfcTapDemo';
@@ -74,7 +74,7 @@ const contactCopy = {
   automazioni: { id: 'booking', title: <>Partiamo da ciò che<br/>ti fa perdere tempo.</>, text: 'Raccontami su WhatsApp come lavori e dove perdi tempo. Capiamo insieme da dove cominciare.', href: processContact, cta: 'Parliamone su WhatsApp', note: 'Un contatto diretto con Carlo, senza appuntamento' },
   nfc: { id: 'nfc-booking', title: <>La tua prossima recensione<br/>inizia con un tap.</>, text: 'Scegli il formato. Alla configurazione pensiamo noi.', href: whatsapp('Ciao Carlo! Vorrei informazioni sui prodotti NFC di CSD Station.'), cta: 'Scrivimi su WhatsApp', note: 'Preventivo e dettagli di spedizione su richiesta' },
   web: { id: 'web-contatto', title: <>Raccontami la tua attività.<br/>Partiamo da lì.</>, text: 'Mandami il link del tuo sito o del tuo profilo. Ti dico cosa farei e da quale formato partire.', href: webContact, cta: 'Scrivimi su WhatsApp', note: 'Posti limitati: seguo poche attività per volta' },
-  media: { id: 'media-contatto', title: <>Hai una presentazione<br/>da far muovere?</>, text: 'Mandami testi, dati o la bozza delle slide: ti dico cosa si può fare e in quanto tempo.', href: mediaContact, cta: 'Scrivimi su WhatsApp', note: '15 slide a 49 € · Video da 99 € ogni 2 minuti' },
+  media: { id: 'media-contatto', title: <>Hai una presentazione<br/>da far muovere?</>, text: 'Mandami testi, dati o la bozza delle slide: ti dico cosa si può fare e in quanto tempo.', href: mediaContact, cta: 'Scrivimi su WhatsApp', note: '15 slide a 49 € · Video da 99 € al minuto' },
 };
 function Contact({mode = 'automazioni'}: {mode?: Exclude<ServiceMode, 'training'>}) { const c = contactCopy[mode]; return <section className={`contact-section ${mode !== 'automazioni' ? 'nfc-contact' : ''}`} id={c.id}><div className="wrap contact-inner"><div><Eyebrow>IL PROSSIMO PASSO È SEMPLICE</Eyebrow><h2>{c.title}</h2><p>{c.text}</p></div><div className="contact-actions"><a className="station-button" href={c.href} target="_blank" rel="noreferrer">{c.cta}<ArrowUpRight size={18}/></a><span>{c.note}</span><a className="contact-email" href="mailto:carlo@csd-station.it">Oppure scrivimi un’email <ArrowRight size={15}/></a></div></div></section>; }
 function FAQ({mode = 'automazioni'}: {mode?: ServiceMode}) {

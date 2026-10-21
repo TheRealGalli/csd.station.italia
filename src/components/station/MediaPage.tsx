@@ -5,7 +5,7 @@ import { OttoIcon } from './OttoIcon';
 import { Otto } from './StationExperiences';
 import './media.css';
 
-// Video & Slide: vetrina delle slide interattive (49 € ogni 15) e dei video motion (99 € ogni 2 minuti).
+// Video & Slide: vetrina delle slide interattive (49 € ogni 15) e dei video motion (99 € al minuto).
 // I materiali arrivano dalla sessione di produzione (Remotion + FFmpeg): basta indicare qui src e poster.
 const whatsapp = (message: string) => `https://wa.me/393518628203?text=${encodeURIComponent(message)}`;
 export const mediaContact = whatsapp('Ciao Carlo! Vorrei informazioni su video motion e slide interattive.');
@@ -14,12 +14,12 @@ function Eyebrow({ children }: { children: React.ReactNode }) { return <div clas
 type Demo = { n: string; title: string; note: string; src?: string; poster?: string; start?: number };
 // Video demo da 30 secondi, 1920×1080, con colonna sonora originale composta per ciascuno.
 const videos: Demo[] = [
-  { n: '01', title: 'Università e tesine', note: 'Da una tesi di 80 pagine a 10 minuti chiari, in 30 secondi.', src: '/video-slide/film-universita.mp4', poster: '/video-slide/film-universita.jpg', start: 1.6 },
-  { n: '02', title: 'Immobili e progetti', note: 'Dal terreno alla casa finita: un progetto raccontato in 30 secondi.', src: '/video-slide/film-casa.mp4', poster: '/video-slide/film-casa.jpg' },
-  { n: '03', title: 'Veicoli e colori', note: 'Un’icona, sei colori: uno studio colore in 30 secondi.', src: '/video-slide/film-veicoli.mp4', poster: '/video-slide/film-veicoli.jpg', start: 2.5 },
-  { n: '04', title: 'Lancio di un prodotto', note: 'Sette gusti, una linea: CSD Pop raccontata in 30 secondi.', src: '/video-slide/film-prodotto.mp4', poster: '/video-slide/film-prodotto.jpg', start: 1.6 },
-  { n: '05', title: 'Report aziendale', note: 'Ricavi, margine, cassa e consegne: un semestre letto in 30 secondi.', src: '/video-slide/film-report.mp4', poster: '/video-slide/film-report.jpg', start: 2.2 },
-  { n: '06', title: 'Menu e locale', note: 'Piatti, orari e prenotazioni, raccontati in motion.' },
+  { n: '01', title: 'Università e tesine', note: 'Da una tesi di 80 pagine a 10 minuti chiari, in 30 secondi.', src: '/video-slide/film-universita.mp4', poster: '/video-slide/film-universita.webp', start: 1.6 },
+  { n: '02', title: 'Immobili e progetti', note: 'Dal terreno alla casa finita: un progetto raccontato in 30 secondi.', src: '/video-slide/film-casa.mp4', poster: '/video-slide/film-casa.webp' },
+  { n: '03', title: 'Veicoli e colori', note: 'Un’icona, sei colori: uno studio colore in 30 secondi.', src: '/video-slide/film-veicoli.mp4', poster: '/video-slide/film-veicoli.webp', start: 2.5 },
+  { n: '04', title: 'Lancio di un prodotto', note: 'Sette gusti, una linea: CSD Pop raccontata in 30 secondi.', src: '/video-slide/film-prodotto.mp4', poster: '/video-slide/film-prodotto.webp', start: 1.6 },
+  { n: '05', title: 'Report aziendale', note: 'Ricavi, margine, cassa e consegne: un semestre letto in 30 secondi.', src: '/video-slide/film-report.mp4', poster: '/video-slide/film-report.webp', start: 2.2 },
+  { n: '06', title: 'Menu e locale', note: 'Fritto & Burger: un menù raccontato morso dopo morso, in 30 secondi.', src: '/video-slide/film-cibo.mp4', poster: '/video-slide/film-cibo.webp', start: 1.6 },
 ];
 
 // Slide interattive vere, una presentazione da 15 slide per settore (file HTML autonomi in /video-slide/).
@@ -43,12 +43,27 @@ function SlideDeck() {
     const hello = (e: MessageEvent) => { if (e.data?.csd !== 'hello') return; const f = [...(stageRef.current?.querySelectorAll('iframe') ?? [])].find(x => x.contentWindow === e.source); if (f) (e.source as Window).postMessage({ csd: 'active', on: f === frameRef.current && !idle }, location.origin); };
     window.addEventListener('message', hello); return () => window.removeEventListener('message', hello);
   }, [idle]);
-  const heights = useRef<Record<string, number>>({}), said = useRef<Record<string, { text: string; happy: boolean }>>({}), [warm, setWarm] = useState(false);
+  const heights = useRef<Record<string, number>>({}), said = useRef<Record<string, { text: string; happy: boolean }>>({}), [mounted, setMounted] = useState<number[]>([]);
   // tutte le presentazioni restano caricate una sopra l'altra: cambiare categoria è istantaneo.
-  // Le altre si caricano solo quando la sezione è vicina, per non appesantire l'apertura della pagina.
+  // Si caricano solo quando la sezione è vicina, e una alla volta, quando il browser è libero:
+  // avviate tutte insieme bloccavano la pagina per un secondo proprio mentre si scorreva.
+  const warm = useRef(false), loaded = useRef(new Set<string>()), pumping = useRef(false);
+  const pump = useRef(() => {});
+  pump.current = () => {
+    if (!warm.current || pumping.current) return;
+    pumping.current = true;
+    const next = () => {
+      pumping.current = false;
+      stageRef.current?.querySelectorAll('iframe').forEach(f => { try { if (f.contentDocument?.readyState === 'complete') loaded.current.add(f.getAttribute('src') ?? ''); } catch { /* ancora in caricamento */ } });
+      setMounted(m => { const k = decks.findIndex((d, n) => d.src && !m.includes(n) && !loaded.current.has(d.src)); return k < 0 ? m : [...m, k]; });
+    };
+    const w = window as Window & { requestIdleCallback?: (cb: () => void, o?: { timeout: number }) => number };
+    setTimeout(() => w.requestIdleCallback ? w.requestIdleCallback(next, { timeout: 2500 }) : next(), 350);
+  };
+  const onFrameLoad = (src: string) => { loaded.current.add(src); pump.current(); };
   useEffect(() => {
     const stage = stageRef.current; if (!stage) return;
-    const io = new IntersectionObserver(([e]) => { if (e.isIntersecting) { setWarm(true); io.disconnect(); } }, { rootMargin: '700px' });
+    const io = new IntersectionObserver(([e]) => { if (e.isIntersecting) { warm.current = true; pump.current(); io.disconnect(); } }, { rootMargin: '700px' });
     io.observe(stage); return () => io.disconnect();
   }, []);
   // fuori schermo, o con un video aperto sopra, la presentazione smette di disegnarsi
@@ -105,7 +120,7 @@ function SlideDeck() {
   return <div className="ms-deck">
     <div className="ms-tabs" role="tablist" aria-label="Presentazioni per settore">{decks.map((d, k) => <button key={d.sector} type="button" role="tab" aria-selected={k === i} disabled={!d.src} onClick={() => setI(k)}>{d.sector}{d.src ? null : <small>In arrivo</small>}</button>)}</div>
     <div className="ms-frame">
-      <div ref={stageRef} className={`ms-stage${idle ? ' is-idle' : ''}`} style={{ ...(height ? { height } : {}), ...(deck.bg ? { background: deck.bg } : {}) }}>{decks.map((d, k) => d.src && (k === i || warm) ? <iframe key={d.src} src={d.src} title={`Slide interattive: ${d.sector}`} ref={k === i ? frameRef : undefined} className={k === i ? undefined : 'is-off'} aria-hidden={k === i ? undefined : true} tabIndex={k === i ? undefined : -1}/> : null)}</div>
+      <div ref={stageRef} className={`ms-stage${idle ? ' is-idle' : ''}`} style={{ ...(height ? { height } : {}), ...(deck.bg ? { background: deck.bg } : {}) }}>{decks.map((d, k) => d.src && (k === i || mounted.includes(k)) ? <iframe key={d.src} src={d.src} onLoad={() => onFrameLoad(d.src!)} title={`Slide interattive: ${d.sector}`} ref={k === i ? frameRef : undefined} className={k === i ? undefined : 'is-off'} aria-hidden={k === i ? undefined : true} tabIndex={k === i ? undefined : -1}/> : null)}</div>
       {say && <div className={`ms-otto${throwing ? ' throwing' : ''}`} aria-hidden="true"><Otto mood={happy ? 'happy' : 'awake'}/></div>}
       {say && <p className="ms-say" key={say} aria-live="polite">{say}</p>}
     </div>
@@ -174,12 +189,18 @@ function OttoRunner({ hit, textRef, boxRef }: { hit: number; textRef: React.RefO
     const io = new IntersectionObserver(([e]) => { visible = e.isIntersecting; last = performance.now(); });
     if (boxRef.current) io.observe(boxRef.current);
     const G = 900, SIZE = 16, CEIL = -13, RUN = 62;
+    // i bordi si misurano solo quando cambiano: letti a ogni fotogramma obbligavano il browser a reimpaginare tutta la pagina
+    let left = 0, right = 0;
+    const measure = () => { const box = boxRef.current, text = textRef.current; if (box && text) { left = text.offsetLeft + text.offsetWidth + 10; right = box.clientWidth - SIZE - 10; } };
+    measure();
+    const ro = new ResizeObserver(measure);
+    if (boxRef.current) ro.observe(boxRef.current);
+    if (textRef.current) ro.observe(textRef.current);
     const step = (now: number) => {
       if (!visible || document.body.classList.contains('mv-watching')) return;
       const dt = Math.min(.05, (now - last) / 1000); last = now;
       const p = st.current, box = boxRef.current, text = textRef.current, node = el.current;
       if (box && text && node) {
-        const left = text.offsetLeft + text.offsetWidth + 10, right = box.clientWidth - SIZE - 10;
         const airborne = p.y < 0 || p.vy < 0;
         if (airborne) {
           p.vy += G * dt; p.y += p.vy * dt;
@@ -203,7 +224,7 @@ function OttoRunner({ hit, textRef, boxRef }: { hit: number; textRef: React.RefO
     raf = requestAnimationFrame(frame);
     // se il browser non concede fotogrammi (scheda o pannello in secondo piano) la fisica va avanti a timer
     const backup = setInterval(() => { if (performance.now() - lastRaf > 120) step(performance.now()); }, 40);
-    return () => { cancelAnimationFrame(raf); clearInterval(backup); io.disconnect(); };
+    return () => { cancelAnimationFrame(raf); clearInterval(backup); io.disconnect(); ro.disconnect(); };
   }, [boxRef, textRef]);
   return <span className="mh-runner" ref={el} aria-hidden="true"><OttoIcon mood="happy" size={16}/></span>;
 }
@@ -238,7 +259,7 @@ export default function MediaPage({ children }: { children?: React.ReactNode }) 
       <h1>Le idee si capiscono<br/><span>quando si muovono.</span></h1>
       <p>{mediaIntro}</p>
       <a className="station-button" href="#slide">Guarda gli esempi <ArrowDown size={18}/></a>
-      <div className="nfc-benefits"><span><Check size={15}/> 15 slide a 49 €</span><span><Check size={15}/> Video da 99 € ogni 2 minuti</span><span className="mh-student"><GraduationCap size={15}/> Studenti universitari: −50%</span></div>
+      <div className="nfc-benefits"><span><Check size={15}/> 15 slide a 49 €</span><span><Check size={15}/> Video da 99 € al minuto</span><span className="mh-student"><GraduationCap size={15}/> Studenti universitari: −50%</span></div>
     </div><div className="media-hero-art">
       <div className="mh-slide" aria-hidden="true"><div className="mh-peek" key={peek}><span className="ms-eyebrow">PROSSIMA · {heroScenes[peek].sector.toUpperCase()}</span><b>{heroScenes[peek].title}</b><PeekVisual kind={heroScenes[peek].kind}/></div></div>
       <div className="mh-video" aria-hidden="true"><video ref={heroVideo} onTimeUpdate={e => setPeek((Math.floor(e.currentTarget.currentTime / 5) + 1) % heroScenes.length)} src="/video-slide/media-motion.mp4" poster="/video-slide/media-motion.jpg" autoPlay muted loop playsInline preload="metadata"/><span className="mh-rec"><i/> MOTION</span></div>
@@ -263,9 +284,9 @@ export default function MediaPage({ children }: { children?: React.ReactNode }) 
         <article className="mp-card"><Presentation size={28}/><h3>Slide interattive</h3><div className="price-row"><strong>49 €</strong><span>pacchetto da 15 slide</span></div>
           <ul className="web-points">{['Layout moderni e coerenti', 'Grafici e numeri leggibili', 'Presentazione web o esportazione per Google Slides', 'Otto e il tuo marchio, se vuoi'].map(p => <li key={p}><Check size={14}/>{p}</li>)}</ul>
           <a className="station-button" href={whatsapp('Ciao Carlo! Mi interessano le slide interattive (49 € per 15 slide).')} target="_blank" rel="noreferrer">Richiedi le slide <ArrowUpRight size={17}/></a></article>
-        <article className="mp-card"><Clapperboard size={28}/><h3>Video motion interattivo</h3><div className="price-row"><strong>99 €</strong><span>ogni 2 minuti di contenuto</span></div>
+        <article className="mp-card"><Clapperboard size={28}/><h3>Video motion interattivo</h3><div className="price-row"><strong>99 €</strong><span>ogni minuto di contenuto</span></div>
           <ul className="web-points">{['Grafiche, testi e dati animati', 'Otto come guida in ogni scena', 'Musica ed effetti sonori, senza voce fuori campo', 'Full HD 1920×1080, pronto per il web'].map(p => <li key={p}><Check size={14}/>{p}</li>)}</ul>
-          <a className="station-button" href={whatsapp('Ciao Carlo! Mi interessa un video motion interattivo (99 € ogni 2 minuti).')} target="_blank" rel="noreferrer">Richiedi un video <ArrowUpRight size={17}/></a></article>
+          <a className="station-button" href={whatsapp('Ciao Carlo! Mi interessa un video motion interattivo (99 € al minuto).')} target="_blank" rel="noreferrer">Richiedi un video <ArrowUpRight size={17}/></a></article>
       </div>
       <a className="mp-student" href="/terms-of-service/#studenti"><GraduationCap size={22}/><span><b>Studenti universitari: 50% di sconto</b> su slide e video per tesi, tesine ed esami. Basta un documento che provi l’iscrizione.</span><ArrowUpRight size={17}/></a>
       <p className="catalog-note">Gli esempi usano un marchio dimostrativo e dati verosimili, non clienti reali. Pianoforte delle colonne sonore: Salamander Grand Piano di Alexander Holm (<a href="https://creativecommons.org/licenses/by/3.0/" target="_blank" rel="noreferrer">CC BY 3.0</a>).</p>
@@ -290,7 +311,7 @@ export function MediaMobile({ fallback = false }: { fallback?: boolean }) {
   return <div className="mobile-landing"><section className="mobile-section media-mobile">
     <span className="mobile-eyebrow"><i/> VIDEO & SLIDE</span>
     <Title className="mm-title">Questa sezione<br/><em>si apre dal computer.</em></Title>
-    <p>Slide interattive da 49 € ogni 15 e video motion da 99 € ogni 2 minuti: gli esempi sono pensati per lo schermo grande.</p>
+    <p>Slide interattive da 49 € ogni 15 e video motion da 99 € al minuto: gli esempi sono pensati per lo schermo grande.</p>
     <div className="media-mobile-icon"><Monitor size={40}/></div>
     <a className="mobile-primary" href={mediaContact} target="_blank" rel="noreferrer">Scrivimi su WhatsApp <ArrowUpRight size={20}/></a>
   </section></div>;

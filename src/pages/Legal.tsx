@@ -209,7 +209,7 @@ const termini: Section[] = [
   { id: 'video-slide', label: 'Video & Slide', body: <>
     <h3>Per tutti</h3>
     <ul>
-      <li><strong>Slide interattive:</strong> 49 € ogni pacchetto da 15 slide. <strong>Video motion:</strong> 99 € ogni 2 minuti di contenuto (o frazione).</li>
+      <li><strong>Slide interattive:</strong> 49 € ogni pacchetto da 15 slide. <strong>Video motion:</strong> 99 € ogni minuto di contenuto (o frazione).</li>
       <li><strong>Contenuti:</strong> lavoriamo su testi, dati e immagini che ci fornisci; impaginazione, grafica e animazione sono nostre. Un giro di modifiche è incluso.</li>
       <li><strong>Formati:</strong> slide come presentazione web ed esportazione per Google Slides, dove alcune animazioni e interazioni possono non essere riproducibili; video in MP4 Full HD.</li>
       <li><strong>Tempi:</strong> indicati alla conferma, in base alla quantità di materiale.</li>

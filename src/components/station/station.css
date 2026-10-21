@@ -11,7 +11,7 @@
 .station-site :focus-visible,.station-header :focus-visible,.station-footer :focus-visible{outline:3px solid #8daa54;outline-offset:5px}
 .station-site section[id]{scroll-margin-top:104px}
 .wrap{width:min(1240px,calc(100% - 100px));max-width:100%;margin-inline:auto;box-sizing:border-box}
-.station-header{height:88px;background:#101510f2;color:#f5f7ee;position:sticky;top:0;z-index:60;backdrop-filter:blur(20px);border-bottom:1px solid #ffffff14}
+.station-header{height:88px;background:#101510f7;color:#f5f7ee;position:sticky;top:0;z-index:60;border-bottom:1px solid #ffffff14}
 .station-nav{height:100%;display:flex;align-items:center;justify-content:space-between;gap:30px}
 .station-brand{display:flex;align-items:center;gap:11px;font-size:25px;letter-spacing:-1.2px;color:#f2f5ed;font-weight:650;line-height:1.1;white-space:nowrap}
 .brand-light{font-weight:400}.station-brand small{display:block;font-size:7px;letter-spacing:2.4px;margin-top:7px;color:#a1ada0;font-weight:500}
