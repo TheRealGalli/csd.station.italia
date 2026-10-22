@@ -2,6 +2,8 @@ import { useEffect, useRef, useState } from 'react';
 import { GraduationCap, ArrowDown, ArrowUpRight, Check, Clapperboard, Monitor, Play, Presentation, X } from 'lucide-react';
 import { mediaIntro } from '@/seo/content';
 import { OttoIcon } from './OttoIcon';
+import CircularCarousel from '@/components/reactbits/CircularCarousel';
+import DepthCarouselCustom from '@/components/reactbits/DepthCarouselCustom';
 import { Otto } from './StationExperiences';
 import './media.css';
 
@@ -269,7 +271,7 @@ export default function MediaPage({ children }: { children?: React.ReactNode }) 
     </div></div></section>
 
     <section className="media-section media-slides" id="slide"><div className="wrap media-slides-inner">
-      <div className="section-heading"><div><Eyebrow>01 / SLIDE INTERATTIVE</Eyebrow><h2>Presentazioni che<br/><span>si sfogliano da sole.</span></h2></div><p>Layout moderni per presentazioni web, esportabili per Google Slides. Sfoglia gli esempi per settore.</p></div>
+      <div className="section-heading"><div><Eyebrow>01 / SLIDE INTERATTIVE</Eyebrow><h2>Presentazioni che<br/><span>si sfogliano da sole.</span></h2></div><p>Non sono file di PowerPoint: sono pagine React interattive. Si presentano dal browser, girano in loop su uno schermo, diventano la demo di un sito o un carosello dentro le tue pagine. Sfoglia gli esempi per settore.</p></div>
       <SlideDeck/>
     </div></section>
 
@@ -282,7 +284,7 @@ export default function MediaPage({ children }: { children?: React.ReactNode }) 
       <div className="section-heading"><div><Eyebrow>03 / PREZZI</Eyebrow><h2>Due formati.<br/>Prezzi chiari.</h2></div><p>Si parte dai tuoi contenuti: testi, dati e immagini. Al resto pensiamo noi, dall’idea al file finito.</p></div>
       <div className="mp-grid">
         <article className="mp-card"><Presentation size={28}/><h3>Slide interattive</h3><div className="price-row"><strong>49 €</strong><span>pacchetto da 15 slide</span></div>
-          <ul className="web-points">{['Layout moderni e coerenti', 'Grafici e numeri leggibili', 'Presentazione web o esportazione per Google Slides', 'Otto e il tuo marchio, se vuoi'].map(p => <li key={p}><Check size={14}/>{p}</li>)}</ul>
+          <ul className="web-points">{['Layout moderni e coerenti', 'Grafici e numeri leggibili', 'Nel browser, in loop su schermo o dentro il tuo sito', 'Otto e il tuo marchio, se vuoi'].map(p => <li key={p}><Check size={14}/>{p}</li>)}</ul>
           <a className="station-button" href={whatsapp('Ciao Carlo! Mi interessano le slide interattive (49 € per 15 slide).')} target="_blank" rel="noreferrer">Richiedi le slide <ArrowUpRight size={17}/></a></article>
         <article className="mp-card"><Clapperboard size={28}/><h3>Video motion interattivo</h3><div className="price-row"><strong>99 €</strong><span>ogni minuto di contenuto</span></div>
           <ul className="web-points">{['Grafiche, testi e dati animati', 'Otto come guida in ogni scena', 'Musica ed effetti sonori, senza voce fuori campo', 'Full HD 1920×1080, pronto per il web'].map(p => <li key={p}><Check size={14}/>{p}</li>)}</ul>
@@ -304,15 +306,70 @@ export default function MediaPage({ children }: { children?: React.ReactNode }) 
   </>;
 }
 
-// Da telefono la sezione non è ancora pronta: un invito ad aprirla dal computer.
-// fallback: dentro la pagina prerenderizzata il titolo è un h2, per non avere due h1 insieme alla versione desktop
+// Da telefono: tre sezioni come le altre pagine. Hero, poi tutte le presentazioni in un carosello circolare
+// (React Bits CircularCarousel) e tutti i video uno alla volta in un carosello in profondità (React Bits DepthCarousel).
+// fallback: è la versione nella pagina prerenderizzata, nascosta da computer: niente caroselli e niente video in riproduzione
+const deckPreview: Record<string, string> = { Università: 'universita', Prodotto: 'prodotto', Immobili: 'immobili', Cibo: 'cibo', Report: 'report', Veicoli: 'veicoli' };
 export function MediaMobile({ fallback = false }: { fallback?: boolean }) {
   const Title = fallback ? 'h2' : 'h1';
-  return <div className="mobile-landing"><section className="mobile-section media-mobile">
-    <span className="mobile-eyebrow"><i/> VIDEO & SLIDE</span>
-    <Title className="mm-title">Questa sezione<br/><em>si apre dal computer.</em></Title>
-    <p>Slide interattive da 49 € ogni 15 e video motion da 99 € al minuto: gli esempi sono pensati per lo schermo grande.</p>
-    <div className="media-mobile-icon"><Monitor size={40}/></div>
-    <a className="mobile-primary" href={mediaContact} target="_blank" rel="noreferrer">Scrivimi su WhatsApp <ArrowUpRight size={20}/></a>
-  </section></div>;
+  const list = decks.filter(d => d.src), films = videos.filter(v => v.src);
+  const [active, setActive] = useState(0), [deck, setDeck] = useState<Deck | null>(null), [film, setFilm] = useState<Demo | null>(null);
+  const frame = useRef<HTMLIFrameElement>(null), box = useRef<HTMLDivElement>(null), [fit, setFit] = useState(.3);
+  // le presentazioni si aprono nella loro versione da computer (1280×800) rimpicciolita per stare nello schermo:
+  // le pagine HTML, lasciate libere, si adattano al telefono in verticale e la foto finisce sopra il testo
+  useEffect(() => {
+    const el = box.current; if (!deck || !el) return;
+    const measure = () => setFit(Math.min(el.clientWidth / 1280, el.clientHeight / 800));
+    const ro = new ResizeObserver(measure); ro.observe(el); measure(); return () => ro.disconnect();
+  }, [deck]);
+  // la presentazione aperta è visibile: glielo dico, così gli effetti animati partono (il Report aspetta questo segnale)
+  useEffect(() => {
+    if (!deck) return;
+    const hello = (e: MessageEvent) => { if (e.data?.csd === 'hello' && e.source === frame.current?.contentWindow) (e.source as Window).postMessage({ csd: 'active', on: true }, location.origin); };
+    window.addEventListener('message', hello); return () => window.removeEventListener('message', hello);
+  }, [deck]);
+  useEffect(() => {
+    const open = !!(deck || film); document.documentElement.classList.toggle('mm-locked', open);
+    const esc = (e: KeyboardEvent) => { if (e.key === 'Escape') { setDeck(null); setFilm(null); } };
+    if (open) window.addEventListener('keydown', esc);
+    return () => { document.documentElement.classList.remove('mm-locked'); window.removeEventListener('keydown', esc); };
+  }, [deck, film]);
+  const items = list.map(d => ({ src: `/video-slide/anteprime/deck-${deckPreview[d.sector]}.webp`, alt: `Slide interattive: ${d.sector}`, title: d.sector }));
+  return <div className="mobile-landing media-m">
+    <section className="mobile-section mm-hero" aria-labelledby="mm-title">
+      <span className="mobile-eyebrow"><i/> SLIDE INTERATTIVE E VIDEO MOTION</span>
+      <Title id="mm-title" className="mm-title">Le idee si capiscono<br/><em>quando si muovono.</em></Title>
+      <p>{mediaIntro}</p>
+      <div className="mm-hero-video" aria-hidden="true">{fallback ? <img src="/video-slide/media-motion.jpg" alt="" loading="lazy"/> : <video src="/video-slide/media-motion.mp4" poster="/video-slide/media-motion.jpg" autoPlay muted loop playsInline preload="metadata"/>}<span className="mh-rec"><i/> MOTION</span></div>
+      <div className="mm-chips"><span><Check size={14}/> 15 slide a 49 €</span><span><Check size={14}/> Video da 99 € al minuto</span><span><GraduationCap size={14}/> Studenti −50%</span></div>
+      <a className="mobile-primary" href={mediaContact} target="_blank" rel="noreferrer">Scrivimi su WhatsApp <ArrowUpRight size={20}/></a>
+      <a className="mobile-scroll-link" href="#mm-slide">Sfoglia gli esempi <ArrowDown size={16}/></a>
+    </section>
+    <section className="mobile-section mm-slides" id="mm-slide" aria-labelledby="mm-slides-title">
+      <span className="mobile-eyebrow">02 / SLIDE INTERATTIVE</span>
+      <h2 id="mm-slides-title">Presentazioni che<br/><em>si sfogliano da sole.</em></h2>
+      <p>Non sono file di PowerPoint: sono pagine React interattive. Si presentano dal browser, girano in loop su uno schermo, diventano la demo di un sito o un carosello dentro le tue pagine.</p>
+      {fallback ? <div className="mm-grid">{list.map((d, k) => <a key={d.sector} href={d.src} target="_blank" rel="noreferrer"><img src={items[k].src} alt={items[k].alt} loading="lazy"/><span>{d.sector}</span></a>)}</div> : <>
+        <div className="mm-ring"><CircularCarousel items={items} preset="cylinder" intro="rise" cardWidth={236} aspectRatio={16 / 9} gap={16} autoplay="drift" speed={9} fadeColor="#152016" depthFade={.5} cornerRadius={10} onChange={setActive} onItemClick={(_, k) => { if (k === active) setDeck(list[k]); }}/></div>
+        <div className="mm-now"><div><small>{String(active + 1).padStart(2, '0')} / {String(list.length).padStart(2, '0')}</small><b>{list[active]?.sector}</b><span>{list[active]?.slides ?? 8} slide · trascina per sfogliare</span></div><button type="button" onClick={() => setDeck(list[active])}>Apri <Presentation size={17}/></button></div>
+      </>}
+    </section>
+    <section className="mobile-section mm-videos" aria-labelledby="mm-videos-title">
+      <span className="mobile-eyebrow">03 / VIDEO MOTION</span>
+      <h2 id="mm-videos-title">Trenta secondi.<br/><em>Un’idea chiara.</em></h2>
+      <p>Scorri con il dito e tocca il video al centro per guardarlo, con la sua musica originale.</p>
+      {fallback ? <div className="mm-grid">{films.map(v => <a key={v.n} href={v.src} target="_blank" rel="noreferrer"><img src={v.poster} alt={v.title} loading="lazy"/><span>{v.title}</span></a>)}</div>
+        : <div className="mm-depth"><DepthCarouselCustom items={films.map(v => ({ image: v.poster!, alt: v.title, title: v.title, meta: `${v.n} · 0:30` }))} cardWidth={300} cardHeight={169} radius={12} depth={150} spread={34} tilt={16} visibleCards={2} blur={3} falloff={.28} tint="#0b120a" duration={650} showControls={false} showIndicators onActivate={k => setFilm(films[k])} ariaLabel="Video di esempio"/></div>}
+      <a className="mobile-primary" href={whatsapp('Ciao Carlo! Vorrei slide e video come quelli della pagina Video & Slide.')} target="_blank" rel="noreferrer">Voglio slide e video così <ArrowUpRight size={20}/></a>
+      <p className="mobile-demo-note">Slide da 49 € ogni 15 · video da 99 € al minuto · studenti −50%</p>
+    </section>
+    {deck && <div className="mm-overlay" role="dialog" aria-modal="true" aria-label={`Slide interattive: ${deck.sector}`}>
+      <div className="mm-overlay-bar"><b>{deck.sector}</b><span>Ruota il telefono per vederla più grande</span><button type="button" onClick={() => setDeck(null)} aria-label="Chiudi la presentazione"><X size={20}/></button></div>
+      <div className="mm-deck-box" ref={box}><div className="mm-deck-fit" style={{ width: 1280 * fit, height: 800 * fit }}><iframe ref={frame} src={deck.src} title={`Slide interattive: ${deck.sector}`} style={{ transform: `scale(${fit})`, ...(deck.bg ? { background: deck.bg } : {}) }}/></div></div>
+    </div>}
+    {film && <div className="mm-overlay mm-film" role="dialog" aria-modal="true" aria-label={film.title}>
+      <div className="mm-overlay-bar"><b>{film.title}</b><span>{film.note}</span><button type="button" onClick={() => setFilm(null)} aria-label="Chiudi il video"><X size={20}/></button></div>
+      <video src={film.src} poster={film.poster} controls autoPlay playsInline/>
+    </div>}
+  </div>;
 }

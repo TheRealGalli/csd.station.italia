@@ -31,7 +31,7 @@ export const webFaq = [
   ['Come funziona il Pacchetto Presenza?', 'Un’attivazione da 90 € una sola volta e un canone di 290 € al mese, con Sito standard incluso e ogni mese 10 caroselli e 6 reel. Il dominio lo gestiamo noi ed è intestato alla tua attività. Nessun vincolo: puoi interrompere in qualsiasi momento.'],
 ];
 export const mediaFaq = [
-  ['Le slide si possono modificare dopo?', 'Sì. Le slide interattive sono pensate per presentazioni web e si possono esportare per Google Slides. Il pacchetto da 49 € comprende 15 slide con layout moderni.'],
+  ['Le slide si possono modificare dopo?', 'Sì: sono pagine React, quindi testi, dati e colori si aggiornano quando serve. Non sono un file di Google Slides o PowerPoint: si presentano dal browser, girano in loop su uno schermo o diventano la demo di un sito. Se ti serve una versione da allegare, si esportano anche come immagini, senza animazioni. Il pacchetto da 49 € comprende 15 slide con layout moderni.'],
   ['Cosa sono i video motion interattivi?', 'Video animati creati con il codice: titoli, grafici, schermate e Otto che guida lo sguardo, con musica di sottofondo ed effetti sonori sincronizzati. Non c’è voce fuori campo. Il prezzo è di 99 € ogni minuto di contenuto.'],
   ['I numeri nei grafici sono reali?', 'Usiamo i tuoi dati quando ce li dai. Negli esempi di questa pagina i dati sono verosimili ma inventati, con un marchio dimostrativo CSD Station.'],
   ['Per chi sono pensati?', 'Per studenti che presentano una tesi o una tesina, ristoranti, negozi che lanciano un prodotto, aziende con un report da raccontare, startup che preparano un pitch, concessionarie e autofficine che spiegano servizi e offerte.'],

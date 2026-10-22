@@ -211,7 +211,7 @@ const termini: Section[] = [
     <ul>
       <li><strong>Slide interattive:</strong> 49 € ogni pacchetto da 15 slide. <strong>Video motion:</strong> 99 € ogni minuto di contenuto (o frazione).</li>
       <li><strong>Contenuti:</strong> lavoriamo su testi, dati e immagini che ci fornisci; impaginazione, grafica e animazione sono nostre. Un giro di modifiche è incluso.</li>
-      <li><strong>Formati:</strong> slide come presentazione web ed esportazione per Google Slides, dove alcune animazioni e interazioni possono non essere riproducibili; video in MP4 Full HD.</li>
+      <li><strong>Formati:</strong> slide come pagine web interattive (React), da presentare nel browser, far girare in loop su uno schermo o inserire in un sito; su richiesta anche come immagini statiche, senza animazioni né interazioni; video in MP4 Full HD.</li>
       <li><strong>Tempi:</strong> indicati alla conferma, in base alla quantità di materiale.</li>
     </ul>
     <h3 id="studenti">Studenti: tesi, tesine ed esami</h3>

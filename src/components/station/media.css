@@ -210,3 +210,33 @@
 .mp-student b{font-weight:700}.mp-student span{flex:1}
 .mp-student:hover{transform:translateY(-2px);box-shadow:0 12px 28px #2d4a1f26}
 .ms-stage iframe.is-off{visibility:hidden;pointer-events:none}
+/* Video & Slide da telefono: hero, carosello circolare delle presentazioni, carosello in profondità dei video */
+.media-m p{color:#b9caa7;font-size:14px;line-height:1.6;margin:0 0 22px}
+.media-m .mm-title{margin-bottom:20px}
+.mm-hero-video{position:relative;aspect-ratio:16/9;border-radius:14px;overflow:hidden;margin:0 0 18px;background:#0e150d;box-shadow:0 24px 50px #0006}
+.mm-hero-video video,.mm-hero-video img{width:100%;height:100%;object-fit:cover;display:block}
+.mm-chips{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:22px}
+.mm-chips span{display:inline-flex;align-items:center;gap:6px;padding:7px 11px;border-radius:999px;border:1px solid #c5f47630;background:#c5f4760d;color:#e3edd6;font-size:12px}
+.mm-chips svg{color:#c5f476}
+.mm-ring{height:215px;margin:-6px -24px 0;touch-action:pan-y}
+.mm-now{display:flex;align-items:center;justify-content:space-between;gap:14px;margin-top:10px;padding:14px 16px;border-radius:12px;background:#1d2b1b;border:1px solid #c5f47622}
+.mm-now div{display:flex;flex-direction:column;gap:2px;min-width:0}
+.mm-now small{font:10px ui-monospace,monospace;letter-spacing:1px;color:#a8bd94}
+.mm-now b{font-size:19px;font-weight:600;letter-spacing:-.3px}
+.mm-now span{font-size:12px;color:#a2b78e}
+.mm-now button{display:inline-flex;align-items:center;gap:8px;min-height:44px;padding:0 16px;border-radius:10px;border:0;background:#c5f476;color:#203017;font-size:14px;font-weight:600;cursor:pointer}
+.mm-depth{height:250px;margin:4px -24px 18px}
+.mm-depth .depth-carousel{min-height:250px}
+.mm-depth .depth-carousel__dots{bottom:2px}
+.mm-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:20px}
+.mm-grid a{display:flex;flex-direction:column;gap:6px;color:#e3edd6;font-size:12px}
+.mm-grid img{width:100%;aspect-ratio:16/9;object-fit:cover;border-radius:8px}
+.mm-overlay{position:fixed;inset:0;z-index:200;display:flex;flex-direction:column;background:#0b0f0a;animation:mm-in .25s ease}
+@keyframes mm-in{from{opacity:0}}
+.mm-overlay-bar{display:flex;align-items:center;gap:10px;padding:10px 12px 10px 16px;padding-top:max(10px,env(safe-area-inset-top));background:#152016;color:#f0f4e9;border-bottom:1px solid #c5f47622}
+.mm-overlay-bar b{font-size:15px;white-space:nowrap}
+.mm-overlay-bar span{flex:1;min-width:0;font-size:11px;color:#a2b78e;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.mm-overlay-bar button{display:grid;place-items:center;width:42px;height:42px;border-radius:50%;border:1px solid #c5f47640;background:#0b0f0a;color:#f0f4e9;cursor:pointer}
+.mm-deck-box{flex:1;min-height:0;display:grid;place-items:center;overflow:hidden}.mm-deck-fit{position:relative;overflow:hidden;border-radius:6px}.mm-deck-fit iframe{position:absolute;left:0;top:0;width:1280px;height:800px;border:0;transform-origin:0 0;display:block}
+.mm-film video{flex:1;width:100%;min-height:0;background:#000;object-fit:contain}
+html.mm-locked,html.mm-locked body{overflow:hidden}
