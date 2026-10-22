@@ -380,13 +380,15 @@ export function MediaMobile({ fallback = false }: { fallback?: boolean }) {
   const [portrait, setPortrait] = useState(() => typeof window !== 'undefined' && window.matchMedia('(orientation: portrait)').matches);
   useEffect(() => { const m = window.matchMedia('(orientation: portrait)'), on = () => setPortrait(m.matches); m.addEventListener('change', on); return () => m.removeEventListener('change', on); }, []);
   const tall = !!deck?.vertical && portrait;
+  // in orizzontale ogni presentazione usa lo schermo vero, senza miniatura: si adatta da sola
+  const full = tall || !portrait;
   // le presentazioni si aprono nella loro versione da computer (1280×800) rimpicciolita per stare nello schermo:
   // le pagine HTML, lasciate libere, si adattano al telefono in verticale e la foto finisce sopra il testo
   useEffect(() => {
-    const el = box.current; if (!deck || !el || tall) return;
+    const el = box.current; if (!deck || !el || full) return;
     const measure = () => setFit(Math.min(el.clientWidth / 1280, el.clientHeight / 800));
     const ro = new ResizeObserver(measure); ro.observe(el); measure(); return () => ro.disconnect();
-  }, [deck, tall]);
+  }, [deck, full]);
   // la presentazione aperta è visibile: glielo dico, così gli effetti animati partono (il Report aspetta questo segnale)
   useEffect(() => {
     if (!deck) return;
@@ -430,7 +432,7 @@ export function MediaMobile({ fallback = false }: { fallback?: boolean }) {
     </section>
     {deck && <div className="mm-overlay" role="dialog" aria-modal="true" aria-label={`Slide interattive: ${deck.sector}`}>
       <div className="mm-overlay-bar"><b>{deck.sector}</b><span>{deck.vertical ? 'Gira il telefono per la versione orizzontale' : 'Ruota il telefono per vederla più grande'}</span><ShareLink kind="slide" item={deck.key!} title={`${deck.sector} · Slide interattive CSD Station`}/><button type="button" onClick={() => setDeck(null)} aria-label="Chiudi la presentazione"><X size={20}/></button></div>
-      {tall ? <iframe ref={frame} className="mm-deck-tall" src={`${deck.src}?formato=verticale`} title={`Slide interattive: ${deck.sector}`} style={deck.bg ? { background: deck.bg } : undefined}/> : <div className="mm-deck-box" ref={box}><div className="mm-deck-fit" style={{ width: 1280 * fit, height: 800 * fit }}><iframe ref={frame} src={deck.src} title={`Slide interattive: ${deck.sector}`} style={{ transform: `scale(${fit})`, ...(deck.bg ? { background: deck.bg } : {}) }}/></div></div>}
+      {full ? <iframe ref={frame} className="mm-deck-tall" src={tall ? `${deck.src}?formato=verticale` : deck.src} title={`Slide interattive: ${deck.sector}`} style={deck.bg ? { background: deck.bg } : undefined}/> : <div className="mm-deck-box" ref={box}><div className="mm-deck-fit" style={{ width: 1280 * fit, height: 800 * fit }}><iframe ref={frame} src={deck.src} title={`Slide interattive: ${deck.sector}`} style={{ transform: `scale(${fit})`, ...(deck.bg ? { background: deck.bg } : {}) }}/></div></div>}
     </div>}
     {film && <div className="mm-overlay mm-film" role="dialog" aria-modal="true" aria-label={film.title}>
       <div className="mm-overlay-bar"><b>{film.title}</b><span>{film.note}</span><ShareLink kind="video" item={film.key} title={`${film.title} · Video motion CSD Station`}/><button type="button" onClick={() => { setFilm(null); setFromLink(false); }} aria-label="Chiudi il video"><X size={20}/></button></div>

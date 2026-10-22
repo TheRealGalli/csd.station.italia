@@ -270,3 +270,10 @@ html.mm-locked,html.mm-locked body{overflow:hidden}
  .mm-film-box{height:100%}
  .mm-overlay-bar{padding-top:6px;padding-bottom:6px}
 }
+/* telefono in orizzontale con una presentazione aperta: barra sottile, solo i due tasti */
+@media (orientation:landscape) and (max-height:560px){
+ .mm-overlay:not(.mm-film) .mm-overlay-bar{padding:4px 10px}
+ .mm-overlay:not(.mm-film) .mm-overlay-bar>span{display:none}
+ .mm-overlay:not(.mm-film) .mm-overlay-bar b{flex:1;font-size:13px}
+ .mm-overlay-bar button,.mm-overlay-bar .mv-share{width:34px;height:34px}
+}
