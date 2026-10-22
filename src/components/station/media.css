@@ -253,6 +253,7 @@ html.mm-locked,html.mm-locked body{overflow:hidden}
 .mv-player video.is-loading,.mm-film-box video.is-loading{opacity:.35}
 .mv-loading{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);display:flex;align-items:center;gap:10px;padding:10px 16px;border-radius:999px;background:#0b110ae6;color:#e6f2d6;font-size:14px}
 .mv-loading i{width:16px;height:16px;border-radius:50%;border:2px solid #c5f47640;border-top-color:#c5f476;animation:mv-spin .8s linear infinite}
+.mv-retry{border:1px solid #c5f47680;cursor:pointer;font:inherit;text-align:center}
 @keyframes mv-spin{to{transform:rotate(360deg)}}
 .mv-unmute{position:absolute;left:50%;bottom:70px;transform:translateX(-50%);display:inline-flex;align-items:center;gap:8px;padding:11px 18px;border-radius:999px;border:0;background:#c5f476;color:#203017;font-size:14px;font-weight:600;cursor:pointer;box-shadow:0 10px 30px #0007}
 .mm-film-box{position:relative;flex:1;min-height:0;display:flex;background:#000}

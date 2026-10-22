@@ -20,7 +20,7 @@ const videos: Demo[] = [
   { n: '02', key: 'immobili', title: 'Immobili e progetti', note: 'Dal terreno alla casa finita: un progetto raccontato in 30 secondi.', src: '/video-slide/film-casa.mp4', poster: '/video-slide/film-casa.webp' },
   { n: '03', key: 'veicoli', title: 'Veicoli e colori', note: 'Un’icona, sei colori: uno studio colore in 30 secondi.', src: '/video-slide/film-veicoli.mp4', poster: '/video-slide/film-veicoli.webp', start: 2.5 },
   { n: '04', key: 'prodotto', title: 'Lancio di un prodotto', note: 'Sette gusti, una linea: CSD Pop raccontata in 30 secondi.', src: '/video-slide/film-prodotto.mp4', poster: '/video-slide/film-prodotto.webp?v=2', start: 1.6 },
-  { n: '05', key: 'report', title: 'Report aziendale', note: 'Ricavi, margine, cassa e consegne: un semestre letto in 30 secondi.', src: '/video-slide/film-report.mp4', poster: '/video-slide/film-report.webp', start: 2.2 },
+  { n: '05', key: 'report', title: 'Report aziendale', note: 'Ricavi, margine, cassa e consegne: un semestre letto in 30 secondi.', src: '/video-slide/film-report.mp4?v=2', poster: '/video-slide/film-report.webp', start: 2.2 },
   { n: '06', key: 'cibo', title: 'Menu e locale', note: 'Fritto & Burger: un menù raccontato morso dopo morso, in 30 secondi.', src: '/video-slide/film-cibo.mp4', poster: '/video-slide/film-cibo.webp', start: 1.6 },
 ];
 
@@ -46,7 +46,14 @@ function ShareLink({ kind, item, title, className = '' }: { kind: 'slide' | 'vid
 }
 // lettore dei video: da un link condiviso aspetta che il video sia pronto, poi parte; se il browser blocca l'audio parte muto con il tasto per attivarlo
 function FilmPlayer({ film, fromLink, fullscreenButton = false }: { film: Demo; fromLink: boolean; fullscreenButton?: boolean }) {
-  const ref = useRef<HTMLVideoElement>(null), [ready, setReady] = useState(!fromLink), [muted, setMuted] = useState(false);
+  const ref = useRef<HTMLVideoElement>(null), [ready, setReady] = useState(!fromLink), [muted, setMuted] = useState(false), [failed, setFailed] = useState(false);
+  // chiudendo il video il telefono deve liberare il decodificatore: iPhone ne ha pochi, e un video smontato senza
+  // svuotarlo lo tiene occupato. Dopo quattro o cinque video aperti e chiusi, il successivo (e poi tutti) non partiva più.
+  useEffect(() => {
+    const v = ref.current;
+    return () => { if (!v) return; v.pause(); v.removeAttribute('src'); v.load(); };
+  }, []);
+  const retry = () => { const v = ref.current; if (!v) return; setFailed(false); v.src = film.src!; v.load(); v.play().catch(() => {}); };
   useEffect(() => {
     const v = ref.current; if (!v || !fromLink) return;
     const start = () => { setReady(true); v.play().catch(() => { v.muted = true; setMuted(true); v.play().catch(() => {}); }); };
@@ -54,8 +61,9 @@ function FilmPlayer({ film, fromLink, fullscreenButton = false }: { film: Demo; 
     return () => v.removeEventListener('canplaythrough', start);
   }, [film, fromLink]);
   return <>
-    <video ref={ref} src={film.src} poster={film.poster} controls autoPlay={!fromLink} playsInline preload="auto" className={ready ? '' : 'is-loading'}/>
-    {!ready && <span className="mv-loading" aria-live="polite"><i/>Carico il video…</span>}
+    <video ref={ref} src={film.src} poster={film.poster} controls autoPlay={!fromLink} playsInline preload="auto" className={ready ? '' : 'is-loading'} onError={() => setFailed(true)}/>
+    {!ready && !failed && <span className="mv-loading" aria-live="polite"><i/>Carico il video…</span>}
+    {failed && <button type="button" className="mv-loading mv-retry" onClick={retry}>Il video non è partito · tocca per riprovare</button>}
     {fullscreenButton && <button type="button" className="mm-fs" onClick={() => { const v = ref.current as (HTMLVideoElement & { webkitEnterFullscreen?: () => void }) | null; if (!v) return; if (v.webkitEnterFullscreen) v.webkitEnterFullscreen(); else v.requestFullscreen?.().catch(() => {}); v.play().catch(() => {}); }}><Maximize2 size={18}/> Guarda a schermo intero</button>}
     {muted && <button type="button" className="mv-unmute" onClick={() => { const v = ref.current; if (v) { v.muted = false; v.play().catch(() => {}); } setMuted(false); }}><Volume2 size={18}/> Attiva l’audio</button>}
   </>;
@@ -371,15 +379,18 @@ export default function MediaPage({ children }: { children?: React.ReactNode }) 
 
 // video dell'hero da telefono: deve partire da solo, senza tasto play. React non scrive l'attributo muted nell'HTML
 // e Safari su iPhone fa partire da solo solo i video muti fin dall'inizio: muto e play si impostano qui, a mano
-function HeroLoop() {
-  const ref = useRef<HTMLVideoElement>(null);
+// hold: con un video o una presentazione aperti sopra, il loop resta fermo e non occupa un decodificatore del telefono
+function HeroLoop({ hold = false }: { hold?: boolean }) {
+  const ref = useRef<HTMLVideoElement>(null), held = useRef(hold);
+  held.current = hold;
+  useEffect(() => { const v = ref.current; if (!v) return; if (hold) v.pause(); else v.play().catch(() => {}); }, [hold]);
   useEffect(() => {
     const v = ref.current; if (!v) return;
     v.muted = true; v.defaultMuted = true; v.setAttribute('muted', ''); v.setAttribute('playsinline', ''); v.setAttribute('webkit-playsinline', '');
     const play = () => { v.play().catch(() => {}); };
     play(); v.addEventListener('canplay', play, { once: true });
     // se il sistema lo ferma (risparmio energetico, cambio app) riparte al primo tocco ovunque nella pagina
-    const resume = () => { if (v.paused) play(); };
+    const resume = () => { if (v.paused && !held.current) play(); };
     document.addEventListener('touchstart', resume, { passive: true }); document.addEventListener('visibilitychange', resume);
     return () => { document.removeEventListener('touchstart', resume); document.removeEventListener('visibilitychange', resume); };
   }, []);
@@ -436,7 +447,7 @@ export function MediaMobile({ fallback = false }: { fallback?: boolean }) {
       <span className="mobile-eyebrow"><i/> SLIDE INTERATTIVE E VIDEO MOTION</span>
       <Title id="mm-title" className="mm-title">Le idee si capiscono<br/><em>quando si muovono.</em></Title>
       <p>{mediaIntro}</p>
-      <div className="mm-hero-video" aria-hidden="true">{fallback ? <img src="/video-slide/media-motion.jpg" alt="" loading="lazy"/> : <HeroLoop/>}<span className="mh-rec"><i/> MOTION</span></div>
+      <div className="mm-hero-video" aria-hidden="true">{fallback ? <img src="/video-slide/media-motion.jpg" alt="" loading="lazy"/> : <HeroLoop hold={!!(film || deck)}/>}<span className="mh-rec"><i/> MOTION</span></div>
       <div className="mm-chips"><span><Check size={14}/> 15 slide a 49 €</span><span><Check size={14}/> Video da 99 € al minuto</span><span><GraduationCap size={14}/> Studenti −50%</span></div>
       <a className="mobile-primary" href={mediaContact} target="_blank" rel="noreferrer">Scrivimi su WhatsApp <ArrowUpRight size={20}/></a>
       <a className="mobile-scroll-link" href="#mm-slide">Sfoglia gli esempi <ArrowDown size={16}/></a>
