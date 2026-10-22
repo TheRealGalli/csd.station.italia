@@ -253,3 +253,20 @@ html.mm-locked,html.mm-locked body{overflow:hidden}
 .mm-film-box{position:relative;flex:1;min-height:0;display:flex;background:#000}
 .mm-film-box video{flex:1;width:100%;min-height:0;object-fit:contain;background:#000}
 .mm-overlay-bar .mv-share{min-height:36px;padding:0 11px;font-size:12px}
+/* video dell'hero da telefono: nessun tasto play di sistema sopra */
+.mm-hero-video video::-webkit-media-controls,.mm-hero-video video::-webkit-media-controls-start-playback-button{display:none!important;-webkit-appearance:none}
+.mm-hero-video video{pointer-events:none}
+/* barra delle finestre da telefono: condividi e chiudi sono due cerchi uguali, allineati */
+.mm-overlay-bar .mv-share{width:42px;height:42px;min-height:0;padding:0;justify-content:center;flex:none}
+.mm-overlay-bar .mv-share span{display:none}
+.mm-overlay-bar .mv-share svg{width:18px;height:18px}
+.mm-overlay-bar button{flex:none}
+.mm-deck-tall{flex:1;width:100%;min-height:0;border:0;display:block}
+/* telefono in orizzontale: il video occupa tutto lo schermo, la barra resta sopra in trasparenza */
+@media (orientation:landscape) and (max-height:560px){
+ .mm-film .mm-overlay-bar{position:absolute;left:0;right:0;top:0;z-index:2;background:linear-gradient(#000a,transparent);border:0;padding-top:8px}
+ .mm-film .mm-overlay-bar b,.mm-film .mm-overlay-bar>span{display:none}
+ .mm-film .mm-overlay-bar .mv-share{margin-left:auto}
+ .mm-film-box{height:100%}
+ .mm-overlay-bar{padding-top:6px;padding-bottom:6px}
+}

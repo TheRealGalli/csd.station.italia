@@ -54,6 +54,12 @@ export function StationHeader() {
   const legal = [...legalPaths, '/privacy-policy-nfc/', '/terms-of-service-nfc/'].includes(normalizePath(location.pathname));
   const mode = os || legal ? null : getServiceMode(location.pathname, location.search);
   const contactHref = os ? whatsapp(`Ciao Carlo! Vorrei avere più informazioni su ${os === 'restaurant' ? 'CS Restaurant OS' : 'CS Notaro OS'}.`) : mode === 'training' ? trainingContact : mode === 'web' ? webContact : mode === 'media' ? mediaContact : mode === 'nfc' ? whatsapp('Ciao Carlo! Vorrei informazioni sulle card e sui prodotti NFC di CSD Station.') : consultingContact;
+  // da telefono il menu è una riga di pillole che scorre: la voce della pagina aperta si porta da sola al centro
+  useEffect(() => {
+    const nav = document.getElementById('station-navigation'), on = nav?.querySelector<HTMLElement>('a.active');
+    if (!nav || !on || nav.scrollWidth <= nav.clientWidth) return;
+    nav.scrollTo({ left: on.offsetLeft - (nav.clientWidth - on.offsetWidth) / 2, behavior: 'instant' as ScrollBehavior });
+  }, [mode]);
   return <header className="station-header"><div className="station-nav wrap">
     <Link to="/" aria-label="CSD Station, homepage" onClick={() => window.scrollTo({top: 0, behavior: 'instant' as ScrollBehavior})}><Brand/></Link>
     <nav className="station-links" id="station-navigation" aria-label="Navigazione principale">

@@ -25,10 +25,10 @@ const videos: Demo[] = [
 ];
 
 // Slide interattive vere, una presentazione da 15 slide per settore (file HTML autonomi in /video-slide/).
-type Deck = { sector: string; key?: string; src?: string; slides?: number; bg?: string };
+type Deck = { sector: string; key?: string; src?: string; slides?: number; bg?: string; vertical?: boolean };
 const decks: Deck[] = [
   { sector: 'Università', key: 'universita', src: '/video-slide/slide-01-universita.html', slides: 8 },
-  { sector: 'Prodotto', key: 'prodotto', src: '/video-slide/pop/index.html', slides: 8, bg: '#2db7f5' }, { sector: 'Immobili', key: 'immobili', src: '/video-slide/casa/index.html', slides: 6, bg: '#dfd8cd' }, { sector: 'Cibo', key: 'cibo', src: '/video-slide/cibo/index.html', slides: 8, bg: '#201713' }, { sector: 'Report', key: 'report', src: '/video-slide/report/index.html', slides: 8, bg: '#0B0D10' }, { sector: 'Veicoli', key: 'veicoli', src: '/video-slide/veicoli/index.html', slides: 8, bg: '#0b0f0a' }, { sector: 'Hardware' },
+  { sector: 'Prodotto', vertical: true, key: 'prodotto', src: '/video-slide/pop/index.html', slides: 8, bg: '#2db7f5' }, { sector: 'Immobili', vertical: true, key: 'immobili', src: '/video-slide/casa/index.html', slides: 6, bg: '#dfd8cd' }, { sector: 'Cibo', vertical: true, key: 'cibo', src: '/video-slide/cibo/index.html', slides: 8, bg: '#201713' }, { sector: 'Report', key: 'report', src: '/video-slide/report/index.html', slides: 8, bg: '#0B0D10' }, { sector: 'Veicoli', vertical: true, key: 'veicoli', src: '/video-slide/veicoli/index.html', slides: 8, bg: '#0b0f0a' }, { sector: 'Hardware' },
 ];
 
 // Link condivisi: ?slide=report porta alla presentazione, ?video=cibo apre il video già pronto
@@ -344,6 +344,23 @@ export default function MediaPage({ children }: { children?: React.ReactNode }) 
   </>;
 }
 
+// video dell'hero da telefono: deve partire da solo, senza tasto play. React non scrive l'attributo muted nell'HTML
+// e Safari su iPhone fa partire da solo solo i video muti fin dall'inizio: muto e play si impostano qui, a mano
+function HeroLoop() {
+  const ref = useRef<HTMLVideoElement>(null);
+  useEffect(() => {
+    const v = ref.current; if (!v) return;
+    v.muted = true; v.defaultMuted = true; v.setAttribute('muted', ''); v.setAttribute('playsinline', ''); v.setAttribute('webkit-playsinline', '');
+    const play = () => { v.play().catch(() => {}); };
+    play(); v.addEventListener('canplay', play, { once: true });
+    // se il sistema lo ferma (risparmio energetico, cambio app) riparte al primo tocco ovunque nella pagina
+    const resume = () => { if (v.paused) play(); };
+    document.addEventListener('touchstart', resume, { passive: true }); document.addEventListener('visibilitychange', resume);
+    return () => { document.removeEventListener('touchstart', resume); document.removeEventListener('visibilitychange', resume); };
+  }, []);
+  return <video ref={ref} src="/video-slide/media-motion.mp4" poster="/video-slide/media-motion.jpg" autoPlay muted loop playsInline preload="auto" disablePictureInPicture controls={false} tabIndex={-1}/>;
+}
+
 // Da telefono: tre sezioni come le altre pagine. Hero, poi tutte le presentazioni in un carosello circolare
 // (React Bits CircularCarousel) e tutti i video uno alla volta in un carosello in profondità (React Bits DepthCarousel).
 // fallback: è la versione nella pagina prerenderizzata, nascosta da computer: niente caroselli e niente video in riproduzione
@@ -359,13 +376,17 @@ export function MediaMobile({ fallback = false }: { fallback?: boolean }) {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [fallback]);
   const frame = useRef<HTMLIFrameElement>(null), box = useRef<HTMLDivElement>(null), [fit, setFit] = useState(.3);
+  // telefono in verticale: le presentazioni che hanno la versione verticale la usano a tutto schermo; girandolo si torna all'orizzontale
+  const [portrait, setPortrait] = useState(() => typeof window !== 'undefined' && window.matchMedia('(orientation: portrait)').matches);
+  useEffect(() => { const m = window.matchMedia('(orientation: portrait)'), on = () => setPortrait(m.matches); m.addEventListener('change', on); return () => m.removeEventListener('change', on); }, []);
+  const tall = !!deck?.vertical && portrait;
   // le presentazioni si aprono nella loro versione da computer (1280×800) rimpicciolita per stare nello schermo:
   // le pagine HTML, lasciate libere, si adattano al telefono in verticale e la foto finisce sopra il testo
   useEffect(() => {
-    const el = box.current; if (!deck || !el) return;
+    const el = box.current; if (!deck || !el || tall) return;
     const measure = () => setFit(Math.min(el.clientWidth / 1280, el.clientHeight / 800));
     const ro = new ResizeObserver(measure); ro.observe(el); measure(); return () => ro.disconnect();
-  }, [deck]);
+  }, [deck, tall]);
   // la presentazione aperta è visibile: glielo dico, così gli effetti animati partono (il Report aspetta questo segnale)
   useEffect(() => {
     if (!deck) return;
@@ -384,7 +405,7 @@ export function MediaMobile({ fallback = false }: { fallback?: boolean }) {
       <span className="mobile-eyebrow"><i/> SLIDE INTERATTIVE E VIDEO MOTION</span>
       <Title id="mm-title" className="mm-title">Le idee si capiscono<br/><em>quando si muovono.</em></Title>
       <p>{mediaIntro}</p>
-      <div className="mm-hero-video" aria-hidden="true">{fallback ? <img src="/video-slide/media-motion.jpg" alt="" loading="lazy"/> : <video src="/video-slide/media-motion.mp4" poster="/video-slide/media-motion.jpg" autoPlay muted loop playsInline preload="metadata"/>}<span className="mh-rec"><i/> MOTION</span></div>
+      <div className="mm-hero-video" aria-hidden="true">{fallback ? <img src="/video-slide/media-motion.jpg" alt="" loading="lazy"/> : <HeroLoop/>}<span className="mh-rec"><i/> MOTION</span></div>
       <div className="mm-chips"><span><Check size={14}/> 15 slide a 49 €</span><span><Check size={14}/> Video da 99 € al minuto</span><span><GraduationCap size={14}/> Studenti −50%</span></div>
       <a className="mobile-primary" href={mediaContact} target="_blank" rel="noreferrer">Scrivimi su WhatsApp <ArrowUpRight size={20}/></a>
       <a className="mobile-scroll-link" href="#mm-slide">Sfoglia gli esempi <ArrowDown size={16}/></a>
@@ -394,7 +415,7 @@ export function MediaMobile({ fallback = false }: { fallback?: boolean }) {
       <h2 id="mm-slides-title">Presentazioni che<br/><em>si sfogliano da sole.</em></h2>
       <p>Non sono file di PowerPoint: sono pagine React interattive. Si presentano dal browser, girano in loop su uno schermo, diventano la demo di un sito o un carosello dentro le tue pagine.</p>
       {fallback ? <div className="mm-grid">{list.map((d, k) => <a key={d.sector} href={d.src} target="_blank" rel="noreferrer"><img src={items[k].src} alt={items[k].alt} loading="lazy"/><span>{d.sector}</span></a>)}</div> : <>
-        <div className="mm-ring"><CircularCarousel items={items} preset="cylinder" intro="rise" cardWidth={236} aspectRatio={16 / 9} gap={16} autoplay="drift" speed={9} fadeColor="#152016" depthFade={.5} cornerRadius={10} onChange={setActive} onItemClick={(_, k) => { if (k === active) setDeck(list[k]); }}/></div>
+        <div className="mm-ring"><CircularCarousel items={items} preset="cylinder" intro="rise" cardWidth={236} aspectRatio={16 / 9} gap={16} curve={0} stretch={0} parallax={0} autoplay="drift" speed={9} fadeColor="#152016" depthFade={.5} cornerRadius={10} onChange={setActive} onItemClick={(_, k) => { if (k === active) setDeck(list[k]); }}/></div>
         <div className="mm-now"><div><small>{String(active + 1).padStart(2, '0')} / {String(list.length).padStart(2, '0')}</small><b>{list[active]?.sector}</b><span>{list[active]?.slides ?? 8} slide · trascina per sfogliare</span></div><button type="button" onClick={() => setDeck(list[active])}>Apri <Presentation size={17}/></button></div>
       </>}
     </section>
@@ -408,8 +429,8 @@ export function MediaMobile({ fallback = false }: { fallback?: boolean }) {
       <p className="mobile-demo-note">Slide da 49 € ogni 15 · video da 99 € al minuto · studenti −50%</p>
     </section>
     {deck && <div className="mm-overlay" role="dialog" aria-modal="true" aria-label={`Slide interattive: ${deck.sector}`}>
-      <div className="mm-overlay-bar"><b>{deck.sector}</b><span>Ruota il telefono per vederla più grande</span><ShareLink kind="slide" item={deck.key!} title={`${deck.sector} · Slide interattive CSD Station`}/><button type="button" onClick={() => setDeck(null)} aria-label="Chiudi la presentazione"><X size={20}/></button></div>
-      <div className="mm-deck-box" ref={box}><div className="mm-deck-fit" style={{ width: 1280 * fit, height: 800 * fit }}><iframe ref={frame} src={deck.src} title={`Slide interattive: ${deck.sector}`} style={{ transform: `scale(${fit})`, ...(deck.bg ? { background: deck.bg } : {}) }}/></div></div>
+      <div className="mm-overlay-bar"><b>{deck.sector}</b><span>{deck.vertical ? 'Gira il telefono per la versione orizzontale' : 'Ruota il telefono per vederla più grande'}</span><ShareLink kind="slide" item={deck.key!} title={`${deck.sector} · Slide interattive CSD Station`}/><button type="button" onClick={() => setDeck(null)} aria-label="Chiudi la presentazione"><X size={20}/></button></div>
+      {tall ? <iframe ref={frame} className="mm-deck-tall" src={`${deck.src}?formato=verticale`} title={`Slide interattive: ${deck.sector}`} style={deck.bg ? { background: deck.bg } : undefined}/> : <div className="mm-deck-box" ref={box}><div className="mm-deck-fit" style={{ width: 1280 * fit, height: 800 * fit }}><iframe ref={frame} src={deck.src} title={`Slide interattive: ${deck.sector}`} style={{ transform: `scale(${fit})`, ...(deck.bg ? { background: deck.bg } : {}) }}/></div></div>}
     </div>}
     {film && <div className="mm-overlay mm-film" role="dialog" aria-modal="true" aria-label={film.title}>
       <div className="mm-overlay-bar"><b>{film.title}</b><span>{film.note}</span><ShareLink kind="video" item={film.key} title={`${film.title} · Video motion CSD Station`}/><button type="button" onClick={() => { setFilm(null); setFromLink(false); }} aria-label="Chiudi il video"><X size={20}/></button></div>

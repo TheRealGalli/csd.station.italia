@@ -320,7 +320,7 @@ const DepthCarousel = ({
       drag.v = (e.clientX - drag.lastX) / dt;
       drag.lastX = e.clientX;
       drag.lastT = now;
-      posRef.current = drag.startPos - dx / stepPx;
+      posRef.current = drag.startPos - clamp(dx / stepPx, -1.15, 1.15);
       layout(posRef.current);
     },
     [layout]
@@ -335,7 +335,10 @@ const DepthCarousel = ({
     const cfg = cfgRef.current;
     const stepPx = Math.max(cfg.cardWidth * 0.55 * scaleRef.current, 40);
     const projected = posRef.current - (drag.v * 180) / stepPx;
-    setFocus(Math.round(projected), true);
+    // un gesto sposta al massimo di una carta: con l'inerzia uno scorrimento veloce ne saltava due
+    const from = Math.round(drag.startPos), moved = posRef.current - drag.startPos;
+    const step = Math.abs(moved) > 0.12 || Math.abs(projected - drag.startPos) > 0.35 ? Math.sign(Math.abs(moved) > 0.12 ? moved : projected - drag.startPos) : 0;
+    setFocus(from + step, true);
   }, [setFocus]);
 
   const onKeyDown = useCallback(

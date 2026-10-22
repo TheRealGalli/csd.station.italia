@@ -21,3 +21,17 @@
 .tap-demo .phone-content p,.tap-demo .nfc-tap-caption{color:#718064}
 .tap-demo .phone-stars{color:#7e955e}
 .tap-demo .demo-pill{color:#627c45;background:#e3ecd9}
+
+/* notifica con il link e mano che la tocca: nella realtà il collegamento si apre solo dopo il tocco */
+.nfc-notice{position:absolute;left:9px;right:9px;top:36px;z-index:3;display:flex;align-items:center;gap:8px;padding:8px 9px;border-radius:12px;background:#ffffffee;box-shadow:0 8px 20px #28342130;text-align:left;opacity:0;transform:translateY(-14px) scale(.96);transition:opacity .35s ease,transform .45s cubic-bezier(.2,.8,.2,1);pointer-events:none}
+.nfc-notice.on{opacity:1;transform:none}
+.nfc-notice.pressed{transform:scale(.97);background:#e7f3d6}
+.nfc-notice b{display:block;font-size:9.5px;color:#23371a}
+.nfc-notice small{display:block;font-size:8px;color:#6f8061;margin-top:2px}
+.nfc-notice-icon{display:grid;place-items:center;flex:none;width:24px;height:24px;border-radius:7px;background:#23371a;color:#c5f476}
+.nfc-hand{position:absolute;z-index:4;left:calc(50% + 2px);top:64px;width:46px;height:58px;opacity:0;transform:translate(130px,240px) rotate(-14deg);transition:opacity .3s ease,transform .9s cubic-bezier(.3,.8,.25,1);filter:drop-shadow(0 8px 10px #28342140);pointer-events:none}
+.nfc-hand.in{opacity:1;transform:translate(0,0) rotate(-14deg)}
+.nfc-hand.press{transform:translate(0,2px) rotate(-14deg) scale(.9);transition-duration:.15s}
+.tap-done .nfc-hand{opacity:0;transform:translate(60px,120px) rotate(-14deg)}
+.tap-demo .tap-button{margin-top:4px}
+@media(prefers-reduced-motion:reduce){.nfc-notice,.nfc-hand{transition-duration:.01s}}
