@@ -25,7 +25,7 @@ const brand = () => `<span class="brand-symbol"><i></i><i></i><i></i></span><spa
 const ottoNote = (text, cls='') => `<div class="otto-note ${cls}"><span class="otto-dot">${icon('sparkle')}</span><div><span class="eyebrow">OTTO</span><p>${rich(text)}</p></div></div>`;
 const ottoPanel = (title, text, action='') => `<div class="otto-panel"><span class="eyebrow">${icon('sparkle')} ${title}</span><p>${rich(text)}</p>${action}</div>`;
 const stateLabel = {waiting:['In attesa', 'badge-amber'], cooking:['In preparazione', 'badge-violet'], ready:['Pronto al pass', 'badge-green'], served:['Servito', '']};
-const tableLabel = {free:'Libero', seated:'Accomodati', ordered:'In servizio', bill:'Conto'};
+const tableLabel = {free:'Libero', waiting:'Aspettano i piatti', eating:'Mangiano', done:'Hanno finito', bill:'Chiedono il conto'};
 let returnFocus, toastTimer, lastRoute = null, renderQueued = false;
 const ui = {ticket:null, table:'T3', adding:false, otto:[], category:'all', query:'', prev:{}, done:{reviews:[], haccp:[]}, qr:{table:'T7', cart:{}, step:'menu', cat:'Primi', receipt:null}, menuReply:''};
 
@@ -143,14 +143,15 @@ function doorPanel() {
  if (!gameOn() || !D.service.game) return '';
  if (ui.door && !D.door.some(p => p.id === ui.door)) ui.door = null;
  const sel = D.door.find(p => p.id === ui.door);
- return `<div class="door-queue" data-anchor-door><span class="dq-title">${icon('users')} All’ingresso</span>${D.door.length ? D.door.map(p => { const w = D.doorWait(p); return `<button class="dq-party ${ui.door === p.id ? 'on' : ''} ${D.doorRed(p) ? 'red' : ''}" data-door="${p.id}"><b>${esc(p.name)}</b><small>${p.n} persone · aspetta da <span data-door-wait="${p.id}">${Math.floor(w)}</span> s</small><i data-door-bar="${p.id}" style="width:${Math.min(100, w / D.doorLeave() * 100)}%"></i></button>`; }).join('') : '<small class="dq-empty">Nessuno in attesa. Quando arriva qualcuno senza prenotazione, toccalo e scegli un tavolo libero abbastanza grande.</small>'}${sel ? (D.tables.some(t => D.fits(t, sel)) ? `<span class="dq-hint">${icon('arrow')} Ora tocca un tavolo <b>libero</b> con almeno <b>${sel.n} posti</b></span>` : `<span class="dq-hint full">Nessun tavolo libero da ${sel.n}: chiudi un conto in sala per liberarne uno.</span>`) : ''}</div>`;
+ return `<div class="door-queue" data-anchor-door><span class="dq-title">${icon('users')} All’ingresso</span>${D.door.length ? D.door.map(p => { const w = D.doorWait(p); return `<button class="dq-party ${ui.door === p.id ? 'on' : ''} ${D.doorRed(p) ? 'red' : ''}" data-door="${p.id}"><b>${esc(p.name)}</b>${p.tag ? `<em class="dq-tag">${esc(p.tag)}</em>` : ''}<small>${p.n === 1 ? '1 persona' : `${p.n} persone`} · aspetta da <span data-door-wait="${p.id}">${Math.floor(w)}</span> s</small><i data-door-bar="${p.id}" style="width:${Math.min(100, w / D.doorLeave(p) * 100)}%"></i></button>`; }).join('') : '<small class="dq-empty">Nessuno in attesa. Quando arriva qualcuno senza prenotazione, toccalo e scegli un tavolo libero abbastanza grande.</small>'}${sel ? (D.tables.some(t => D.fits(t, sel)) ? `<span class="dq-hint">${icon('arrow')} Ora tocca un tavolo <b>libero</b> con almeno <b>${sel.n} posti</b></span>` : `<span class="dq-hint full">Nessun tavolo libero da ${sel.n}: chiudi un conto in sala per liberarne uno.</span>`) : ''}</div>`;
 }
 function floorTables(mini=false) {
  return D.tables.map(t => {
   const total = D.tableTotal(t), ready = t.lines.some(l => l.state === 'ready');
   const party = !mini && ui.door && D.door.find(p => p.id === ui.door), fit = party ? (D.fits(t, party) ? 'fit' : 'nofit') : '';
-  return `<button class="ftable s-${t.status} ${t.shape || 'square'} ${fit} ${ui.table === t.id && !mini ? 'selected' : ''}" style="left:${t.x}%;top:${t.y}%" data-table="${t.id}" aria-label="Tavolo ${t.id}, ${tableLabel[t.status]}">
-   <b>${t.id.slice(1)}</b>${t.status === 'free' ? `<small>${t.seats} posti</small>` : `<small>${t.guests} ${icon('users')}${mini ? '' : ` · ${minutes(t.since)}′`}</small>${total ? `<em>${euro(total)}</em>` : ''}`}${ready ? '<i class="ready-dot" title="Piatti pronti al pass"></i>' : ''}${t.mission && gameOn() ? '<i class="table-bang" title="Il conto aspetta te">!</i>' : ''}</button>`;
+  const ph = D.tablePhase(t);
+  return `<button class="ftable s-${ph} ${t.shape || 'square'} ${fit} ${ui.table === t.id && !mini ? 'selected' : ''}" style="left:${t.x}%;top:${t.y}%" data-table="${t.id}" aria-label="Tavolo ${t.id}, ${tableLabel[ph]}">
+   <b>${t.id.slice(1)}</b>${t.status === 'free' ? `<small>${t.seats} posti</small>` : `<small>${t.guests} ${icon('users')}${mini ? '' : ` · ${minutes(t.since)}′`}</small>${total ? `<em>${euro(total)}</em>` : ''}`}${ready ? '<i class="ready-dot" title="Piatti pronti al pass"></i>' : ''}${ph === 'bill' && !(t.mission && gameOn()) ? '<i class="bill-dot" title="Vogliono pagare"></i>' : ''}${t.mission && gameOn() ? '<i class="table-bang" title="Il conto aspetta te">!</i>' : ''}</button>`;
  }).join('') + (mini ? '' : '<span class="floor-label bar">BANCO</span><span class="floor-label door">INGRESSO</span>');
 }
 function sala() {
@@ -163,7 +164,7 @@ function sala() {
 function tablePanel() {
  const t = D.table(ui.table);
  if (!t) return `<div class="empty-state compact"><h2>Seleziona un tavolo</h2></div>`;
- const head = `<div class="tp-head"><div><span class="eyebrow">TAVOLO ${t.id.slice(1)} · ${t.seats} POSTI</span><h2>${t.status === 'free' ? 'Libero' : `${t.guests} ospiti · da ${minutes(t.since)} min`}</h2></div>${badge(tableLabel[t.status], t.status === 'bill' ? 'badge-amber' : t.status === 'free' ? '' : 'badge-green')}</div>`;
+ const head = `<div class="tp-head"><div><span class="eyebrow">TAVOLO ${t.id.slice(1)} · ${t.seats} POSTI</span><h2>${t.status === 'free' ? 'Libero' : `${t.guests} ospiti · da ${minutes(t.since)} min`}</h2></div>${badge(tableLabel[D.tablePhase(t)], {bill:'badge-red', done:'badge-green', eating:'badge-red', waiting:'badge-blue'}[D.tablePhase(t)] || '')}</div>`;
  if (t.status === 'free') return `${head}<p class="muted pad-s">Tavolo pronto. Accomoda gli ospiti per aprire la comanda.</p><div class="tp-actions">${[2, 4].filter(n => n <= t.seats).map(n => btn(`Accomoda ${n} ospiti`, `seat:${t.id}:${n}`, 'btn-secondary', 'users')).join('')}</div>`;
  const courses = [[0, 'Bevande'], [1, 'Antipasti'], [2, 'Primi'], [3, 'Secondi'], [4, 'Dolci']];
  const lines = courses.map(([c, label]) => { const ls = t.lines.filter(l => D.dish(l.dish).course === c); return ls.length ? `<div class="course"><span class="eyebrow">${label.toUpperCase()}</span>${ls.map(l => `<div class="tline ${Date.now() - l.at < 2500 ? 'row-in' : ''}"><span class="q">${l.qty}×</span><span class="n">${esc(D.dish(l.dish).name)}${l.via === 'qr' ? '<i class="via-qr">QR</i>' : ''}${l.paid ? '<i class="via-paid">pagato</i>' : ''}</span>${badge(...(stateLabel[l.state] || ['']))}<b>${euro(D.dish(l.dish).price * l.qty)}</b></div>`).join('')}</div>` : ''; }).join('');
@@ -243,7 +244,7 @@ function guestPhone() {
   <button class="gp-btn pay" data-qr="pay"><span>${icon('lock')} Paga ora ${euro(total)}</span><small>Apple Pay · Google Pay · carta · con Stripe</small></button><button class="gp-btn ghost" data-qr="order">Ordina e paga a fine cena</button><button class="gp-back" data-qr="back">← Torna al menu</button></div>`;
  const cats = ['Antipasti', 'Primi', 'Secondi', 'Dolci', 'Vini'];
  return `${top}<div class="gp-cats">${cats.map(c => `<button data-qr-cat="${c}" class="${q.cat === c ? 'on' : ''}">${c}</button>`).join('')}</div>
- <div class="gp-list">${D.menu.filter(d => d.visible && d.cat === q.cat).map(d => { const [st, cls] = dishState(d); const off = !D.available(d); return `<div class="gp-item ${off ? 'off' : ''} ${d.special ? 'special' : ''}" data-gp="${d.id}"><span><b>${esc(d.name)}</b><small>${esc(d.desc)}</small><em>${d.allergens.join(' · ') || 'Senza allergeni dichiarati'}</em>${st !== 'Disponibile' ? `<i class="gp-flag ${cls}">${st}</i>` : ''}</span><span class="gp-buy"><b>${euro(d.price)}</b>${off ? '' : `<button data-qr-add="${d.id}" aria-label="Aggiungi ${esc(d.name)}">${q.cart[d.id] ? q.cart[d.id] : icon('plus')}</button>`}</span></div>`; }).join('') || '<p class="gp-empty">Niente in questa sezione stasera.</p>'}</div>
+ <div class="gp-list">${D.menu.filter(d => d.visible && d.cat === q.cat).map(d => { const [st, cls] = dishState(d); const off = !D.available(d); return `<div class="gp-item ${off ? 'off' : ''} ${d.special ? 'special' : ''}" data-gp="${d.id}"><span><b>${esc(d.name)}</b><small>${esc(d.desc)}</small><em>${d.allergens.join(' · ') || 'Senza allergeni dichiarati'}</em>${st !== 'Disponibile' ? `<i class="gp-flag ${cls}">${st}</i>` : ''}</span><span class="gp-buy"><b>${euro(d.price)}</b>${off ? '' : q.cart[d.id] ? `<span class="gp-qty"><button data-qr-sub="${d.id}" aria-label="Uno in meno di ${esc(d.name)}">−</button><b>${q.cart[d.id]}</b><button data-qr-add="${d.id}" aria-label="Uno in più di ${esc(d.name)}">+</button></span>` : `<button data-qr-add="${d.id}" aria-label="Aggiungi ${esc(d.name)}">${icon('plus')}</button>`}</span></div>`; }).join('') || '<p class="gp-empty">Niente in questa sezione stasera.</p>'}</div>
  ${count ? `<button class="gp-cart" data-qr="checkout"><span>${count} ${count === 1 ? 'piatto' : 'piatti'}</span><b>Vai all’ordine · ${euro(total)}</b></button>` : ''}`;
 }
 function smartPanel() {
@@ -462,20 +463,36 @@ function bandi() {
   <div class="workspace-panel"><div class="panel-title"><h2>Già ottenuti</h2></div>${D.grantHistory.map(g => `<div class="mini-row"><span><b>${esc(g.title)}</b><small>${g.state}</small></span><b>${euro(g.amount)}</b></div>`).join('')}</div></aside></div>
  <div class="notice">${icon('info')}<p>Bandi di esempio, non reali: importi, scadenze e regole vanno sempre verificati sul testo ufficiale e con il tuo commercialista.</p></div>`;
 }
-// Gli ordini dello chef durante il servizio: togliere un piatto finito o cambiargli il prezzo.
+// Gli ordini dello chef durante il servizio, legati al magazzino vero:
+// · togli un piatto quando un suo ingrediente sta finendo e nessuno ha ancora inviato l'ordine al fornitore;
+// · rimettilo appena la merce è tornata (dall'ordine inviato o dalla consegna del fornitore);
+// · ogni tanto, un prezzo da cambiare.
 // Si fanno dall'editor del menu o chiedendo a Otto; il gioco controlla che il menu sia cambiato davvero.
 let chefSeq = 0, nextChefAt = 0;
+const shortOf = d => Object.keys(d.recipe).map(D.ingredient).find(i => i.qty <= i.min);
+const runningOut = d => d.visible && !d.special && d.course > 0 && D.portions(d) <= 4 && !!shortOf(d);
+const backIn = d => !d.visible && !d.special && D.portions(d) >= 5;
+function chefOrder(kind, d, price = null) { ui.chefOrder = {kind, dish:d.id, price, ref:`chef-${++chefSeq}`, left:D.portions(d), short:shortOf(d)?.name}; ui.chefCalm = Date.now() + (kind === 'price' ? 0 : 25000); }
 function chefDirector() {
- if (ui.chefOrder || Date.now() < nextChefAt) return;
- nextChefAt = Date.now() + (110 + Math.random() * 70) * 1000;
- const d = D.menu.filter(x => x.course > 0 && x.visible && !x.special).sort(() => Math.random() - .5)[0]; if (!d) return;
- const kind = Math.random() < .55 ? 'off' : 'price', np = kind === 'price' ? d.price + (Math.random() < .5 ? -2 : 2) : null;
- ui.chefOrder = {kind, dish:d.id, price:np, ref:`chef-${++chefSeq}`};
+ const now = Date.now(), calm = now < (ui.chefCalm || 0);
+ // rimettere in carta ciò che è tornato viene prima di tutto: senza piatti in menu la cucina si ferma
+ const back = D.menu.find(backIn), out = D.menu.find(runningOut);
+ // un cambio di prezzo può aspettare: se c'è da togliere o rimettere un piatto, lo chef cambia richiesta
+ if (ui.chefOrder?.kind === 'price' && (back || out)) ui.chefOrder = null;
+ if (ui.chefOrder) return;
+ if (back && !calm) return chefOrder('on', back);
+ if (out && !calm) return chefOrder('off', out);
+ if (now < nextChefAt) return;
+ nextChefAt = now + (110 + Math.random() * 70) * 1000;
+ const d = D.menu.filter(x => x.course > 0 && x.visible && !x.special && D.portions(x) >= 5).sort(() => Math.random() - .5)[0]; if (!d) return;
+ chefOrder('price', d, d.price + (Math.random() < .5 ? -2 : 2));
 }
 function checkChef() {
  const o = ui.chefOrder; if (!o) return;
  const d = D.dish(o.dish);
- if ((o.kind === 'off' && !d.visible) || (o.kind === 'price' && d.price === o.price)) { ecoPoints('chef', 3, 'Menu aggiornato', o.ref); ui.chefOrder = null; }
+ if ((o.kind === 'off' && !d.visible) || (o.kind === 'on' && d.visible) || (o.kind === 'price' && d.price === o.price)) { ecoPoints('chef', 3, 'Menu aggiornato', o.ref); ui.chefOrder = null; }
+ // la richiesta non serve più: l'ordine al fornitore è partito prima, o la merce è finita di nuovo
+ else if ((o.kind === 'off' && !runningOut(d)) || (o.kind === 'on' && !backIn(d))) ui.chefOrder = null;
 }
 // Le celle frigorifere con la sonda: la temperatura si aggiorna ogni secondo senza ridisegnare la pagina.
 const fridgeTemp = f => f.state === 'sensor' ? '−−,−' : f.shown.toFixed(1).replace('.', ',').replace('-', '−');
@@ -647,7 +664,14 @@ function action(a) {
  if (k === 'go') { location.hash = a.slice(3); return; }
  if (a === 'adding') { ui.adding = !ui.adding; return render(); }
  if (k === 'seat') { D.openTable(x, +y); ecoPoints('seat', 2, 'Tavolo accomodato'); return; }
- if (k === 'bill') { D.requestBill(x); ecoPoints('bill', 2, 'Conto richiesto', x); return; }
+ if (k === 'bill') {
+  // nella sfida il conto chiesto mentre il tavolo mangia ancora costa punti: a volte serve, per liberare un tavolo, ma si paga
+  const t = D.table(x), early = gameOn() && D.service.game && t && !D.doneEating(t);
+  D.requestBill(x);
+  if (early) { penalty(4, 'Conto chiesto prima del tempo'); toast(`Il tavolo ${x.slice(1)} non aveva ancora finito: farli pagare prima del verde costa 4 punti. A volte serve per liberare un tavolo, ma si paga.`); }
+  else ecoPoints('bill', 2, 'Conto richiesto', x);
+  return;
+ }
  if (k === 'close') { const total = D.closeBill(x); ui.adding = false; ecoPoints('close', 5, 'Conto chiuso', x); toast(`Tavolo ${x.slice(1)} chiuso: ${euro(total)} in cassa.`); return; }
  if (a === 'menu-editor') return menuEditor();
  if (a === 'reset') { location.hash = 'home'; location.reload(); return; }
@@ -692,6 +716,7 @@ document.addEventListener('click', e => {
  if ((x = el('[data-category]'))) { ui.category = x.dataset.category; return render(); }
  if ((x = el('[data-otto]'))) return askGlobal(x.dataset.otto);
  if ((x = el('[data-qr-add]'))) { ui.qr.cart[x.dataset.qrAdd] = (ui.qr.cart[x.dataset.qrAdd] || 0) + 1; return render(); }
+ if ((x = el('[data-qr-sub]'))) { const id = x.dataset.qrSub; ui.qr.cart[id] = Math.max(0, (ui.qr.cart[id] || 0) - 1); if (!ui.qr.cart[id]) delete ui.qr.cart[id]; return render(); }
  if ((x = el('[data-qr-cat]'))) { ui.qr.cat = x.dataset.qrCat; return render(); }
  if ((x = el('[data-qr-page]'))) { ui.qrPage = +x.dataset.qrPage; return render(); }
  if ((x = el('[data-qr-table]'))) { ui.qr = {table:x.dataset.qrTable, cart:{}, step:'menu', cat:ui.qr.cat, receipt:null}; return render(); }
@@ -719,7 +744,7 @@ document.addEventListener('change', e => {
  }
  if (d.editPrice && +e.target.value > 0) { D.editDish(d.editPrice, {price:+e.target.value}); toast('Prezzo aggiornato su tutti i QR.'); checkChef(); }
  if (d.appBlock) { const b = D.appCfg.blocks.find(x => x.id === d.appBlock); if (b) { b.on = e.target.checked; ecoPoints('app-block', 2, 'App aggiornata', `${b.id}-${b.on}`); toast(b.on ? `“${b.name}” è nell’app: arriva agli ospiti con il prossimo aggiornamento.` : `“${b.name}” tolta dall’app.`); render(); } }
- if (d.editVisible) { D.editDish(d.editVisible, {visible:e.target.checked}); toast(e.target.checked ? 'Di nuovo nel menu.' : 'Tolto dal menu di stasera.'); checkChef(); }
+ if (d.editVisible) { D.editDish(d.editVisible, {visible:e.target.checked}); toast(e.target.checked ? 'Di nuovo nel menu.' : `Tolto dal menu ${SV.name === 'pranzo' ? 'del pranzo' : 'di stasera'}.`); checkChef(); }
 });
 document.addEventListener('input', e => {
  if (e.target.id === 'catalog-search') { ui.query = e.target.value; const y = e.target.selectionStart; render(); const i = document.querySelector('#catalog-search'); i.focus(); i.setSelectionRange(y, y); }
@@ -775,14 +800,15 @@ setInterval(() => { try { if (!busy()) D.tick(); } catch (err) { console.warn('C
 setInterval(() => {
  try {
   if (busy() || !gameOn() || !D.service.game) return;
-  chefDirector();
+  checkChef(); chefDirector();
   const fr = D.fridgeTick();
   fr.lost.forEach(f => { penalty(10, 'Merce buttata'); toast(`${f.name}: oltre i ${f.max + 4} °C, metà della merce va buttata.`); });
   document.querySelectorAll('[data-fridge-temp]').forEach(e => { const f = D.fridge(e.dataset.fridgeTemp); e.textContent = fridgeTemp(f); e.closest('.fridge')?.classList.toggle('red', D.fridgeRed(f)); });
   const dr = D.doorTick(gameLevel());
   dr.left.forEach(p => { penalty(10, 'Ospiti andati via'); toast(`${p.name} (${p.n} persone) se ne sono andati: troppa attesa all’ingresso.`); });
-  document.querySelectorAll('[data-door-wait]').forEach(e => { const p = D.door.find(y => y.id === e.dataset.doorWait); if (!p) return; e.textContent = Math.floor(D.doorWait(p)); e.closest('.dq-party')?.classList.toggle('red', D.doorRed(p)); const bar = document.querySelector(`[data-door-bar="${p.id}"]`); if (bar) bar.style.width = `${Math.min(100, D.doorWait(p) / D.doorLeave() * 100)}%`; });
-  const dsig = D.door.map(p => p.id).join(','); if (dsig !== ui.doorSig) { ui.doorSig = dsig; if (route() === 'sala') render(); }
+  document.querySelectorAll('[data-door-wait]').forEach(e => { const p = D.door.find(y => y.id === e.dataset.doorWait); if (!p) return; e.textContent = Math.floor(D.doorWait(p)); e.closest('.dq-party')?.classList.toggle('red', D.doorRed(p)); const bar = document.querySelector(`[data-door-bar="${p.id}"]`); if (bar) bar.style.width = `${Math.min(100, D.doorWait(p) / D.doorLeave(p) * 100)}%`; });
+  // la pianta cambia colore da sola quando un tavolo finisce di mangiare
+  const dsig = D.door.map(p => p.id).join(',') + '|' + D.tables.map(D.tablePhase).join(''); if (dsig !== ui.doorSig) { ui.doorSig = dsig; if (route() === 'sala') { const y = scrollY; render(); scrollTo(0, y); } }
   unlockTick();
   const dl = D.deliveryTick(gameLevel());
   dl.lost.forEach(o => { penalty(10, 'Ordine delivery annullato'); toast(`${o.code} annullato: il rider di ${D.channel(o.ch).name} è ripartito senza l’ordine.`); });
@@ -855,7 +881,7 @@ initGame(challenges, {story,icon, place:'il locale', missionsOnly:true,
   const c = [], low = D.lowStock();
   if (low.length) c.push({key:'reorder', page:'magazzino', title:`Sotto scorta: ${low.slice(0, 2).map(i => i.name).join(', ')}`, text:'Otto ha preparato l’ordine: **invialo ai fornitori** dal pannello “Ordine proposto”.', target:'[data-action="reorder"]', valid:() => D.lowStock().length > 0, auto:() => D.reorder(D.lowStock().map(i => i.id))});
   D.tables.filter(t => t.status === 'bill' && t.id !== 'T8' && !t.mission).forEach(t => c.push({key:'close', ref:t.id, page:'sala', title:`Il tavolo ${t.id.slice(1)} chiede il conto`, text:`Apri il **tavolo ${t.id.slice(1)}** nella pianta e premi **Chiudi conto**.`, target:`[data-action="close:${t.id}"]`, valid:() => D.table(t.id).status === 'bill', auto:() => D.closeBill(t.id)}));
-  D.tables.filter(t => t.status === 'ordered' && t.id !== 'T3' && !t.mission && t.lines.length >= 3 && t.lines.every(l => l.state === 'served')).forEach(t => c.push({key:'bill', ref:t.id, page:'sala', title:`Il tavolo ${t.id.slice(1)} ha finito di mangiare`, text:`Apri il **tavolo ${t.id.slice(1)}** e premi **Richiedi il conto**.`, target:`[data-action="bill:${t.id}"]`, valid:() => D.table(t.id).status === 'ordered', auto:() => D.requestBill(t.id)}));
+  D.tables.filter(t => t.id !== 'T3' && !t.mission && D.doneEating(t)).forEach(t => c.push({key:'bill', ref:t.id, page:'sala', title:`Il tavolo ${t.id.slice(1)} ha finito di mangiare`, text:`Apri il **tavolo ${t.id.slice(1)}** e premi **Richiedi il conto**.`, target:`[data-action="bill:${t.id}"]`, valid:() => D.table(t.id).status === 'ordered', auto:() => D.requestBill(t.id)}));
   const late = D.kitchenLines().filter(l => l.state === 'waiting').sort((a, b) => a.at - b.at)[0];
   if (late) c.push({key:'advance', urgent:D.service.game && !D.autoOn('cook') && Date.now() - late.at > D.waitMax() * 500, ref:late.id, page:'kds', title:`Comanda in attesa · tavolo ${late.table.slice(1)}`, text:D.service.game ? `In Cucina **apri la comanda del tavolo ${late.table.slice(1)}** e premi **Metti sui fornelli**. Se i fornelli sono pieni, prima manda al pass un piatto cotto.` : `In Cucina **apri la comanda del tavolo ${late.table.slice(1)}** e premi **Avvia la preparazione**.`, target:D.service.game ? `[data-cook="${late.id}"], [data-ticket="${late.id}"]` : `[data-ticket="${late.id}"]`, valid:() => D.kitchenLines().some(l => l.id === late.id && l.state === 'waiting'), auto:() => D.service.game ? D.startCooking(late.id) : D.advance(late.id)});
   const rev = D.reviews.find(r => !ui.done.reviews.includes(r.who));
@@ -863,7 +889,14 @@ initGame(challenges, {story,icon, place:'il locale', missionsOnly:true,
   D.fridges.filter(f => ['door', 'fault', 'sensor'].includes(f.state)).forEach(f => c.push({key:'fridge', urgent:true, ref:`${f.id}-${f.faults}`, page:'staff', title:`${f.name}: ${f.state === 'door' ? 'porta aperta' : f.state === 'fault' ? 'compressore guasto' : 'sonda scollegata'}`, text:`In Staff & HACCP **${f.state === 'door' ? 'chiudi la porta' : f.state === 'fault' ? 'chiama il tecnico' : 'ricollega la sonda'}** della ${f.name.toLowerCase()} prima che la temperatura salga.`, target:`[data-fridge-act="${f.id}"]`, valid:() => D.fridge(f.id).state === f.state, auto:() => D.fridgeAction(f.id)}));
   D.door.forEach(p => c.push({key:'seat', ref:p.id, page:'sala', urgent:D.doorWait(p) > 15, title:`All’ingresso: ${p.name}, ${p.n} persone`, text:`In Sala **tocca ${p.name}** nel riquadro “All’ingresso”, poi **un tavolo libero con almeno ${p.n} posti**.`, target:`[data-door="${p.id}"]`, valid:() => D.door.some(x => x.id === p.id), auto:() => { const t = D.tables.find(x => D.fits(x, p)); if (t) D.seatParty(p.id, t.id); }}));
   const o = ui.chefOrder;
-  if (o) { const d = D.dish(o.dish); c.push({key:'chef', ref:o.ref, page:'menu_pos', title:o.kind === 'off' ? `Lo chef: ${d.name} è finito` : `Lo chef: ${d.name} a € ${o.price}`, text:`Apri **l’editor del menu** (o chiedilo a Otto a parole) e ${o.kind === 'off' ? `**togli ${d.name}** dal menu di stasera` : `metti **${d.name} a € ${o.price}**`}.`, target:'[data-action="menu-editor"]', valid:() => ui.chefOrder?.ref === o.ref, auto:() => { D.editDish(o.dish, o.kind === 'off' ? {visible:false} : {price:o.price}); ui.chefOrder = null; }}); }
+  if (o) {
+   const d = D.dish(o.dish), n = o.left;
+   const title = {off:`Lo chef: ${d.name} sta finendo`, on:`Lo chef: rimetti ${d.name}`, price:`Lo chef: ${d.name} a € ${o.price}`}[o.kind];
+   const text = {off:`${o.short ? `${o.short} è sotto scorta e ` : ''}restano **${n} ${n === 1 ? 'porzione' : 'porzioni'}**. Apri **l’editor del menu** (o chiedilo a Otto a parole) e **togli ${d.name}** finché non arriva la merce. Se invece mandi subito l’ordine dal Magazzino, il piatto può restare.`,
+    on:`La merce è tornata in magazzino: ci sono **${D.portions(d)} porzioni**. Apri **l’editor del menu** (o di’ a Otto “rimetti ${d.name.toLowerCase()}”) e **rimetti ${d.name}** in carta: senza piatti, la cucina si ferma.`,
+    price:`Apri **l’editor del menu** (o chiedilo a Otto a parole) e metti **${d.name} a € ${o.price}**.`}[o.kind];
+   c.push({key:'chef', ref:o.ref, page:'menu_pos', urgent:o.kind === 'on', title, text, target:'[data-action="menu-editor"]', valid:() => ui.chefOrder?.ref === o.ref, auto:() => { D.editDish(o.dish, o.kind === 'off' ? {visible:false} : o.kind === 'on' ? {visible:true, paused:false} : {price:o.price}); ui.chefOrder = null; }});
+  }
   // delivery: l'ordine più vecchio da accettare, il rider al banco, la cucina piena che chiede una pausa
   if (D.delivery.on) {
    const nw = D.delivery.orders.filter(o => o.state === 'new').sort((a, b) => a.at - b.at)[0];
@@ -878,9 +911,12 @@ initGame(challenges, {story,icon, place:'il locale', missionsOnly:true,
   const h = D.haccp.findIndex((x, i) => !x.done && !ui.done.haccp.includes(i) && haccpReady(i).ok);
   if (h >= 0) c.push({key:'haccp', ref:h, page:'staff', title:`HACCP · ${D.haccp[h].task}`, text:'In Staff & HACCP **spunta il controllo** nella checklist di oggi.', target:`input[data-haccp="${h}"]`, valid:() => !ui.done.haccp.includes(h), auto:() => ui.done.haccp.push(h)});
   // come un cameriere: un ordine da fare dal menu QR, con il pagamento giusto
-  const seated = D.tables.filter(t => (t.status === 'seated' || t.status === 'ordered') && !['T3', 'T7', 'T8'].includes(t.id));
+  const seated = D.tables.filter(t => (t.status === 'seated' || t.status === 'ordered') && !D.doneEating(t) && !['T3', 'T7', 'T8'].includes(t.id));
   if (seated.length && Math.random() < .5) {
-   const t = seated[Math.floor(Math.random() * seated.length)], dishes = D.menu.filter(D.available).sort(() => Math.random() - .5).slice(0, 1 + Math.floor(Math.random() * 2));
+   // si ordina soprattutto dalla cucina; il vino si aggiunge ogni tanto, e da solo solo se la cucina non ha più niente
+   const food = D.menu.filter(d => D.available(d) && d.course > 0).sort(() => Math.random() - .5), wine = D.menu.filter(d => D.available(d) && d.course === 0);
+   const t = seated[Math.floor(Math.random() * seated.length)], dishes = food.length ? food.slice(0, 1 + Math.floor(Math.random() * 2)) : wine.slice(0, 1);
+   if (food.length && wine.length && Math.random() < .25) dishes.push(wine[0]);
    const want = dishes.map(d => [d.id, 1 + Math.floor(Math.random() * 2)]), prepaid = Math.random() < .5;
    const list = want.map(([id, n]) => `${n}× ${D.dish(id).name}`).join(', ');
    c.push({key:'qr', ref:t.id, page:'menu_pos', title:`Ordine al tavolo ${t.id.slice(1)}`, text:`Il tavolo ${t.id.slice(1)} ordina **${list}**. ${prepaid ? 'Il cliente **paga subito con Stripe**: premi Paga ora.' : 'Il cliente **paga dopo, in cassa**: premi Ordina e paga a fine cena.'} Scegli il tavolo sotto il QR e componi l’ordine sul telefono.`, target:`[data-qr-table="${t.id}"], .qr-arrow.hot`,

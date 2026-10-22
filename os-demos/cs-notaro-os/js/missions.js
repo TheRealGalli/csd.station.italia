@@ -16,7 +16,7 @@
 //  Compliance       · Consenti o rifiuta · (dal capitolo 2, a caso) La violazione dei dati, in fila
 import * as G from './gen.js';
 import {mechanics as M} from './mg.js';
-import {addMission, gameLevel, canSpawnMission, storyBias, rnd, gameState} from './game.js';
+import {addMission, gameLevel, canSpawnMission, missionRush, storyBias, rnd, gameState} from './game.js';
 import {spawnMail, spawnChat, spawnCall, live} from './live.js';
 
 let testLevel = 0;
@@ -377,14 +377,14 @@ function spawn(force, forced) {
   const busy = new Set(open.filter(x => x.open).map(x => x.page));
   const order = rotation.slice(turn % rotation.length).concat(rotation.slice(0, turn % rotation.length));
   // nella storia, l'antagonista del capitolo porta più spesso missioni dalle sue sezioni
-  const bias = storyBias()?.filter(p => pages[p] && !busy.has(p)), fromStory = !force && bias?.length && Math.random() < .6 ? bias[Math.floor(Math.random() * bias.length)] : null;
+  const bias = storyBias()?.filter(p => pages[p] && !busy.has(p)), fromStory = !force && bias?.length && Math.random() < (missionRush() ? .95 : .7) ? bias[Math.floor(Math.random() * bias.length)] : null;
   const page = force || fromStory || order.find(p => !busy.has(p)) || order[0]; turn = rotation.indexOf(page) + 1;
   const made = forced ? forced() : pages[page](), mission = made.mission || made, ttl = Math.round(mission.ttl * by(1, .85, .7)), rec = {open:true, page};
   let item = null;
   if (made.anchor === 'mail') item = spawnMail({...made.mail, priority:'alta', assignee:'GM', prepared:[], draft:''});
   if (made.anchor === 'chat') item = spawnChat(made.chat);
   if (made.anchor === 'call') item = spawnCall(made.call);
-  const id = addMission({...mission, ttl, page, ref:item?.id, brief:made.brief ? {...briefs[page], alt:null, ...made.brief} : briefs[page], onDone:() => { rec.open = false; if (item) { item.missionOpen = false; if (made.anchor === 'call') Object.assign(item, {duration:'2:40', outcome:'Gestita con te'}); } onHandled(item?.id, page); schedule(G.int(120, 180)); }});
+  const id = addMission({...mission, ttl, page, ref:item?.id, brief:made.brief ? {...briefs[page], alt:null, ...made.brief} : briefs[page], onDone:() => { rec.open = false; if (item) { item.missionOpen = false; if (made.anchor === 'call') Object.assign(item, {duration:'2:40', outcome:'Gestita con te'}); } onHandled(item?.id, page); schedule(missionRush() ? G.int(40, 70) : G.int(120, 180)); }});
   if (item) { item.mission = id; item.missionOpen = true; live.missions.push(item); }
   open.push(rec);
  }

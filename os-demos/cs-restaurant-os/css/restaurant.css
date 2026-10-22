@@ -42,11 +42,14 @@
 .ftable em{font-style:normal;font-size:10.5px;font-weight:650}
 .floor.mini .ftable b{font-size:12px}.floor.mini .ftable small,.floor.mini .ftable em{font-size:9px}
 .s-free,.lg.s-free{background:#fff;border-color:#dfe4d7;color:#7f8a75}
-.s-seated,.lg.s-seated{background:#e9f2fb;border-color:#bcd5ee;color:#30577d}
-.s-ordered,.lg.s-ordered{background:#e6f5d3;border-color:#b5d98a;color:#36561c}
-.s-bill,.lg.s-bill{background:#fdf0d8;border-color:#efcf8e;color:#7a5717}
+.s-waiting,.lg.s-waiting{background:#e9f2fb;border-color:#bcd5ee;color:#30577d}
+.s-eating,.lg.s-eating{background:#fde9e5;border-color:#f0b0a3;color:#8a2f1f}
+.s-done,.lg.s-done,.s-bill,.lg.s-bill{background:#e6f5d3;border-color:#9fcf6c;color:#36561c}
+.lg.s-bill{box-shadow:inset 0 0 0 3px #e6f5d3;background:#d8432f}
+.bill-dot{position:absolute;top:-5px;left:-5px;width:14px;height:14px;border-radius:50%;background:#d8432f;border:2px solid #fff;animation:lu-live 1.5s infinite}
+.badge-blue{color:#30577d;background:#e9f2fb;border-color:#bcd5ee}
 .ftable.selected{outline:3px solid #1d2b20;outline-offset:2px}
-.ready-dot{position:absolute;top:-4px;right:-4px;width:12px;height:12px;border-radius:50%;background:#d8432f;border:2px solid #fff;animation:lu-live 1.5s infinite}
+.ready-dot{position:absolute;top:-4px;right:-4px;width:12px;height:12px;border-radius:50%;background:#e8a317;border:2px solid #fff;animation:lu-live 1.5s infinite}
 .floor-label{position:absolute;font-size:9px;letter-spacing:2px;color:#a3ad97;font-weight:600}
 .floor-label.bar{right:3%;bottom:6%}.floor-label.door{left:44%;bottom:2%}
 
@@ -492,3 +495,7 @@
 /* Bandi: l'elenco dei bandi è una scheda con il titolo che si scorre, i bandi dentro sono schede bianche */
 .grants-panel .grant-list{padding:14px;display:grid;gap:14px}
 .grants-panel .grant-list>.workspace-panel{margin-top:0}
+.dq-party .dq-tag{font-size:11px;font-style:normal;color:#4f5d43;line-height:1.3}
+.gp-qty{display:inline-flex;align-items:center;gap:6px;background:#1d2b20;border-radius:999px;padding:2px}
+.gp-qty b{min-width:14px;text-align:center;color:var(--lime);font-size:12.5px}
+.gp-buy .gp-qty button{width:26px;height:26px;font-size:15px;line-height:1}

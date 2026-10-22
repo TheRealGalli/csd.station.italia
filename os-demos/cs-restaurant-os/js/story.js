@@ -4,6 +4,7 @@
 // e stringe una regola del gioco (rules), che torna com'era alla fine del capitolo.
 import {persona} from './persona.js';
 import * as D from './demo.js';
+import {service as SV} from './clock.js';
 
 // rules: [[oggetto, chiave, valore o funzione del valore attuale], …] → apply(on) che cambia e poi ripristina
 const rules = list => { const was = []; return on => { if (on) list.forEach(([o, k, v], i) => { was[i] = o[k]; o[k] = typeof v === 'function' ? v(o[k]) : v; }); else list.forEach(([o, k], i) => { if (was[i] !== undefined) o[k] = was[i]; }); }; };
@@ -107,3 +108,9 @@ export const story = {
   ]}
  ]
 };
+
+// A pranzo la stessa storia si racconta di giorno: la sfida si gioca all'ora vera, e il finale non può dire "cena".
+const lunch = [[/Buonasera/g, 'Buongiorno'], [/Le prime luci della sala si accendono/g, 'Si aprono le porte della sala'], [/\bStasera\b/g, 'Oggi'], [/\bstasera\b/g, 'oggi'],
+ [/la cena di oggi/g, 'il pranzo di oggi'], [/La serata/g, 'Il pranzo'], [/la serata/g, 'il pranzo'], [/\bserata\b/g, 'giornata'], [/Il sabato sera/g, 'Il sabato a pranzo'], [/00:40/g, '15:40']];
+const toLunch = o => { for (const k in o) { if (k === 'wa' || k === 'apply') continue; const v = o[k]; if (typeof v === 'string') o[k] = lunch.reduce((t, [r, w]) => t.replace(r, w), v); else if (v && typeof v === 'object') toLunch(v); } };
+if (SV.name === 'pranzo') toLunch(story);

@@ -125,3 +125,13 @@ La storia è sempre **il lavoro vero raccontato**: un fornitore che sbaglia le f
 - Nel riepilogo finale: punti per sezione e cosa è andato in rosso.
 - Una classifica locale delle partite.
 - La demo guidata del gioco, quando le meccaniche sono stabili.
+
+## 6e. Ritocchi dopo il gameplay del video 4 (22 ottobre 2026)
+- **Menu e magazzino legati davvero.** Lo chef chiede di togliere un piatto solo quando un suo ingrediente è sotto scorta e restano 4 porzioni o meno (e nessuno ha ancora inviato l’ordine: se lo invii, la richiesta cade). Appena la merce torna, lo chef chiede di **rimetterlo** (compito urgente): la cucina non resta più col solo Chianti. Un cambio di prezzo in sospeso cede il posto a queste richieste. Nella sfida, se nessuno ordina, il fornitore passa da solo dopo 90 s di magazzino vuoto.
+- **Ordini al tavolo**: si ordina soprattutto dalla cucina; il vino si aggiunge ogni tanto. Nel telefono del QR c’è il tasto **−** accanto al **+**.
+- **Tavoli a colori**: blu aspettano i piatti, rosso mangiano, verde hanno finito (un minuto dopo l’ultimo piatto) e si possono far pagare, verde col bollino rosso chiedono il conto. Farli pagare prima del verde costa **4 punti**: a volte serve per liberare un tavolo. Chi ha finito non ordina più.
+- **Personaggi**: 32 gruppi all’ingresso (aziende come Arno Tech, Officine Galileo, Verdeluce; famiglie, coppie, turisti, il calcetto del giovedì…), ognuno con un dettaglio e la sua pazienza; nessuno entra due volte nella stessa sera. Card fedeltà e delivery con più nomi. Nel Notaro le parti in sala d’attesa sono legate all’atto (soci per la S.r.l., eredi per la successione…).
+- **Frigoriferi**: guasti più radi e uno alla volta (tranne l’ispezione ASL); con il tecnico già chiamato la cella non toglie punti.
+- **Punti del capitolo**: ciò che si spende in Bottega o negli indizi non conta come punti persi (prima un acquisto da 1.000 punti portava l’obiettivo del sabato a −973).
+- **Missioni del capitolo**: se il capitolo chiede missioni e da 90 s non ne arriva nessuna, se ne può aprire una in più, quasi sempre dalle sezioni del capitolo.
+- **Delega a Otto** funziona anche sui compiti. **A pranzo** storia e finale parlano di pranzo, non di cena.

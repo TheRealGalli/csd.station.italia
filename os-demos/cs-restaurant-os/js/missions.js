@@ -19,7 +19,7 @@
 // Le missioni dopo la prima di ogni settore non arrivano sempre: vedi `extras` più sotto.
 import * as G from './gen.js';
 import {mechanics as M} from './mg.js';
-import {addMission, gameLevel, canSpawnMission, storyBias, rnd, gameState} from './game.js';
+import {addMission, gameLevel, canSpawnMission, missionRush, storyBias, rnd, gameState} from './game.js';
 import * as D from './demo.js';
 
 let testLevel = 0;
@@ -435,14 +435,14 @@ function spawn(force, forced) {
   const busy = new Set(open.filter(x => x.open).map(x => x.page));
   const order = rotation.slice(turn % rotation.length).concat(rotation.slice(0, turn % rotation.length));
   // nella storia, l'antagonista del capitolo porta più spesso missioni dalle sue sezioni
-  const bias = storyBias()?.filter(p => eligible(p) && !busy.has(p)), fromStory = !force && bias?.length && Math.random() < .6 ? bias[Math.floor(Math.random() * bias.length)] : null;
+  const bias = storyBias()?.filter(p => eligible(p) && !busy.has(p)), fromStory = !force && bias?.length && Math.random() < (missionRush() ? .95 : .7) ? bias[Math.floor(Math.random() * bias.length)] : null;
   const page = force || fromStory || order.find(p => eligible(p) && !busy.has(p)) || order.find(eligible); turn = rotation.indexOf(page) + 1;
   // la Sala usa un tavolo vero: chiede il conto, il "!" compare sulla pianta e si risolve nel suo pannello
   const tb = page === 'sala' ? D.tables.find(x => ['seated', 'ordered'].includes(x.status) && !['T3', 'T8'].includes(x.id) && !x.mission && x.lines.length) : null;
   const made = page === 'sala' ? salaMission(tb) : forced ? forced() : generate(page), ttl = Math.round(made.m.ttl * by(1, .85, .7)), rec = {open:true, page};
   if (tb) tb.status = 'bill';
   const id = addMission({...made.m, ttl, page, ref:tb?.id, brief:made.brief ? {...briefs[page], alt:null, ...made.brief} : briefs[page], event:made.event, onDone:() => {
-   rec.open = false; schedule(G.int(120, 180));
+   rec.open = false; schedule(missionRush() ? G.int(40, 70) : G.int(120, 180));
    if (tb) { tb.mission = null; if (tb.status === 'bill') D.closeBill(tb.id); }
   }});
   if (tb) tb.mission = id;

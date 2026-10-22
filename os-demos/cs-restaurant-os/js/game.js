@@ -14,7 +14,7 @@ const base = {1:10, 2:20, 3:30};
 const levelNotes = {1:'Si comincia: scelte chiare per prendere la mano.', 2:'Arrivano le prime trappole. Prima di approvare, apri le fonti.', 3:'Ultimo livello: errori sottili e un po’ di fretta.'};
 
 let C = [], icon = () => '', pageName = id => id, place = 'lo studio', timer = 0, hooks = {};
-const S = {won:0, t0:0, chapter:-1, chProgress:0, chStart:0, bought:{}, paused:0, coached:{}, tasksDone:0, tasks:{}, tseq:0, fx:{shield:0, double:0, freeHints:0, freezeUntil:0}, gifts:[], gift:null, offers:[], missions:{}, mseq:0, avail:{}, seenOpen:0, started:false, points:0, level:1, round:1, streak:0, last:null, solved:{}, cards:{}, showing:{}, sound:true};
+const S = {won:0, t0:0, chapter:-1, chProgress:0, chStart:0, spent:0, chSpent:0, bought:{}, paused:0, coached:{}, tasksDone:0, tasks:{}, tseq:0, fx:{shield:0, double:0, freeHints:0, freezeUntil:0}, gifts:[], gift:null, offers:[], missions:{}, mseq:0, avail:{}, seenOpen:0, started:false, points:0, level:1, round:1, streak:0, last:null, solved:{}, cards:{}, showing:{}, sound:true};
 try { S.sound = localStorage.getItem('csd.game.sound') !== 'off'; } catch {}
 
 export function initGame(challenges, opts) {
@@ -153,7 +153,7 @@ function useHint(id, from) {
  const cost = S.fx.freeHints ? 0 : hintCost();
  if (S.points < cost) { play('bad'); return; }
  if (S.fx.freeHints) S.fx.freeHints--;
- S.points -= cost; m.st.hintMsg = m.hint(m.data, m.st) || 'Rileggi bene le fonti.';
+ S.points -= cost; S.spent += cost; m.st.hintMsg = m.hint(m.data, m.st) || 'Rileggi bene le fonti.';
  play('open'); refreshMission(id);
  float(-cost, document.querySelector(`[data-mission="${id}"] .gc-hintmsg`) || from);
 }
@@ -712,14 +712,17 @@ export const pickOne = list => list[rnd(list.length)];
 const drawPlot = () => (hooks.story?.chapters || []).map(c => c.variants ? pickOne(c.variants) : c);
 const chapters = () => S.plot || (S.plot = drawPlot());
 export const storyBias = () => chapters()[S.chapter]?.bias || null;
+// I punti del capitolo sono quelli guadagnati meno quelli persi: ciò che si spende in Bottega o negli indizi
+// è un acquisto, non una perdita, e non toglie niente all'obiettivo del capitolo.
+const chEarned = () => S.points - S.chStart + (S.spent - S.chSpent);
 export const chapterInfo = () => { const c = chapters()[S.chapter]; return c ? {n:S.chapter + 1, of:chapters().length, title:c.title, goal:goalText(c), progress:S.chProgress} : null; };
 function goalText(c) {
- const g = c.goal, left = g.type === 'points' ? `${Math.min(g.n, S.points - S.chStart)}/${g.n} punti` : `${Math.min(g.n, S.chProgress)}/${g.n}`;
+ const g = c.goal, left = g.type === 'points' ? `${Math.max(0, Math.min(g.n, chEarned()))}/${g.n} punti` : `${Math.min(g.n, S.chProgress)}/${g.n}`;
  return `${g.label} · ${left}`;
 }
 function startChapter(i) {
  const c = chapters()[i]; if (!c || !S.started) return;
- S.chapter = i; S.chProgress = 0; S.chStart = S.points; c.done = false;
+ S.chapter = i; S.chProgress = 0; S.chStart = S.points; S.chSpent = S.spent; c.done = false;
  S.ch0 = {won:S.won, tasks:S.tasksDone, t:Date.now(), lost:S.lostPts || 0};
  try { c.apply?.(true); } catch {}
  updateChip();
@@ -729,7 +732,7 @@ function storyProgress(kind, page) {
  const c = chapters()[S.chapter]; if (!c || c.done) return;
  const g = c.goal;
  if (g.type === kind && kind !== 'points' && (!g.pages || g.pages.includes(page))) S.chProgress++;
- const ok = g.type === 'points' ? S.points - S.chStart >= g.n : S.chProgress >= g.n;
+ const ok = g.type === 'points' ? chEarned() >= g.n : S.chProgress >= g.n;
  updateChip();
  if (!ok) return;
  c.done = true;
@@ -747,7 +750,7 @@ function stageClear(c, last, onClose) {
  if (!S.started) return;
  if (coachOpen || document.querySelector('.game-finale')) { setTimeout(() => stageClear(c, last, onClose), 1500); return; }
  const z = S.ch0 || {won:0, tasks:0, t:Date.now(), lost:0}, n = S.chapter + 1, of = chapters().length, next = chapters()[S.chapter + 1];
- const mins = Math.max(1, Math.round((Date.now() - z.t) / 60000)), gained = S.points - S.chStart - 50; // il bonus si mostra a parte
+ const mins = Math.max(1, Math.round((Date.now() - z.t) / 60000)), gained = chEarned() - 50; // il bonus si mostra a parte
  const stat = (v, l) => `<span><b>${v}</b><small>${l}</small></span>`, won = S.won - z.won, tasks = S.tasksDone - z.tasks, lost = (S.lostPts || 0) - z.lost;
  S.paused++; document.body.classList.add('game-paused');
  const box = document.createElement('div');
@@ -755,7 +758,7 @@ function stageClear(c, last, onClose) {
  box.innerHTML = `<div class="gf-card">
   <div class="gf-screen"><small>CAPITOLO ${n}/${of} · COMPLETATO</small><b>${esc(c.title.toUpperCase())}</b><span class="gf-bar">${chapters().map((_, i) => `<i class="${i < n ? 'on' : ''}"></i>`).join('')}</span></div>
   <div class="gf-tale"><span class="gf-face">${icon(c.role)}</span><div><b>${esc(c.narrator)}</b>${c.outro.map(l => `<p>${rich(l)}</p>`).join('')}</div></div>
-  <div class="gf-stats">${stat(`+${gained}`, 'punti nel capitolo')}${stat(won, won === 1 ? 'missione vinta' : 'missioni vinte')}${stat(tasks, tasks === 1 ? 'compito fatto' : 'compiti fatti')}${stat(lost ? `−${lost}` : '0', 'punti persi')}</div>
+  <div class="gf-stats">${stat(`${gained < 0 ? '−' : '+'}${Math.abs(gained)}`, 'punti nel capitolo')}${stat(won, won === 1 ? 'missione vinta' : 'missioni vinte')}${stat(tasks, tasks === 1 ? 'compito fatto' : 'compiti fatti')}${stat(lost ? `−${lost}` : '0', 'punti persi')}</div>
   <p class="gf-bonus">${icon('otto-happy')} <b>+50 punti</b> di bonus capitolo · ${mins}′ di gioco</p>
   ${!last && next ? `<p class="gf-next"><small>PROSSIMO CAPITOLO</small><b>${esc(next.title)}</b></p>` : ''}
   <div class="gf-actions"><button class="gf-go" data-stage="go">${last ? 'Vedi com’è andata' : `Avanti · capitolo ${n + 1}`} ${icon('arrow')}</button></div>
@@ -834,7 +837,10 @@ export const ottoMessage = opts => ottoChat(opts);
 export const gamePaused = () => S.paused > 0;
 export const isReserved = ref => ref != null && (openTasks().some(t => t.ref != null && String(t.ref) === String(ref)) || openMissions().some(m => m.ref != null && String(m.ref) === String(ref)));
 // Le missioni arrivano solo dopo due compiti fatti, e mai oltre il numero di cose aperte del livello.
-export const canSpawnMission = () => S.started && !S.paused && S.tasksDone >= 2 && openAll().length < maxOpen();
+// Se il capitolo chiede missioni e da un minuto e mezzo non ne è arrivata nessuna, se ne può aprire una in più:
+// i compiti di ogni giorno non devono mai tenere fuori le missioni che servono a finire il capitolo.
+export const missionRush = () => { const c = chapters()[S.chapter]; return !!c && !c.done && c.goal.type === 'missions' && Date.now() - (S.ch0?.t || Date.now()) > 90000 && !openMissions().length; };
+export const canSpawnMission = () => S.started && !S.paused && S.tasksDone >= 2 && openAll().length < maxOpen() + (missionRush() ? 1 : 0);
 
 let ac;
 function tone(f, t0, dur, type = 'sine', vol = .06, f2) {
@@ -918,8 +924,15 @@ const catalog = [
  {id:'lente', name:'Lente di Otto', desc:'I prossimi 3 indizi sono gratis.', cost:30, mood:'otto-read', use:() => { S.fx.freeHints += 3; return '3 indizi gratis pronti.'; }},
  {id:'meta', name:'Metà lavoro', desc:'Otto fa metà della missione più urgente.', cost:30, mood:'otto-think', use:() => { const m = urgent(); if (!m) return false; halfWork(m); return `Otto ha fatto metà di “${m.title}”.`; }},
  {id:'doppio', name:'Punti doppi', desc:'Raddoppia le prossime 3 missioni vinte.', cost:40, mood:'otto-happy', use:() => { S.fx.double += 3; return 'Le prossime 3 missioni vinte valgono doppio.'; }},
- {id:'delega', name:'Delega a Otto', desc:'Otto chiude per te la missione più urgente (+15 pt).', cost:25, mood:'otto-wink', use:() => { const m = urgent(); if (!m) return false; resolveMission(m, {pts:15, delegated:true, label:'Delegata a Otto', why:'Otto l’ha chiusa al posto tuo: meno punti, ma tempo risparmiato per le altre.'}); return `Otto ha chiuso “${m.title}”.`; }}
+ {id:'delega', name:'Delega a Otto', desc:'Otto chiude per te la missione o il compito più urgente.', cost:25, mood:'otto-wink', use:() => { const m = urgent(); if (!m) return delegateTask(); resolveMission(m, {pts:15, delegated:true, label:'Delegata a Otto', why:'Otto l’ha chiusa al posto tuo: meno punti, ma tempo risparmiato per le altre.'}); return `Otto ha chiuso “${m.title}”.`; }}
 ];
+// Senza missioni aperte, la delega vale anche per un compito: Otto lo fa con i tasti veri, e dà qualche punto.
+function delegateTask() {
+ const t = openTasks().sort((a, b) => taskLeft(a) - taskLeft(b))[0]; if (!t) return false;
+ t.done = true; try { t.auto?.(); } catch {}
+ S.points += 8; syncLevel(); refresh(t.page); markNav(); updateAlert();
+ return `Otto ha fatto “${t.title}” (+8 punti).`;
+}
 function halfWork(m) {
  const st = m.st, n = Math.max(1, Math.ceil((m.data.items?.length || m.data.chips?.filter(c => c.ok).length || 2) / 2));
  // caccia agli errori e procedure: Otto fa davvero metà del lavoro (trova metà dei problemi, mette in fila metà dei passaggi)
@@ -967,8 +980,8 @@ function buy(id, free) {
  const c = allItems().find(x => x.id === id); if (!c) return;
  if (!free && (S.points < price(c) || (c.fixed && owned(c)))) { play('bad'); return; }
  const res = c.use();
- if (res === false) { S.shopNote = 'Non ci sono missioni aperte su cui usarlo: tienilo per dopo.'; play('bad'); return openShop(); }
- if (!free) { S.points -= price(c); S.bought[c.id] = (S.bought[c.id] || 0) + 1; if (!c.fixed) { S.offers = S.offers.filter(x => x !== id); S.offers.push(sample(1, S.offers.concat(id))[0]?.id || id); } }
+ if (res === false) { S.shopNote = c.id === 'delega' ? 'Non c’è niente da fare in questo momento: tienilo per dopo.' : c.id === 'tempo' ? 'Non ci sono compiti o missioni aperti: tienilo per dopo.' : 'Non ci sono missioni aperte su cui usarlo: tienilo per dopo.'; play('bad'); return openShop(); }
+ if (!free) { const p = price(c); S.points -= p; S.spent += p; S.bought[c.id] = (S.bought[c.id] || 0) + 1; if (!c.fixed) { S.offers = S.offers.filter(x => x !== id); S.offers.push(sample(1, S.offers.concat(id))[0]?.id || id); } }
  else S.gift = null;
  S.shopNote = `${free ? 'Regalo usato' : `Comprato: ${c.name}`}. ${res}`;
  play('level'); updateChip(free ? 'bump' : 'bump-bad'); markNav(); openShop();
@@ -1006,5 +1019,5 @@ function restartGame() {
  const cur = chapters()[S.chapter]; if (cur && !cur.done) { try { cur.apply?.(false); } catch {} }
  (hooks.story?.chapters || []).flatMap(c => c.variants || [c]).forEach(c => { c.done = false; });
  document.querySelector('.game-finale')?.remove(); document.body.classList.remove('game-paused'); setPressure([]);
- { hooks.onReset?.(); Object.assign(S, {plot:null, fin:null, ch0:null, lostPts:0, won:0, t0:0, chapter:-1, chProgress:0, chStart:0, bought:{}, paused:0, coached:{}, tasksDone:0, tasks:{}, fx:{shield:0, double:0, freeHints:0, freezeUntil:0}, gifts:[], gift:null, offers:[], missions:{}, avail:{}, seenOpen:0, started:false, points:0, level:1, round:1, streak:0, last:null, solved:{}, cards:{}, showing:{}}); updateChip(); refresh(location.hash.slice(1) || 'home'); }
+ { hooks.onReset?.(); Object.assign(S, {plot:null, fin:null, ch0:null, lostPts:0, won:0, t0:0, chapter:-1, chProgress:0, chStart:0, spent:0, chSpent:0, bought:{}, paused:0, coached:{}, tasksDone:0, tasks:{}, fx:{shield:0, double:0, freeHints:0, freezeUntil:0}, gifts:[], gift:null, offers:[], missions:{}, avail:{}, seenOpen:0, started:false, points:0, level:1, round:1, streak:0, last:null, solved:{}, cards:{}, showing:{}}); updateChip(); refresh(location.hash.slice(1) || 'home'); }
 }

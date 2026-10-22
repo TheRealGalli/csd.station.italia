@@ -42,7 +42,7 @@ export function studioGameStart(handled) {
  // le email già in casella all'inizio non hanno tempo di risposta: lo hanno solo quelle che arrivano dopo
  D.mails.forEach(m => { m.old = true; });
  nextFilingAt = Date.now() + 70000; nextMailAt = Date.now() + 45000;
- lobby.length = 0; rooms.forEach(r => { r.until = 0; r.with = null; }); Object.assign(lobbyCfg, {wait:60, leave:150, rate:1, bonus:0}); nextGuestAt = Date.now() + 60000;
+ lobby.length = 0; usedGuests.clear(); rooms.forEach(r => { r.until = 0; r.with = null; }); Object.assign(lobbyCfg, {wait:60, leave:150, rate:1, bonus:0}); nextGuestAt = Date.now() + 60000;
 }
 export function studioGameStop() { on = false; demoSeeded = false; lobby.length = 0; rooms.forEach(r => { r.until = 0; r.with = null; }); }
 export function startFiling(id) {
@@ -110,15 +110,25 @@ export const lobby = [];
 export const lobbyCfg = {wait:60, leave:150, rate:1, bonus:0};
 let nextGuestAt = 0, guestSeq = 0;
 const visits = [
- {act:'Stipula di compravendita', note:'venditori, acquirenti, banca e agente', n:[5, 7], files:true},
- {act:'Firma del mutuo', note:'mutuatari e funzionario della banca', n:[3, 4], files:true},
- {act:'Costituzione di S.r.l.', note:'i soci fondatori', n:[3, 5], files:true},
- {act:'Donazione', note:'donante, donatari e due testimoni', n:[4, 5], files:true},
- {act:'Testamento pubblico', note:'testatore e due testimoni', n:[3, 3], files:false},
- {act:'Procura speciale', note:'il cliente e un familiare', n:[2, 2], files:false},
- {act:'Consulenza per successione', note:'gli eredi', n:[2, 4], files:false}
+ {act:'Stipula di compravendita', note:'venditori, acquirenti, banca e agente', n:[5, 7], files:true, who:'sale'},
+ {act:'Firma del mutuo', note:'mutuatari e funzionario della banca', n:[3, 4], files:true, who:'loan'},
+ {act:'Costituzione di S.r.l.', note:'i soci fondatori', n:[3, 5], files:true, who:'firm'},
+ {act:'Donazione', note:'donante, donatari e due testimoni', n:[4, 5], files:true, who:'family'},
+ {act:'Testamento pubblico', note:'testatore e due testimoni', n:[3, 3], files:false, who:'person'},
+ {act:'Procura speciale', note:'il cliente e un familiare', n:[2, 2], files:false, who:'person'},
+ {act:'Consulenza per successione', note:'gli eredi', n:[2, 4], files:false, who:'heirs'}
 ];
-const guests = ['Famiglia Lenzi', 'Ricasoli e Pieri', 'Arcadia S.r.l.', 'Sig.ra Bandini', 'Famiglia Galeotti', 'Sig. Fabbri', 'Eredi Orlandi', 'Marchetti e Serra', 'Sig.ra Neri', 'Famiglia Sarti'];
+// Chi arriva allo studio: ogni atto ha le sue persone, ognuna con un dettaglio che la rende riconoscibile.
+// Nessuno torna due volte nella stessa settimana di gioco.
+const guests = {
+ sale:[['Lenzi vendono a Ricasoli', 'la casa dei nonni in San Frediano'], ['Pieri e Arcadia Immobiliare', 'l’agente è già al telefono'], ['Galeotti → coppia Mori', 'primo acquisto, mutuo al 100%'], ['Bandini vendono a Kowalski', 'acquirente polacco con l’interprete'], ['Eredi Fabbri → Sarti', 'il fienile di Impruneta'], ['Orlandi e Studio Bellini', 'il venditore è in ritardo']],
+ loan:[['Coniugi Serra · Banca del Mugello', 'il funzionario ha i minuti contati'], ['Tommaso e Irene · Credit Toscana', 'prima casa, under 36'], ['Marchetti · Banca Etruria Nuova', 'surroga del vecchio mutuo']],
+ firm:[['Soci di Arno Tech S.r.l.', 'tre sviluppatori e un sogno'], ['Verdeluce S.r.l. · startup', 'pannelli solari per i borghi'], ['Officine Galileo S.r.l.', 'il nipote entra in società'], ['Bottega Sant’Ambrogio S.r.l.', 'gastronomia di quartiere'], ['Studio Associato Doni & Pini', 'commercialisti che si mettono insieme']],
+ family:[['Famiglia Galeotti', 'il nonno dona l’uliveto ai nipoti'], ['Famiglia Lenzi', 'la madre dona l’appartamento al figlio'], ['Famiglia Sarti', 'donazione con riserva di usufrutto']],
+ person:[['Sig.ra Bandini', 'novant’anni e una memoria di ferro'], ['Sig. Fabbri', 'arriva sempre con mezz’ora d’anticipo'], ['Prof.ssa Neri', 'ha già scritto tutto a mano'], ['Don Piero Villa', 'vuole lasciare la biblioteca alla parrocchia'], ['Sig. Ugo Tani', 'maestro del coro, parla sottovoce']],
+ heirs:[['Eredi Orlandi', 'tre fratelli che non si parlano'], ['Eredi Ricasoli', 'c’è anche un conto in Svizzera'], ['Eredi Marchetti', 'la figlia vive a Londra, collegata in video']]
+};
+const usedGuests = new Set();
 export const lobbyWait = p => (Date.now() - p.at) / 1000;
 export const lobbyRed = p => lobbyWait(p) > lobbyCfg.wait + lobbyCfg.bonus;
 export const lobbyLeave = () => lobbyCfg.leave + lobbyCfg.bonus * 1.5;
@@ -127,7 +137,11 @@ export const fitsRoom = (r, p) => roomFree(r) && r.seats >= p.n;
 export const roomLeft = r => r.with ? Math.max(0, Math.ceil((r.until - Date.now()) / 1000)) : 0;
 function guestArrive(n) {
  const v = visits[Math.floor(Math.random() * visits.length)];
- const p = {id:`V${++guestSeq}`, who:guests[Math.floor(Math.random() * guests.length)], act:v.act, note:v.note, n:n || v.n[0] + Math.floor(Math.random() * (v.n[1] - v.n[0] + 1)), files:v.files, at:Date.now(), time:clock()};
+ const here = new Set([...lobby.map(x => x.who), ...rooms.filter(r => r.with).map(r => r.with.who)]);
+ let pool = guests[v.who].filter(([w]) => !here.has(w) && !usedGuests.has(w));
+ if (!pool.length) { guests[v.who].forEach(([w]) => usedGuests.delete(w)); pool = guests[v.who].filter(([w]) => !here.has(w)); }
+ const [who, tag] = pool[Math.floor(Math.random() * pool.length)] || guests[v.who][0]; usedGuests.add(who);
+ const p = {id:`V${++guestSeq}`, who, tag, act:v.act, note:v.note, n:n || v.n[0] + Math.floor(Math.random() * (v.n[1] - v.n[0] + 1)), files:v.files, at:Date.now(), time:clock()};
  lobby.push(p); return p;
 }
 export function seatClient(pid, rid) {

@@ -79,7 +79,7 @@ export function addDish(id, dishId, qty=1, silent=false, via='sala') {
  if (!available(d)) { log(`${d.name} esaurito: ingredienti sotto il necessario`, 'magazzino'); emit(); return false; }
  if (t.status === 'free') openTable(id, Math.min(t.seats, 2));
  for (const [k, q] of Object.entries(d.recipe)) { const i = ingredient(k); i.qty = Math.max(0, +(i.qty - q * qty).toFixed(3)); i.changed = Date.now(); }
- const line = {id:'L' + service.nextLine++, dish:dishId, qty, state: d.course === 0 ? 'served' : 'waiting', at:Date.now(), via, paid:false};
+ const line = {id:'L' + service.nextLine++, dish:dishId, qty, state: d.course === 0 ? 'served' : 'waiting', at:Date.now(), servedAt:d.course === 0 ? Date.now() : 0, via, paid:false};
  t.lines.push(line); t.status = 'ordered';
  if (via === 'sala') log(`${id} · ${qty}× ${d.name}${d.course === 0 ? '' : ' → cucina'}`, 'cucina');
  const low = Object.keys(d.recipe).map(ingredient).filter(i => i.qty <= i.min && !i.alerted);
@@ -92,10 +92,17 @@ export function advance(lineId) {
   const l = t.lines.find(x => x.id === lineId); if (!l) continue;
   l.state = {waiting:'cooking', cooking:'ready', ready:'served'}[l.state] || l.state;
   if (l.state === 'ready') log(`${t.id} · ${dish(l.dish).name} pronto al pass`, 'cucina');
-  if (l.state === 'served') log(`${t.id} · ${dish(l.dish).name} servito`, 'sala');
+  if (l.state === 'served') { l.servedAt = Date.now(); log(`${t.id} · ${dish(l.dish).name} servito`, 'sala'); }
   emit(); return;
  }
 }
+// La vita di un tavolo, come la vede la sala: aspettano i piatti (blu), mangiano (rosso), hanno finito e si possono
+// far pagare (verde: un minuto dopo l'ultimo piatto arrivato), chiedono il conto (verde con il bollino rosso).
+export const EAT_TIME = 60000;
+export const stillEating = t => t.lines.some(l => l.state !== 'served');
+const lastServed = t => Math.max(...t.lines.map(l => l.servedAt || l.at));
+export const doneEating = t => t.status === 'ordered' && t.lines.length > 0 && !stillEating(t) && Date.now() - lastServed(t) > EAT_TIME;
+export const tablePhase = t => t.status === 'free' ? 'free' : t.status === 'bill' ? 'bill' : !t.lines.length || stillEating(t) ? 'waiting' : doneEating(t) ? 'done' : 'eating';
 export function requestBill(id) { const t = table(id); if (t.lines.length) { t.status = 'bill'; t.billAt = Date.now(); log(`${id} · conto richiesto (€ ${tableTotal(t)})`); emit(); } }
 export const tableDue = t => Math.max(0, t.lines.filter(l => !l.paid).reduce((n, l) => n + dish(l.dish).price * l.qty, 0) - (t.perk?.amount || 0));
 // Ogni incasso, dalla cassa o dal QR, emette il documento commerciale e finisce nei corrispettivi per l'Agenzia delle Entrate.
@@ -115,7 +122,7 @@ export function closeBill(id, method='Carta') {
  Object.assign(t, {status:'free', guests:0, since:null, lines:[], name:'', perk:null}); emit(); return total;
 }
 export function reorder(ids) {
- for (const id of ids) { const i = ingredient(id); i.qty = +(i.qty + i.min * 2).toFixed(2); i.alerted = false; i.changed = Date.now(); }
+ for (const id of ids) { const i = ingredient(id); i.qty = +(i.qty + i.min * 2).toFixed(2); i.alerted = false; i.emptySince = 0; i.changed = Date.now(); }
  log(`Ordine inviato ai fornitori: ${ids.map(id => ingredient(id).name).join(', ')}`, 'magazzino'); emit();
 }
 // L'ospite ordina dal menu QR del suo tavolo: la comanda va in cucina e, se vuole, paga subito con Stripe.
@@ -148,7 +155,7 @@ export function menuCommand(text) {
   return `Aggiunto **Tagliolini al tartufo a € ${p}** tra i primi, con allergeni glutine e uova. È già visibile su tutti i QR.`;
  }
  if (!d) return 'Dimmi quale piatto: per esempio “togli la tagliata”, “metti il risotto a 18 €” o “aggiungi un piatto del giorno”.';
- if (/(togli|nascondi|leva|finit|non c.è|esaurit)/.test(t)) { d.visible = false; log(`Otto ha tolto dal menu: ${d.name}`, 'menu'); emit(); return `Tolto dal menu ${SV.of === 'del pranzo' ? 'del pranzo' : 'di stasera'}: **${d.name}**. Sparisce dai QR dei tavoli e nessuno può più ordinarlo. Domani torna in carta.`; }
+ if (/(togli|nascondi|leva|finit|non c.è|esaurit)/.test(t)) { d.visible = false; log(`Otto ha tolto dal menu: ${d.name}`, 'menu'); emit(); return `Tolto dal menu ${SV.of === 'del pranzo' ? 'del pranzo' : 'di stasera'}: **${d.name}**. Sparisce dai QR dei tavoli e nessuno può più ordinarlo. Quando torna la merce, dimmi “rimetti ${d.name.toLowerCase()}”.`; }
  if (/(rimetti|riattiva|mostra)/.test(t)) { d.visible = true; d.paused = false; log(`Otto ha rimesso in menu: ${d.name}`, 'menu'); emit(); return `**${d.name}** di nuovo in menu, su tutti i QR.`; }
  // un prezzo scritto accanto al piatto basta: "risotto a 14", "risotto ai porcini a € 14", "risotto 14 euro"
  if (price) { d.base ??= d.price; d.price = +price[1].replace(',', '.'); log(`Otto ha cambiato il prezzo di ${d.name}: € ${d.price}`, 'menu'); emit(); return `Nuovo prezzo per **${d.name}**: **€ ${d.price}**, già su tutti i QR. Il margine passa al ${Math.round((1 - foodCost(d) / d.price) * 100)}%.`; }
@@ -204,7 +211,7 @@ export const setReserved = fn => { reserved = fn; };
 function turnover() {
  const paying = tables.find(t => t.status === 'bill' && !t.mission && !reserved(t.id) && !guided.includes(t.id) && Date.now() - (t.billAt || 0) > 25000); // un conto con la sua missione aspetta il giocatore
  if (paying) { closeBill(paying.id, Math.random() < .7 ? 'Carta' : 'Contanti'); return true; }
- const finished = tables.find(t => t.status === 'ordered' && !reserved(t.id) && !guided.includes(t.id) && t.lines.length >= 4 && t.lines.every(l => l.state === 'served'));
+ const finished = tables.find(t => !reserved(t.id) && !guided.includes(t.id) && t.lines.length >= 4 && doneEating(t));
  if (finished) { requestBill(finished.id); return true; }
  return false;
 }
@@ -225,8 +232,12 @@ function guestOrder() {
 }
 function tidy() {
  smartMenu();
- const empty = ingredients.find(i => i.qty < i.min * .4);
- if (empty) { empty.qty = empty.start; empty.alerted = false; empty.changed = Date.now(); log(`${empty.supplier} ha consegnato ${empty.name}`, 'magazzino'); }
+ // fuori dalla sfida il fornitore consegna subito; nella sfida la merce finisce davvero: se nessuno invia l'ordine,
+ // il fornitore passa da solo solo dopo un minuto e mezzo, e intanto lo chef chiede di togliere i piatti che restano senza
+ const now = Date.now();
+ ingredients.forEach(i => { if (i.qty >= i.min * .4) i.emptySince = 0; else i.emptySince ||= now; });
+ const empty = ingredients.find(i => i.qty < i.min * .4 && (!service.game || now - i.emptySince > 90000));
+ if (empty) { empty.qty = empty.start; empty.alerted = false; empty.emptySince = 0; empty.changed = now; log(`${empty.supplier} ha consegnato ${empty.name}`, 'magazzino'); }
  service.closed.length = Math.min(service.closed.length, 12);
  liveCalls.length = Math.min(liveCalls.length, 3);
  calls.length = Math.min(calls.length, 8);
@@ -340,7 +351,7 @@ export const autoOn = k => kitchen.auto[k] || Date.now() < kitchen.autoUntil;
 export function serveLine(id) {
  const [t, l] = findLine(id);
  if (!l || l.state !== 'ready') return false;
- l.state = 'served'; log(`${t.id} · ${dish(l.dish).name} servito`, 'sala'); emit(); return true;
+ l.state = 'served'; l.servedAt = Date.now(); log(`${t.id} · ${dish(l.dish).name} servito`, 'sala'); emit(); return true;
 }
 // All'inizio della sfida la cucina parte leggera: poche comande, che poi arrivano con il tempo.
 export function kitchenGameStart() {
@@ -353,7 +364,7 @@ export function kitchenGameStart() {
    if (line.state === 'waiting') line.at = now;
    if (line.state === 'cooking') line.cookAt = now - cookTime(dish(line.dish)) * 500;
    if (line.state === 'ready') line.readyAt = now;
-  } else line.state = 'served';
+  } else { line.state = 'served'; line.servedAt = now; }
  }
  // la cucina parte con un po' di lavoro, anche se il servizio di prima l'aveva svuotata
  for (let n = kitchenLines().filter(l => l.state === 'waiting').length; n < 2; n++) { const t = gameTable(); const d = menu.filter(x => x.course > 0 && available(x))[Math.floor(Math.random() * 6)]; if (t && d) addDish(t.id, d.id, 1, true); }
@@ -362,7 +373,8 @@ export function kitchenGameStart() {
 export function kitchenGameStop() { service.game = false; }
 // Un tavolo che ordina: uno già seduto, oppure nuovi ospiti a un tavolo libero, così la cucina non resta mai a secco.
 function gameTable() {
- const seated = tables.filter(x => ['seated', 'ordered'].includes(x.status) && !x.mission && x.lines.length < 7);
+ // chi ha già finito di mangiare non ordina di nuovo: aspetta il conto
+ const seated = tables.filter(x => ['seated', 'ordered'].includes(x.status) && !x.mission && x.lines.length < 7 && !doneEating(x));
  const free = tables.filter(x => x.status === 'free');
  // con gli ospiti all'ingresso sono loro a riempire la sala: la cucina apre un tavolo da sola solo se la sala è vuota
  if (doorOn && seated.length) return seated[Math.floor(Math.random() * seated.length)];
@@ -379,7 +391,7 @@ export function kitchenGameTick(level = 1) {
   // cotto: con l'automatismo va al pass da solo, altrimenti aspetta sui fornelli che qualcuno lo porti
   if (line.state === 'cooking' && !line.cooked && now - (line.cookAt || now) >= cookTime(dish(line.dish)) * 1000) { line.cooked = true; line.cookedAt = now; changed = true; }
   if (line.state === 'cooking' && line.cooked && autoOn('pass')) { line.state = 'ready'; line.readyAt = now; log(`${t.id} · ${dish(line.dish).name} pronto al pass`, 'cucina'); changed = true; }
-  else if (line.state === 'ready' && autoOn('serve') && now - (line.readyAt || now) > 6000) { line.state = 'served'; log(`${t.id} · ${dish(line.dish).name} servito`, 'sala'); changed = true; }
+  else if (line.state === 'ready' && autoOn('serve') && now - (line.readyAt || now) > 6000) { line.state = 'served'; line.servedAt = now; log(`${t.id} · ${dish(line.dish).name} servito`, 'sala'); changed = true; }
  }
  if (autoOn('cook')) for (const l of kitchenLines().filter(x => x.state === 'waiting').sort((a, b) => a.at - b.at)) { if (cookingNow().length >= kitchen.cap) break; const [, line] = findLine(l.id); line.state = 'cooking'; line.cookAt = now; changed = true; }
  // finiti i primi minuti, la cucina passa nelle mani del giocatore (una volta sola)
@@ -413,10 +425,11 @@ export const fridges = [
  {id:'F3', name:'Frigo verdure', base:3.4, max:4, holds:['funghi', 'pomodoro']},
  {id:'F4', name:'Congelatore', base:-19.5, max:-18, holds:['pasta']}
 ].map(f => ({...f, temp:f.base, shown:f.base, state:'ok', since:0, faults:0, lost:false}));
-export const fridgeCfg = {gap:[90, 150], repair:45, autoDoor:0, rate:1};
+export const fridgeCfg = {gap:[130, 210], repair:45, autoDoor:0, rate:1};
 let nextFaultAt = 0;
 export const fridge = id => fridges.find(f => f.id === id);
-export const fridgeRed = f => f.state === 'sensor' ? Date.now() - f.since > 30000 : f.temp > f.max;
+// con il tecnico già chiamato non c'è altro da fare: la cella non costa punti mentre aspetta (la merce però si può ancora perdere)
+export const fridgeRed = f => f.state === 'repair' ? false : f.state === 'sensor' ? Date.now() - f.since > 30000 : f.temp > f.max;
 export function fridgeAction(id) {
  const f = fridge(id); if (!f) return null;
  const now = Date.now();
@@ -433,7 +446,7 @@ export function fridgeTick() {
  if (!service.game) { for (const f of fridges) { f.temp += (f.base - f.temp) * .2 + (Math.random() - .5) * .12; f.shown = f.temp; } return {red:[], lost:[]}; }
  const now = Date.now(), lost = []; let changed = false;
  for (const f of fridges) {
-  const rise = {door:.12, fault:.035, repair:.015}[f.state];
+  const rise = {door:.12, fault:.035, repair:.006}[f.state];
   if (rise) f.temp += rise * (f.max < 0 ? 1.5 : 1);
   else f.temp += (f.base - f.temp) * .06 + (Math.random() - .5) * .04;
   if (f.state === 'repair' && now >= f.repairUntil) { f.state = 'ok'; log(`${f.name}: riparato dal tecnico`, 'magazzino'); changed = true; }
@@ -448,9 +461,10 @@ export function fridgeTick() {
  }
  if (now >= nextFaultAt) {
   const [a, b] = fridgeCfg.gap; nextFaultAt = now + (a + Math.random() * (b - a)) * 1000 / fridgeCfg.rate;
-  const f = fridges.filter(x => x.state === 'ok')[Math.floor(Math.random() * 4)];
+  // un guasto alla volta, tranne quando un capitolo fa lavorare le celle molto di più (l'ispezione ASL)
+  const f = fridges.some(x => x.state !== 'ok') && fridgeCfg.rate < 2 ? null : fridges.filter(x => x.state === 'ok')[Math.floor(Math.random() * 4)];
   if (f) {
-   f.state = ['door', 'door', 'fault', 'sensor'][Math.floor(Math.random() * 4)]; f.since = now; f.faults++;
+   f.state = ['door', 'fault', 'sensor', 'door', 'fault'][Math.floor(Math.random() * 5)]; f.since = now; f.faults++;
    log(`${f.name}: ${f.state === 'door' ? 'porta rimasta aperta' : f.state === 'fault' ? 'il compressore non parte' : 'la sonda non risponde'}`, 'magazzino'); changed = true;
   }
  }
@@ -465,16 +479,62 @@ export const door = [];
 // bonus e calm: comprati nella Bottega (secondi di pazienza in più, arrivi senza prenotazione in meno); i capitoli non li toccano
 export const doorCfg = {gap:[85, 125], wait:60, leave:130, rate:1, bonus:0, calm:1, autoSeat:false};
 let doorOn = false, nextDoorAt = 0, doorSeq = 0;
-const doorNames = ['Famiglia Bianchi', 'Sig.ra Ferri', 'Coppia Moretti', 'Amici di Luca', 'Sig. Conti', 'Famiglia Esposito', 'Colleghi Arno Tech', 'Sig.ra Galli', 'Turisti da Lione', 'Famiglia Romano'];
+// Chi entra senza prenotazione: la Firenze di una sera qualunque, ognuno con la sua storia.
+// pace: sotto 1 ha fretta e si spazientisce prima, sopra 1 aspetta volentieri. Nessuno entra due volte nella stessa sera.
+export const cast = [
+ {name:'Colleghi di Arno Tech', n:[4, 6], tag:'cena di team, fattura aziendale'},
+ {name:'Studio legale Bellini & Neri', n:[3, 4], tag:'avvocati dopo un’udienza', pace:.8},
+ {name:'Officine Galileo', n:[5, 8], tag:'fine turno, fame vera'},
+ {name:'Startup Verdeluce', n:[3, 5], tag:'festeggiano il primo finanziamento'},
+ {name:'Dottorandi di Careggi', n:[3, 5], tag:'smontano dal turno in ospedale', pace:.8},
+ {name:'Accademia di Belle Arti', n:[4, 6], tag:'studenti con le cartelline', pace:1.3},
+ {name:'Coro di Santa Croce', n:[6, 8], tag:'dopo le prove, cantano già', pace:1.2},
+ {name:'Azzurri del Calcio Storico', n:[6, 8], tag:'in maglia azzurra', pace:.8},
+ {name:'Filiale Banca del Mugello', n:[3, 4], tag:'cena di fine trimestre'},
+ {name:'Redazione di FirenzeToday', n:[2, 4], tag:'giornalisti, occhio alla recensione', pace:.8},
+ {name:'Famiglia Esposito', n:[4, 5], tag:'in vacanza da Napoli'},
+ {name:'Famiglia Romano', n:[4, 5], tag:'con due bambini stanchi', pace:.8},
+ {name:'Famiglia Bianchi', n:[3, 5], tag:'con il passeggino'},
+ {name:'Famiglia Gori', n:[5, 6], tag:'tre generazioni a tavola', pace:1.2},
+ {name:'Nonna Rina e i nipoti', n:[3, 5], tag:'paga la nonna', pace:1.3},
+ {name:'Coppia Moretti', n:[2, 2], tag:'primo appuntamento'},
+ {name:'Giulia e Tommaso', n:[2, 2], tag:'dieci anni di matrimonio', pace:1.2},
+ {name:'Sig. e Sig.ra Lotti', n:[2, 2], tag:'clienti da trent’anni', pace:1.4},
+ {name:'Sig. Conti', n:[1, 2], tag:'vuole il tavolo vicino alla finestra'},
+ {name:'Sig.ra Ferri', n:[1, 2], tag:'con il suo barboncino, Otello'},
+ {name:'Prof. Galli', n:[1, 1], tag:'corregge compiti al tavolo', pace:1.4},
+ {name:'Don Piero', n:[2, 2], tag:'col sacrestano', pace:1.3},
+ {name:'Lo chef della trattoria accanto', n:[2, 2], tag:'viene a studiare la concorrenza', pace:.8},
+ {name:'Turisti da Lione', n:[2, 4], tag:'chiedono la bistecca'},
+ {name:'Comitiva da Osaka', n:[5, 6], tag:'fotografano ogni piatto', pace:1.2},
+ {name:'Amici da Amsterdam', n:[3, 4], tag:'arrivati in bicicletta'},
+ {name:'Sposi in viaggio da Boston', n:[2, 2], tag:'luna di miele'},
+ {name:'Amici di Luca', n:[4, 6], tag:'festa di laurea'},
+ {name:'Calcetto del giovedì', n:[5, 8], tag:'ancora in tuta', pace:.8},
+ {name:'Addio al nubilato di Marta', n:[6, 8], tag:'con la coroncina'},
+ {name:'Influencer @mangiafirenze', n:[2, 3], tag:'col telefono già acceso', pace:.7},
+ {name:'Tassisti di piazza Signoria', n:[2, 3], tag:'tra una corsa e l’altra', pace:.7}
+];
 export const doorWait = p => (Date.now() - p.at) / 1000;
-export const doorRed = p => doorWait(p) > doorCfg.wait + doorCfg.bonus;
-export const doorLeave = () => doorCfg.leave + doorCfg.bonus * 1.5;
+export const doorRed = p => doorWait(p) > (doorCfg.wait + doorCfg.bonus) * (p.pace || 1);
+export const doorLeave = p => (doorCfg.leave + doorCfg.bonus * 1.5) * (p?.pace || 1);
 export const fits = (t, p) => t.status === 'free' && t.seats >= p.n;
+const seenTonight = new Set();
 function arrive(n) {
- const p = {id:`G${++doorSeq}`, name:doorNames[Math.floor(Math.random() * doorNames.length)], n:n || [2, 2, 2, 3, 4, 4, 5, 6][Math.floor(Math.random() * 8)], at:Date.now()};
- door.push(p); log(`All'ingresso: ${p.name}, ${p.n} persone senza prenotazione`, 'sala'); emit(); return p;
+ const here = new Set([...door.map(p => p.name), ...tables.map(t => t.name).filter(Boolean)]);
+ let pool = cast.filter(c => !here.has(c.name) && !seenTonight.has(c.name));
+ if (!pool.length) { seenTonight.clear(); pool = cast.filter(c => !here.has(c.name)); }
+ // la sala dà il ritmo: di solito arriva chi entra in un tavolo libero, ogni tanto un gruppo che deve aspettare
+ const freeMax = Math.max(0, ...tables.filter(t => t.status === 'free').map(t => t.seats)), fitting = !n && freeMax && Math.random() < .7;
+ if (fitting) { const fit = pool.filter(c => c.n[0] <= freeMax); if (fit.length) pool = fit; }
+ const c = pool[Math.floor(Math.random() * pool.length)];
+ let size = n || c.n[0] + Math.floor(Math.random() * (c.n[1] - c.n[0] + 1));
+ if (fitting && c.n[0] <= freeMax) size = Math.min(size, freeMax);
+ seenTonight.add(c.name);
+ const p = {id:`G${++doorSeq}`, name:c.name, tag:c.tag, pace:c.pace || 1, n:size, at:Date.now()};
+ door.push(p); log(`All'ingresso: ${p.name}, ${p.n} ${p.n === 1 ? 'persona' : 'persone'} senza prenotazione`, 'sala'); emit(); return p;
 }
-export function doorGameStart() { doorOn = true; door.length = 0; Object.assign(doorCfg, {gap:[85, 125], wait:60, leave:130, rate:1, bonus:0, calm:1, autoSeat:false}); nextDoorAt = Date.now() + 80000; }
+export function doorGameStart() { doorOn = true; door.length = 0; seenTonight.clear(); Object.assign(doorCfg, {gap:[85, 125], wait:60, leave:130, rate:1, bonus:0, calm:1, autoSeat:false}); nextDoorAt = Date.now() + 80000; }
 export function doorGameStop() { doorOn = false; door.length = 0; }
 export function seatParty(pid, tid) {
  const i = door.findIndex(p => p.id === pid), t = table(tid);
@@ -484,7 +544,7 @@ export function seatParty(pid, tid) {
 export function doorTick(level = 1) {
  if (!doorOn) return {red:[], left:[]};
  const now = Date.now(), left = [];
- for (let i = door.length - 1; i >= 0; i--) if (doorWait(door[i]) > doorLeave()) { left.push(...door.splice(i, 1)); }
+ for (let i = door.length - 1; i >= 0; i--) if (doorWait(door[i]) > doorLeave(door[i])) { left.push(...door.splice(i, 1)); }
  if (left.length) { left.forEach(p => log(`${p.name} (${p.n} persone) se ne sono andati: troppa attesa all'ingresso`, 'sala')); emit(); }
  if (now >= nextDoorAt) {
   const gap = [doorCfg.gap, [70, 100], [55, 85]][level - 1] || doorCfg.gap;
@@ -499,7 +559,7 @@ export function doorTick(level = 1) {
 export const doorArrive = n => doorOn ? arrive(n) : null;
 
 // Il tempo passato a gioco fermo sposta anche i prossimi arrivi (comande, guasti, ospiti): al ritorno non arriva tutto insieme.
-export function shiftClocks(ms) { nextOrderAt += ms; nextFaultAt += ms; nextDoorAt += ms; deliveryShift(ms); nfcShift(ms); }
+export function shiftClocks(ms) { nextOrderAt += ms; nextFaultAt += ms; nextDoorAt += ms; ingredients.forEach(i => { if (i.emptySince) i.emptySince = Math.min(i.emptySince + ms, Date.now()); }); deliveryShift(ms); nfcShift(ms); }
 
 
 // ————— Fidelity & NFC —————
@@ -543,7 +603,8 @@ export const nfcLog = [
 // La risposta giusta segue le regole del programma; se l'ospite aspetta troppo, il lettore va in rosso; troppo a lungo, rinuncia.
 export const nfc = {taps:[], cfg:{gap:[75, 115], wait:40, leave:100, rate:1, auto:false, bonus:0}, on:false};
 let nfcSeq = 0, nextTapAt = 0;
-const tapNames = ['Chiara Lotti', 'Marco Sarti', 'Irene Doni', 'Franco Villa', 'Lucia Moretti', 'Stefano Pini', 'Laura Fontana', 'Davide Sacchi', 'Roberto Galli', 'Sara Carraresi'];
+// chi appoggia la card: clienti abituali, ognuno riconoscibile (anche le card aziendali)
+const tapNames = ['Chiara Lotti', 'Ing. Marco Sarti · Arno Tech', 'Dott.ssa Irene Doni', 'Franco Villa, il tassista', 'Lucia Moretti', 'Prof. Stefano Pini', 'Laura Fontana', 'Davide Sacchi', 'Roberto Galli', 'Sara Carraresi', 'Avv. Bellini', 'Card aziendale Officine Galileo', 'Maestro Ugo Tani · Coro di Santa Croce', 'Beatrice Mori', 'Signora Rina', 'Kenji Watanabe', 'Matilde Rossi · Verdeluce', 'Gino del mercato di Sant’Ambrogio', 'Elisa Paoli', 'Pietro Banchi · Banca del Mugello'];
 export const nfcWait = t => (Date.now() - t.at) / 1000;
 export const nfcRed = t => nfc.on && nfcWait(t) > nfc.cfg.wait + nfc.cfg.bonus;
 // la risposta giusta: 'reward:<id>', 'sconto' oppure 'punti'
@@ -564,7 +625,8 @@ function tapArrive() {
  const ask = Math.random() < .55 ? 'premio' : 'conto', want = rewards[Math.floor(Math.random() * 3)];
  // il saldo è vicino al costo del premio chiesto: a volte basta, a volte no
  const points = ask === 'premio' ? Math.max(20, want.cost + (Math.random() < .55 ? 1 : -1) * (10 + Math.floor(Math.random() * 140))) : 40 + Math.floor(Math.random() * 900);
- const m = {id:`X${++nfcSeq}`, name:tapNames[Math.floor(Math.random() * tapNames.length)], points, year:Math.max(year, ask === 'premio' ? 0 : 0), visits:2 + Math.floor(Math.random() * 18)};
+ const taken = new Set(nfc.taps.map(x => x.m.name)), names = tapNames.filter(x => !taken.has(x));
+ const m = {id:`X${++nfcSeq}`, name:names[Math.floor(Math.random() * names.length)], points, year:Math.max(year, ask === 'premio' ? 0 : 0), visits:2 + Math.floor(Math.random() * 18)};
  const tap = {id:`N${nfcSeq}`, table:t.id, m, ask, want:ask === 'premio' ? want.id : null, at:Date.now()};
  nfc.taps.push(tap); log(`${t.id} · card fedeltà appoggiata: ${m.name}`, 'sala'); emit(); return tap;
 }
@@ -654,7 +716,7 @@ export const deliveryMenu = [
 export const dmenu = id => deliveryMenu.find(x => x.id === id);
 export const delivery = {orders:[], cfg:{gap:[70, 110], accept:35, patience:50, rate:1, autoAccept:false, autoHand:false, bonus:0}, on:false, seq:4820};
 const riders = ['Luca', 'Giorgia', 'Marco', 'Sara', 'Davide', 'Matteo', 'Chiara', 'Simone'];
-const dWho = ['Marco R.', 'Chiara B.', 'Ufficio Arno Tech', 'Davide L.', 'Irene P.', 'Famiglia Conti', 'Sara M.', 'Tommaso G.', 'Elisa F.', 'Luca D.'];
+const dWho = ['Marco R.', 'Chiara B.', 'Ufficio Arno Tech', 'Davide L.', 'Irene P.', 'Famiglia Conti', 'Sara M.', 'Tommaso G.', 'Elisa F.', 'Luca D.', 'Redazione FirenzeToday', 'Studentato Calamandrei', 'Hotel Brunelleschi · camera 214', 'Coworking Le Murate', 'Officine Galileo · turno di notte', 'Startup Verdeluce'];
 const zones = [['Campo di Marte', 2.1], ['Santo Spirito', 1.4], ['Novoli', 4.2], ['Gavinana', 3.3], ['Rifredi', 3.8], ['Sant’Ambrogio', .9], ['Coverciano', 4.6]];
 export const dPrep = o => Math.round((18 + 6 * o.items.reduce((n, [, q]) => n + q, 0)) * kitchen.speed); // secondi nella sfida
 export const dTotal = o => o.items.reduce((n, [id, q]) => n + dmenu(id).price * q, 0);
