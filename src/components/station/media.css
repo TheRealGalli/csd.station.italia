@@ -235,8 +235,21 @@
 @keyframes mm-in{from{opacity:0}}
 .mm-overlay-bar{display:flex;align-items:center;gap:10px;padding:10px 12px 10px 16px;padding-top:max(10px,env(safe-area-inset-top));background:#152016;color:#f0f4e9;border-bottom:1px solid #c5f47622}
 .mm-overlay-bar b{font-size:15px;white-space:nowrap}
-.mm-overlay-bar span{flex:1;min-width:0;font-size:11px;color:#a2b78e;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.mm-overlay-bar>span{flex:1;min-width:0;font-size:11px;color:#a2b78e;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .mm-overlay-bar button{display:grid;place-items:center;width:42px;height:42px;border-radius:50%;border:1px solid #c5f47640;background:#0b0f0a;color:#f0f4e9;cursor:pointer}
 .mm-deck-box{flex:1;min-height:0;display:grid;place-items:center;overflow:hidden}.mm-deck-fit{position:relative;overflow:hidden;border-radius:6px}.mm-deck-fit iframe{position:absolute;left:0;top:0;width:1280px;height:800px;border:0;transform-origin:0 0;display:block}
-.mm-film video{flex:1;width:100%;min-height:0;background:#000;object-fit:contain}
+
 html.mm-locked,html.mm-locked body{overflow:hidden}
+/* condividi e lettore: link condivisi */
+.mv-share{display:inline-flex;align-items:center;gap:7px;min-height:38px;padding:0 13px;border-radius:999px;border:1px solid #c5f47655;background:#152016e6;color:#e6f2d6;font-size:13px;font-weight:550;cursor:pointer;white-space:nowrap}
+.mv-share svg{color:#c5f476}
+.mv-share:hover{border-color:#c5f476}
+.mv-share-player{position:absolute;right:58px;top:12px}
+.mv-player video.is-loading,.mm-film-box video.is-loading{opacity:.35}
+.mv-loading{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);display:flex;align-items:center;gap:10px;padding:10px 16px;border-radius:999px;background:#0b110ae6;color:#e6f2d6;font-size:14px}
+.mv-loading i{width:16px;height:16px;border-radius:50%;border:2px solid #c5f47640;border-top-color:#c5f476;animation:mv-spin .8s linear infinite}
+@keyframes mv-spin{to{transform:rotate(360deg)}}
+.mv-unmute{position:absolute;left:50%;bottom:70px;transform:translateX(-50%);display:inline-flex;align-items:center;gap:8px;padding:11px 18px;border-radius:999px;border:0;background:#c5f476;color:#203017;font-size:14px;font-weight:600;cursor:pointer;box-shadow:0 10px 30px #0007}
+.mm-film-box{position:relative;flex:1;min-height:0;display:flex;background:#000}
+.mm-film-box video{flex:1;width:100%;min-height:0;object-fit:contain;background:#000}
+.mm-overlay-bar .mv-share{min-height:36px;padding:0 11px;font-size:12px}

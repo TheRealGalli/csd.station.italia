@@ -272,9 +272,20 @@ footer button:disabled{opacity:.3;cursor:default}
 @keyframes hop{to{transform:translateY(-4vh) rotate(-2deg)}}
 @media(prefers-reduced-motion:reduce){*{transition-duration:.01s!important;animation:none!important}}
 *:focus,*:focus-visible{outline:none!important}*{-webkit-tap-highlight-color:transparent}
+/* movimento col mouse: i livelli a destra si spostano a profondità diverse (valori aggiornati in modo morbido dallo script) */
+.slide.on .visual>*{translate:calc(var(--mx,0) * var(--d,16px)) calc(var(--my,0) * var(--d,16px) * .6)}
+.slide.on .visual>img.cut,.slide.on .visual>img{--d:30px;rotate:calc(var(--mx,0) * 1.4deg)}
+.slide.on .visual>:nth-child(even):not(img){--d:-14px}
+.s1.on .visual>.minis{--d:40px}
+@media(prefers-reduced-motion:reduce){.slide .visual>*{translate:none!important;rotate:none!important}}
+/* tasto condividi accanto a "Slide interattive / Università" */
+.share{display:inline-flex;align-items:center;gap:.5vw;padding:.7vh 1vw;border-radius:999px;border:1px solid #c5f47655;background:#c5f47612;color:#e6f2d6;font-size:clamp(10px,.95vw,13px);letter-spacing:.04em;cursor:pointer;position:relative;transition:background .2s,border-color .2s}
+.share:hover{background:#c5f4762c;border-color:var(--lime)}
+.share svg{width:1.15em;height:1.15em;color:var(--lime)}
+.share-said{position:absolute;top:calc(100% + 8px);right:0;white-space:nowrap;padding:6px 10px;border-radius:6px;background:var(--lime);color:var(--ink,#172015);font-size:12px;letter-spacing:0}
 </style></head>
 <body>
-<header><b>CSD Station</b><div class="hdr"><span>SLIDE INTERATTIVE / UNIVERSITÀ</span></div></header>
+<header><b>CSD Station</b><div class="hdr"><span>SLIDE INTERATTIVE / UNIVERSITÀ</span><button class="share" id="share" type="button" aria-label="Condividi: Slide interattive Università"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 15V3m0 0L7.5 7.5M12 3l4.5 4.5M5 12v7a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-7" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>Condividi</button></div></header>
 <main class="deck" id="deck">
 
 <section class="slide s1" data-done="1">
@@ -438,5 +449,16 @@ function pointAt(k){const bar=document.querySelectorAll('#bars div')[k],m=$('#ma
 new MutationObserver(()=>{if(slides[3].classList.contains('on'))setTimeout(()=>pointAt(Math.max(0,revealed-1)),60)}).observe(slides[3],{attributes:true,attributeFilter:['class']});
 window.addEventListener('resize',()=>pointAt(Math.max(0,revealed-1)));
 go(Number(location.hash.replace('#slide-',''))-1||0);
+</script>
+<script>
+// movimento col mouse, morbido: un solo aggiornamento per fotogramma e solo mentre il mouse si muove
+(()=>{const deck=document.getElementById('deck'),root=document.documentElement;let tx=0,ty=0,cx=0,cy=0,raf=0;
+const tick=()=>{cx+=(tx-cx)*.1;cy+=(ty-cy)*.1;root.style.setProperty('--mx',cx.toFixed(4));root.style.setProperty('--my',cy.toFixed(4));raf=Math.abs(tx-cx)+Math.abs(ty-cy)>.0008?requestAnimationFrame(tick):0};
+deck.addEventListener('pointermove',e=>{if(e.pointerType!=='mouse')return;const r=deck.getBoundingClientRect();tx=(e.clientX-r.left)/r.width-.5;ty=(e.clientY-r.top)/r.height-.5;if(!raf)raf=requestAnimationFrame(tick)});
+deck.addEventListener('pointerleave',()=>{tx=ty=0;if(!raf)raf=requestAnimationFrame(tick)});})();
+// tasto condividi: il link apre la pagina Video & Slide direttamente su questa presentazione
+(()=>{const b=document.getElementById('share');b.addEventListener('click',async e=>{e.stopPropagation();const url=location.origin+'/video-slide/?slide=universita',title='Da 110 e lode · Slide interattive CSD Station';
+ if(navigator.share&&matchMedia('(pointer: coarse)').matches){try{await navigator.share({title,url});return}catch(err){if(err.name==='AbortError')return}}
+ try{await navigator.clipboard.writeText(url);const s=document.createElement('span');s.className='share-said';s.textContent='Link copiato';b.append(s);setTimeout(()=>s.remove(),1800)}catch{prompt('Copia il link della presentazione',url)}})})();
 </script>
 </body></html>

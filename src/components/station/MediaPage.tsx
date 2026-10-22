@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { GraduationCap, ArrowDown, ArrowUpRight, Check, Clapperboard, Monitor, Play, Presentation, X } from 'lucide-react';
+import { GraduationCap, ArrowDown, ArrowUpRight, Check, Clapperboard, Monitor, Play, Presentation, Share2, Volume2, X } from 'lucide-react';
 import { mediaIntro } from '@/seo/content';
 import { OttoIcon } from './OttoIcon';
 import CircularCarousel from '@/components/reactbits/CircularCarousel';
@@ -13,26 +13,60 @@ const whatsapp = (message: string) => `https://wa.me/393518628203?text=${encodeU
 export const mediaContact = whatsapp('Ciao Carlo! Vorrei informazioni su video motion e slide interattive.');
 function Eyebrow({ children }: { children: React.ReactNode }) { return <div className="station-eyebrow"><span/>{children}</div>; }
 
-type Demo = { n: string; title: string; note: string; src?: string; poster?: string; start?: number };
+type Demo = { n: string; key: string; title: string; note: string; src?: string; poster?: string; start?: number };
 // Video demo da 30 secondi, 1920×1080, con colonna sonora originale composta per ciascuno.
 const videos: Demo[] = [
-  { n: '01', title: 'Università e tesine', note: 'Da una tesi di 80 pagine a 10 minuti chiari, in 30 secondi.', src: '/video-slide/film-universita.mp4', poster: '/video-slide/film-universita.webp', start: 1.6 },
-  { n: '02', title: 'Immobili e progetti', note: 'Dal terreno alla casa finita: un progetto raccontato in 30 secondi.', src: '/video-slide/film-casa.mp4', poster: '/video-slide/film-casa.webp' },
-  { n: '03', title: 'Veicoli e colori', note: 'Un’icona, sei colori: uno studio colore in 30 secondi.', src: '/video-slide/film-veicoli.mp4', poster: '/video-slide/film-veicoli.webp', start: 2.5 },
-  { n: '04', title: 'Lancio di un prodotto', note: 'Sette gusti, una linea: CSD Pop raccontata in 30 secondi.', src: '/video-slide/film-prodotto.mp4', poster: '/video-slide/film-prodotto.webp', start: 1.6 },
-  { n: '05', title: 'Report aziendale', note: 'Ricavi, margine, cassa e consegne: un semestre letto in 30 secondi.', src: '/video-slide/film-report.mp4', poster: '/video-slide/film-report.webp', start: 2.2 },
-  { n: '06', title: 'Menu e locale', note: 'Fritto & Burger: un menù raccontato morso dopo morso, in 30 secondi.', src: '/video-slide/film-cibo.mp4', poster: '/video-slide/film-cibo.webp', start: 1.6 },
+  { n: '01', key: 'universita', title: 'Università e tesine', note: 'Da una tesi di 80 pagine a 10 minuti chiari, in 30 secondi.', src: '/video-slide/film-universita.mp4', poster: '/video-slide/film-universita.webp', start: 1.6 },
+  { n: '02', key: 'immobili', title: 'Immobili e progetti', note: 'Dal terreno alla casa finita: un progetto raccontato in 30 secondi.', src: '/video-slide/film-casa.mp4', poster: '/video-slide/film-casa.webp' },
+  { n: '03', key: 'veicoli', title: 'Veicoli e colori', note: 'Un’icona, sei colori: uno studio colore in 30 secondi.', src: '/video-slide/film-veicoli.mp4', poster: '/video-slide/film-veicoli.webp', start: 2.5 },
+  { n: '04', key: 'prodotto', title: 'Lancio di un prodotto', note: 'Sette gusti, una linea: CSD Pop raccontata in 30 secondi.', src: '/video-slide/film-prodotto.mp4', poster: '/video-slide/film-prodotto.webp', start: 1.6 },
+  { n: '05', key: 'report', title: 'Report aziendale', note: 'Ricavi, margine, cassa e consegne: un semestre letto in 30 secondi.', src: '/video-slide/film-report.mp4', poster: '/video-slide/film-report.webp', start: 2.2 },
+  { n: '06', key: 'cibo', title: 'Menu e locale', note: 'Fritto & Burger: un menù raccontato morso dopo morso, in 30 secondi.', src: '/video-slide/film-cibo.mp4', poster: '/video-slide/film-cibo.webp', start: 1.6 },
 ];
 
 // Slide interattive vere, una presentazione da 15 slide per settore (file HTML autonomi in /video-slide/).
-type Deck = { sector: string; src?: string; slides?: number; bg?: string };
+type Deck = { sector: string; key?: string; src?: string; slides?: number; bg?: string };
 const decks: Deck[] = [
-  { sector: 'Università', src: '/video-slide/slide-01-universita.html', slides: 8 },
-  { sector: 'Prodotto', src: '/video-slide/pop/index.html', slides: 8, bg: '#2db7f5' }, { sector: 'Immobili', src: '/video-slide/casa/index.html', slides: 6, bg: '#dfd8cd' }, { sector: 'Cibo', src: '/video-slide/cibo/index.html', slides: 8, bg: '#201713' }, { sector: 'Report', src: '/video-slide/report/index.html', slides: 8, bg: '#0B0D10' }, { sector: 'Veicoli', src: '/video-slide/slide-06-auto.html', slides: 8 }, { sector: 'Hardware' },
+  { sector: 'Università', key: 'universita', src: '/video-slide/slide-01-universita.html', slides: 8 },
+  { sector: 'Prodotto', key: 'prodotto', src: '/video-slide/pop/index.html', slides: 8, bg: '#2db7f5' }, { sector: 'Immobili', key: 'immobili', src: '/video-slide/casa/index.html', slides: 6, bg: '#dfd8cd' }, { sector: 'Cibo', key: 'cibo', src: '/video-slide/cibo/index.html', slides: 8, bg: '#201713' }, { sector: 'Report', key: 'report', src: '/video-slide/report/index.html', slides: 8, bg: '#0B0D10' }, { sector: 'Veicoli', key: 'veicoli', src: '/video-slide/veicoli/index.html', slides: 8, bg: '#0b0f0a' }, { sector: 'Hardware' },
 ];
+
+// Link condivisi: ?slide=report porta alla presentazione, ?video=cibo apre il video già pronto
+const linkParam = (name: 'slide' | 'video') => typeof window === 'undefined' ? null : new URLSearchParams(window.location.search).get(name);
+const linkFor = (kind: 'slide' | 'video', key: string) => `${window.location.origin}/video-slide/?${kind}=${key}`;
+function ShareLink({ kind, item, title, className = '' }: { kind: 'slide' | 'video'; item: string; title: string; className?: string }) {
+  const [said, setSaid] = useState(false);
+  const share = async (e: React.MouseEvent) => {
+    e.stopPropagation();
+    const url = linkFor(kind, item);
+    if (navigator.share && window.matchMedia('(pointer: coarse)').matches) { try { await navigator.share({ title, url }); return; } catch (err) { if ((err as Error).name === 'AbortError') return; } }
+    try { await navigator.clipboard.writeText(url); setSaid(true); setTimeout(() => setSaid(false), 1800); } catch { window.prompt('Copia il link', url); }
+  };
+  return <button type="button" className={`mv-share ${className}`} onClick={share} aria-label={`Condividi: ${title}`}><Share2 size={16}/><span>{said ? 'Link copiato' : 'Condividi'}</span></button>;
+}
+// lettore dei video: da un link condiviso aspetta che il video sia pronto, poi parte; se il browser blocca l'audio parte muto con il tasto per attivarlo
+function FilmPlayer({ film, fromLink }: { film: Demo; fromLink: boolean }) {
+  const ref = useRef<HTMLVideoElement>(null), [ready, setReady] = useState(!fromLink), [muted, setMuted] = useState(false);
+  useEffect(() => {
+    const v = ref.current; if (!v || !fromLink) return;
+    const start = () => { setReady(true); v.play().catch(() => { v.muted = true; setMuted(true); v.play().catch(() => {}); }); };
+    if (v.readyState >= 4) start(); else v.addEventListener('canplaythrough', start, { once: true });
+    return () => v.removeEventListener('canplaythrough', start);
+  }, [film, fromLink]);
+  return <>
+    <video ref={ref} src={film.src} poster={film.poster} controls autoPlay={!fromLink} playsInline preload="auto" className={ready ? '' : 'is-loading'}/>
+    {!ready && <span className="mv-loading" aria-live="polite"><i/>Carico il video…</span>}
+    {muted && <button type="button" className="mv-unmute" onClick={() => { const v = ref.current; if (v) { v.muted = false; v.play().catch(() => {}); } setMuted(false); }}><Volume2 size={18}/> Attiva l’audio</button>}
+  </>;
+}
 
 function SlideDeck() {
   const [i, setI] = useState(0), [height, setHeight] = useState(0), [say, setSay] = useState(''), [happy, setHappy] = useState(false), [throwing, setThrowing] = useState(false);
+  // aperto da un link condiviso: la presentazione giusta è già scelta e la pagina scende fino alle slide
+  useEffect(() => {
+    const key = linkParam('slide'), k = decks.findIndex(d => d.key === key && d.src); if (k < 0) return;
+    setI(k); const t = setTimeout(() => document.getElementById('slide')?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 400); return () => clearTimeout(t);
+  }, []);
   const deck = decks[i];
   const frameRef = useRef<HTMLIFrameElement>(null), stageRef = useRef<HTMLDivElement>(null), [idle, setIdle] = useState(false);
   // ogni presentazione sa se è quella visibile (scheda attiva, sezione a schermo, nessun video aperto): così può fermare gli effetti pesanti
@@ -232,7 +266,10 @@ function OttoRunner({ hit, textRef, boxRef }: { hit: number; textRef: React.RefO
 }
 
 export default function MediaPage({ children }: { children?: React.ReactNode }) {
-  const [open, setOpen] = useState<Demo | null>(null), [peek, setPeek] = useState(1);
+  const [open, setOpen] = useState<Demo | null>(null), [peek, setPeek] = useState(1), [fromLink, setFromLink] = useState(false);
+  // aperto da un link condiviso: il video giusto si apre da solo
+  useEffect(() => { const key = linkParam('video'), film = videos.find(v => v.key === key && v.src); if (film) { setFromLink(true); setOpen(film); } }, []);
+  useEffect(() => { if (!open) setFromLink(false); }, [open]);
   const chipRef = useRef<HTMLSpanElement>(null), chipText = useRef<HTMLSpanElement>(null);
   const heroVideo = useRef<HTMLVideoElement>(null);
   // un solo video alla volta: quello aperto. L'hero si ferma fuori schermo e mentre si guarda un esempio.
@@ -298,9 +335,10 @@ export default function MediaPage({ children }: { children?: React.ReactNode }) 
 
     {open && <div className="mv-lightbox" role="dialog" aria-modal="true" aria-label={open.title} onClick={() => setOpen(null)}>
       <div className="mv-player" onClick={e => e.stopPropagation()}>
-        <video src={open.src} poster={open.poster} controls autoPlay playsInline preload="auto"/>
+        <FilmPlayer film={open} fromLink={fromLink}/>
         <button type="button" className="mv-close" onClick={() => setOpen(null)} aria-label="Chiudi"><X size={20}/></button>
         <span className="mv-title">{open.n} · {open.title}</span>
+        <ShareLink kind="video" item={open.key} title={`${open.title} · Video motion CSD Station`} className="mv-share-player"/>
       </div>
     </div>}
   </>;
@@ -309,11 +347,17 @@ export default function MediaPage({ children }: { children?: React.ReactNode }) 
 // Da telefono: tre sezioni come le altre pagine. Hero, poi tutte le presentazioni in un carosello circolare
 // (React Bits CircularCarousel) e tutti i video uno alla volta in un carosello in profondità (React Bits DepthCarousel).
 // fallback: è la versione nella pagina prerenderizzata, nascosta da computer: niente caroselli e niente video in riproduzione
-const deckPreview: Record<string, string> = { Università: 'universita', Prodotto: 'prodotto', Immobili: 'immobili', Cibo: 'cibo', Report: 'report', Veicoli: 'veicoli' };
 export function MediaMobile({ fallback = false }: { fallback?: boolean }) {
   const Title = fallback ? 'h2' : 'h1';
   const list = decks.filter(d => d.src), films = videos.filter(v => v.src);
-  const [active, setActive] = useState(0), [deck, setDeck] = useState<Deck | null>(null), [film, setFilm] = useState<Demo | null>(null);
+  const [active, setActive] = useState(0), [deck, setDeck] = useState<Deck | null>(null), [film, setFilm] = useState<Demo | null>(null), [fromLink, setFromLink] = useState(false);
+  // aperto da un link condiviso: da telefono la presentazione o il video si aprono subito a schermo intero
+  useEffect(() => {
+    if (fallback) return;
+    const d = list.find(x => x.key === linkParam('slide')), v = films.find(x => x.key === linkParam('video'));
+    if (d) setDeck(d); else if (v) { setFromLink(true); setFilm(v); }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [fallback]);
   const frame = useRef<HTMLIFrameElement>(null), box = useRef<HTMLDivElement>(null), [fit, setFit] = useState(.3);
   // le presentazioni si aprono nella loro versione da computer (1280×800) rimpicciolita per stare nello schermo:
   // le pagine HTML, lasciate libere, si adattano al telefono in verticale e la foto finisce sopra il testo
@@ -334,7 +378,7 @@ export function MediaMobile({ fallback = false }: { fallback?: boolean }) {
     if (open) window.addEventListener('keydown', esc);
     return () => { document.documentElement.classList.remove('mm-locked'); window.removeEventListener('keydown', esc); };
   }, [deck, film]);
-  const items = list.map(d => ({ src: `/video-slide/anteprime/deck-${deckPreview[d.sector]}.webp`, alt: `Slide interattive: ${d.sector}`, title: d.sector }));
+  const items = list.map(d => ({ src: `/video-slide/anteprime/deck-${d.key}.webp`, alt: `Slide interattive: ${d.sector}`, title: d.sector }));
   return <div className="mobile-landing media-m">
     <section className="mobile-section mm-hero" aria-labelledby="mm-title">
       <span className="mobile-eyebrow"><i/> SLIDE INTERATTIVE E VIDEO MOTION</span>
@@ -364,12 +408,12 @@ export function MediaMobile({ fallback = false }: { fallback?: boolean }) {
       <p className="mobile-demo-note">Slide da 49 € ogni 15 · video da 99 € al minuto · studenti −50%</p>
     </section>
     {deck && <div className="mm-overlay" role="dialog" aria-modal="true" aria-label={`Slide interattive: ${deck.sector}`}>
-      <div className="mm-overlay-bar"><b>{deck.sector}</b><span>Ruota il telefono per vederla più grande</span><button type="button" onClick={() => setDeck(null)} aria-label="Chiudi la presentazione"><X size={20}/></button></div>
+      <div className="mm-overlay-bar"><b>{deck.sector}</b><span>Ruota il telefono per vederla più grande</span><ShareLink kind="slide" item={deck.key!} title={`${deck.sector} · Slide interattive CSD Station`}/><button type="button" onClick={() => setDeck(null)} aria-label="Chiudi la presentazione"><X size={20}/></button></div>
       <div className="mm-deck-box" ref={box}><div className="mm-deck-fit" style={{ width: 1280 * fit, height: 800 * fit }}><iframe ref={frame} src={deck.src} title={`Slide interattive: ${deck.sector}`} style={{ transform: `scale(${fit})`, ...(deck.bg ? { background: deck.bg } : {}) }}/></div></div>
     </div>}
     {film && <div className="mm-overlay mm-film" role="dialog" aria-modal="true" aria-label={film.title}>
-      <div className="mm-overlay-bar"><b>{film.title}</b><span>{film.note}</span><button type="button" onClick={() => setFilm(null)} aria-label="Chiudi il video"><X size={20}/></button></div>
-      <video src={film.src} poster={film.poster} controls autoPlay playsInline/>
+      <div className="mm-overlay-bar"><b>{film.title}</b><span>{film.note}</span><ShareLink kind="video" item={film.key} title={`${film.title} · Video motion CSD Station`}/><button type="button" onClick={() => { setFilm(null); setFromLink(false); }} aria-label="Chiudi il video"><X size={20}/></button></div>
+      <div className="mm-film-box"><FilmPlayer film={film} fromLink={fromLink}/></div>
     </div>}
   </div>;
 }
