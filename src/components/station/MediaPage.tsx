@@ -372,7 +372,7 @@ export function MediaMobile({ fallback = false }: { fallback?: boolean }) {
   useEffect(() => {
     if (fallback) return;
     const d = list.find(x => x.key === linkParam('slide')), v = films.find(x => x.key === linkParam('video'));
-    if (d) setDeck(d); else if (v) { setFromLink(true); setFilm(v); }
+    if (d) { const k = list.indexOf(d); setTimeout(() => { document.getElementById('mm-slide')?.scrollIntoView({ block: 'start' }); showNotice(); }, 400); void k; } else if (v) { setFromLink(true); setFilm(v); }
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [fallback]);
   const frame = useRef<HTMLIFrameElement>(null), box = useRef<HTMLDivElement>(null), [fit, setFit] = useState(.3);
@@ -401,6 +401,10 @@ export function MediaMobile({ fallback = false }: { fallback?: boolean }) {
     if (open) window.addEventListener('keydown', esc);
     return () => { document.documentElement.classList.remove('mm-locked'); window.removeEventListener('keydown', esc); };
   }, [deck, film]);
+  // per ora le slide si aprono solo da computer: da telefono una nuvoletta lo dice (i video invece si guardano qui)
+  const [notice, setNotice] = useState(false), noticeTimer = useRef<ReturnType<typeof setTimeout>>();
+  const showNotice = () => { setNotice(true); clearTimeout(noticeTimer.current); noticeTimer.current = setTimeout(() => setNotice(false), 3800); };
+  useEffect(() => () => clearTimeout(noticeTimer.current), []);
   const items = list.map(d => ({ src: `/video-slide/anteprime/deck-${d.key}.webp`, alt: `Slide interattive: ${d.sector}`, title: d.sector }));
   return <div className="mobile-landing media-m">
     <section className="mobile-section mm-hero" aria-labelledby="mm-title">
@@ -417,8 +421,9 @@ export function MediaMobile({ fallback = false }: { fallback?: boolean }) {
       <h2 id="mm-slides-title">Presentazioni che<br/><em>si sfogliano da sole.</em></h2>
       <p>Non sono file di PowerPoint: sono pagine React interattive. Si presentano dal browser, girano in loop su uno schermo, diventano la demo di un sito o un carosello dentro le tue pagine.</p>
       {fallback ? <div className="mm-grid">{list.map((d, k) => <a key={d.sector} href={d.src} target="_blank" rel="noreferrer"><img src={items[k].src} alt={items[k].alt} loading="lazy"/><span>{d.sector}</span></a>)}</div> : <>
-        <div className="mm-ring"><CircularCarousel items={items} preset="cylinder" intro="rise" cardWidth={236} aspectRatio={16 / 9} gap={16} curve={0} stretch={0} parallax={0} autoplay="drift" speed={9} fadeColor="#152016" depthFade={.5} cornerRadius={10} onChange={setActive} onItemClick={(_, k) => { if (k === active) setDeck(list[k]); }}/></div>
-        <div className="mm-now"><div><small>{String(active + 1).padStart(2, '0')} / {String(list.length).padStart(2, '0')}</small><b>{list[active]?.sector}</b><span>{list[active]?.slides ?? 8} slide · trascina per sfogliare</span></div><button type="button" onClick={() => setDeck(list[active])}>Apri <Presentation size={17}/></button></div>
+        <div className="mm-ring"><CircularCarousel items={items} preset="cylinder" intro="rise" cardWidth={236} aspectRatio={16 / 9} gap={16} curve={0} stretch={0} parallax={0} autoplay="drift" speed={9} fadeColor="#152016" depthFade={.5} cornerRadius={10} onChange={setActive} onItemClick={(_, k) => { if (k === active) showNotice(); }}/></div>
+        <div className="mm-now"><div><small>{String(active + 1).padStart(2, '0')} / {String(list.length).padStart(2, '0')}</small><b>{list[active]?.sector}</b><span>{list[active]?.slides ?? 8} slide · trascina per sfogliare</span></div><button type="button" onClick={showNotice}>Apri <Presentation size={17}/></button></div>
+        {notice && <button type="button" className="mm-notice" role="status" onClick={() => setNotice(false)}><Monitor size={20}/><span><b>Le slide interattive per ora si aprono da computer.</b>Da qui puoi sfogliarle e guardare i video qui sotto.</span></button>}
       </>}
     </section>
     <section className="mobile-section mm-videos" aria-labelledby="mm-videos-title">
