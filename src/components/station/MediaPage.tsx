@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { GraduationCap, ArrowDown, ArrowUpRight, Check, Clapperboard, Monitor, Play, Presentation, Share2, Volume2, X } from 'lucide-react';
+import { GraduationCap, ArrowDown, ArrowUpRight, Check, Clapperboard, Monitor, Play, Maximize2, Presentation, Share2, Volume2, X } from 'lucide-react';
 import { mediaIntro } from '@/seo/content';
 import { OttoIcon } from './OttoIcon';
 import CircularCarousel from '@/components/reactbits/CircularCarousel';
@@ -45,7 +45,7 @@ function ShareLink({ kind, item, title, className = '' }: { kind: 'slide' | 'vid
   return <button type="button" className={`mv-share ${className}`} onClick={share} aria-label={`Condividi: ${title}`}><Share2 size={16}/><span>{said ? 'Link copiato' : 'Condividi'}</span></button>;
 }
 // lettore dei video: da un link condiviso aspetta che il video sia pronto, poi parte; se il browser blocca l'audio parte muto con il tasto per attivarlo
-function FilmPlayer({ film, fromLink }: { film: Demo; fromLink: boolean }) {
+function FilmPlayer({ film, fromLink, fullscreenButton = false }: { film: Demo; fromLink: boolean; fullscreenButton?: boolean }) {
   const ref = useRef<HTMLVideoElement>(null), [ready, setReady] = useState(!fromLink), [muted, setMuted] = useState(false);
   useEffect(() => {
     const v = ref.current; if (!v || !fromLink) return;
@@ -56,6 +56,7 @@ function FilmPlayer({ film, fromLink }: { film: Demo; fromLink: boolean }) {
   return <>
     <video ref={ref} src={film.src} poster={film.poster} controls autoPlay={!fromLink} playsInline preload="auto" className={ready ? '' : 'is-loading'}/>
     {!ready && <span className="mv-loading" aria-live="polite"><i/>Carico il video…</span>}
+    {fullscreenButton && <button type="button" className="mm-fs" onClick={() => { const v = ref.current as (HTMLVideoElement & { webkitEnterFullscreen?: () => void }) | null; if (!v) return; if (v.webkitEnterFullscreen) v.webkitEnterFullscreen(); else v.requestFullscreen?.().catch(() => {}); v.play().catch(() => {}); }}><Maximize2 size={18}/> Guarda a schermo intero</button>}
     {muted && <button type="button" className="mv-unmute" onClick={() => { const v = ref.current; if (v) { v.muted = false; v.play().catch(() => {}); } setMuted(false); }}><Volume2 size={18}/> Attiva l’audio</button>}
   </>;
 }
@@ -441,7 +442,7 @@ export function MediaMobile({ fallback = false }: { fallback?: boolean }) {
     </div>}
     {film && <div className="mm-overlay mm-film" role="dialog" aria-modal="true" aria-label={film.title}>
       <div className="mm-overlay-bar"><b>{film.title}</b><span>{film.note}</span><ShareLink kind="video" item={film.key} title={`${film.title} · Video motion CSD Station`}/><button type="button" onClick={() => { setFilm(null); setFromLink(false); }} aria-label="Chiudi il video"><X size={20}/></button></div>
-      <div className="mm-film-box"><FilmPlayer film={film} fromLink={fromLink}/></div>
+      <div className="mm-film-box"><FilmPlayer film={film} fromLink={fromLink} fullscreenButton/></div>
     </div>}
   </div>;
 }
