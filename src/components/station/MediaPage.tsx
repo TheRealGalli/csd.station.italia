@@ -207,55 +207,79 @@ function PeekVisual({ kind }: { kind: Peek }) {
   return <div className="mh-garage"><img src="/video-slide/peek-auto.png" alt=""/><span>52 tagliandi</span></div>;
 }
 
-// Otto in miniatura che corre avanti e indietro nello spazio libero del bollino.
-// Quando la scritta cambia entra di colpo e lo colpisce: Otto vola, rimbalza su pavimento, soffitto e pareti
-// con gravità e schiacciamento, poi atterra e riprende a correre. Spazio stretto = percorso corto.
+// Otto in miniatura che corre avanti e indietro nello spazio libero del bollino, con una fisica da cartone animato:
+// saltella mentre corre (si accuccia, scatta, si allunga in salita, si schiaccia all'atterraggio). Quando la scritta
+// cambia entra di colpo e lo colpisce: Otto vola fuori dal bollino con una capriola e ricade, rimbalzando.
+// L'ombra sotto i piedi si stringe quando sale: è lei che fa sentire il peso. Spazio stretto = percorso corto.
 function OttoRunner({ hit, textRef, boxRef }: { hit: number; textRef: React.RefObject<HTMLElement>; boxRef: React.RefObject<HTMLElement> }) {
-  const el = useRef<HTMLSpanElement>(null);
-  const st = useRef({ x: 200, y: 0, vx: 55, vy: 0, squash: 0, t: 0 });
+  const el = useRef<HTMLSpanElement>(null), shadow = useRef<HTMLSpanElement>(null);
+  const st = useRef({ x: 200, y: 0, vx: 70, vy: 0, squash: 0, crouch: 0, spin: 0, spinV: 0, nextHop: .8, t: 0 });
+  // i bordi dello spazio libero: si rimisurano anche a ogni scritta nuova, che è un altro elemento, più lungo o più corto
+  const bounds = useRef({ left: 0, right: 0, measure: () => {} });
   useEffect(() => {
-    // colpo: spinta verso destra e verso l'alto, più forte se la nuova scritta lo invade
-    const p = st.current, box = boxRef.current, text = textRef.current; if (!box || !text) return;
-    const wall = text.offsetLeft + text.offsetWidth + 10;
-    p.vy = -(170 + Math.random() * 90); p.vx = 140 + Math.random() * 120 + (p.x < wall ? 120 : 0);
-  }, [hit, boxRef, textRef]);
+    const p = st.current, b = bounds.current;
+    b.measure(); const raf = requestAnimationFrame(() => b.measure());
+    // colpo: spinta verso l'alto e lontano dalla scritta, con una capriola nel verso del volo
+    p.crouch = 0; p.vy = -(560 + Math.random() * 160); p.vx = 150 + Math.random() * 120 + (p.x < b.left ? 140 : 0);
+    p.spinV = 760 + Math.random() * 200;
+    return () => cancelAnimationFrame(raf);
+  }, [hit]);
   useEffect(() => {
     if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
-    let raf = 0, last = performance.now(), lastRaf = 0, visible = true;
+    let raf = 0, last = performance.now(), lastRaf = 0, visible = true, air = false;
     // fuori dallo schermo Otto si ferma: niente calcoli inutili mentre si legge il resto della pagina
     const io = new IntersectionObserver(([e]) => { visible = e.isIntersecting; last = performance.now(); });
     if (boxRef.current) io.observe(boxRef.current);
-    const G = 900, SIZE = 16, CEIL = -13, RUN = 62;
+    const G = 2600, SIZE = 18, CEIL = -64, RUN = 70;
     // i bordi si misurano solo quando cambiano: letti a ogni fotogramma obbligavano il browser a reimpaginare tutta la pagina
-    let left = 0, right = 0;
-    const measure = () => { const box = boxRef.current, text = textRef.current; if (box && text) { left = text.offsetLeft + text.offsetWidth + 10; right = box.clientWidth - SIZE - 10; } };
-    measure();
-    const ro = new ResizeObserver(measure);
+    const b = bounds.current;
+    let watched: Element | null = null;
+    const ro = new ResizeObserver(() => b.measure());
+    b.measure = () => {
+      const box = boxRef.current, text = textRef.current; if (!box || !text) return;
+      if (text !== watched) { if (watched) ro.unobserve(watched); ro.observe(text); watched = text; }
+      b.left = text.offsetLeft + text.offsetWidth + 10; b.right = box.clientWidth - SIZE - 10;
+    };
     if (boxRef.current) ro.observe(boxRef.current);
-    if (textRef.current) ro.observe(textRef.current);
+    b.measure();
     const step = (now: number) => {
       if (!visible || document.body.classList.contains('mv-watching')) return;
-      const dt = Math.min(.05, (now - last) / 1000); last = now;
-      const p = st.current, box = boxRef.current, text = textRef.current, node = el.current;
-      if (box && text && node) {
-        const airborne = p.y < 0 || p.vy < 0;
-        if (airborne) {
-          p.vy += G * dt; p.y += p.vy * dt;
-          if (p.y >= 0) { p.y = 0; if (p.vy > 60) { p.squash = Math.min(1, p.vy / 300); p.vy = -p.vy * .55; } else p.vy = 0; }
-          if (p.y < CEIL) { p.y = CEIL; p.vy = Math.abs(p.vy) * .5; p.squash = .5; }
-          p.vx *= Math.pow(.6, dt); // l'aria lo frena un poco
-        } else {
-          // a terra corre: rallenta o accelera dolcemente verso la velocità di corsa
-          const dir = Math.sign(p.vx) || 1; p.vx += (dir * RUN - p.vx) * Math.min(1, dt * 3);
+      const dt = Math.min(.04, (now - last) / 1000); last = now;
+      const p = st.current, node = el.current, sh = shadow.current;
+      if (!node) return;
+      // accucciato: tra un attimo scatta verso l'alto
+      if (p.crouch > 0) { p.crouch -= dt; if (p.crouch <= 0) { p.crouch = 0; p.vy = -(250 + Math.random() * 120); } }
+      const airborne = p.y < 0 || p.vy < 0;
+      if (airborne) {
+        p.vy += G * dt; p.y += p.vy * dt; p.spin += p.spinV * dt;
+        if (p.y < CEIL) { p.y = CEIL; p.vy = Math.abs(p.vy) * .3; }
+        if (p.y >= 0) {
+          // atterraggio: si schiaccia in proporzione al colpo, e se cade forte rimbalza
+          const impact = p.vy; p.y = 0;
+          p.squash = Math.max(p.squash, Math.min(1, impact / 1000));
+          p.vy = impact > 300 ? -impact * .34 : 0;
+          if (p.spinV) { p.spin = Math.round(p.spin / 360) * 360; p.spinV = 0; }
         }
-        p.x += p.vx * dt;
-        if (p.x < left) { p.x = left; p.vx = Math.abs(p.vx) * (airborne ? .7 : 1); if (airborne) p.squash = Math.max(p.squash, .35); }
-        if (p.x > right) { p.x = Math.max(left, right); p.vx = -Math.abs(p.vx) * (airborne ? .7 : 1); if (airborne) p.squash = Math.max(p.squash, .35); }
-        p.squash = Math.max(0, p.squash - dt * 5); p.t += dt;
-        const bob = airborne ? 0 : -Math.abs(Math.sin(p.t * 14)) * 2; // passettini mentre corre
-        const sx = 1 + p.squash * .35, sy = 1 - p.squash * .35, flip = p.vx < 0 ? -1 : 1, tilt = airborne ? p.vx * .06 : flip * 6;
-        node.style.transform = `translate(${p.x}px, ${p.y + bob}px) rotate(${tilt}deg) scale(${sx * flip}, ${sy})`;
+        p.vx *= Math.pow(.7, dt); // l'aria lo frena un poco
+      } else {
+        // a terra corre: va verso la velocità di corsa, e ogni tanto saltella
+        const dir = Math.sign(p.vx) || 1; p.vx += (dir * RUN - p.vx) * Math.min(1, dt * 4);
+        p.nextHop -= dt;
+        if (p.nextHop <= 0 && !p.crouch) { p.crouch = .09; p.nextHop = .5 + Math.random() * 1.1; }
       }
+      p.x += p.vx * dt;
+      const { left, right } = b;
+      if (p.x < left) { p.x = left; p.vx = Math.abs(p.vx) * (airborne ? .6 : 1); if (airborne) p.squash = Math.max(p.squash, .3); }
+      if (p.x > right) { p.x = Math.max(left, right); p.vx = -Math.abs(p.vx) * (airborne ? .6 : 1); if (airborne) p.squash = Math.max(p.squash, .3); }
+      p.squash = Math.max(0, p.squash - dt * 6); p.t += dt;
+      // salendo si allunga, scendendo e toccando terra si schiaccia; a terra ondeggia come chi corre a passettini
+      const stretch = airborne ? Math.min(.3, Math.abs(p.vy) / 1700) : 0, sq = p.squash + (p.crouch ? .38 : 0);
+      const sx = 1 + sq * .45 - stretch * .45, sy = 1 - sq * .45 + stretch, flip = p.vx < 0 ? -1 : 1;
+      const tilt = airborne ? p.vx * .05 + p.spin * flip : flip * 6 + Math.sin(p.t * 16) * 5;
+      const bob = airborne || p.crouch ? 0 : -Math.abs(Math.sin(p.t * 16)) * 1.6;
+      node.style.transform = `translate(${p.x}px, ${p.y + bob}px) rotate(${tilt}deg) scale(${sx * flip}, ${sy})`;
+      if (air !== airborne) { air = airborne; node.classList.toggle('air', air); }
+      if (sh) { const k = Math.max(.25, 1 + p.y / 70); sh.style.transform = `translate(${p.x}px, 0) scale(${k * (1 + sq * .3)}, ${k})`; sh.style.opacity = String(.55 * k); }
     };
     const frame = (now: number) => { lastRaf = performance.now(); step(now); raf = requestAnimationFrame(frame); };
     raf = requestAnimationFrame(frame);
@@ -263,7 +287,7 @@ function OttoRunner({ hit, textRef, boxRef }: { hit: number; textRef: React.RefO
     const backup = setInterval(() => { if (performance.now() - lastRaf > 120) step(performance.now()); }, 40);
     return () => { cancelAnimationFrame(raf); clearInterval(backup); io.disconnect(); ro.disconnect(); };
   }, [boxRef, textRef]);
-  return <span className="mh-runner" ref={el} aria-hidden="true"><OttoIcon mood="happy" size={16}/></span>;
+  return <><span className="mh-shadow" ref={shadow} aria-hidden="true"/><span className="mh-runner" ref={el} aria-hidden="true"><span className="mh-face run"><OttoIcon mood="happy" size={18}/></span><span className="mh-face fly"><OttoIcon mood="wink" size={18}/></span></span></>;
 }
 
 export default function MediaPage({ children }: { children?: React.ReactNode }) {
@@ -303,7 +327,7 @@ export default function MediaPage({ children }: { children?: React.ReactNode }) 
     </div><div className="media-hero-art">
       <div className="mh-slide" aria-hidden="true"><div className="mh-peek" key={peek}><span className="ms-eyebrow">PROSSIMA · {heroScenes[peek].sector.toUpperCase()}</span><b>{heroScenes[peek].title}</b><PeekVisual kind={heroScenes[peek].kind}/></div></div>
       <div className="mh-video" aria-hidden="true"><video ref={heroVideo} onTimeUpdate={e => setPeek((Math.floor(e.currentTarget.currentTime / 5) + 1) % heroScenes.length)} src="/video-slide/media-motion.mp4" poster="/video-slide/media-motion.jpg" autoPlay muted loop playsInline preload="metadata"/><span className="mh-rec"><i/> MOTION</span></div>
-      <span className="product-float mh-chip" aria-hidden="true" ref={chipRef}><span className={`mh-chip-in in-${(peek + 5) % 4}`} key={`otto-${(peek + 5) % 6}`} ref={chipText}>{ottoLines[(peek + 5) % 6].text} <i>{ottoLines[(peek + 5) % 6].emoji}</i></span><OttoRunner hit={peek} textRef={chipText} boxRef={chipRef}/></span>
+      <span className="product-float mh-chip" aria-hidden="true" ref={chipRef}><span className="mh-chip-clip"><span className={`mh-chip-in in-${(peek + 5) % 4}`} key={`otto-${(peek + 5) % 6}`} ref={chipText}>{ottoLines[(peek + 5) % 6].text} <i>{ottoLines[(peek + 5) % 6].emoji}</i></span></span><OttoRunner hit={peek} textRef={chipText} boxRef={chipRef}/></span>
       <div className="mh-note" aria-hidden="true"><b>COME LAVORO</b><ul><li>Studio del contenuto e del pubblico</li><li>Coerenza in ogni slide</li><li>Pensate per essere condivise</li></ul><small>Qualità sì, viralità garantita no.</small></div>
       <a className="mh-click" href={whatsapp('Ciao Carlo! Vorrei slide e video come quelli della pagina Video & Slide.')} target="_blank" rel="noreferrer"><span>Voglio slide così</span><svg viewBox="0 0 24 28" width="18" height="21" aria-hidden="true"><path d="M2 2 L2 22 L8 16 L12 26 L16 24 L12 14 L20 14 Z" fill="#f8faf3" stroke="#1d2b16" strokeWidth="1.6" strokeLinejoin="round"/></svg><small>SCRIVIMI SU WHATSAPP</small></a>
     </div></div></section>

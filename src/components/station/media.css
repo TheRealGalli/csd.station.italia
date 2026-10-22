@@ -184,8 +184,13 @@
 /* Otto che corre nel bollino: la posizione la calcola la fisica in JavaScript */
 .mh-chip{position:absolute}
 .mh-chip-in{position:relative;z-index:1}
-.mh-runner{position:absolute;left:0;top:50%;margin-top:-8px;width:16px;height:16px;color:#c5f476;transform-origin:50% 100%;will-change:transform;filter:drop-shadow(0 2px 2px #0006)}
+/* il bollino non taglia più Otto quando salta: la scritta entra in un suo riquadro che la ritaglia */
+.mh-chip.mh-chip{overflow:visible}
+.mh-chip-clip{position:absolute;inset:0;display:flex;align-items:center;padding:inherit;overflow:hidden;border-radius:inherit}
+.mh-runner{position:absolute;left:0;top:50%;margin-top:-9px;width:18px;height:18px;color:#c5f476;transform-origin:50% 100%;will-change:transform;filter:drop-shadow(0 2px 2px #0006);z-index:2}
 .mh-runner svg{display:block}
+.mh-face{position:absolute;inset:0}.mh-face.fly,.mh-runner.air .mh-face.run{visibility:hidden}.mh-runner.air .mh-face.fly{visibility:visible}
+.mh-shadow{position:absolute;left:0;top:50%;margin-top:8px;width:18px;height:5px;border-radius:50%;background:radial-gradient(closest-side,#0009,#0000);will-change:transform,opacity;pointer-events:none}
 /* Otto sulla pagina fa il gesto del lancio quando la slide 1 parte */
 .ms-otto.throwing .arm-right{animation:otto-throw .6s cubic-bezier(.3,1.4,.5,1)!important}
 @keyframes otto-throw{0%{transform:rotate(-17deg)}35%{transform:rotate(40deg)}70%{transform:rotate(-170deg)}100%{transform:rotate(-17deg)}}
