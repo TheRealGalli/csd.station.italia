@@ -683,3 +683,23 @@ body:has(.game-pressure) .live-stack{top:136px}
 @keyframes mech-text-swap{0%,8%{opacity:1}12%,78%{opacity:0}80%{opacity:1}83%{opacity:.15}86%{opacity:1}90%{opacity:.5}93%,100%{opacity:1}}
 @keyframes mech-scan{from{top:-40%}to{top:110%}}
 @media(prefers-reduced-motion:reduce){.mech-in,.mech-swap,.mech-in>*,.mech-swap>*{animation:none}.mech-scan{display:none}}
+/* missione nel pannello del tavolo: compatta, sta al posto della comanda (fonti in righe sottili, tastierino piccolo) */
+.tp-mission{padding:10px 14px 12px;border-top:0;border-bottom:1px solid #edf0e6;background:#fbfcf8}
+.tp-mission .game-card{padding:10px 12px}
+.tp-mission .gc-top{margin-bottom:4px}
+.tp-mission .mg-split{gap:8px;margin-top:6px}
+.tp-mission .mg-ask{margin:0 0 6px;font-size:12.5px;line-height:1.4}
+.tp-mission .mg-sources{gap:5px!important}
+.tp-mission .mg-sources>*{padding:6px 10px!important}
+.tp-mission .mg-sources :is(small,.eyebrow){font-size:9.5px}
+.tp-mission .mg-sources :is(p,div,span){font-size:12px;line-height:1.35}
+.tp-mission .mg-calc{gap:5px;padding:7px;border-radius:10px}
+.tp-mission .mg-screen{min-height:40px;padding:5px 10px}
+.tp-mission .mg-screen b{font-size:18px}
+.tp-mission .mg-screen small{font-size:10.5px}
+.tp-mission .mg-ckeys{gap:4px}
+.tp-mission .mg-ckeys button{height:28px;font-size:13px;border-radius:7px}
+.tp-mission .mg-ckeys button.eq{height:26px}
+.tp-mission .mg-submit{padding:8px;font-size:12.5px}
+.tp-mission .gc-result p{font-size:12.5px}
+.tp-mission .mg-split-src .mg-sources{grid-template-columns:1fr 1fr}

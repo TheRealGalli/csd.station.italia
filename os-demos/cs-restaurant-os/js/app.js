@@ -169,10 +169,10 @@ function tablePanel() {
  const courses = [[0, 'Bevande'], [1, 'Antipasti'], [2, 'Primi'], [3, 'Secondi'], [4, 'Dolci']];
  const lines = courses.map(([c, label]) => { const ls = t.lines.filter(l => D.dish(l.dish).course === c); return ls.length ? `<div class="course"><span class="eyebrow">${label.toUpperCase()}</span>${ls.map(l => `<div class="tline ${Date.now() - l.at < 2500 ? 'row-in' : ''}"><span class="q">${l.qty}×</span><span class="n">${esc(D.dish(l.dish).name)}${l.via === 'qr' ? '<i class="via-qr">QR</i>' : ''}${l.paid ? '<i class="via-paid">pagato</i>' : ''}</span>${badge(...(stateLabel[l.state] || ['']))}<b>${euro(D.dish(l.dish).price * l.qty)}</b></div>`).join('')}</div>` : ''; }).join('');
  const total = D.tableTotal(t);
- return `${head}<div class="tp-lines">${lines || '<p class="muted pad-s">Nessun piatto ancora. Aggiungi la comanda.</p>'}</div>
+ // la missione del tavolo (il conto da calcolare) prende il posto della comanda, subito sotto il titolo: piatti e conto scalano sotto
+ return `${head}${t.mission && gameOn() ? `<div class="tp-mission">${missionPanel(t.mission)}</div>` : ''}<div class="tp-lines">${lines || '<p class="muted pad-s">Nessun piatto ancora. Aggiungi la comanda.</p>'}</div>
   <div class="tp-total"><span>Conto${total !== D.tableDue(t) ? `<small>${euro(total - D.tableDue(t))} già pagati dal QR</small>` : ''}${t.perk ? `<small class="tp-perk">${icon('card')} ${esc(t.perk.label)} · −${euro(t.perk.amount)}</small>` : ''}</span><strong class="${ui.prev['t' + t.id] !== total && ui.prev['t' + t.id] !== undefined ? 'bump' : ''}">${euro(total)}</strong></div>${(ui.prev['t' + t.id] = total, '')}
   ${ui.adding ? `<div class="quick-menu">${D.menu.map(d => `<button data-add="${d.id}" ${D.available(d) ? '' : 'disabled'}><b>${esc(d.name)}</b><small>${euro(d.price)}${D.available(d) ? '' : ' · esaurito'}</small></button>`).join('')}</div>` : ''}
-  ${t.mission && gameOn() ? `<div class="tp-mission">${missionPanel(t.mission)}</div>` : ''}
   <div class="tp-actions" ${t.mission && gameOn() ? 'hidden' : ''}>${btn(ui.adding ? 'Chiudi menu' : 'Aggiungi piatto', 'adding', ui.adding ? 'btn-secondary' : 'btn-primary', ui.adding ? 'close' : 'plus')}${t.status === 'bill' ? btn('Chiudi conto · carta', `close:${t.id}`, 'btn-dark', 'check') : btn('Richiedi il conto', `bill:${t.id}`, 'btn-secondary', 'receipt')}</div>`;
 }
 
