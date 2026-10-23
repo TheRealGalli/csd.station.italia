@@ -297,12 +297,12 @@ function commissionMission() {
  const ch = G.pick(D.channels.filter(c => c.fee)), items = G.shuffle(D.deliveryMenu.filter(x => x.on)).slice(0, G.int(2, 3)), total = items.reduce((n, x) => n + x.price, 0);
  const promo = lvl() >= 2 ? G.pick([0, 3, 4]) : 0, vat = lvl() >= 3, fee = +((total - promo) * ch.fee / 100).toFixed(2), answer = +(total - promo - fee - (vat ? fee * .22 : 0)).toFixed(2);
  return {event:[`Ordine ${ch.name}`, 'Quanto resta davvero al locale?'], brief:{what:'Le piattaforme trattengono una commissione su ogni ordine, e a volte una promozione a carico del locale. Calcola quanto arriva davvero in cassa con il bonifico.', why:'Il delivery sembra incasso pieno, ma tra commissioni e promozioni il margine cambia: è da qui che si decidono i prezzi del menu delivery.'},
-  m:mk('calc', 'QUANTO RESTA AL LOCALE?', `Delivery · ordine ${ch.name}`, {unit:'€', ask:`Ordine <b>${ch.name}</b>: quanto arriva al locale${vat ? ', con l’IVA sulla commissione' : ''}?`, answer, sources:[{t:`Ordine ${ch.short}-${G.int(4830, 4999)}`, rows:[...items.map(x => [D.dish(x.id).name, G.euro(x.price)]), ...(promo ? [['Promo “consegna −€” a carico del locale', `− ${G.euro(promo)}`]] : [])]}, {t:`Contratto ${ch.name} (esempio)`, rows:[['Commissione', `${ch.fee}% sul totale${promo ? ' dopo la promo' : ''}`], ...(vat ? [['IVA sulla commissione', '22%']] : [])]}], hint:`Totale${promo ? ' meno la promo' : ''}, meno il ${ch.fee}%${vat ? ', meno il 22% della commissione' : ''}.`, winWhy:'Netto giusto: Otto confronta ogni bonifico della piattaforma con gli ordini e trova subito una commissione sbagliata.'})};
+  m:mk('calc', 'QUANTO RESTA AL LOCALE?', `Delivery · ordine ${ch.name}`, {unit:'€', ask:`Ordine <b>${ch.name}</b>: quanto arriva al locale${vat ? ', con l’IVA sulla commissione' : ''}?`, answer, sources:[{t:`Ordine ${ch.short}-${G.int(4830, 4999)}`, rows:[...items.map(x => [D.dish(x.id).name, G.euro(x.price)]), ...(promo ? [['Promo “consegna −€” a carico del locale', `− ${G.euro(promo)}`]] : [])]}, {t:`Contratto ${ch.name} (esempio)`, rows:[['Commissione', `${ch.fee}% sul totale${promo ? ' dopo la promo' : ''}`], ...(vat ? [['IVA sulla commissione', '22% della commissione']] : []), ['Al locale arriva', `totale${promo ? ' − promo' : ''} − commissione${vat ? ' − IVA sulla commissione' : ''}`]]}], hint:`Totale${promo ? ' meno la promo' : ''}, meno il ${ch.fee}%${vat ? ', meno il 22% della commissione' : ''}.`, winWhy:'Netto giusto: Otto confronta ogni bonifico della piattaforma con gli ordini e trova subito una commissione sbagliata.'})};
 }
 
 // ————— Delivery · Viaggia bene? (classify) —————
 function dlvMenuMission() {
- const pool = [['Lasagna al forno', 'in teglia monoporzione', 'ok'], ['Frittura di calamari', 'croccante appena fritta', 'no'], ['Risotto ai porcini', 'mantecato al momento', 'no'], ['Tagliata di manzo', 'salsa e rucola a parte', 'ok'], ['Tiramisù', 'in vasetto chiuso', 'ok'], ['Soufflé al cioccolato', 'si abbassa in 5 minuti', 'no'], ['Pici al pomodoro', 'sugo a parte', 'ok'], ['Gelato artigianale', 'senza box refrigerato', 'no'], ['Bruschetta al pomodoro', 'pane già condito', 'no'], ['Burrata e pomodorini', 'nel box freddo', 'ok']];
+ const pool = [['Lasagna al forno', 'in teglia chiusa: resta calda', 'ok'], ['Frittura di calamari', 'fritta: in 25 minuti si ammoscia', 'no'], ['Risotto ai porcini', 'mantecato: in 25 minuti si incolla', 'no'], ['Tagliata di manzo', 'carne a fette, salsa a parte: regge', 'ok'], ['Tiramisù', 'in vasetto chiuso: non si muove', 'ok'], ['Soufflé al cioccolato', 'si sgonfia in 5 minuti', 'no'], ['Pici al pomodoro', 'sugo a parte: si condisce a casa', 'ok'], ['Gelato artigianale', 'senza box freddo: si scioglie', 'no'], ['Bruschetta al pomodoro', 'pane già condito: in 25 minuti si inzuppa', 'no'], ['Burrata e pomodorini', 'nel box freddo: arriva com’è', 'ok']];
  const n = by(4, 5, 6), items = G.shuffle(pool).slice(0, n).map(([t, sub, ans]) => ({text:t, sub, ans}));
  return {event:['Menu del delivery', 'Quali piatti mettere sulle piattaforme?'], brief:{what:'Si prepara il menu del delivery: per ogni piatto decidi se viaggia bene nel box per 25 minuti, oppure se resta solo in sala.', why:'Un piatto che arriva molle o freddo porta una recensione negativa sulla piattaforma, e quella pesa più di cento in sala.'},
   m:mk('classify', 'VIAGGIA BENE?', 'Delivery · il menu delle piattaforme', {ask:'Per ogni piatto: <b>sul delivery o solo in sala</b>?', sources:[{t:'Regola dello chef', rows:[['Sul delivery', 'tiene 25 minuti nel box senza cambiare consistenza'], ['Solo in sala', 'fritture, mantecature, piatti che si sgonfiano o si sciolgono']]}], states:[['ok', 'Delivery'], ['no', 'Solo sala']], items, winWhy:'Sulle piattaforme solo piatti che arrivano come escono dalla cucina: meno rimborsi, recensioni migliori.'})};
@@ -364,25 +364,29 @@ function contributoMission() {
 // ————— missioni in più, a caso —————
 // Non arrivano sempre: a ogni partita se ne accende solo una parte (p), e alcune solo dal capitolo indicato (ch: 1 = capitolo 2)
 // o dal livello indicato (lvl). Il Delivery non ha una missione di base: le sue arrivano solo dal capitolo 2 in poi.
+// Ogni missione extra ha la sua difficoltà (d): 1 si fa a colpo d'occhio, 2 chiede un calcolo o un confronto,
+// 3 chiede di mettere insieme più regole. Si sblocca quando il livello (cioè il capitolo) la raggiunge.
 const extras = [
- {page:'fidelity_nfc', fn:nfcPickMission, p:.85},
- {page:'fidelity_nfc', fn:nfcBillMission, p:.7, lvl:2},
- {page:'fidelity_nfc', fn:campaignMission, p:.6, ch:1},
- {page:'app_builder', fn:pushMission, p:.85},
- {page:'app_builder', fn:bookingMission, p:.7, lvl:2},
- {page:'app_builder', fn:storeMission, p:.6, ch:1},
- {page:'delivery', fn:commissionMission, p:.85, ch:1},
- {page:'delivery', fn:dlvMenuMission, p:.8, ch:1},
- {page:'delivery', fn:dlvPauseMission, p:.7, lvl:3},
- {page:'delivery', fn:dlvPhoneMission, p:.7, ch:2},
- {page:'whatsapp', fn:waCampaignMission, p:.75, ch:1},
- {page:'fatture', fn:riconciliaMission, p:.75},
- {page:'fatture', fn:chiusuraMission, p:.7, lvl:2},
- {page:'bandi', fn:contributoMission, p:.75, lvl:2}
+ {page:'fidelity_nfc', fn:nfcPickMission, d:1},
+ {page:'app_builder', fn:pushMission, d:1},
+ {page:'delivery', fn:dlvMenuMission, d:1},
+ {page:'fidelity_nfc', fn:nfcBillMission, d:2},
+ {page:'fidelity_nfc', fn:campaignMission, d:2},
+ {page:'app_builder', fn:bookingMission, d:2},
+ {page:'app_builder', fn:storeMission, d:2},
+ {page:'delivery', fn:dlvPhoneMission, d:2},
+ {page:'whatsapp', fn:waCampaignMission, d:2},
+ {page:'fatture', fn:riconciliaMission, d:2},
+ {page:'fatture', fn:chiusuraMission, d:2},
+ {page:'delivery', fn:commissionMission, d:3},
+ {page:'delivery', fn:dlvPauseMission, d:3},
+ {page:'bandi', fn:contributoMission, d:3}
 ];
 let active = new Set(extras);
-const drawExtras = () => { active = new Set(extras.filter(x => Math.random() < x.p)); };
-const ready = x => active.has(x) && (x.ch == null || gameState().chapter >= x.ch) && (x.lvl == null || lvl() >= x.lvl);
+// A ogni partita un mazzo bilanciato: due missioni extra per difficoltà, pescate davvero a caso.
+// Una run ne vede una manciata, ben distribuite sulla curva, e la partita dopo ne vede altre.
+const drawExtras = () => { active = new Set([1, 2, 3].flatMap(d => G.shuffle(extras.filter(x => x.d === d)).slice(0, 2))); };
+const ready = x => active.has(x) && x.d <= lvl();
 const candidates = page => [...(base[page] ? [base[page]] : []), ...extras.filter(x => x.page === page && ready(x)).map(x => x.fn)];
 const eligible = page => candidates(page).length > 0;
 function generate(page) { const c = candidates(page); return c[rnd(c.length)](); }

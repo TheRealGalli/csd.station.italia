@@ -324,9 +324,10 @@ function breachMission() {
 }
 
 // Missioni in più: a ogni partita se ne accendono alcune a caso, e solo da un certo punto (ch: 1 = capitolo 2, lvl: livello).
-const extras = [{page:'osservatorio', fn:primaCasaMission, p:.75, ch:1}, {page:'staff', fn:firmaMission, p:.75, lvl:2}, {page:'compliance', fn:breachMission, p:.7, ch:1}];
+// difficoltà come nel ristorante: si sbloccano quando il livello (cioè il capitolo) le raggiunge
+const extras = [{page:'osservatorio', fn:primaCasaMission, d:2}, {page:'staff', fn:firmaMission, d:2}, {page:'compliance', fn:breachMission, d:3}];
 let active = new Set(extras);
-const ready = x => active.has(x) && (x.ch == null || gameState().chapter >= x.ch) && (x.lvl == null || lvl() >= x.lvl);
+const ready = x => active.has(x) && x.d <= lvl();
 const withExtras = (page, fn) => () => { const c = [fn, ...extras.filter(x => x.page === page && ready(x)).map(x => x.fn)]; return c[rnd(c.length)](); };
 export const extraGenerators = extras.map(x => ({page:x.page, name:x.fn.name, make:() => x.fn()}));
 
@@ -397,7 +398,7 @@ export const spawnNow = (page, k) => spawn(page, k == null ? null : extras.filte
 function schedule(s) { clearTimeout(timer); timer = setTimeout(spawn, s * 1000); }
 // a ogni partita l'ordine dei settori si rimescola davvero: le prime missioni non sono mai le stesse
 const reshuffle = () => { for (let i = rotation.length - 1; i > 0; i--) { const j = rnd(i + 1); [rotation[i], rotation[j]] = [rotation[j], rotation[i]]; } };
-export function startMissions(handled) { onHandled = handled || onHandled; running = true; turn = 0; reshuffle(); active = new Set(extras.filter(x => Math.random() < x.p)); open = []; schedule(45); }
+export function startMissions(handled) { onHandled = handled || onHandled; running = true; turn = 0; reshuffle(); active = new Set(extras); open = []; schedule(45); }
 export function stopMissions() { running = false; live.game = false; clearTimeout(timer); }
 // Per i test: i generatori di ogni modulo, con un livello forzato.
 export const generators = pages;

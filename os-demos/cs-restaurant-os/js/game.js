@@ -43,11 +43,12 @@ function resolve(c) {
 const list = () => { if (cache.round !== S.round) cache = {round:S.round, list:C.map(resolve)}; return cache.list; };
 const open = () => hooks.missionsOnly ? [] : list().filter(c => c.level === S.level && !S.solved[c.id]);
 export const gameLevel = () => S.level;
-// In modalità solo missioni il livello sale con i punti: più missioni insieme e meno tempo.
+// In modalità solo missioni il livello segue la storia, non i punti: capitoli 1-2 facili, 3 medio, 4-5 difficili.
+// Così la curva è la stessa per tutti (prima a 400 punti si era già al livello 3 nel secondo capitolo, e spendendo in Bottega no).
 function syncLevel() {
  storyProgress('points');
  if (!hooks.missionsOnly) return;
- const l = S.points >= 400 ? 3 : S.points >= 150 ? 2 : 1;
+ const l = S.chapter >= 3 ? 3 : S.chapter >= 2 ? 2 : 1;
  if (l > S.level) { S.level = l; updateChip(); setTimeout(() => coach(`level${l}`, '.game-chip', `Livello ${l}`, l === 2 ? 'Bravo. Da adesso possono arrivare **due cose insieme**, con un po’ meno tempo.' : 'Servizio pieno: fino a **tre cose insieme**. Le fonti restano la tua arma migliore.', 'otto-happy'), 900); }
 }
 // Missioni: decisioni legate a un elemento preciso (un'email), con il loro minigioco. Le crea il regista dell'app.
@@ -724,6 +725,7 @@ function startChapter(i) {
  const c = chapters()[i]; if (!c || !S.started) return;
  S.chapter = i; S.chProgress = 0; S.chStart = S.points; S.chSpent = S.spent; c.done = false;
  S.ch0 = {won:S.won, tasks:S.tasksDone, t:Date.now(), lost:S.lostPts || 0};
+ syncLevel();
  try { c.apply?.(true); } catch {}
  updateChip();
  ottoChat({name:c.narrator, role:c.role, title:`Capitolo ${i + 1} · ${c.title}`, lines:[...c.intro, `**Obiettivo:** ${c.goal.label}.`], button:'Iniziamo'});
