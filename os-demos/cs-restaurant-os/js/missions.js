@@ -383,9 +383,9 @@ const extras = [
  {page:'bandi', fn:contributoMission, d:3}
 ];
 let active = new Set(extras);
-// A ogni partita un mazzo bilanciato: due missioni extra per difficoltà, pescate davvero a caso.
+// A ogni partita un mazzo bilanciato: tre missioni extra per difficoltà (9 su 14), pescate davvero a caso.
 // Una run ne vede una manciata, ben distribuite sulla curva, e la partita dopo ne vede altre.
-const drawExtras = () => { active = new Set([1, 2, 3].flatMap(d => G.shuffle(extras.filter(x => x.d === d)).slice(0, 2))); };
+const drawExtras = () => { active = new Set([1, 2, 3].flatMap(d => G.shuffle(extras.filter(x => x.d === d)).slice(0, 3))); };
 const ready = x => active.has(x) && x.d <= lvl();
 const candidates = page => [...(base[page] ? [base[page]] : []), ...extras.filter(x => x.page === page && ready(x)).map(x => x.fn)];
 const eligible = page => candidates(page).length > 0;
@@ -446,7 +446,7 @@ function spawn(force, forced) {
   const made = page === 'sala' ? salaMission(tb) : forced ? forced() : generate(page), ttl = Math.round(made.m.ttl * by(1, .85, .7)), rec = {open:true, page};
   if (tb) tb.status = 'bill';
   const id = addMission({...made.m, ttl, page, ref:tb?.id, brief:made.brief ? {...briefs[page], alt:null, ...made.brief} : briefs[page], event:made.event, onDone:() => {
-   rec.open = false; schedule(missionRush() ? G.int(40, 70) : G.int(120, 180));
+   rec.open = false; schedule(missionRush() ? G.int(40, 70) : G.int(70, 110));
    if (tb) { tb.mission = null; if (tb.status === 'bill') D.closeBill(tb.id); }
   }});
   if (tb) tb.mission = id;

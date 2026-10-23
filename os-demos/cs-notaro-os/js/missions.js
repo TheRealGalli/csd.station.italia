@@ -385,7 +385,7 @@ function spawn(force, forced) {
   if (made.anchor === 'mail') item = spawnMail({...made.mail, priority:'alta', assignee:'GM', prepared:[], draft:''});
   if (made.anchor === 'chat') item = spawnChat(made.chat);
   if (made.anchor === 'call') item = spawnCall(made.call);
-  const id = addMission({...mission, ttl, page, ref:item?.id, brief:made.brief ? {...briefs[page], alt:null, ...made.brief} : briefs[page], onDone:() => { rec.open = false; if (item) { item.missionOpen = false; if (made.anchor === 'call') Object.assign(item, {duration:'2:40', outcome:'Gestita con te'}); } onHandled(item?.id, page); schedule(missionRush() ? G.int(40, 70) : G.int(120, 180)); }});
+  const id = addMission({...mission, ttl, page, ref:item?.id, brief:made.brief ? {...briefs[page], alt:null, ...made.brief} : briefs[page], onDone:() => { rec.open = false; if (item) { item.missionOpen = false; if (made.anchor === 'call') Object.assign(item, {duration:'2:40', outcome:'Gestita con te'}); } onHandled(item?.id, page); schedule(missionRush() ? G.int(40, 70) : G.int(70, 110)); }});
   if (item) { item.mission = id; item.missionOpen = true; live.missions.push(item); }
   open.push(rec);
  }
