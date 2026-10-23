@@ -62,7 +62,8 @@ const openMissions = () => Object.values(S.missions).filter(m => !m.result);
 const taskTtl = () => ({1:120000, 2:100000, 3:80000})[S.level];
 // Quante cose possono essere aperte insieme (compiti + missioni): al livello 1 una sola, così si impara.
 const maxOpen = () => ({1:1, 2:2, 3:3})[S.level];
-const gap = () => ({1:[40, 70], 2:[30, 55], 3:[25, 45]})[S.level];
+// tra un compito e l'altro: misurato con una partita di prova, a 40-70 s il primo capitolo restava vuoto un quinto del tempo
+const gap = () => ({1:[20, 35], 2:[16, 28], 3:[12, 22]})[S.level];
 const taskPts = () => ({1:15, 2:20, 3:25})[S.level];
 const openTasks = () => Object.values(S.tasks).filter(t => !t.done);
 const taskLeft = t => t.ttl - (Date.now() - t.created);
