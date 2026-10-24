@@ -1,0 +1,62 @@
+/* Guida interattiva CSD Station — identica in CS Restaurant e CS Notaro. */
+.demo-btn{display:inline-flex;align-items:center;gap:8px;background:#d8432f;color:#fff;border-radius:20px;padding:8px 15px 8px 12px;font-size:12px;font-weight:600;box-shadow:0 4px 14px #d8432f40;transition:background .15s,transform .15s}
+.demo-btn:hover{background:#c13a28;transform:translateY(-1px)}
+.demo-btn i{width:8px;height:8px;border-radius:50%;background:#fff;box-shadow:0 0 0 0 #fff8;animation:demo-ping 1.8s infinite}
+@keyframes demo-ping{0%{box-shadow:0 0 0 0 #ffffffa0}70%{box-shadow:0 0 0 7px #fff0}100%{box-shadow:0 0 0 0 #fff0}}
+body.touring .demo-btn{opacity:.4;pointer-events:none}
+
+.tour-layer{position:fixed;inset:0;z-index:1000;pointer-events:none;animation:tour-in .25s ease-out}
+.tour-layer.leaving{opacity:0;transition:opacity .25s}
+.tour-layer [hidden]{display:none!important}
+@keyframes tour-in{from{opacity:0}}
+.tour-block{position:fixed;inset:0;pointer-events:auto;background:transparent}
+.tour-spot{position:fixed;border-radius:12px;box-shadow:0 0 0 9999px #0b140ea6,0 0 0 2px #c5f476,0 0 24px 4px #c5f47655;transition:left .35s ease,top .35s ease,width .35s ease,height .35s ease;pointer-events:none}
+.tour-layer:not(:has(.tour-spot:not([hidden]))) .tour-block{background:#0b140e8c}
+
+.tour-cursor{position:fixed;left:0;top:0;transition:transform .65s cubic-bezier(.45,.05,.25,1);z-index:3;filter:drop-shadow(0 4px 8px #0006);will-change:transform}
+.tour-cursor svg{display:block;margin:-3px 0 0 -4px;transition:transform .15s}
+.tour-cursor.press svg{transform:scale(.82)}
+.tour-cursor span{position:absolute;left:24px;top:20px;background:#173022;color:#c5f476;border:1px solid #c5f476;font:600 9px/1 Inter,-apple-system,sans-serif;letter-spacing:.6px;padding:4px 6px;border-radius:5px;white-space:nowrap}
+.tour-ripple{position:fixed;left:0;top:0;width:0;height:0;z-index:2}
+.tour-ripple:before{content:'';position:absolute;left:-18px;top:-18px;width:36px;height:36px;border-radius:50%;border:2px solid #c5f476;animation:tour-ripple .6s ease-out forwards}
+@keyframes tour-ripple{from{transform:scale(.2);opacity:1}to{transform:scale(1.6);opacity:0}}
+
+.tour-bubble{position:fixed;z-index:4;pointer-events:auto;background:#173022;color:#fff;border:1px solid #2f4a35;border-radius:14px;padding:16px 18px 14px;box-shadow:0 24px 60px #0008;font-family:Inter,-apple-system,sans-serif;animation:bubble-in .28s cubic-bezier(.2,.9,.3,1.2)}
+@keyframes bubble-in{from{opacity:0;transform:translateY(6px) scale(.97)}}
+.tour-bubble:after{content:'';position:absolute;width:14px;height:14px;background:#173022;border:1px solid #2f4a35;transform:rotate(45deg);left:calc(var(--ax,50%) - 7px)}
+.tour-bubble[data-arrow="top"]:after{top:-8px;border-right:0;border-bottom:0}
+.tour-bubble[data-arrow="bottom"]:after{bottom:-8px;border-left:0;border-top:0}
+.tour-bubble[data-arrow="left"]:after{left:-8px;top:calc(50% - 7px);border-top:0;border-right:0}
+.tour-bubble[data-arrow="right"]:after{left:auto;right:-8px;top:calc(50% - 7px);border-bottom:0;border-left:0}
+.tour-bubble[data-arrow="none"]:after{display:none}
+.tb-top{display:flex;justify-content:space-between;align-items:center}
+.tb-step{font-size:10px;letter-spacing:1.2px;text-transform:uppercase;color:#c5f476;font-weight:600}
+.tb-x{background:none;color:#9fb593;font-size:20px;line-height:1;padding:0 2px}
+.tb-x:hover{color:#fff}
+.tour-bubble h3{font-size:16px;letter-spacing:-.3px;margin:8px 0 0;color:#fff;font-weight:600}
+.tour-bubble p{font-size:13px;line-height:1.6;color:#e3ecdb;margin:6px 0 0}
+.tour-bubble p b{color:#c5f476;font-weight:600}
+.tb-foot{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-top:14px}
+.tb-dots{display:flex;gap:4px;flex-wrap:wrap;max-width:60%}
+.tb-dots i{width:6px;height:6px;border-radius:50%;background:#3b5640}
+.tb-dots i.done{background:#7d9c62}.tb-dots i.on{background:#c5f476;width:16px;border-radius:4px}
+.tb-next{display:inline-flex;align-items:center;gap:8px;background:#c5f476;color:#1d2f14;border-radius:8px;padding:9px 15px;font-size:12px;font-weight:650}
+.tb-next:hover{background:#d6ff9a}
+.tb-next:focus-visible{outline:2px solid #fff;outline-offset:2px}
+.tb-hint{display:block;font-size:10px;color:#8fa785;margin-top:10px}
+
+.tour-otto{position:fixed;left:18px;bottom:6px;width:76px;height:100px;z-index:3;pointer-events:none}
+.tour-otto-inner{transform:scale(.5);transform-origin:bottom left;position:absolute;left:0;bottom:0}
+.tour-otto-inner .otto{animation:otto-breathe 3s ease-in-out infinite}
+.tour-otto-wave .tour-otto-inner{animation:tour-otto-hop .9s ease-in-out 2}
+.tour-otto-happy .tour-otto-inner{animation:tour-otto-hop .6s ease-in-out 3}
+.tour-otto-think .tour-otto-inner{animation:tour-otto-tilt 1.4s ease-in-out infinite}
+.tour-otto-point .tour-otto-inner{animation:tour-otto-lean .5s ease-out forwards}
+@keyframes tour-otto-hop{0%,100%{translate:0 0}40%{translate:0 -16px}60%{translate:0 -16px}}
+@keyframes tour-otto-tilt{0%,100%{rotate:0deg}50%{rotate:-6deg}}
+@keyframes tour-otto-lean{to{rotate:5deg;translate:4px 0}}
+.tour-otto-say{position:absolute;left:84px;bottom:58px;background:#fff;color:#1d2b20;font:600 11px/1.3 Inter,-apple-system,sans-serif;padding:7px 10px;border-radius:10px 10px 10px 2px;white-space:nowrap;box-shadow:0 6px 18px #0004;animation:bubble-in .25s ease-out}
+.tour-working{position:fixed;left:50%;bottom:22px;transform:translateX(-50%);z-index:4;background:#173022;color:#dfe9d6;border:1px solid #2f4a35;border-radius:20px;padding:8px 14px;font:500 11px Inter,-apple-system,sans-serif;display:flex;align-items:center;gap:8px;box-shadow:0 8px 24px #0005}
+.tour-working i{width:8px;height:8px;border-radius:50%;background:#c5f476;animation:demo-ping 1.2s infinite}
+@media(max-width:760px){.tour-otto{display:none}.demo-btn span{display:none}.demo-btn{padding:9px}.tour-bubble p{font-size:12px}}
+@media(prefers-reduced-motion:reduce){.tour-cursor,.tour-spot{transition-duration:.05s}.tour-otto-inner,.tour-bubble,.tour-layer{animation:none!important}}

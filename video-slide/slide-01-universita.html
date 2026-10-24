@@ -1,0 +1,464 @@
+<!doctype html>
+<html lang="it"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Da 110 e lode · Slide interattive CSD Station</title>
+<style>
+/* Otto: a small desk companion, built from CSS so it remains crisp and light. */
+.otto{--shell:#dce6c7;position:relative;width:150px;height:195px;isolation:isolate;filter:drop-shadow(0 15px 12px #101a1635);animation:otto-breathe 4s ease-in-out infinite;pointer-events:none}
+.otto-aerial{position:absolute;left:74px;top:3px;width:4px;height:22px;background:linear-gradient(90deg,#657557,#afbd9c);z-index:0;transform:rotate(9deg);transform-origin:bottom}.otto-aerial i{display:block;width:12px;height:12px;background:#d4fa90;border-radius:50%;position:absolute;left:-4px;top:-4px;box-shadow:0 0 12px #c5f47680,inset 0 2px 2px #fff9}
+.otto-head{position:absolute;left:13px;top:23px;width:124px;height:86px;border:1px solid #f4fae6;border-radius:32px 32px 26px 26px;background:linear-gradient(135deg,#f5f8e9 4%,#d6e0bd 45%,#a5b58d);box-shadow:inset -5px -6px 9px #75856033,inset 2px 2px 2px #fff,0 6px 0 #84966c;z-index:4;transform:rotate(-5deg)}
+.otto-face{position:absolute;inset:16px 13px 14px;background:linear-gradient(140deg,#172f25,#263d2c);border-radius:19px 19px 17px 17px;box-shadow:inset 0 3px 8px #0007,0 1px 0 #fff;display:flex;align-items:center;justify-content:center;gap:22px;overflow:hidden}.otto-face:after{content:'';position:absolute;inset:0;background:linear-gradient(135deg,#ffffff0d,transparent 45%)}
+.otto-eye{height:18px;width:10px;background:#d6ff9f;border-radius:6px;box-shadow:0 0 9px #c5f47680;animation:otto-blink 7s infinite}.otto-mouth{position:absolute;width:13px;height:5px;border-bottom:2px solid #bdda92;bottom:10px;border-radius:0 0 10px 10px}.otto-cheek{position:absolute;width:8px;height:3px;background:#d3927380;border-radius:2px;bottom:23px;z-index:5}.cheek-left{left:21px}.cheek-right{right:21px}
+.otto-ear{position:absolute;top:54px;width:14px;height:26px;border-radius:8px;background:linear-gradient(90deg,#839773,#c1d1ab);z-index:2}.ear-left{left:5px;transform:rotate(-5deg)}.ear-right{right:5px;transform:rotate(-5deg)}
+.otto-body{position:absolute;left:35px;top:111px;width:81px;height:59px;border-radius:18px 18px 22px 22px;background:linear-gradient(130deg,#f0f5df,#cedbb5 55%,#95aa7c);box-shadow:inset -4px -4px 8px #6e875632,0 4px 0 #758d5a;border:1px solid #e7f1d3;z-index:3;text-align:center;padding-top:12px}.otto-body>span{font:8px ui-monospace,monospace;letter-spacing:3px;color:#526642}.otto-body>i{display:block;margin:7px auto 0;width:7px;height:7px;border-radius:50%;background:#567f34;box-shadow:0 0 0 3px #93ad7460}.otto-vents{font:13px monospace;color:#5d7644;position:absolute;bottom:0;left:33px;letter-spacing:1px}
+.otto-arm{position:absolute;top:119px;width:19px;height:45px;border-radius:12px;background:linear-gradient(90deg,#879d70,#d6e4bb);z-index:2;transform-origin:top}.arm-left{left:16px;transform:rotate(16deg)}.arm-right{right:15px;transform:rotate(-17deg)}.otto-foot{position:absolute;top:170px;width:31px;height:15px;background:linear-gradient(#d3dfbe,#849d70);border-radius:8px 8px 5px 5px;box-shadow:0 3px 0 #586e4b}.foot-left{left:37px;transform:rotate(-9deg)}.foot-right{right:32px;transform:rotate(9deg)}.otto-shadow{position:absolute;bottom:0;left:20px;width:112px;height:12px;border-radius:50%;background:#16301940;filter:blur(6px);z-index:-1}
+.otto-sleep .otto-eye{height:3px;animation:none;transform:rotate(-7deg)}.otto-sleep .otto-head{transform:rotate(-12deg) translateY(5px)}.otto-sleep .otto-aerial i{box-shadow:none;background:#9aa983}.otto-sleep .otto-mouth{height:5px;width:5px;border:1px solid #c5f476;border-radius:50%}.otto-busy .otto-aerial i{animation:otto-signal .8s ease-in-out infinite}.otto-busy .arm-right{animation:otto-wave .7s ease-in-out infinite alternate}.otto-happy .otto-eye{height:10px;background:transparent;border-top:4px solid #d6ff9f;border-radius:50%;box-shadow:none;animation:none}.otto-happy .arm-right{transform:rotate(-135deg)}.otto-happy .otto-mouth{height:7px;width:16px;background:#bdda92;border-radius:3px 3px 10px 10px}.otto-small{transform:scale(.43);transform-origin:top left;animation:none}
+
+@keyframes otto-breathe{0%,100%{translate:0 0}50%{translate:0 -6px}}
+@keyframes otto-blink{0%,94%,100%{transform:scaleY(1)}96%{transform:scaleY(.1)}}
+@keyframes otto-wave{from{transform:rotate(-120deg)}to{transform:rotate(-160deg)}}
+@keyframes otto-signal{50%{box-shadow:0 0 22px #c5f476}}
+
+:root{--bg:#101510;--card:#1b2718;--line:#536e3c;--lime:#c5f476;--paper:#f6f7f2;--muted:#a1b28e;--ink:#172015}
+*{box-sizing:border-box}
+html,body{height:100%;margin:0}
+body{background:radial-gradient(ellipse at 75% 40%,#2a3d2240,transparent 60%),var(--bg);color:var(--paper);font-family:'Avenir Next','Helvetica Neue',Arial,sans-serif;overflow:hidden;display:flex;flex-direction:column}
+button{font:inherit;cursor:pointer}
+button:focus-visible,a:focus-visible{outline:3px solid var(--lime);outline-offset:4px}
+header{display:flex;justify-content:space-between;align-items:center;padding:2.6vh 4.5vw;border-bottom:1px solid #c5f47622;flex:none}
+header b{font-size:clamp(15px,2vw,22px);font-weight:500}
+header span{font-size:clamp(9px,1vw,12px);letter-spacing:.25em;color:var(--muted)}
+.hdr{display:flex;align-items:center;gap:1.4vw}
+.deck{position:relative;flex:1;min-height:0}
+.slide{position:absolute;inset:0;padding:3vh 4.5vw;display:grid;grid-template-columns:1.05fr 1fr;gap:4vw;align-items:center;opacity:0;visibility:hidden;transition:opacity .5s,visibility .5s}
+.slide.on{opacity:1;visibility:visible}
+.slide>div:first-child>*{opacity:0;transform:translateY(18px);transition:opacity .5s,transform .7s cubic-bezier(.2,.8,.2,1)}
+.slide.on>div:first-child>*{opacity:1;transform:none}
+.slide.on>div:first-child>:nth-child(2){transition-delay:.07s}.slide.on>div:first-child>:nth-child(3){transition-delay:.14s}.slide.on>div:first-child>:nth-child(4){transition-delay:.21s}.slide.on>div:first-child>:nth-child(5){transition-delay:.28s}.slide.on>div:first-child>:nth-child(6){transition-delay:.35s}
+.slide:not(.s4) .visual{transform:translateX(28px) scale(.97);transition:transform .9s cubic-bezier(.2,.8,.2,1) .1s}
+.slide.on:not(.s4) .visual{transform:none}
+.label{color:var(--lime);font-size:clamp(10px,1.1vw,13px);letter-spacing:.3em;text-transform:uppercase}
+h1{font-weight:500;font-size:clamp(26px,4.4vw,62px);letter-spacing:-.045em;line-height:1.04;margin:1.6vh 0 2vh}
+h1 em{font-style:normal;color:var(--lime)}
+p{font-size:clamp(13px,1.45vw,19px);line-height:1.55;color:#b3c2a3;margin:0 0 2.4vh;max-width:36em}
+.act{display:inline-flex;align-items:center;gap:10px;padding:1.4vh 1.6vw;border-radius:8px;border:1px solid var(--lime);background:transparent;color:var(--lime);font-size:clamp(12px,1.25vw,16px);transition:background .25s,color .25s,transform .2s}
+.act:hover{background:var(--lime);color:var(--ink)}
+.act:active{transform:scale(.96)}
+.act.solid{background:var(--lime);color:var(--ink)}
+.act.done{opacity:.35;pointer-events:none}
+.hint{display:block;margin-top:1.4vh;font-size:clamp(10px,1vw,12px);color:#7f936d;letter-spacing:.06em}
+.visual{position:relative;height:100%;min-height:0;margin-right:12vw}
+.s1 .visual,.s8 .visual{margin-right:0}
+/* foto scontornate: bordo bianco da adesivo, come ritagliate e incollate */
+.cut{position:absolute;filter:drop-shadow(10px 18px 16px #0007)}
+.slide:not(.on),.slide:not(.on) *{animation-play-state:paused!important}
+.otto-wrap{position:absolute;right:0;bottom:2vh;transform:scale(.62);transform-origin:bottom right;z-index:3}
+.otto-wrap.big{transform:scale(.9)}
+.say{position:absolute;right:2.5vw;bottom:25vh;max-width:12em;padding:1.2vh 1vw;border-radius:12px 12px 2px 12px;background:var(--lime);color:var(--ink);box-shadow:0 8px 20px #0007;font-size:clamp(10px,1.05vw,14px);line-height:1.35;opacity:0;transform:translateY(10px) scale(.95);transition:.45s cubic-bezier(.2,.9,.3,1.3);z-index:4}
+.say.show{opacity:1;transform:none}
+.embedded .say,.embedded .otto-wrap{display:none}
+footer{display:flex;align-items:center;justify-content:space-between;gap:2vw;padding:1.8vh 4.5vw 2.4vh;flex:none}
+footer button{padding:1.2vh 1.6vw;border-radius:6px;background:var(--lime);color:var(--ink);border:1px solid var(--lime);font-size:clamp(12px,1.2vw,15px)}
+footer button:disabled{opacity:.3;cursor:default}
+#next.ready{animation:nudge 1.6s ease-in-out infinite}
+@keyframes nudge{0%,100%{box-shadow:0 0 0 0 #c5f47600}50%{box-shadow:0 0 0 8px #c5f47633}}
+.dots{display:flex;gap:6px;align-items:center}
+.dots i{width:26px;height:4px;border-radius:4px;background:#34462a;transition:background .3s,width .3s}
+.dots i.on{background:var(--lime);width:40px}
+.note{padding:0 4.5vw 1.8vh;font-size:clamp(9px,.9vw,11px);color:#6f8360;flex:none}
+
+/* 1 copertina */
+/* il tocco sale ruotando, ricade e rimbalza tre volte sempre più basso, schiacciandosi a ogni contatto */
+
+.lode{position:absolute;right:6%;bottom:16%;padding:1.2vh 1.2vw;border-radius:10px;background:var(--lime);color:var(--ink);font-weight:700;font-size:clamp(16px,2.4vw,34px);transform:rotate(-6deg) scale(0);transition:transform .5s cubic-bezier(.2,.9,.3,1.6);z-index:2}
+.s1 .corona{right:10%;bottom:0;height:96%;z-index:2;transform:translateY(110%) rotate(4deg);transition:transform 1s cubic-bezier(.2,.8,.2,1) .15s}
+.s1.on .corona{transform:translateY(4%) rotate(-2deg)}
+/* tre mini slide della tesi che entrano dietro al ragazzo e fluttuano piano */
+.minis{position:absolute;inset:0}
+.mini{position:absolute;width:30%;aspect-ratio:16/10;border-radius:10px;background:var(--paper);color:var(--ink);padding:3%;box-shadow:8px 14px 26px #0008;opacity:0;transition:opacity .5s,transform 1s cubic-bezier(.3,1.4,.5,1)}
+.mini small{display:block;font:600 clamp(7px,.7vw,9px)/1 ui-monospace,monospace;letter-spacing:.14em;color:#7b9262;margin-bottom:8%}
+.m1{left:2%;top:10%;transform:translate(60%,40%) rotate(0) scale(.6)}.m2{left:6%;top:48%;transform:translate(60%,-20%) scale(.6)}.m3{right:0;top:2%;transform:translate(-40%,60%) scale(.6)}
+.s1.on .mini{opacity:1}.s1.on .m1{transform:rotate(-8deg);transition-delay:.5s}.s1.on .m2{transform:rotate(5deg);transition-delay:.65s}.s1.on .m3{transform:rotate(7deg);transition-delay:.8s}
+.s1.on .minis{animation:drift 7s ease-in-out 1.8s infinite}
+@keyframes drift{0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}}
+.mb{display:flex;align-items:flex-end;gap:8%;height:58%}.mb i{flex:1;border-radius:3px 3px 0 0;background:linear-gradient(#c5f476,#86a356)}
+.md{display:block;width:52%;aspect-ratio:1;margin:0 auto;border-radius:50%;background:conic-gradient(#9fc35c 0 70%,#dfe6d4 0)}
+.ml{display:grid;gap:9%}.ml i{display:block;height:7px;border-radius:7px;background:#dfe6d4}.ml i:first-child{width:80%;background:#1d2b16}.ml i:nth-child(2){width:95%}.ml i:nth-child(3){width:60%}
+.lode small{display:block;font-size:.38em;font-weight:500;letter-spacing:.2em}
+
+/* 2 il problema */
+.s2 .libri{left:40%;bottom:0;height:88%;transform-origin:50% 100%}
+.s2 .libri{transition:transform 1.6s cubic-bezier(.3,1.3,.5,1)}
+.s2.cut-done .libri{transform:scale(.42) translateY(4%)}
+.sheet{position:absolute;width:clamp(40px,5vw,66px);aspect-ratio:3/4;border-radius:3px;box-shadow:2px 5px 10px #0007;z-index:3;pointer-events:none;background:repeating-linear-gradient(transparent 0 7px,#c9cfbf 7px 8px) center 10px/68% calc(100% - 18px) no-repeat,#f7f8f2}
+.counter{position:absolute;left:0;bottom:4%;z-index:5;padding:1.4vh 1.2vw 1.2vh;background:#f3f0e4;color:var(--ink);border-radius:3px;box-shadow:6px 10px 18px #0007;transform:rotate(-4deg);transition:transform .5s cubic-bezier(.3,1.6,.5,1)}
+.counter:before{content:'';position:absolute;left:50%;top:-8px;width:44px;height:14px;margin-left:-22px;background:#c5f47699;transform:rotate(4deg)}
+.counter:after{content:'';position:absolute;right:-30px;top:30%;width:28px;height:2px;background:#f3f0e4;transform:rotate(-28deg);transform-origin:left}
+.s2.trimmed .counter{transform:rotate(2deg) scale(1.08)}
+.s2.trimmed .counter b{color:#5f8a2a}
+.counter b{display:block;font-size:clamp(30px,4.2vw,58px);font-weight:600;line-height:1;color:#1d2b16;letter-spacing:-.05em}
+.counter span{font-size:clamp(9px,.95vw,12px);color:#5d6e4f}
+.one{position:absolute;left:8%;right:4%;top:34%;z-index:4;padding:3vh 2vw;border-radius:14px;background:var(--paper);color:var(--ink);transform:translateY(-40vh) rotate(-8deg);opacity:0;transition:transform .8s cubic-bezier(.3,1.5,.5,1) 1.5s,opacity .2s 1.5s}
+.one small{font-size:clamp(9px,.95vw,12px);letter-spacing:.25em;color:#6d8257}
+.one strong{display:block;font-size:clamp(18px,2.4vw,32px);font-weight:600;letter-spacing:-.03em;margin-top:1vh}
+.s2.cut-done .one{transform:rotate(-2deg);opacity:1}
+
+/* 3 prima e dopo */
+.compare{position:absolute;inset:2% 0 6%;border-radius:14px;overflow:hidden;background:var(--paper);color:var(--ink)}
+.compare>div{position:absolute;inset:0;padding:5% 6%;transition:opacity .5s}
+.before{font-size:clamp(7px,.78vw,10px);line-height:1.45;color:#57604f}
+.before .w{display:inline-block;will-change:transform}
+.before .pp{margin:.8vh 0 0;font-size:inherit;line-height:inherit;color:inherit;max-width:none}
+.before table{width:100%;border-collapse:collapse;margin:1vh 0;font-size:.95em}
+.before caption{text-align:left;font-weight:700;color:#3d4a33;margin-bottom:3px}
+.before th,.before td{border-bottom:1px solid #d6dccb;padding:2px 4px;text-align:left}
+.before .fn{display:block;margin-top:.8vh;font-size:.85em;color:#8a917f}
+.before .pg{position:absolute;right:6%;bottom:5%;font-size:.9em;color:#8a917f}
+.before h4{font-size:clamp(11px,1.15vw,15px);margin:0 0 1vh;color:#222}
+.after{opacity:0;display:flex;flex-direction:column;justify-content:flex-start;padding-top:4%!important}
+.compare.is-after .before{opacity:0}.compare.is-after .after{opacity:1}
+.after h4{margin:.6vh 0 0;font-size:clamp(17px,2.1vw,28px);letter-spacing:-.03em;line-height:1.1}
+.after .lead{margin:.5vh 0 0;font-size:clamp(10px,1vw,13px);line-height:1.35;color:#4d5a42;max-width:none}
+.after .from{font:600 clamp(8px,.8vw,10px)/1 ui-monospace,monospace;letter-spacing:.14em;color:#7b9262}
+.after>*{opacity:0;transform:translateY(14px);transition:opacity .45s,transform .6s cubic-bezier(.3,1.5,.5,1)}
+.compare.is-after .after>*{opacity:1;transform:none}
+.compare.is-after .after>:nth-child(2){transition-delay:.1s}.compare.is-after .after>:nth-child(3){transition-delay:.25s}.compare.is-after .after>:nth-child(4){transition-delay:.45s}.compare.is-after .after>:nth-child(5){transition-delay:.55s}.compare.is-after .after>:nth-child(6){transition-delay:.65s}.compare.is-after .after>:nth-child(7){transition-delay:.75s}
+.hb{flex:1;display:grid;gap:1.1vh}
+.hb>div{display:grid;grid-template-columns:1fr auto;align-items:center;gap:2px 8px;font-size:clamp(9px,.95vw,12px)}
+.hb span{grid-column:1/-1}
+.hb i{height:9px;border-radius:9px;background:#e3e9da;position:relative;overflow:hidden}
+.hb i:after{content:'';position:absolute;inset:0;width:calc(var(--v)*2.2%);max-width:100%;border-radius:9px;background:var(--c);transform:scaleX(0);transform-origin:left;transition:transform .9s cubic-bezier(.3,1.3,.5,1) calc(.5s + var(--k)*.15s)}
+.compare.is-after .hb i:after{transform:scaleX(1)}
+.hb i:before{content:'';position:absolute;top:0;bottom:0;width:30%;background:linear-gradient(90deg,transparent,#fff9,transparent);z-index:1;animation:shine 2.6s ease-in-out infinite;animation-delay:calc(var(--k)*.3s)}
+@keyframes shine{from{left:-30%}to{left:110%}}
+.hb b{font-size:clamp(10px,1vw,13px);color:var(--c);filter:brightness(.8)}
+.donut{position:relative;width:29%;flex:none;aspect-ratio:1;border-radius:50%;background:#e9eee2;display:grid;place-items:center;--p:0}
+.donut:before{content:'';position:absolute;inset:0;border-radius:50%;background:conic-gradient(#9fc35c 0 40%,#e0896b 0 70%,#4fa79e 0 90%,#e4c76b 0);-webkit-mask:conic-gradient(#000 calc(var(--p)*1%),transparent 0);mask:conic-gradient(#000 calc(var(--p)*1%),transparent 0)}
+.donut b{position:relative;z-index:1;line-height:1;font-size:clamp(16px,2.2vw,30px)!important;width:64%;aspect-ratio:1;border-radius:50%;background:var(--paper);display:grid;place-items:center;font-weight:600}
+.after-row{display:flex;align-items:center;gap:6%;margin-top:3%}
+.compare.is-after .donut{animation:donut-in .8s cubic-bezier(.3,1.5,.5,1) .2s both,donut-breathe 4s ease-in-out 1.2s infinite}
+.donut .dl{position:absolute;z-index:2;left:0;right:0;top:66%;text-align:center;font-style:normal;font-size:clamp(7px,.7vw,9px);color:#6d7a62;letter-spacing:.06em}
+@keyframes donut-in{from{transform:scale(.85) rotate(-40deg);opacity:0}to{transform:none;opacity:1}}
+@keyframes donut-breathe{50%{transform:scale(1.02)}}
+.sum{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:3%}
+.sum div{padding:7px 8px;border-radius:8px;background:#fff;border:1px solid #dfe6d4;font-size:clamp(8px,.82vw,11px);line-height:1.3;color:#3d4a33}
+.sum b{display:block;font-size:clamp(9px,.9vw,12px);color:#1d2b16;margin:2px 0}
+.sum em{font-style:normal;font-size:1.3em}
+.ppl-t{margin-top:auto;padding-top:9px;font:600 clamp(8px,.85vw,11px)/1 ui-monospace,monospace;letter-spacing:.12em;color:#5f8a2a;text-transform:uppercase}
+.ppl{display:grid;grid-template-columns:repeat(10,1fr);gap:6px;margin-top:1.4vh}
+.ppl i svg{width:62%;display:block;margin:0 auto}
+.ppl i.g svg{fill:#9fc35c}.ppl i.a svg{fill:#cfd5c2}
+.compare.is-after .ppl i{animation:ppl 4.2s cubic-bezier(.3,1.6,.5,1) infinite;animation-delay:calc(var(--k)*.12s)}
+@keyframes ppl{0%{transform:scale(.3) translateY(10px);opacity:0}12%{transform:scale(1.15);opacity:1}18%,82%{transform:none;opacity:1}92%,100%{transform:scale(.3) translateY(10px);opacity:0}}
+.legend{display:flex;flex-wrap:wrap;gap:.8vh 1.4vw;margin-top:3%;font-size:clamp(9px,.95vw,12px);color:#57604f}
+.legend i{display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:6px;vertical-align:-1px}.legend i.g{background:#9fc35c}.legend i.a{background:#cfd5c2}
+.before mark{background:none;color:#2d4a1f;font-weight:700;box-shadow:inset 0 -.45em 0 #c5f47699;animation:hl 2.4s ease-in-out infinite}
+@keyframes hl{50%{box-shadow:inset 0 -1.1em 0 #c5f476cc}}
+.before:after{content:'Prima: una pagina da leggere';position:absolute;left:6%;bottom:5%;font:600 clamp(9px,.9vw,11px)/1 ui-monospace,monospace;letter-spacing:.12em;color:#a33;text-transform:uppercase}
+.gains{list-style:none;margin:0 0 2.2vh;padding:0;display:grid;gap:.9vh}
+.gains li{font-size:clamp(11px,1.15vw,15px);color:#d9e3cf;opacity:.25;transform:translateX(-10px);transition:opacity .4s,transform .5s cubic-bezier(.3,1.5,.5,1)}
+.gains li:before{content:'→ ';color:var(--lime)}
+.gains b{color:var(--lime);font-weight:600}
+.s3.cmp-after .gains li{opacity:1;transform:none}
+.s3.cmp-after .gains li:nth-child(2){transition-delay:.25s}.s3.cmp-after .gains li:nth-child(3){transition-delay:.5s}
+.switch{display:inline-flex;border:1px solid var(--line);border-radius:30px;padding:4px;gap:4px}
+.switch button{border:0;border-radius:30px;padding:1vh 1.4vw;background:transparent;color:var(--muted);font-size:clamp(11px,1.1vw,14px)}
+.switch button[aria-pressed=true]{background:var(--lime);color:var(--ink)}
+
+/* 4 dato per dato */
+.bars{position:absolute;inset:22% 2% 12%;display:flex;align-items:flex-end;gap:5%}
+.bars div{flex:1;height:100%;display:flex;flex-direction:column;justify-content:flex-end;align-items:center;gap:1vh}
+.bars i{position:relative;display:block;width:100%;border-radius:10px 10px 0 0;border:2px dashed #3c4f2e;border-bottom:0;background:repeating-linear-gradient(135deg,#1b2718 0 8px,#151d13 8px 16px)}
+.bars i:after{content:'';position:absolute;inset:-2px -2px 0;border-radius:10px 10px 0 0;background:linear-gradient(#d9f7a3,#86a356);transform:scaleY(0);transform-origin:bottom;transition:transform .9s cubic-bezier(.3,1.6,.5,1)}
+.bars em{font-style:normal;font-weight:600;font-size:clamp(14px,1.7vw,22px);color:#4d6339;transition:color .3s .4s,transform .5s cubic-bezier(.3,1.8,.5,1) .4s}
+.bars span{font-size:clamp(10px,1.05vw,13px);color:var(--muted)}
+.bars div.on i:after{transform:scaleY(1)}.bars div.on em{color:var(--paper);transform:scale(1.15)}
+.bars div.dim i:after{background:linear-gradient(#5d7444,#3c4f2e)}
+.s4 .mano{width:34%;z-index:4;pointer-events:none;transition:left .55s cubic-bezier(.3,1.3,.5,1),top .55s cubic-bezier(.3,1.3,.5,1),opacity .4s;transform-origin:15% 30%}
+.s4 .mano.tap{animation:tap .35s ease-out}
+@keyframes tap{50%{transform:scale(.9) rotate(-6deg)}}
+.verdict{position:absolute;left:4%;right:30%;top:0;padding:1.4vh 1.2vw;border-radius:10px;background:var(--lime);color:var(--ink);font-weight:600;font-size:clamp(12px,1.35vw,18px);transform:translateY(-12px);opacity:0;transition:.5s}
+.verdict.show{transform:none;opacity:1}
+
+/* 5 per lo studente */
+.flips{position:absolute;inset:6% 0 18%;display:grid;grid-template-columns:repeat(3,1fr);gap:1.2vw;perspective:900px}
+.flip{position:relative;border:0;padding:0;background:transparent;color:inherit;transform-style:preserve-3d;transition:transform .7s cubic-bezier(.2,.8,.2,1);text-align:left}
+.flip.open{transform:rotateY(180deg)}
+.flip>span{position:absolute;inset:0;border-radius:14px;padding:2.4vh 1.2vw;backface-visibility:hidden;display:flex;flex-direction:column;justify-content:space-between}
+.flip .front{background:var(--card);border:1px solid var(--line)}
+.flip .front b{font-size:clamp(16px,2vw,28px);font-weight:500;letter-spacing:-.03em}
+.flip .front small{font-size:clamp(9px,.9vw,11px);letter-spacing:.2em;color:var(--lime)}
+.flip .front img{align-self:center;height:52%;max-width:88%;object-fit:contain;filter:drop-shadow(6px 12px 10px #0008);animation:float 4s ease-in-out infinite}
+.flip:nth-child(2) .front img{animation-delay:-1.3s}.flip:nth-child(3) .front img{animation-delay:-2.6s}
+@keyframes float{0%,100%{transform:translateY(0) rotate(-3deg)}50%{transform:translateY(-8px) rotate(2deg)}}
+.flip{opacity:0;translate:0 30px;transition:transform .7s cubic-bezier(.2,.8,.2,1),opacity .5s,translate .7s cubic-bezier(.3,1.4,.5,1)}
+.s5.on .flip{opacity:1;translate:0 0}.s5.on .flip:nth-child(2){transition-delay:0s,.12s,.12s}.s5.on .flip:nth-child(3){transition-delay:0s,.24s,.24s}
+.flip:not(.open):hover{transform:rotateY(-8deg) rotateX(4deg)}
+.flip .back{background:var(--paper);color:var(--ink);transform:rotateY(180deg);font-size:clamp(11px,1.2vw,15px);line-height:1.45}
+.flip .back b{font-size:clamp(13px,1.4vw,18px)}
+.s5,.s6{grid-template-columns:.8fr 1.35fr}
+.s3{grid-template-columns:.78fr 1.4fr}
+.flip .back{padding:2.2vh 1.1vw;justify-content:flex-start;gap:1.2vh;background:radial-gradient(circle at 1px 1px,#d8dfcc 1px,transparent 0) 0 0/12px 12px,var(--paper)}
+.flip .back b{display:block;font-size:clamp(13px,1.35vw,18px);line-height:1.2}
+.flip .back p{margin:0;font-size:clamp(10px,1vw,13px);line-height:1.4;color:#4d5a42}
+.flip .back .art{margin-top:auto;height:42%;position:relative}
+.flip .front{background:radial-gradient(circle at 1px 1px,#2c3d24 1px,transparent 0) 0 0/14px 14px,var(--card)}
+.flip .front:after{content:attr(data-n);position:absolute;right:10%;top:7%;font:700 clamp(30px,4.4vw,62px)/1 'Avenir Next',sans-serif;color:transparent;-webkit-text-stroke:1px #4d6339;letter-spacing:-.04em}
+.flip .front:before{content:'';position:absolute;left:50%;top:-7px;width:44px;height:14px;margin-left:-22px;background:#c5f47680;transform:rotate(-4deg)}
+.flip .front small{position:relative;z-index:1}
+.flip .front em{font-style:normal;font-size:clamp(9px,.9vw,11px);color:var(--muted);margin-top:-1.2vh}
+/* tesi: capitoli che si accendono uno dopo l'altro */
+.art .steps3{display:grid;gap:5px}
+.art .steps3 span{display:flex;align-items:center;gap:6px;padding:4px 8px;border-radius:6px;background:#fff;border:1px solid #dfe6d4;font-size:clamp(9px,.85vw,11px);font-weight:600}
+.art .steps3 span:before{content:'';width:8px;height:8px;border-radius:50%;background:#dfe6d4}
+.flip.open .steps3 span:before{animation:lit 3s infinite}
+.flip.open .steps3 span:nth-child(2):before{animation-delay:.6s}.flip.open .steps3 span:nth-child(3):before{animation-delay:1.2s}
+@keyframes lit{0%,10%{background:#dfe6d4}20%,80%{background:#9fc35c}100%{background:#dfe6d4}}
+/* tesina: mappa dei collegamenti */
+.art svg{width:100%;height:100%;overflow:visible}
+.art .map line{stroke:#9fc35c;stroke-width:2;stroke-dasharray:60;stroke-dashoffset:60}
+.flip.open .map line{animation:draw .8s ease-out forwards}.flip.open .map line:nth-of-type(2){animation-delay:.2s}.flip.open .map line:nth-of-type(3){animation-delay:.4s}
+.art .map circle{fill:#fff;stroke:#7b9262;stroke-width:1.5}.art .map circle.c{fill:#c5f476;stroke:none}
+.art .map text{font:600 9px 'Avenir Next',sans-serif;fill:#1d2b16;text-anchor:middle}
+@keyframes draw{to{stroke-dashoffset:0}}
+/* orale: parole chiave e onda della voce */
+.art .keys{display:flex;flex-wrap:wrap;gap:4px;margin-bottom:6px}
+.art .keys span{padding:3px 7px;border-radius:20px;background:#1d2b16;color:#c5f476;font-size:clamp(8px,.8vw,10px)}
+.art .wave{display:flex;align-items:center;gap:3px;height:34%}
+.art .wave i{flex:1;height:30%;border-radius:3px;background:#9fc35c}
+.flip.open .wave i{animation:wave 1s ease-in-out infinite}
+.flip.open .wave i:nth-child(odd){animation-delay:-.3s}.flip.open .wave i:nth-child(3n){animation-delay:-.6s}
+@keyframes wave{50%{height:100%}}
+
+/* 6 per il professore */
+.lap{position:absolute;left:0;right:0;top:50%;transform:translateY(-50%) rotate(-2deg);aspect-ratio:812/498}
+.s6 .laptop{position:static;width:100%;display:block}
+.screen{position:absolute;left:15.9%;top:8.6%;width:68.7%;height:69.9%;border-radius:4px;background:var(--paper);color:var(--ink);padding:4% 5%;overflow:hidden}
+.screen small{font-size:clamp(7px,.75vw,10px);letter-spacing:.2em;color:#6d8257}
+.screen b{display:block;font-size:clamp(10px,1.25vw,17px);margin:.6vh 0 1.2vh;letter-spacing:-.02em}
+.quiz{display:grid;gap:.8vh}
+.quiz button{border:1px solid #cfd9c3;background:#fff;border-radius:6px;padding:.7vh .8vw;text-align:left;font-size:clamp(9px,.95vw,13px);color:var(--ink);display:flex;justify-content:space-between;position:relative;overflow:hidden}
+.quiz button i{position:absolute;inset:0 auto 0 0;width:0;background:#c5f47677;transition:width .9s cubic-bezier(.2,.8,.2,1);z-index:0}
+.quiz button span{position:relative;z-index:1}
+.quiz.answered button i{width:var(--w)}
+.quiz button.right{border-color:#7b9262;font-weight:600}
+.quiz button.wrong{border-color:#d39273}
+
+/* 7 come lavoriamo */
+.steps{position:absolute;inset:8% 0 16%;display:grid;gap:2vh;align-content:center}
+.step{display:flex;gap:1.2vw;align-items:center;padding:2vh 1.4vw;border-radius:12px;border:1px solid #34462a;background:#151d13;opacity:.35;transform:translateX(30px);transition:.6s cubic-bezier(.2,.8,.2,1)}
+.step.on{opacity:1;transform:none;border-color:var(--line);background:var(--card)}
+.step:not(.on){opacity:.6}
+.step .enc,.step .dec{font-family:ui-monospace,monospace;letter-spacing:.04em;color:#5d7444}
+.step b.enc,.step b.dec{color:#7b9262}
+.step i{flex:none;width:clamp(30px,3.4vw,46px);aspect-ratio:1;border-radius:50%;background:var(--lime);color:var(--ink);display:grid;place-items:center;font-style:normal;font-weight:700}
+.step b{display:block;font-size:clamp(13px,1.5vw,20px);font-weight:500}
+.step small{font-size:clamp(10px,1.05vw,13px);color:var(--muted)}
+
+/* 8 offerta */
+.s8 .laureata{right:-4%;bottom:0;height:90%;transform:translateX<mark>(30%)</mark>;opacity:0;transition:transform .9s cubic-bezier(.2,.8,.2,1) .2s,opacity .5s .2s}
+.s8.on .laureata{transform:none;opacity:1}
+.prices{display:flex;gap:1vw;margin:0 0 2.4vh}
+.price{padding:1.8vh 1.2vw;border:1px solid var(--line);border-radius:12px;background:var(--card);min-width:9em}
+.price b{display:block;font-size:clamp(26px,3.4vw,46px);font-weight:500;color:var(--lime);letter-spacing:-.04em;line-height:1}
+.price span{font-size:clamp(10px,1.05vw,13px);color:var(--muted)}
+/* prezzo pieno barrato e prezzo per studenti universitari */
+.price{position:relative}
+.price s{display:block;margin-bottom:.35em;font-size:clamp(12px,1.35vw,19px);color:var(--muted);text-decoration:line-through 2px #ff6b5e}
+.price em{position:absolute;top:-.95em;right:.9em;padding:.28em .7em;border-radius:20px;background:var(--lime);color:#14200f;font-weight:600;font-size:clamp(9px,.85vw,11px);line-height:1;font-style:normal;letter-spacing:.02em}
+.confetti{position:absolute;inset:0;pointer-events:none;overflow:hidden;z-index:5}
+.confetti i{position:absolute;top:-4vh;width:9px;height:14px;border-radius:2px;animation:fall 1.8s cubic-bezier(.3,.6,.6,1) forwards}
+@keyframes fall{0%{transform:translate(0,0) rotate(0)}50%{transform:translate(4vw,55vh) rotate(300deg)}100%{transform:translate(-3vw,112vh) rotate(720deg)}}
+.s8.party .laureata{animation:hop .55s cubic-bezier(.3,0,.5,1) 8 alternate}
+@keyframes hop{to{transform:translateY(-4vh) rotate(-2deg)}}
+@media(prefers-reduced-motion:reduce){*{transition-duration:.01s!important;animation:none!important}}
+*:focus,*:focus-visible{outline:none!important}*{-webkit-tap-highlight-color:transparent}
+/* movimento col mouse: i livelli a destra si spostano a profondità diverse (valori aggiornati in modo morbido dallo script) */
+.slide.on .visual>*{translate:calc(var(--mx,0) * var(--d,16px)) calc(var(--my,0) * var(--d,16px) * .6)}
+.slide.on .visual>img.cut,.slide.on .visual>img{--d:30px;rotate:calc(var(--mx,0) * 1.4deg)}
+.slide.on .visual>:nth-child(even):not(img){--d:-14px}
+.s1.on .visual>.minis{--d:40px}
+@media(prefers-reduced-motion:reduce){.slide .visual>*{translate:none!important;rotate:none!important}}
+/* tasto condividi accanto a "Slide interattive / Università" */
+.share{display:inline-flex;align-items:center;gap:.5vw;padding:.7vh 1vw;border-radius:999px;border:1px solid #c5f47655;background:#c5f47612;color:#e6f2d6;font-size:clamp(10px,.95vw,13px);letter-spacing:.04em;cursor:pointer;position:relative;transition:background .2s,border-color .2s}
+.share:hover{background:#c5f4762c;border-color:var(--lime)}
+.share svg{width:1.15em;height:1.15em;color:var(--lime)}
+.share-said{position:absolute;top:calc(100% + 8px);right:0;white-space:nowrap;padding:6px 10px;border-radius:6px;background:var(--lime);color:var(--ink,#172015);font-size:12px;letter-spacing:0}
+</style></head>
+<body>
+<header><b>CSD Station</b><div class="hdr"><span>SLIDE INTERATTIVE / UNIVERSITÀ</span><button class="share" id="share" type="button" aria-label="Condividi: Slide interattive Università"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 15V3m0 0L7.5 7.5M12 3l4.5 4.5M5 12v7a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-7" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>Condividi</button></div></header>
+<main class="deck" id="deck">
+
+<section class="slide s1" data-done="1">
+  <div><span class="label">Tesi · tesine · lezioni</span>
+    <h1>Da <em>110 e lode.</em></h1>
+    <p>La discussione dura pochi minuti: con le slide animate la commissione capisce subito il tuo lavoro, e tu lo racconti senza perdere il filo.</p></div>
+  <div class="visual"><div class="minis"><div class="mini m1"><small>RISULTATI</small><span class="mb"><i style="height:40%"></i><i style="height:65%"></i><i style="height:90%"></i><i style="height:55%"></i></span></div><div class="mini m2"><small>METODO</small><span class="md"></span></div><div class="mini m3"><small>DOMANDA</small><span class="ml"><i></i><i></i><i></i></span></div></div><img class="cut corona" id="corona" src="uni/corona.webp" alt="Neolaureato con la corona d'alloro"></div>
+</section>
+
+<section class="slide s2" data-need="trim">
+  <div><span class="label">Il problema / 02</span>
+    <h1>80 pagine.<br><em>10 minuti.</em></h1>
+    <p>La commissione ha già ascoltato altre trenta tesi. Se le slide sono muri di testo, si perde dopo la seconda.</p>
+    <button class="act" data-do="trim">Sfoltisci la tesi ✂︎</button><span class="hint">Clicca e guarda cosa resta</span></div>
+  <div class="visual"><img class="cut libri" src="uni/libri.webp" alt="Pila di libri"><div class="counter"><b id="pages">80</b><span>pagine da raccontare</span></div>
+    <div class="one"><small>UNA SLIDE · UN'IDEA</small><strong>Il 70% degli studenti arriva al campus senza auto.</strong></div></div>
+</section>
+
+<section class="slide s3" data-need="after">
+  <div><span class="label">Prima e dopo / 03</span>
+    <h1>Stesso dato.<br><em>Altro effetto.</em></h1>
+    <p>Il contenuto resta il tuo: noi lo studiamo e cambiamo il modo in cui arriva.</p>
+    <ul class="gains"><li><b>Una pagina intera</b> diventa una scheda</li><li><b>5 percentuali</b> diventano un grafico</li><li><b>2 secondi</b> per capire il risultato</li></ul>
+    <div class="switch" role="group" aria-label="Confronto"><button aria-pressed="true" data-do="before">Prima</button><button aria-pressed="false" data-do="after">Dopo</button></div><span class="hint" id="cmpHint">Premi “Dopo”: le parole cadono e restano i dati</span></div>
+  <div class="visual"><div class="compare" id="compare">
+    <div class="before"><h4>3.2 Risultati dell'indagine sulla mobilità</h4>Dal questionario somministrato a un campione di 240 studenti nel periodo considerato emerge che il mezzo di trasporto più utilizzato per raggiungere la sede è costituito da autobus e treno <mark>(40%)</mark>, seguito dall'automobile privata <mark>(30%)</mark>, dalla bicicletta <mark>(20%)</mark> e infine dagli spostamenti a piedi <mark>(10%)</mark>. Complessivamente la quota di studenti che utilizza modalità alternative all'automobile risulta <mark>pari al 70% del campione</mark>, dato che suggerisce una propensione significativa verso forme di mobilità sostenibile, pur con le limitazioni metodologiche descritte nel paragrafo 2.4 relative alla rappresentatività del campione e all'assenza di informazioni su distanza e frequenza degli spostamenti, che verranno discusse nelle conclusioni.
+      <p class="pp">Il dato relativo alla bicicletta, pur minoritario, assume rilievo se confrontato con la distanza media dichiarata dagli studenti residenti in città, mentre la quota di spostamenti a piedi resta contenuta e riconducibile prevalentemente agli studenti fuori sede che alloggiano in prossimità della sede universitaria¹.</p>
+      <table><caption>Tabella 3.1 · Mezzo di trasporto principale (n = 240)</caption><tr><th>Mezzo</th><th>Studenti</th><th>Quota</th></tr><tr><td>Autobus e treno</td><td>96</td><td>40%</td></tr><tr><td>Automobile</td><td>72</td><td>30%</td></tr><tr><td>Bicicletta</td><td>48</td><td>20%</td></tr><tr><td>A piedi</td><td>24</td><td>10%</td></tr></table>
+      <p class="pp">I risultati, letti nel complesso, confermano l’ipotesi iniziale e verranno ripresi nel capitolo 4, dedicato alle proposte operative per l’ateneo.</p>
+      <small class="fn">¹ Dati simulati a scopo dimostrativo, campione ipotetico di 240 studenti, ottobre 2026.</small><span class="pg">— 27 —</span></div>
+    <div class="after"><small class="from">DAL PARAGRAFO 3.2 · 240 STUDENTI</small><h4>7 studenti su 10<br>arrivano senza auto</h4><p class="lead">Bus e treno sono il mezzo più usato; l’auto si ferma al 30%.</p>
+      <div class="after-row"><div class="donut" id="donut"><b id="donutN">0%</b><i class="dl">senza auto</i></div><div class="hb"><div class="g" style="--v:40;--k:0;--c:#9fc35c"><span>🚌 Bus e treno</span><i></i><b>40%</b></div><div class="a" style="--v:30;--k:1;--c:#e0896b"><span>🚗 Auto</span><i></i><b>30%</b></div><div class="g" style="--v:20;--k:2;--c:#4fa79e"><span>🚲 Bici</span><i></i><b>20%</b></div><div class="g" style="--v:10;--k:3;--c:#e4c76b"><span>🚶 A piedi</span><i></i><b>10%</b></div></div></div>
+      <div class="sum"><div><em>📋</em><b>Il metodo</b>Questionario a 240 studenti, una sola risposta.</div><div><em>🚌</em><b>Il risultato</b>Bus e treno sono il mezzo più usato.</div><div><em>⚠️</em><b>I limiti</b>Campione simulato, niente distanze.</div></div>
+      <small class="ppl-t">Dopo: un colpo d’occhio · 7 su 10 senza auto</small><div class="ppl"><i style="--k:0" class="g"><svg viewBox="0 0 24 32"><circle cx="12" cy="7" r="6"/><path d="M2 31c0-8 4-13 10-13s10 5 10 13z"/></svg></i><i style="--k:1" class="g"><svg viewBox="0 0 24 32"><circle cx="12" cy="7" r="6"/><path d="M2 31c0-8 4-13 10-13s10 5 10 13z"/></svg></i><i style="--k:2" class="g"><svg viewBox="0 0 24 32"><circle cx="12" cy="7" r="6"/><path d="M2 31c0-8 4-13 10-13s10 5 10 13z"/></svg></i><i style="--k:3" class="g"><svg viewBox="0 0 24 32"><circle cx="12" cy="7" r="6"/><path d="M2 31c0-8 4-13 10-13s10 5 10 13z"/></svg></i><i style="--k:4" class="g"><svg viewBox="0 0 24 32"><circle cx="12" cy="7" r="6"/><path d="M2 31c0-8 4-13 10-13s10 5 10 13z"/></svg></i><i style="--k:5" class="g"><svg viewBox="0 0 24 32"><circle cx="12" cy="7" r="6"/><path d="M2 31c0-8 4-13 10-13s10 5 10 13z"/></svg></i><i style="--k:6" class="g"><svg viewBox="0 0 24 32"><circle cx="12" cy="7" r="6"/><path d="M2 31c0-8 4-13 10-13s10 5 10 13z"/></svg></i><i style="--k:7" class="a"><svg viewBox="0 0 24 32"><circle cx="12" cy="7" r="6"/><path d="M2 31c0-8 4-13 10-13s10 5 10 13z"/></svg></i><i style="--k:8" class="a"><svg viewBox="0 0 24 32"><circle cx="12" cy="7" r="6"/><path d="M2 31c0-8 4-13 10-13s10 5 10 13z"/></svg></i><i style="--k:9" class="a"><svg viewBox="0 0 24 32"><circle cx="12" cy="7" r="6"/><path d="M2 31c0-8 4-13 10-13s10 5 10 13z"/></svg></i></div>
+      <div class="legend"><span><i class="g"></i>Senza auto · 168</span><span><i class="a"></i>In auto · 72</span><span>Dati simulati · 240 studenti</span></div></div>
+    </div>
+  </div></div>
+</section>
+
+<section class="slide s4" data-need="reveal">
+  <div><span class="label">Dato per dato / 04</span>
+    <h1>Ogni clic,<br><em>un passo.</em></h1>
+    <p>Il grafico si svela quando lo decidi tu, così l'attenzione resta sul dato di cui stai parlando e non su quelli che vengono dopo.</p>
+    <button class="act" data-do="reveal">Mostra il prossimo dato →</button><span class="hint" id="revealHint">0 di 4 dati mostrati</span></div>
+  <div class="visual"><div class="verdict" id="verdict">Conclusione: 70% usa un'alternativa all'auto</div>
+    <div class="bars" id="bars"><div><em data-v="40%">?</em><i style="height:100%"></i><span>Bus e treno</span></div><div><em data-v="30%">?</em><i style="height:75%"></i><span>Auto</span></div><div><em data-v="20%">?</em><i style="height:50%"></i><span>Bici</span></div><div><em data-v="10%">?</em><i style="height:25%"></i><span>A piedi</span></div></div><img class="cut mano" id="mano" src="uni/mano.webp" alt=""></div>
+</section>
+
+<section class="slide s5" data-need="flip3">
+  <div><span class="label">Per gli studenti / 05</span>
+    <h1>Tesi, tesina<br><em>o esame orale.</em></h1>
+    <p>Gira le tre schede: per ogni occasione la presentazione lavora in modo diverso.</p>
+    <span class="hint" id="flipHint">Clicca sulle schede · 0 di 3</span></div>
+  <div class="visual"><div class="flips">
+    <button class="flip" data-do="flip"><span class="front" data-n="01"><small>LAUREA</small><img src="uni/libri.webp" alt="Libri"><b>Tesi</b><em>Gira la scheda ↻</em></span><span class="back"><b>La commissione segue il filo.</b><p>Domanda, metodo e risultati in sequenza: tu parli, il grafico arriva al momento giusto.</p><span class="art"><span class="steps3"><span>1 · La domanda</span><span>2 · Il metodo</span><span>3 · I risultati</span></span></span></span></button>
+    <button class="flip" data-do="flip"><span class="front" data-n="02"><small>MATURITÀ</small><img src="uni/mappamondo.webp" alt="Mappamondo"><b>Tesina</b><em>Gira la scheda ↻</em></span><span class="back"><b>Le materie si collegano.</b><p>Una mappa che si apre al clic e mostra i collegamenti tra le materie.</p><span class="art"><svg class="map" viewBox="8 0 144 80"><line x1="80" y1="34" x2="28" y2="16"/><line x1="80" y1="34" x2="132" y2="16"/><line x1="80" y1="34" x2="80" y2="58"/><circle class="c" cx="80" cy="34" r="14"/><circle cx="28" cy="16" r="9"/><circle cx="132" cy="16" r="9"/><circle cx="80" cy="58" r="8"/><text x="80" y="37">Tema</text><text x="28" y="34">Storia</text><text x="132" y="34">Scienze</text><text x="80" y="77">Letteratura</text></svg></span></span></button>
+    <button class="flip" data-do="flip"><span class="front" data-n="03"><small>ESAMI</small><img src="uni/microfono.webp" alt="Microfono"><b>Orale</b><em>Gira la scheda ↻</em></span><span class="back"><b>Le slide ti fanno da scaletta.</b><p>Una parola chiave per slide: niente da leggere, solo da raccontare.</p><span class="art"><span class="keys"><span>campus</span><span>70%</span><span>bici</span><span>limiti</span></span><span class="wave"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></span></span></span></button>
+  </div></div>
+</section>
+
+<section class="slide s6" data-need="quiz">
+  <div><span class="label">Per i professori / 06</span>
+    <h1>Lezioni seguite<br><em>fino all'ultima fila.</em></h1>
+    <p>Domande a cui la classe risponde, risultati che compaiono sul momento: la lezione diventa una conversazione. Prova tu.</p>
+    <span class="hint">Rispondi alla domanda sullo schermo</span></div>
+  <div class="visual"><div class="lap"><img class="cut laptop" src="uni/laptop.webp" alt="Laptop">
+    <div class="screen" id="screen"><small>DOMANDA PER LA CLASSE</small><b>Come arriva al campus la maggior parte degli studenti?</b>
+      <div class="quiz" id="quiz"><button data-do="answer" style="--w:30%"><i></i><span>In auto</span><span>30%</span></button><button data-do="answer" data-right style="--w:40%"><i></i><span>In bus o in treno</span><span>40%</span></button><button data-do="answer" style="--w:20%"><i></i><span>In bici</span><span>20%</span></button></div></div></div></div>
+</section>
+
+<section class="slide s7" data-need="steps">
+  <div><span class="label">Come lavoriamo / 07</span>
+    <h1>Ci mandi la tesi.<br><em>Al resto pensa Otto.</em></h1>
+    <p>Non serve saper usare programmi di animazione: partiamo dal tuo testo e dai tuoi dati, e ti consegniamo la presentazione pronta.</p>
+    <button class="act" data-do="step">Passo successivo →</button><span class="hint" id="stepHint">1 di 3</span></div>
+  <div class="visual"><div class="steps" id="steps">
+    <div class="step on"><i>1</i><div><b>Mandi testi, dati e immagini</b><small>Anche solo il capitolo dei risultati e l'indice.</small></div></div>
+    <div class="step"><i>2</i><div><b>Costruiamo slide e animazioni</b><small>Grafici, mappe e passaggi al clic, con il tuo stile.</small></div></div>
+    <div class="step"><i>3</i><div><b>Le provi e le presenti</b><small>Dal browser, in aula o anche come immagini.</small></div></div>
+  </div></div>
+</section>
+
+<section class="slide s8" data-need="party">
+  <div><span class="label">La tua presentazione / 08</span>
+    <h1>Pronti per<br><em>il 110 e lode?</em></h1>
+    <div class="prices"><div class="price"><em>Studenti −50%</em><s>49 €</s><b>24,50 €</b><span>15 slide interattive</span></div><div class="price"><em>Studenti −50%</em><s>99 €</s><b>49,50 €</b><span>ogni minuto di video motion</span></div></div>
+    <button class="act solid" data-do="party">Festeggia 🎉</button> <a class="act" href="https://wa.me/393518628203?text=Ciao%20Carlo!%20Vorrei%20le%20slide%20animate%20per%20la%20mia%20tesi." target="_blank" rel="noopener">Scrivici su WhatsApp</a></div>
+  <div class="visual"><img class="cut laureata" src="uni/laureata.webp" alt="Neolaureata con il diploma"></div>
+</section>
+
+<div class="otto-wrap" id="otto"></div><div class="say" id="say"></div><div class="confetti" id="confetti"></div>
+</main>
+<footer><button id="prev">← Indietro</button><div class="dots" id="dots"></div><button id="next">Avanti →</button></footer>
+<div class="note">Caso dimostrativo CSD Station: dati simulati. Foto da Unsplash. Usa anche le frecce della tastiera.</div>
+<script>
+const otto="<div class=\"otto\"><div class=\"otto-aerial\"><i></i></div><div class=\"otto-ear ear-left\"></div><div class=\"otto-ear ear-right\"></div><div class=\"otto-head\"><div class=\"otto-face\"><i class=\"otto-eye\"></i><i class=\"otto-eye\"></i><span class=\"otto-mouth\"></span></div><span class=\"otto-cheek cheek-left\"></span><span class=\"otto-cheek cheek-right\"></span></div><div class=\"otto-arm arm-left\"></div><div class=\"otto-arm arm-right\"></div><div class=\"otto-body\"><span>OTTO</span><i></i><div class=\"otto-vents\">\u00b7\u00b7\u00b7</div></div><div class=\"otto-foot foot-left\"></div><div class=\"otto-foot foot-right\"></div><div class=\"otto-shadow\"></div></div>";
+const $=s=>document.querySelector(s), slides=[...document.querySelectorAll('.slide')];
+let index=0;
+$('#otto').innerHTML=otto;
+// cosa dice Otto su ogni slide, prima e dopo l'interazione
+const lines=[
+  ['Ciao, sono Otto! Premi Avanti e partiamo.','Ciao, sono Otto! Premi Avanti e partiamo.'],
+  ['Ottanta pagine? Proviamo a sfoltire.','Da 80 pagine a 30 slide: c’è tutto, senza muri di testo.'],
+  ['Premi “Dopo” e guarda cosa succede alle parole.','Stessa pagina, ma si capisce al primo sguardo.'],
+  ['Un clic, un dato: tocca a te.','Ecco la conclusione che volevi far arrivare.'],
+  ['Gira le schede, una alla volta.','Tre occasioni, tre presentazioni diverse.'],
+  ['Rispondi come farebbe la classe.','Ecco i risultati, in diretta.'],
+  ['Premi “Passo successivo” per scoprire come lavoriamo.','Tre passi, e la presentazione è pronta.'],
+  ['La tua tesi merita slide così. Premi “Festeggia”!','Quando vuoi, scrivimi su WhatsApp.']];
+// dentro il sito il fumetto lo mostra la pagina, fuori dal riquadro; aperta da sola, lo mostra la slide
+const embedded=window.parent!==window;if(embedded)document.body.classList.add('embedded');
+const say=(t,happy=false)=>{if(embedded){parent.postMessage({csd:'otto',text:t,happy},location.origin);return}const b=$('#say');b.classList.remove('show');setTimeout(()=>{b.textContent=t;b.classList.add('show')},120)};
+// le slide si vendono senza audio: le chiamate restano ma non suonano
+const SFX=new Proxy({},{get:()=>()=>{}});
+const dots=$('#dots');slides.forEach(()=>dots.append(document.createElement('i')));
+const ready=()=>{$('#next').classList.toggle('ready',index<slides.length-1);say(lines[index][1],true);document.querySelector('.otto').classList.add('otto-happy')};
+function go(i){index=Math.max(0,Math.min(slides.length-1,i));slides.forEach((s,k)=>s.classList.toggle('on',k===index));[...dots.children].forEach((d,k)=>d.classList.toggle('on',k===index));$('#prev').disabled=index===0;$('#next').disabled=index===slides.length-1;$('#next').classList.remove('ready');const o=document.querySelector('.otto');o.classList.remove('otto-happy');$('#otto').classList.toggle('big',index===0);say(lines[index][0]);if(slides[index].dataset.done)ready()}
+$('#prev').onclick=()=>{SFX.swish();go(index-1)};$('#next').onclick=()=>{SFX.swish();go(index+1)};
+window.addEventListener('keydown',e=>{if(e.key==='ArrowRight'){SFX.swish();go(index+1)}if(e.key==='ArrowLeft'){SFX.swish();go(index-1)}});
+const done=s=>{s.dataset.done=1;ready()};
+// interazioni
+let revealed=0,flipped=0,step=1;
+document.addEventListener('click',e=>{const b=e.target.closest('[data-do]');if(!b)return;const s=b.closest('.slide'),a=b.dataset.do;
+  if(a==='start'){SFX.swish();go(1)}
+  if(a==='trim'){b.classList.add('done');s.classList.add('cut-done');const v=s.querySelector('.visual'),lb=s.querySelector('.libri').getBoundingClientRect(),vb=v.getBoundingClientRect();
+    // sedici pagine si staccano dalla pila e volano via, ognuna con la sua traiettoria
+    for(let k=0;k<16;k++){const p=document.createElement('i');p.className='sheet';p.style.left=(lb.left-vb.left+lb.width*(.25+Math.random()*.4))+'px';p.style.top=(lb.top-vb.top+lb.height*(.1+Math.random()*.5))+'px';v.append(p);if(k%3===0)SFX.paper(k*.055);
+      const dx=(Math.random()<.5?-1:1)*(80+Math.random()*260),up=-(120+Math.random()*180),r=(Math.random()-.5)*720;
+      p.animate([{transform:'translate(0,0) rotate(0)',opacity:1},{transform:`translate(${dx*.55}px,${up}px) rotate(${r*.5}deg)`,opacity:1,offset:.45},{transform:`translate(${dx}px,${up*.2+260}px) rotate(${r}deg)`,opacity:0}],{duration:1300+Math.random()*500,delay:k*55,easing:'cubic-bezier(.25,.6,.4,1)',fill:'forwards'}).onfinish=()=>p.remove()}
+    SFX.land(2.2);let n=80;const t=setInterval(()=>{n=Math.max(30,n-3);$('#pages').textContent=n;if(n===30){clearInterval(t);$('#pages').textContent='30 slide';$('#pages').nextElementSibling.innerHTML='per 80 pagine · 2 pacchetti da 49 €';s.classList.add('trimmed');done(s)}},60)}
+  if(a==='before'||a==='after'){const after=a==='after',cmp=$('#compare');if(after===cmp.classList.contains('is-after')||cmp.dataset.busy)return;s.querySelectorAll('.switch button').forEach(x=>x.setAttribute('aria-pressed',x===b));
+    if(!after){SFX.click();resetWords();cmp.classList.remove('is-after');s.classList.remove('cmp-after');$('#cmpHint').textContent='Premi “Dopo”: le parole cadono e restano i dati';return}
+    // le parole del paragrafo cadono per gravità, poi la scheda si riempie con i dati
+    cmp.dataset.busy=1;SFX.click();dropWords();for(let k=0;k<14;k++)SFX.tick(.1+k*.07);SFX.rise(1.05);SFX.pop(1.35);
+    setTimeout(()=>{cmp.classList.add('is-after');s.classList.add('cmp-after');$('#cmpHint').textContent='Torna su “Prima” per confrontare';let p=0;const t=setInterval(()=>{p=Math.min(100,p+2.5);$('#donut').style.setProperty('--p',p);$('#donutN').firstChild.textContent=Math.round(p*.7)+'%';if(p===100){clearInterval(t);delete cmp.dataset.busy;done(s)}},18)},1150)}
+  if(a==='reveal'){if(revealed<4&&!b.disabled){SFX.click(.48);SFX.pop(.64)}const bars=[...document.querySelectorAll('#bars div')];if(revealed>=bars.length||b.disabled)return;const k=revealed,bar=bars[k],m=$('#mano');revealed++;b.disabled=true;pointAt(k);setTimeout(()=>{m.classList.remove('tap');void m.offsetWidth;m.classList.add('tap')},480);setTimeout(()=>{bar.classList.add('on');const em=bar.querySelector('em');em.textContent=em.dataset.v;$('#revealHint').textContent=revealed+' di 4 dati mostrati';b.disabled=false;if(revealed===bars.length){b.classList.add('done');setTimeout(()=>{bars[1].classList.add('dim');$('#verdict').classList.add('show');m.style.opacity=0;done(s)},700)}},640)}
+  if(a==='flip'&&!b.classList.contains('open')){SFX.flip();b.classList.add('open');flipped++;$('#flipHint').textContent='Clicca sulle schede · '+flipped+' di 3';if(flipped===3)done(s)}
+  if(a==='answer'){const q=$('#quiz');if(q.classList.contains('answered'))return;if(b.hasAttribute('data-right'))SFX.right();else{SFX.buzz();SFX.right(.3)}q.classList.add('answered');q.querySelectorAll('button').forEach(x=>x.classList.add(x.hasAttribute('data-right')?'right':(x===b?'wrong':'')||'x'));setTimeout(()=>done(s),700)}
+  if(a==='step'){SFX.click();SFX.pop(.1);const st=document.querySelectorAll('#steps .step');if(step<st.length){st[step].classList.add('on');decrypt(st[step]);step++;$('#stepHint').textContent=step+' di 3'}if(step===st.length){b.classList.add('done');done(s)}}
+  if(a==='party'){if(b.disabled)return;b.disabled=true;b.classList.add('done');s.classList.add('party');const c=$('#confetti'),W=c.clientWidth,H=c.clientHeight,cols=['#c5f476','#f6f7f2','#9fc35c','#e4c76b','#7b9262'];
+    // due cannoni in basso sparano per tre secondi senza pause; ogni coriandolo segue una parabola con gravità e ondeggia
+    const shoot=()=>{for(const side of [0,1]){const i=document.createElement('i'),x0=side?W*.96:W*.04,y0=H*.98,ang=(side?-1:1)*(.18+Math.random()*.42),v=H*(1.25+Math.random()*.6),vx=Math.sin(ang)*v,vy=-Math.cos(ang)*v,g=H*1.6,T=2.6+Math.random()*1.2,spin=(Math.random()-.5)*1800,sway=12+Math.random()*24;
+      i.style.cssText=`left:${x0}px;top:${y0}px;background:${cols[(Math.random()*5)|0]};width:${5+Math.random()*7}px;height:${8+Math.random()*8}px;animation:none`;c.append(i);
+      const kf=[];for(let k=0;k<=12;k++){const t=k/12*T,drag=1-Math.min(.55,t*.18);kf.push({transform:`translate(${vx*t*drag+Math.sin(t*6)*sway}px,${vy*t+.5*g*t*t}px) rotate(${spin*t/T}deg) rotateX(${t*540}deg)`,opacity:k>10?0:1})}
+      i.animate(kf,{duration:T*1000,easing:'linear',fill:'forwards'}).onfinish=()=>i.remove()}};
+    let n=0;const gun=setInterval(()=>{shoot();if(++n>75)clearInterval(gun)},40);
+    setTimeout(()=>{s.classList.remove('party');done(s)},5200)}
+});
+// il paragrafo di prima viene spezzato in parole, così può cadere pezzo per pezzo
+(function(){const root=document.querySelector('.before');const walk=n=>[...n.childNodes].forEach(c=>{if(c.nodeType===3){const f=document.createDocumentFragment();c.textContent.split(/(\s+)/).forEach(w=>{if(!w)return;if(/^\s+$/.test(w))f.append(w);else{const sp=document.createElement('span');sp.className='w';sp.textContent=w;f.append(sp)}});c.replaceWith(f)}else if(c.nodeType===1)walk(c)});walk(root)})();
+function dropWords(){const box=$('#compare').getBoundingClientRect();document.querySelectorAll('.before .w').forEach(w=>{const r=w.getBoundingClientRect(),fall=box.bottom-r.top+30+Math.random()*80,d=Math.random()*380+(r.top-box.top)/box.height*320;
+  w.animate([{transform:'none'},{transform:`translate(${(Math.random()-.5)*50}px,${fall}px) rotate(${(Math.random()-.5)*200}deg)`}],{duration:600+Math.random()*350,delay:d,easing:'cubic-bezier(.55,0,1,.45)',fill:'forwards'})})}
+function resetWords(){document.querySelectorAll('.before .w').forEach(w=>w.getAnimations().forEach(a=>a.cancel()))}
+// slide 7: i passi non ancora sbloccati mostrano testo criptato che cambia di continuo; al clic si decifra lettera per lettera
+const GLYPHS='ABCDEFGHJKLMNPQRSTUVWXYZ0123456789#%&@$*+=<>/';
+const scramble=t=>t.replace(/\S/g,()=>GLYPHS[(Math.random()*GLYPHS.length)|0]);
+const encEls=[];document.querySelectorAll('#steps .step:not(.on)').forEach(st=>st.querySelectorAll('b,small').forEach(el=>{el.dataset.t=el.textContent;el.classList.add('enc');el.textContent=scramble(el.dataset.t);encEls.push(el)}));
+setInterval(()=>{if(!slides[6].classList.contains('on'))return;encEls.forEach(el=>{if(el.classList.contains('enc'))el.textContent=scramble(el.dataset.t)})},110);
+function decrypt(st){st.querySelectorAll('.enc').forEach(el=>{el.classList.replace('enc','dec');const t=el.dataset.t;let k=0;const steps=22;const tm=setInterval(()=>{k++;const n=Math.floor(t.length*k/steps);el.textContent=t.slice(0,n)+scramble(t.slice(n));if(k>=steps){clearInterval(tm);el.textContent=t;el.classList.remove('dec')}},28)})}
+function pointAt(k){const bar=document.querySelectorAll('#bars div')[k],m=$('#mano'),v=m.parentElement;if(!bar||!v.offsetWidth)return;const vb=v.getBoundingClientRect(),i=bar.querySelector('i').getBoundingClientRect();m.style.left=(i.left-vb.left+i.width*.45)+'px';m.style.top=(i.top-vb.top-m.offsetHeight*.62)+'px'}
+new MutationObserver(()=>{if(slides[3].classList.contains('on'))setTimeout(()=>pointAt(Math.max(0,revealed-1)),60)}).observe(slides[3],{attributes:true,attributeFilter:['class']});
+window.addEventListener('resize',()=>pointAt(Math.max(0,revealed-1)));
+go(Number(location.hash.replace('#slide-',''))-1||0);
+</script>
+<script>
+// movimento col mouse, morbido: un solo aggiornamento per fotogramma e solo mentre il mouse si muove
+(()=>{const deck=document.getElementById('deck'),root=document.documentElement;let tx=0,ty=0,cx=0,cy=0,raf=0;
+const tick=()=>{cx+=(tx-cx)*.1;cy+=(ty-cy)*.1;root.style.setProperty('--mx',cx.toFixed(4));root.style.setProperty('--my',cy.toFixed(4));raf=Math.abs(tx-cx)+Math.abs(ty-cy)>.0008?requestAnimationFrame(tick):0};
+deck.addEventListener('pointermove',e=>{if(e.pointerType!=='mouse')return;const r=deck.getBoundingClientRect();tx=(e.clientX-r.left)/r.width-.5;ty=(e.clientY-r.top)/r.height-.5;if(!raf)raf=requestAnimationFrame(tick)});
+deck.addEventListener('pointerleave',()=>{tx=ty=0;if(!raf)raf=requestAnimationFrame(tick)});})();
+// tasto condividi: il link apre la pagina Video & Slide direttamente su questa presentazione
+(()=>{const b=document.getElementById('share');b.addEventListener('click',async e=>{e.stopPropagation();const url=location.origin+'/video-slide/?slide=universita',title='Da 110 e lode · Slide interattive CSD Station';
+ if(navigator.share&&matchMedia('(pointer: coarse)').matches){try{await navigator.share({title,url});return}catch(err){if(err.name==='AbortError')return}}
+ try{await navigator.clipboard.writeText(url);const s=document.createElement('span');s.className='share-said';s.textContent='Link copiato';b.append(s);setTimeout(()=>s.remove(),1800)}catch{prompt('Copia il link della presentazione',url)}})})();
+</script>
+</body></html>
