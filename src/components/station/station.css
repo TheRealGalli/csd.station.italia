@@ -14,7 +14,7 @@
 .station-header{height:88px;background:#101510f7;color:#f5f7ee;position:sticky;top:0;z-index:60;border-bottom:1px solid #ffffff14}
 .station-nav{height:100%;display:flex;align-items:center;justify-content:space-between;gap:30px}
 .station-brand{display:flex;align-items:center;gap:11px;font-size:25px;letter-spacing:-1.2px;color:#f2f5ed;font-weight:650;line-height:1.1;white-space:nowrap}
-.brand-light{font-weight:400}.station-brand small{display:block;font-size:7px;letter-spacing:2.4px;margin-top:7px;color:#a1ada0;font-weight:500}
+.brand-light{font-weight:400}.station-brand small{display:block;font-size:6.5px;letter-spacing:.75px;line-height:1.65;margin-top:6px;color:#a1ada0;font-weight:500}.station-brand small>span{display:block}
 .brand-symbol{width:32px;height:36px;display:flex;flex-direction:column;gap:4px;justify-content:center;transform:skewY(-15deg)}
 .brand-symbol i{height:6px;display:block;border:1px solid #c5f476;border-radius:2px}.brand-symbol i:nth-child(2){width:26px}.brand-symbol i:nth-child(3){width:20px;background:#c5f476}
 .station-links{display:flex;gap:29px;align-items:center;font-size:12px;color:#c5cac2}.station-links a{transition:color .2s;white-space:nowrap}.station-links a:hover,.station-links a.active{color:#c5f476}.nav-dot{display:inline-block;background:#c5f476;border-radius:50%;width:5px;height:5px;vertical-align:middle;margin-left:4px}

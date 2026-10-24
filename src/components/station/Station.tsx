@@ -23,7 +23,7 @@ const whatsapp = (message: string) => `https://wa.me/393518628203?text=${encodeU
 const consultingContact = whatsapp('Ciao Carlo! Vorrei informazioni sull’intelligenza artificiale e sulle vostre consulenze informatiche.');
 const processContact = whatsapp('Ciao Carlo! Vorrei capire come automatizzare le attività ripetitive nella mia attività. Possiamo parlarne?');
 const skills = 'https://www.skills.google/public_profiles/4a3ed6b8-9f55-463f-83a6-8c218717a8fd';
-export function Brand() { return <span className="station-brand"><span className="brand-symbol"><i/><i/><i/></span><span>CSD<span className="brand-light"> Station</span><small>CONSULENZA · AI · NFC</small></span></span>; }
+export function Brand() { return <span className="station-brand"><span className="brand-symbol"><i/><i/><i/></span><span>CSD<span className="brand-light"> Station</span><small><span>CONSULENZA AI · TRAINING · CARD NFC</span><span>SITO & SOCIAL · VIDEO & SLIDE · LEAD</span></small></span></span>; }
 // Le demo OS in un'unica voce: l'etichetta DEMO apre una nuvoletta per scegliere Restaurant OS o Notaro OS.
 // I link restano nell'HTML anche a nuvoletta chiusa, così i motori di ricerca li trovano.
 function DemoMenu({ active }: { active: ReturnType<typeof getOsProduct> }) {
