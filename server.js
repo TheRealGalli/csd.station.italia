@@ -293,7 +293,7 @@ app.get('/api/cron/send-monthly-reports', async (req, res) => {
   try {
     const { sendMonthlyReports } = await import('./scripts/send-monthly-reports.js');
     const result = await sendMonthlyReports();
-    return res.json({ success: true, message: 'Monthly report dispatch complete.', result });
+    return res.status(result.success ? 200 : 500).json({ success: result.success, message: 'Monthly report dispatch complete.', result });
   } catch (error) {
     console.error('[Cron API Error] Failed to send monthly reports:', error.message);
     return res.status(500).json({ error: 'Failed to send monthly reports', details: error.message });
