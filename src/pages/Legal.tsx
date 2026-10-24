@@ -9,7 +9,7 @@ import './legal.css';
 export type LegalDoc = 'privacy' | 'termini';
 type Section = { id: string; label: string; body: React.ReactNode };
 
-const UPDATED = '21 ottobre 2026';
+const UPDATED = '24 ottobre 2026';
 const mail = <a href="mailto:carlo@csd-station.it">carlo@csd-station.it</a>;
 
 const Owner = () => <div className="legal-card">
@@ -90,6 +90,17 @@ const privacy: Section[] = [
       <li><strong>Sessioni da remoto</strong> su Google Meet: valgono anche le condizioni di Google. Non registriamo le sessioni, salvo accordo scritto con l’azienda e informativa ai partecipanti.</li>
       <li><strong>Esercitazioni:</strong> chiediamo di usare dati di esempio. Se un partecipante inserisce dati aziendali o personali negli strumenti AI dell’azienda, lo fa secondo le regole e con gli account dell’azienda, che ne resta titolare.</li>
       <li><strong>Conservazione:</strong> elenchi dei partecipanti e materiali condivisi fino a 12 mesi dopo l’ultima sessione, per eventuali richiami; poi li cancelliamo.</li>
+    </ul>
+  </> },
+  { id: 'lead', label: 'Lead — riattivazione contatti', body: <>
+    <p>Il servizio riguarda il ricontatto, per conto di un’azienda o di un professionista, di persone già presenti nel suo archivio e legittimamente ricontattabili. La lista non viene raccolta attraverso questo sito: nel primo messaggio chiediamo di descriverla senza allegare dati di terzi.</p>
+    <ul>
+      <li><strong>Dati necessari:</strong> recapiti, nominativi, contesto del precedente interesse, documentazione sulla provenienza e sulle autorizzazioni, messaggi, risposte ed esiti utili a verificare il risultato. Chiediamo di escludere informazioni non pertinenti e dati particolari non necessari.</li>
+      <li><strong>Ruoli e istruzioni:</strong> prima di ricevere la lista definiamo per iscritto finalità, canali, strumenti, accessi e ruoli effettivi delle parti. Quando operiamo per conto e su istruzioni del Cliente come responsabile, sottoscriviamo l’atto previsto dall’art. 28 GDPR. Il ruolo non è determinato dalla sola etichetta contrattuale; se l’assetto richiede un ruolo diverso, lo definiamo con la relativa informativa prima di avviare i contatti.</li>
+      <li><strong>Base del ricontatto:</strong> il Cliente deve documentare i presupposti del trattamento e le autorizzazioni richieste per il canale e la finalità scelti. Il contratto con CSD Station e la consegna della lista non sostituiscono il consenso dei destinatari né le verifiche richieste. Le persone già opposte o con consenso revocato sono escluse.</li>
+      <li><strong>Strumenti e destinatari:</strong> il trasferimento della lista e gli eventuali servizi di invio, CRM o AI si concordano prima, verificando fornitori, accessi e trasferimenti fuori dallo SEE. Non riutilizziamo la lista per nostre campagne, non la vendiamo e non la inseriamo in strumenti AI senza un accordo e le verifiche necessarie.</li>
+      <li><strong>Opposizioni e diritti:</strong> ogni campagna prevede un modo semplice per interrompere i contatti. Registriamo e trasmettiamo al Cliente opposizioni e richieste ricevute, sospendendo i relativi ricontatti; quando agiamo come responsabile, assistiamo il titolare nella gestione dei diritti.</li>
+      <li><strong>Conservazione:</strong> a fine incarico restituiamo o cancelliamo lista e contenuti operativi entro 30 giorni, salvo diverso termine motivato e concordato. Restano soltanto i dati necessari a obblighi di legge, tutela dei diritti e rispetto delle opposizioni, per il tempo pertinente alla relativa finalità e secondo i ruoli definiti nell’accordo.</li>
     </ul>
   </> },
   { id: 'sito-social', label: 'Sito & Social', body: <>
@@ -182,6 +193,23 @@ const termini: Section[] = [
       <li><strong>Strumenti di terzi:</strong> il training usa gli strumenti e gli account dell’azienda; l’uso che i partecipanti ne fanno dopo il training, compresi i dati inseriti, resta sotto la responsabilità dell’azienda.</li>
       <li><strong>Attestati:</strong> l’eventuale attestato di partecipazione non è una certificazione ufficiale.</li>
     </ul>
+  </> },
+  { id: 'lead', label: 'Lead — riattivazione contatti', body: <>
+    <h3>Oggetto e accordo prima dell’avvio</h3>
+    <p>Il servizio è rivolto ad aziende e professionisti e consiste nella valutazione e nel ricontatto di una lista propria di contatti già interessati. Formato, leggibilità e conversione della lista sono verificati prima di accettare il lavoro. Canali, messaggi, offerta, tempi e gestione delle risposte sono concordati per iscritto; la semplice consegna di un elenco non autorizza l’avvio della campagna.</p>
+    <h3>Dichiarazioni sulla lista e documentazione</h3>
+    <p>Accettando l’incarico e consegnando la lista, il Cliente dichiara e garantisce che i dati sono stati raccolti lecitamente per le finalità concordate, che può comunicarli a CSD Station per eseguire il servizio e che dispone delle autorizzazioni necessarie a ricontattare ciascun destinatario sul canale prescelto. Conferma inoltre di avere escluso revoche del consenso e opposizioni e si impegna a documentare origine, informative e consensi applicabili, aggiornando tempestivamente tali informazioni.</p>
+    <p>Non accettiamo liste rubate, ottenute tramite scraping, estratte da siti o elenchi pubblici, acquistate per questa campagna o prive di provenienza verificabile. Il precedente interesse di una persona non equivale, da solo, al consenso a ricevere comunicazioni promozionali. Per eventuali contatti telefonici devono essere svolte anche le verifiche sul Registro pubblico delle opposizioni e le altre verifiche richieste per il canale.</p>
+    <h3>Verifiche e sospensione</h3>
+    <p>Possiamo richiedere evidenze e svolgere controlli, anche a campione. In presenza di incongruenze, reclami o dubbi fondati sulla liceità sospendiamo immediatamente i ricontatti e chiediamo chiarimenti. Se i presupposti non sono dimostrati, rifiutiamo o interrompiamo l’incarico, comunicandone i motivi. La dichiarazione del Cliente non elimina gli obblighi e le responsabilità che la legge attribuisce a ciascuna parte.</p>
+    <h3>Compenso legato al risultato</h3>
+    <p>Il compenso di riattivazione è una quota del valore del cliente riattivato, definita per iscritto prima di iniziare. L’accordo precisa cosa costituisce il risultato, la base economica di calcolo, il periodo di attribuzione, le evidenze e le scadenze di rendicontazione e pagamento, oltre alla gestione di annullamenti, rimborsi e trattative già in corso. Una semplice apertura, risposta o prenotazione non è automaticamente un cliente riattivato. Non garantiamo un numero minimo di clienti o di vendite.</p>
+    <p>Il compenso sul risultato matura solo quando l’esito concordato si è realizzato ed è verificabile. A questa componente non si applicano gli acconti standard dei lavori una tantum previsti nelle condizioni generali.</p>
+    <h3>Lavoro preparatorio, anticipi e interruzione</h3>
+    <p>Eventuali attività preparatorie con un costo autonomo sono facoltative e devono essere descritte, quantificate e approvate separatamente per iscritto prima di essere eseguite; non si intendono incluse automaticamente nell’incarico a risultato. In caso di interruzione per carenze imputabili alla lista o al Cliente, restano dovuti solo il lavoro preparatorio effettivamente svolto e i costi autorizzati e documentati, entro gli importi concordati. Eventuali anticipi possono essere imputati a tali voci con rendiconto; il residuo viene restituito. Il solo sospetto sulla lista non comporta la perdita automatica dell’intero anticipo.</p>
+    <h3>Responsabilità e gestione dei dati</h3>
+    <p>Il Cliente risponde della veridicità delle proprie dichiarazioni e della liceità dei dati forniti. Nei limiti consentiti dalla legge risponde anche dei danni e dei costi documentati direttamente causati da dichiarazioni false o istruzioni illecite a lui imputabili. Restano ferme le responsabilità di CSD Station per la propria condotta e i diritti degli interessati; non sono esclusi dolo, colpa grave o obblighi inderogabili. Il trattamento e la restituzione o cancellazione della lista sono disciplinati dall’accordo e dalla <Link to="/privacy-policy/#lead">sezione Lead dell’informativa privacy</Link>.</p>
+    <p className="legal-note">Prima dell’avvio si formalizzano istruzioni e ruoli privacy. Le clausole su sospensione, interruzione e responsabilità sono richiamate nell’accordo e, quando richiesto dagli artt. 1341 e 1342 c.c., approvate specificamente per iscritto. L’invio della lista, da solo, non sostituisce queste formalità.</p>
   </> },
   { id: 'sito-social', label: 'Sito & Social', body: <>
     <h3>Siti</h3>

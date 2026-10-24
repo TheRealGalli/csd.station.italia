@@ -17,6 +17,7 @@ export const AppContent = () => (
         <Route path="/training-ai/" element={<Index />} />
         <Route path="/sito-social/" element={<Index />} />
         <Route path="/video-slide/" element={<Index />} />
+        <Route path="/lead/" element={<Index />} />
         <Route path="/restaurant-os/" element={<OsDemo product="restaurant" />} />
         <Route path="/notaro-os/" element={<OsDemo product="notaro" />} />
         {/* Privacy e Termini: i vecchi indirizzi aprono la stessa pagina alla sezione giusta */}

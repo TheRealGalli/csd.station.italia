@@ -36,3 +36,11 @@ export const mediaFaq = [
   ['I numeri nei grafici sono reali?', 'Usiamo i tuoi dati quando ce li dai. Negli esempi di questa pagina i dati sono verosimili ma inventati, con un marchio dimostrativo CSD Station.'],
   ['Per chi sono pensati?', 'Per studenti che presentano una tesi o una tesina, ristoranti, negozi che lanciano un prodotto, aziende con un report da raccontare, startup che preparano un pitch, concessionarie e autofficine che spiegano servizi e offerte.'],
 ];
+
+export const leadIntro = 'Riattiviamo i tuoi contatti già interessati: partiamo dalla tua lista, riprendiamo il dialogo e seguiamo le opportunità. Il compenso è legato al valore del cliente riattivato, secondo un accordo sul risultato.';
+export const leadFaq = [
+  ['Quali liste possiamo riattivare?', 'Liste di contatti propri raccolti lecitamente, che hanno già manifestato interesse e per i quali puoi documentare i presupposti del ricontatto sul canale scelto. Escludiamo liste rubate, raccolte tramite scraping, comprate per questa campagna o contenenti persone che si sono opposte. Aver ricevuto una richiesta in passato, da solo, non autorizza qualsiasi messaggio promozionale.'],
+  ['In quale formato devo avere i contatti?', 'Partiamo dal formato che hai: Excel, CSV, export del CRM, PDF o un altro archivio. Prima valutiamo struttura, leggibilità e possibilità di conversione. Nel primo messaggio descrivi la lista senza allegare recapiti di terzi: concordiamo poi un canale di trasferimento adatto.'],
+  ['Quando si paga il servizio?', 'Il compenso di riattivazione matura solo sul risultato concordato e verificato, come un nuovo acquisto concluso e incassato attribuibile al ricontatto. Prima di partire definiamo quota, base di calcolo, periodo di attribuzione e verifiche. Una risposta o un appuntamento non sono automaticamente un cliente riattivato. Non c’è un prezzo standard pubblicato.'],
+  ['Cosa succede se la provenienza della lista è dubbia?', 'Sospendiamo il ricontatto e chiediamo documentazione. Se la liceità non può essere verificata, rifiutiamo o interrompiamo la campagna. Eventuali attività preparatorie a pagamento devono essere approvate separatamente per iscritto: in caso di interruzione si rendicontano soltanto lavoro già eseguito e costi autorizzati, restituendo l’eventuale residuo.'],
+];

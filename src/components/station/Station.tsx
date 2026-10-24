@@ -15,6 +15,7 @@ import { MobileConsulting, MobileNfc } from './MobileLanding';
 import Training, { trainingContact } from './Training';
 import { OttoIcon } from './OttoIcon';
 import SitoSocial, { SitoSocialMobile, webContact } from './SitoSocial';
+import LeadPage, { LeadMobile, leadContact } from './LeadPage';
 import MediaPage, { MediaMobile, mediaContact } from './MediaPage';
 const OttoGlyph = ({ size = 18 }: { size?: number }) => <OttoIcon mood="read" size={size}/>;
 
@@ -53,7 +54,7 @@ export function StationHeader() {
   // nelle pagine Privacy e Termini il menu resta uguale, senza voci evidenziate
   const legal = [...legalPaths, '/privacy-policy-nfc/', '/terms-of-service-nfc/'].includes(normalizePath(location.pathname));
   const mode = os || legal ? null : getServiceMode(location.pathname, location.search);
-  const contactHref = os ? whatsapp(`Ciao Carlo! Vorrei avere più informazioni su ${os === 'restaurant' ? 'CS Restaurant OS' : 'CS Notaro OS'}.`) : mode === 'training' ? trainingContact : mode === 'web' ? webContact : mode === 'media' ? mediaContact : mode === 'nfc' ? whatsapp('Ciao Carlo! Vorrei informazioni sulle card e sui prodotti NFC di CSD Station.') : consultingContact;
+  const contactHref = os ? whatsapp(`Ciao Carlo! Vorrei avere più informazioni su ${os === 'restaurant' ? 'CS Restaurant OS' : 'CS Notaro OS'}.`) : mode === 'lead' ? leadContact : mode === 'training' ? trainingContact : mode === 'web' ? webContact : mode === 'media' ? mediaContact : mode === 'nfc' ? whatsapp('Ciao Carlo! Vorrei informazioni sulle card e sui prodotti NFC di CSD Station.') : consultingContact;
   // da telefono il menu è una riga di pillole che scorre: la voce della pagina aperta si porta da sola al centro
   useEffect(() => {
     const nav = document.getElementById('station-navigation'), on = nav?.querySelector<HTMLElement>('a.active');
@@ -68,6 +69,7 @@ export function StationHeader() {
       <Link className={mode === 'nfc' ? 'active' : ''} aria-current={mode === 'nfc' ? 'page' : undefined} to={servicePaths.nfc}>Card NFC</Link>
       <Link className={`nav-web ${mode === 'web' ? 'active' : ''}`} aria-current={mode === 'web' ? 'page' : undefined} to={servicePaths.web}>Sito & Social</Link>
       <Link className={`nav-media ${mode === 'media' ? 'active' : ''}`} aria-current={mode === 'media' ? 'page' : undefined} to={servicePaths.media}>Video & Slide</Link>
+      <Link className={`nav-lead ${mode === 'lead' ? 'active' : ''}`} aria-current={mode === 'lead' ? 'page' : undefined} to={servicePaths.lead}>Lead</Link>
       <DemoMenu active={os}/>
     </nav>
     <a className="station-button small nav-contact" href={contactHref} target="_blank" rel="noreferrer">Parliamone <ArrowUpRight size={16}/></a>
@@ -82,7 +84,7 @@ const contactCopy = {
   web: { id: 'web-contatto', title: <>Raccontami la tua attività.<br/>Partiamo da lì.</>, text: 'Mandami il link del tuo sito o del tuo profilo. Ti dico cosa farei e da quale formato partire.', href: webContact, cta: 'Scrivimi su WhatsApp', note: 'Posti limitati: seguo poche attività per volta' },
   media: { id: 'media-contatto', title: <>Hai una presentazione<br/>da far muovere?</>, text: 'Mandami testi, dati o la bozza delle slide: ti dico cosa si può fare e in quanto tempo.', href: mediaContact, cta: 'Scrivimi su WhatsApp', note: '15 slide a 49 € · Video da 99 € al minuto' },
 };
-function Contact({mode = 'automazioni'}: {mode?: Exclude<ServiceMode, 'training'>}) { const c = contactCopy[mode]; return <section className={`contact-section ${mode !== 'automazioni' ? 'nfc-contact' : ''}`} id={c.id}><div className="wrap contact-inner"><div><Eyebrow>IL PROSSIMO PASSO È SEMPLICE</Eyebrow><h2>{c.title}</h2><p>{c.text}</p></div><div className="contact-actions"><a className="station-button" href={c.href} target="_blank" rel="noreferrer">{c.cta}<ArrowUpRight size={18}/></a><span>{c.note}</span><a className="contact-email" href="mailto:carlo@csd-station.it">Oppure scrivimi un’email <ArrowRight size={15}/></a></div></div></section>; }
+function Contact({mode = 'automazioni'}: {mode?: Exclude<ServiceMode, 'training' | 'lead'>}) { const c = contactCopy[mode]; return <section className={`contact-section ${mode !== 'automazioni' ? 'nfc-contact' : ''}`} id={c.id}><div className="wrap contact-inner"><div><Eyebrow>IL PROSSIMO PASSO È SEMPLICE</Eyebrow><h2>{c.title}</h2><p>{c.text}</p></div><div className="contact-actions"><a className="station-button" href={c.href} target="_blank" rel="noreferrer">{c.cta}<ArrowUpRight size={18}/></a><span>{c.note}</span><a className="contact-email" href="mailto:carlo@csd-station.it">Oppure scrivimi un’email <ArrowRight size={15}/></a></div></div></section>; }
 function FAQ({mode = 'automazioni'}: {mode?: ServiceMode}) {
   return <section className="faq-section wrap"><div><Eyebrow>PRIMA DI COMINCIARE</Eyebrow><h2>Qualche risposta,<br/>senza complicazioni.</h2></div><ServiceAnswers mode={mode}/></section>;
 }
@@ -134,16 +136,16 @@ export default function Station() {
  const phone = useSyncExternalStore(subscribePhone, () => window.matchMedia(phoneQuery).matches, () => false);
  const location = useLocation();
  const mode = getServiceMode(location.pathname, location.search);
- const compact = narrow || (mode === 'media' && phone);
+ const compact = narrow || ((mode === 'media' || mode === 'lead') && phone);
  useEffect(() => {
    if (location.hash) { const timer = setTimeout(() => document.getElementById(location.hash.slice(1))?.scrollIntoView({behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'instant' as ScrollBehavior : 'smooth'}), 50); return () => clearTimeout(timer); }
    window.scrollTo({top:0, behavior:'instant' as ScrollBehavior});
  }, [mode, location.pathname, location.hash, location.key]);
  useEffect(() => {
    const isDark = compact || mode === 'training';
-   const bg = isDark ? '#152016' : mode === 'nfc' || mode === 'web' || mode === 'media' ? '#131b13' : '#f6f7f2';
+   const bg = isDark ? '#152016' : mode === 'nfc' || mode === 'web' || mode === 'media' || mode === 'lead' ? '#131b13' : '#f6f7f2';
    document.documentElement.style.backgroundColor = bg;
    document.body.style.backgroundColor = bg;
  }, [compact, mode]);
- return <div className={`station-site ${mode === 'nfc' ? 'nfc-site' : mode === 'web' ? 'nfc-site web-site' : mode === 'media' ? 'nfc-site web-site media-site' : mode === 'training' ? 'training-site' : ''} ${compact ? 'compact-site' : ''}`}><a className="station-skip" href="#main-content">Vai al contenuto</a><StationHeader/><main id="main-content">{mode === 'training' ? <Training/> : mode === 'media' ? compact ? <MediaMobile/> : <><div className="media-desktop"><MediaPage><FAQ mode="media"/><Contact mode="media"/></MediaPage></div><div className="media-phone"><MediaMobile fallback/></div></> : mode === 'web' ? compact ? <SitoSocialMobile/> : <SitoSocial><FAQ mode="web"/><Contact mode="web"/></SitoSocial> : compact ? mode === 'nfc' ? <MobileNfc products={products} whatsapp={whatsapp}/> : <MobileConsulting contact={processContact} skills={skills}/> : mode === 'nfc' ? <NfcPage/> : <Home/>}</main><StationFooter/></div>;
+ return <div className={`station-site ${mode === 'nfc' ? 'nfc-site' : mode === 'web' ? 'nfc-site web-site' : mode === 'media' ? 'nfc-site web-site media-site' : mode === 'lead' ? 'lead-site' : mode === 'training' ? 'training-site' : ''} ${compact ? 'compact-site' : ''}`}><a className="station-skip" href="#main-content">Vai al contenuto</a><StationHeader/><main id="main-content">{mode === 'lead' ? compact ? <LeadMobile/> : <LeadPage/> : mode === 'training' ? <Training/> : mode === 'media' ? compact ? <MediaMobile/> : <><div className="media-desktop"><MediaPage><FAQ mode="media"/><Contact mode="media"/></MediaPage></div><div className="media-phone"><MediaMobile fallback/></div></> : mode === 'web' ? compact ? <SitoSocialMobile/> : <SitoSocial><FAQ mode="web"/><Contact mode="web"/></SitoSocial> : compact ? mode === 'nfc' ? <MobileNfc products={products} whatsapp={whatsapp}/> : <MobileConsulting contact={processContact} skills={skills}/> : mode === 'nfc' ? <NfcPage/> : <Home/>}</main><StationFooter/></div>;
 }
