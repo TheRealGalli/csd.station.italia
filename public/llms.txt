@@ -16,6 +16,8 @@ Le card NFC aprono un collegamento: non pubblicano recensioni. I report misurano
 
 - [Lead — riattivazione contatti](https://csd-station.it/lead/index.md): ricontatto di liste proprie e lecite, compenso sul risultato concordato; nessuna percentuale standard pubblicata.
 
+- [Forecasting AI](https://csd-station.it/forecasting/index.md): previsioni per PMI, anche interamente locali; prova gratuita di 7 giorni dopo verifica di fattibilità e storico, senza obbligo di proseguire. Accuratezza non garantita, confronto con baseline e backtesting ove possibile.
+
 ## Pagine web
 
 - [Consulenza](https://csd-station.it/)
@@ -25,6 +27,8 @@ Le card NFC aprono un collegamento: non pubblicano recensioni. I report misurano
 - [Video & Slide](https://csd-station.it/video-slide/)
 
 - [Lead](https://csd-station.it/lead/): riattivazione contatti, con presentazioni desktop e mobile.
+
+- [Forecasting AI](https://csd-station.it/forecasting/): dati aziendali, previsioni della domanda e decisioni sotto controllo umano.
 
 ## Optional
 

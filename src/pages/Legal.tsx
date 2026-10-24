@@ -9,7 +9,7 @@ import './legal.css';
 export type LegalDoc = 'privacy' | 'termini';
 type Section = { id: string; label: string; body: React.ReactNode };
 
-const UPDATED = '24 ottobre 2026';
+const UPDATED = '25 ottobre 2026';
 const mail = <a href="mailto:carlo@csd-station.it">carlo@csd-station.it</a>;
 
 const Owner = () => <div className="legal-card">
@@ -74,6 +74,17 @@ const privacy: Section[] = [
       <li><strong>Durante lo sviluppo</strong>, se dobbiamo accedere a dati personali del Cliente, agiamo come responsabile del trattamento (art. 28 GDPR) secondo l’Accordo di Servizio, usando dati di prova ogni volta che è possibile.</li>
       <li><strong>Dopo la consegna</strong> il sistema passa interamente al Cliente: non conserviamo accessi e non trattiamo i dati che vi transitano. Il Cliente resta titolare dei propri dati; l’infrastruttura fa capo a Google come fornitore.</li>
       <li><strong>Strumenti di intelligenza artificiale:</strong> scegliamo con il Cliente quali servizi usare e quali dati possono entrarci; non inseriamo dati personali in strumenti AI senza averlo concordato.</li>
+    </ul>
+  </> },
+  { id: 'forecasting', label: 'AI Forecasting', body: <>
+    <p>Il servizio di <Link to="/forecasting/">AI Forecasting</Link> usa lo storico dell’attività per stimare andamenti futuri. Nel primo contatto descrivi cosa vorresti prevedere e quali dati hai: non allegare archivi, dati di clienti o dipendenti su WhatsApp. Concordiamo prima un canale adeguato per i materiali.</p>
+    <ul>
+      <li><strong>Solo i dati necessari:</strong> privilegiamo serie aggregate, come coperti giornalieri, quantità vendute o livelli di magazzino, senza nomi e recapiti. Chiediamo di escludere dati personali non necessari e categorie particolari di dati, come informazioni sulla salute. Aggregare un archivio non lo rende automaticamente anonimo: verifichiamo anche il rischio di identificare le persone.</li>
+      <li><strong>Ruoli prima dell’accesso:</strong> il Cliente definisce le finalità e verifica i presupposti del trattamento dei propri dati. Se trattiamo dati personali per suo conto e su sue istruzioni, formalizziamo prima l’accordo previsto dall’art. 28 GDPR, con accessi autorizzati, misure di sicurezza e assistenza nella gestione dei diritti.</li>
+      <li><strong>Configurazione locale:</strong> quando tecnicamente adatta e concordata, elaborazione e archivi possono restare interamente su hardware nel perimetro aziendale. Questa possibilità dipende dall’architettura scelta: non implica che ogni progetto sia locale né che un’installazione locale escluda ogni rischio. Accessi di assistenza remota, servizi cloud, fornitori e possibili trasferimenti fuori dallo SEE devono essere valutati e concordati prima dell’utilizzo.</li>
+      <li><strong>Uso limitato all’incarico:</strong> non vendiamo gli archivi e non li riutilizziamo per addestrare modelli per altri clienti. L’uso di strumenti AI, fonti esterne e integrazioni è definito con il Cliente; nessun invio dei suoi dati a servizi AI esterni è implicito nella prova.</li>
+      <li><strong>Conservazione e fine prova:</strong> prima dell’avvio concordiamo dove si trovano dati, copie e risultati, per quanto tempo restano e come vengono restituiti o cancellati. Quando agiamo come responsabile, a fine incarico restituiamo o cancelliamo i dati personali secondo la scelta del Cliente e l’accordo, comprese le copie, salvo obblighi di legge. I dati amministrativi seguono i tempi dell’informativa generale.</li>
+      <li><strong>Decisioni:</strong> le stime supportano la pianificazione dell’attività; il servizio non prevede decisioni esclusivamente automatizzate con effetti giuridici o analogamente significativi sulle persone. Eventuali impieghi diversi richiedono una valutazione e un accordo specifici.</li>
     </ul>
   </> },
   { id: 'nfc', label: 'Card NFC', body: <>
@@ -156,9 +167,9 @@ const termini: Section[] = [
       <li>Con i clienti aziendali possiamo citare il progetto tra i nostri lavori, salvo opposizione scritta; con i privati solo con il loro consenso.</li>
     </ul>
     <h3>Intelligenza artificiale</h3>
-    <p>Per grafiche, animazioni e montaggi usiamo anche strumenti di intelligenza artificiale, sempre con il nostro controllo e la nostra revisione. Non presentiamo come reali prodotti, piatti o ambienti generati dall’AI.</p>
+    <p>Per grafiche, animazioni, montaggi e servizi di previsione usiamo anche strumenti di intelligenza artificiale, sempre con il nostro controllo e la nostra revisione. Non presentiamo come reali prodotti, piatti o ambienti generati dall’AI.</p>
     <h3>Nessuna garanzia di risultato</h3>
-    <p>Garantiamo un lavoro fatto con cura e conforme a quanto concordato. Non possiamo garantire risultati che dipendono da terzi o dal mercato: follower, visualizzazioni, viralità, vendite, recensioni o, per gli studenti, il voto finale.</p>
+    <p>Garantiamo un lavoro fatto con cura e conforme a quanto concordato. Non possiamo garantire risultati che dipendono da terzi o dal mercato: follower, visualizzazioni, viralità, vendite, recensioni, accuratezza delle previsioni o, per gli studenti, il voto finale.</p>
     <h3>Responsabilità</h3>
     <p>Con i clienti aziendali la nostra responsabilità è limitata all’importo pagato per il servizio interessato ed esclude i danni indiretti, salvo dolo o colpa grave (art. 1229 c.c.). Con i consumatori valgono i limiti consentiti dal Codice del Consumo. Non rispondiamo di interruzioni o modifiche di piattaforme terze (Google, Meta, TikTok, servizi AI) né di cause di forza maggiore.</p>
     <h3>Riservatezza</h3>
@@ -175,6 +186,19 @@ const termini: Section[] = [
       <li><strong>Dopo la garanzia</strong>, o per problemi dovuti a modifiche di piattaforme terze o dell’ambiente del Cliente, l’assistenza è prevista solo con un accordo di manutenzione.</li>
       <li><strong>Uso corretto:</strong> il Cliente usa le soluzioni per scopi leciti e non decompila o rivende componenti che restano nostri, salvo accordo.</li>
     </ul>
+  </> },
+  { id: 'forecasting', label: 'AI Forecasting', body: <>
+    <h3>Prima verifichiamo i dati</h3>
+    <p>Il servizio di <Link to="/forecasting/">AI Forecasting</Link> è rivolto ad aziende e professionisti. Prima di iniziare valutiamo disponibilità, qualità e quantità dello storico, obiettivo da prevedere, frequenza e orizzonte delle stime. La fattibilità, le fonti e l’eventuale uso di calendario o altri fattori dipendono dal caso concreto: non tutti i dati o i gestionali sono adatti.</p>
+    <h3>Una settimana di prova gratuita</h3>
+    <p>La prova dura 7 giorni, dopo la verifica di fattibilità e la disponibilità di uno storico adeguato. Perimetro, data di inizio, dati utilizzati e modalità di verifica sono concordati per iscritto prima dell’avvio. Il primo messaggio non avvia il periodo di prova. La prova non prevede rinnovo automatico né obbligo di acquisto e non si applica l’acconto standard delle condizioni generali.</p>
+    <p>Hardware, installazione definitiva, integrazioni con sistemi aziendali, assistenza continuativa e prosecuzione del servizio non sono inclusi automaticamente nella prova. Ogni eventuale attività a pagamento richiede un accordo separato e accettato prima di essere svolta; non viene attivata alla scadenza dei 7 giorni.</p>
+    <h3>Misuriamo quanto serve davvero</h3>
+    <p>Verifichiamo le previsioni su periodi storici esclusi dai dati usati per produrle (backtest) e, durante la prova, le confrontiamo con i risultati osservati e con un riferimento semplice concordato, come la media o lo stesso giorno della settimana precedente. Metriche, copertura e limiti del confronto vengono riportati: sette giorni possono dare una prima indicazione, ma non dimostrano l’affidabilità in ogni stagione o situazione.</p>
+    <p>Le previsioni sono stime incerte: qualità dello storico, cambiamenti nell’attività ed eventi imprevisti possono produrre errori anche rilevanti. Non garantiamo una soglia di accuratezza, risparmi, ricavi o miglioramenti rispetto ai metodi già utilizzati. Le decisioni su acquisti, personale e gestione restano al Cliente, che valuta risultati e contesto prima di agire.</p>
+    <h3>Installazione, dati e modelli</h3>
+    <p>Possiamo progettare una soluzione interamente locale, anche su hardware contenuto quando adeguato al carico di lavoro. Compatibilità, prestazioni, sicurezza, accessi e costi dell’hardware si verificano prima: non promettiamo che qualsiasi dispositivo o collegamento sia sufficiente. Cloud e assistenza remota si attivano soltanto se concordati. Il Cliente mantiene il controllo dei propri archivi; ruoli, accessi e fine incarico sono descritti nella <Link to="/privacy-policy/#forecasting">sezione AI Forecasting della privacy</Link>.</p>
+    <p>Scegliamo i modelli in base al progetto e possiamo aggiornarli nel tempo. I modelli e i componenti di terzi restano soggetti alle rispettive licenze: la consegna del sistema non trasferisce la loro proprietà al Cliente o a CSD Station. La citazione di Timestral o di Mistral AI non implica affiliazione, certificazione o partnership.</p>
   </> },
   { id: 'nfc', label: 'Card NFC', body: <>
     <ul>
