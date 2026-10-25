@@ -15,7 +15,7 @@ import { MobileConsulting, MobileNfc } from './MobileLanding';
 import Training, { trainingContact } from './Training';
 import { OttoIcon } from './OttoIcon';
 import SitoSocial, { SitoSocialMobile, webContact } from './SitoSocial';
-import ForecastPage, { forecastContact } from './ForecastPage';
+import ForecastPage, { ForecastMobile, forecastContact } from './ForecastPage';
 import LeadPage, { LeadMobile, leadContact } from './LeadPage';
 import MediaPage, { MediaMobile, mediaContact } from './MediaPage';
 const OttoGlyph = ({ size = 18 }: { size?: number }) => <OttoIcon mood="read" size={size}/>;
@@ -24,7 +24,7 @@ const whatsapp = (message: string) => `https://wa.me/393518628203?text=${encodeU
 const consultingContact = whatsapp('Ciao Carlo! Vorrei informazioni sull’intelligenza artificiale e sulle vostre consulenze informatiche.');
 const processContact = whatsapp('Ciao Carlo! Vorrei capire come automatizzare le attività ripetitive nella mia attività. Possiamo parlarne?');
 const skills = 'https://www.skills.google/public_profiles/4a3ed6b8-9f55-463f-83a6-8c218717a8fd';
-export function Brand() { return <span className="station-brand"><span className="brand-symbol"><i/><i/><i/></span><span>CSD<span className="brand-light"> Station</span><small><span>CONSULENZA AI · TRAINING · CARD NFC</span><span>SITO & SOCIAL · VIDEO & SLIDE · LEAD</span></small></span></span>; }
+export function Brand() { return <span className="station-brand"><span className="brand-symbol"><i/><i/><i/></span><span>CSD<span className="brand-light"> Station</span><small><span>CONSULENZA AI · TRAINING · FORECASTING</span><span>CARD NFC · SITO & SOCIAL · VIDEO & SLIDE · LEAD</span></small></span></span>; }
 // Le demo OS in un'unica voce: l'etichetta DEMO apre una nuvoletta per scegliere Restaurant OS o Notaro OS.
 // I link restano nell'HTML anche a nuvoletta chiusa, così i motori di ricerca li trovano.
 function DemoMenu({ active }: { active: ReturnType<typeof getOsProduct> }) {
@@ -149,5 +149,5 @@ export default function Station() {
    document.documentElement.style.backgroundColor = bg;
    document.body.style.backgroundColor = bg;
  }, [compact, mode]);
- return <div className={`station-site ${mode === 'forecasting' ? 'forecasting-site' : mode === 'nfc' ? 'nfc-site' : mode === 'web' ? 'nfc-site web-site' : mode === 'media' ? 'nfc-site web-site media-site' : mode === 'lead' ? 'lead-site' : mode === 'training' ? 'training-site' : ''} ${compact ? 'compact-site' : ''}`}><a className="station-skip" href="#main-content">Vai al contenuto</a><StationHeader/><main id="main-content">{mode === 'forecasting' ? <ForecastPage/> : mode === 'lead' ? compact ? <LeadMobile/> : <LeadPage/> : mode === 'training' ? <Training/> : mode === 'media' ? compact ? <MediaMobile/> : <><div className="media-desktop"><MediaPage><FAQ mode="media"/><Contact mode="media"/></MediaPage></div><div className="media-phone"><MediaMobile fallback/></div></> : mode === 'web' ? compact ? <SitoSocialMobile/> : <SitoSocial><FAQ mode="web"/><Contact mode="web"/></SitoSocial> : compact ? mode === 'nfc' ? <MobileNfc products={products} whatsapp={whatsapp}/> : <MobileConsulting contact={processContact} skills={skills}/> : mode === 'nfc' ? <NfcPage/> : <Home/>}</main><StationFooter/></div>;
+ return <div className={`station-site ${mode === 'forecasting' ? 'forecasting-site' : mode === 'nfc' ? 'nfc-site' : mode === 'web' ? 'nfc-site web-site' : mode === 'media' ? 'nfc-site web-site media-site' : mode === 'lead' ? 'lead-site' : mode === 'training' ? 'training-site' : ''} ${compact ? 'compact-site' : ''}`}><a className="station-skip" href="#main-content">Vai al contenuto</a><StationHeader/><main id="main-content">{mode === 'forecasting' ? compact ? <ForecastMobile/> : <ForecastPage/> : mode === 'lead' ? compact ? <LeadMobile/> : <LeadPage/> : mode === 'training' ? <Training/> : mode === 'media' ? compact ? <MediaMobile/> : <><div className="media-desktop"><MediaPage><FAQ mode="media"/><Contact mode="media"/></MediaPage></div><div className="media-phone"><MediaMobile fallback/></div></> : mode === 'web' ? compact ? <SitoSocialMobile/> : <SitoSocial><FAQ mode="web"/><Contact mode="web"/></SitoSocial> : compact ? mode === 'nfc' ? <MobileNfc products={products} whatsapp={whatsapp}/> : <MobileConsulting contact={processContact} skills={skills}/> : mode === 'nfc' ? <NfcPage/> : <Home/>}</main><StationFooter/></div>;
 }

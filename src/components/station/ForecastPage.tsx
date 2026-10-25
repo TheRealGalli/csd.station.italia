@@ -19,12 +19,29 @@ const line = (values: number[], start: number, spacing: number) => values.map((v
 function ForecastObservatory({ paused, onPause }: { paused: boolean; onPause: () => void }) {
   const [sector, setSector] = useState(0);
   const [day, setDay] = useState(5);
+  const observatory = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    if (paused) return;
+    const media = window.matchMedia('(prefers-reduced-motion: reduce)');
+    let visible = false;
+    let timer: number | undefined;
+    const update = () => {
+      window.clearInterval(timer);
+      if (visible && !media.matches) timer = window.setInterval(() => {
+        if (!document.hidden) setDay(previous => (previous + 1) % days.length);
+      }, 3000);
+    };
+    const observer = new IntersectionObserver(([entry]) => { visible = entry.isIntersecting; update(); }, { threshold: .2 });
+    if (observatory.current) observer.observe(observatory.current);
+    media.addEventListener('change', update);
+    return () => { window.clearInterval(timer); observer.disconnect(); media.removeEventListener('change', update); };
+  }, [paused]);
   const sample = examples[sector];
   const value = sample.values[day];
   const lower = Math.round(value * .8), upper = Math.round(value * 1.2);
   const forecast = [sample.history[12], ...sample.values];
   const band = `${line(forecast.map(v => v * 1.2), 410, 43)} ${forecast.map((v, i) => point(v * .8, i, 410, 43)).reverse().map(p => `L${p}`).join(' ')} Z`;
-  return <div className="fc-observatory">
+  return <div ref={observatory} className="fc-observatory">
     <div className="fc-observatory-top"><div role="group" aria-label="Scegli un esempio di attività">{examples.map((item, index) => <button type="button" key={item.name} aria-pressed={sector === index} onClick={() => { setSector(index); setDay(index === 2 ? 2 : 5); }}>{item.name}</button>)}</div><button type="button" className="fc-motion" onClick={onPause} aria-label={paused ? 'Riprendi le animazioni' : 'Metti in pausa le animazioni'} aria-pressed={paused}>{paused ? <Play size={13}/> : <Pause size={13}/>}<span>Motion</span></button></div>
     <div className="fc-observatory-heading"><div><span className="fc-mono">IL TUO PROSSIMO PASSO, A COLPO D’OCCHIO</span><h2>{sample.question}</h2></div><span className="fc-simulated"><i/> ESEMPIO SIMULATO</span></div>
     <div className="fc-instrument"><div className="fc-chart-area"><div className="fc-chart-labels"><span>LO STORICO CHE HAI</span><span>LA SETTIMANA CHE ARRIVA <ArrowRight size={13}/></span></div><svg key={sector} className="fc-chart" viewBox="0 0 760 265" role="img" aria-label={`Esempio inventato: storico e previsione settimanale di ${sample.metric}. La fascia mostra l’incertezza illustrativa, senza probabilità calibrata.`}>
@@ -37,7 +54,7 @@ function ForecastObservatory({ paused, onPause }: { paused: boolean; onPause: ()
       <circle className="fc-signal-halo" cx={453 + day * 43} cy={222 - value * 1.37} r="13" fill="#c5f47622"/><circle cx={453 + day * 43} cy={222 - value * 1.37} r="5" fill="#c5f476" stroke="#152016" strokeWidth="3"/>
       <text x="16" y="255" fill="#7c8977" fontSize="10">DATI PASSATI</text><text x="737" y="255" fill="#a8b79b" fontSize="10" textAnchor="end">+7 GIORNI</text>
     </svg><div className="fc-chart-legend"><span><i/> Storico</span><span><i/> Previsione</span><span><i/> Fascia di incertezza</span></div></div>
-    <div className="fc-forecast-ticket" aria-live="polite" aria-atomic="true"><span className="fc-mono">{days[day].toUpperCase()} / PREVISIONE ILLUSTRATIVA</span><div className="fc-ticket-number">{value}<span>{sample.unit}</span></div><p>Fascia illustrativa <b>{lower}–{upper}</b></p><div className="fc-ticket-rule"/><span className="fc-ticket-context"><CalendarDays size={15}/>{day === (sector === 2 ? 2 : 5) ? sample.note : `${fullDays[day]} · calendario attività`}</span><p className="fc-ticket-action">{sample.action}</p></div></div>
+    <div className="fc-forecast-ticket" aria-live={paused ? 'polite' : 'off'} aria-atomic="true"><span className="fc-mono">{days[day].toUpperCase()} / PREVISIONE ILLUSTRATIVA</span><div className="fc-ticket-number">{value}<span>{sample.unit}</span></div><p>Fascia illustrativa <b>{lower}–{upper}</b></p><div className="fc-ticket-rule"/><span className="fc-ticket-context"><CalendarDays size={15}/>{day === (sector === 2 ? 2 : 5) ? sample.note : `${fullDays[day]} · calendario attività`}</span><p className="fc-ticket-action">{sample.action}</p></div></div>
     <div className="fc-day-select"><span>ESPLORA I GIORNI</span><div role="group" aria-label="Scegli un giorno della previsione">{days.map((label, index) => <button type="button" key={label} aria-pressed={day === index} onClick={() => setDay(index)}>{label}{index === day && <i/>}</button>)}</div><span>01 — 07</span></div>
     <div className="fc-example-foot"><p>{sample.decision}</p><small>Dati inventati. Questa pagina non esegue un modello AI e non raccoglie file.</small></div>
   </div>;
@@ -107,5 +124,42 @@ export default function ForecastPage() {
 
     <section className="fc-faq wrap"><div><span className="fc-eyebrow">PRIMA DI COMINCIARE</span><h2>Domande di oggi.<br/><em>Risposte chiare.</em></h2></div><ServiceAnswers mode="forecasting"/></section>
     <section className="fc-contact" id="forecasting-contatto"><div className="wrap"><div className="fc-contact-top"><span className="fc-eyebrow"><i/> IL PROSSIMO PASSO</span><OttoIcon size={42} mood="read"/></div><h2>Cosa vorresti<br/><em>sapere in anticipo?</em></h2><div className="fc-contact-bottom"><div><p>Raccontami che attività hai, cosa vuoi prevedere e da quanto tempo raccogli i dati. Partiamo da una domanda, prima dei file.</p><small>Nel primo messaggio non allegare dati aziendali o personali.<br/>Concordiamo un canale adatto, oppure lavoriamo direttamente in azienda.</small></div><div><a className="station-button" href={forecastContact} target="_blank" rel="noreferrer">Valutiamo la settimana gratuita <ArrowUpRight size={19}/></a><a className="fc-contact-email" href="mailto:carlo@csd-station.it?subject=Prova%20AI%20Forecasting">Oppure scrivimi un’email <ChevronRight size={16}/></a></div></div><div className="fc-contact-legal"><Link to="/terms-of-service/#forecasting">Condizioni del servizio <ArrowUpRight size={13}/></Link><Link to="/privacy-policy/#forecasting">Privacy e dati aziendali <ArrowUpRight size={13}/></Link></div></div></section>
+  </div>;
+}
+
+
+export function ForecastMobile() {
+  return <div className="fc-page fc-mobile-page">
+    <section className="fcm-intro wrap" id="forecasting-metodo" aria-labelledby="fcm-title">
+      <span className="fc-eyebrow"><i/> AI FORECASTING / PER LE PMI</span>
+      <h1 id="fcm-title">Domani arriva.<br/><em>Arrivaci prima.</em></h1>
+      <p>Quanti clienti aspettarti. Cosa riordinare. Come organizzare la settimana. Dai tuoi dati, previsioni semplici da leggere e verificare.</p>
+      <div className="fcm-sectors" aria-label="Settori principali"><span>Bar & ristoranti</span><span>Negozi & retail</span><span>Magazzini</span><span>Produzione & energia</span></div>
+      <a className="station-button" href={forecastContact} target="_blank" rel="noreferrer">Valutiamo la settimana gratuita <ArrowUpRight size={18}/></a>
+      <span className="fcm-promise">Prima verifichiamo i dati. Nessun obbligo di proseguire.</span>
+      <div className="fcm-trust"><span><LockKeyhole size={15}/> Anche al 100% in locale</span><span><FileSpreadsheet size={15}/> Partiamo dal tuo storico</span></div>
+      <a href="#forecasting-prova" className="fcm-scroll">La prova, con Otto <ArrowDown size={15}/></a>
+    </section>
+
+    <section className="fcm-trial" id="forecasting-prova" aria-labelledby="fcm-trial-title"><div className="wrap">
+      <span className="fc-eyebrow">02 / PRIMA LA PROVA. POI DECIDI.</span>
+      <h2 id="fcm-trial-title">Sette giorni.<br/><em>Il confronto è concreto.</em></h2>
+      <p>Definiamo obiettivo e partenza. Ogni giorno confrontiamo la previsione con quello che succede davvero.</p>
+      <TrialComparison paused={false}/>
+      <p className="fcm-trial-note">Dati e fattibilità si verificano prima. Confrontiamo anche con metodi semplici e periodi storici: una settimana è un primo riscontro, non una garanzia di accuratezza.</p>
+      <Link className="fc-text-link" to="/terms-of-service/#forecasting">Cosa comprende la prova <ArrowUpRight size={15}/></Link>
+    </div></section>
+
+    <section className="fcm-contact wrap" id="forecasting-contatto" aria-labelledby="fcm-contact-title">
+      <span className="fc-eyebrow">03 / IL TUO PROSSIMO PASSO</span>
+      <h2 id="fcm-contact-title">I tuoi dati.<br/><em>La tua prossima scelta.</em></h2>
+      <div className="fcm-local" id="forecasting-locale"><ShieldCheck size={24}/><div><h3>L’AI entra. I dati restano.</h3><p>Possibile anche interamente in azienda, su hardware leggero se adatto. Accessi, backup e assistenza si concordano prima: i dati restano tuoi.</p></div></div>
+      <div className="fcm-technology"><span>NON SOLO CHATBOT. NON SOLO LLM.</span><p>Analisi dei dati, modelli predittivi, software e hardware: scegliamo ciò che serve. Per il forecasting valutiamo anche <a href="https://docs.mistral.ai/models/timestral-1-0-209m" target="_blank" rel="noreferrer">Timestral di Mistral AI <ArrowUpRight size={12}/></a>, con verifica di risultati e licenze.</p></div>
+      <details className="fcm-questions"><summary>Settori, dati e altre domande <ChevronRight size={18}/></summary><ServiceAnswers mode="forecasting"/></details>
+      <p className="fcm-contact-copy">Che attività hai? Cosa vorresti sapere in anticipo? Raccontami il tuo obiettivo e lo storico disponibile.</p>
+      <a className="station-button" href={forecastContact} target="_blank" rel="noreferrer">Parliamone su WhatsApp <ArrowUpRight size={18}/></a>
+      <p className="fcm-first-message">Nel primo messaggio descrivi i dati, senza allegarli. Hardware, integrazioni e prosecuzione richiedono un accordo separato.</p>
+      <div className="fcm-legal"><Link to="/privacy-policy/#forecasting">Privacy e dati <ArrowUpRight size={13}/></Link><Link to="/terms-of-service/#forecasting">Condizioni della prova <ArrowUpRight size={13}/></Link></div>
+    </section>
   </div>;
 }
