@@ -73,3 +73,4 @@
  .training-service-link{padding:24px;gap:15px;flex-wrap:wrap}.training-service-link>svg:first-child{display:none}.training-service-link>b{width:100%}
 }
 @media(max-width:360px){.training-section.wrap{padding-inline:20px}.training-hero h1{font-size:34px}.training-contact-card .training-cta{font-size:12px}.training-objectives button span{max-width:80px}}
+.training-formats button .training-selection-mark svg{opacity:0}.training-formats button[aria-pressed=true] .training-selection-mark svg{opacity:1}

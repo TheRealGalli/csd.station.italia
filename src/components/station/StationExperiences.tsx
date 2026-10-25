@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { ArrowRight, ArrowUpRight, Check, Clock3, FileText, FolderOpen, Mail, Package, RotateCcw, ScanLine, ShieldCheck, Workflow } from 'lucide-react';
+import { ArrowRight, Check, Clock3, FileText, FolderOpen, Mail, Package, RotateCcw, ScanLine, ShieldCheck, Workflow } from 'lucide-react';
 import './experiences.css';
 import { OttoIcon } from './OttoIcon';
 
@@ -74,7 +74,7 @@ export function GuidedDemo() {
   return <div className="guided-demo">
     <div className="guided-tabs" role="group" aria-label="Scegli il processo da esplorare">{(Object.keys(scenarios) as Scenario[]).map(key => {
       const Icon = scenarios[key].icon;
-      return <button key={key} className={selected === key ? 'active' : ''} aria-pressed={selected === key} onClick={() => choose(key)}><Icon size={19}/><span>{scenarios[key].label}</span><ArrowUpRight size={15}/></button>;
+      return <button key={key} className={selected === key ? 'active' : ''} aria-pressed={selected === key} onClick={() => choose(key)}><Icon size={19}/><span>{scenarios[key].label}</span><Check className="guided-selection-mark" size={15} aria-hidden="true"/></button>;
     })}</div>
     <div className="guided-layout">
       <aside className="guided-story"><span className="micro-label">IL PROBLEMA</span><h3>{scenario.problem}</h3><p>{scenario.before}</p><div className="guided-outcome"><span><Check size={14}/> COSA CAMBIA</span><p>{scenario.after}</p></div><div className="guided-legend"><span><OttoIcon mood="wink" size={15}/> AI: interpreta le informazioni</span><span><Workflow size={15}/> Automazione: esegue le regole</span><span><ShieldCheck size={15}/> Tu: verifichi e decidi</span></div></aside>

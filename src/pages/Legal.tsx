@@ -198,7 +198,7 @@ const termini: Section[] = [
     <p>Le previsioni sono stime incerte: qualità dello storico, cambiamenti nell’attività ed eventi imprevisti possono produrre errori anche rilevanti. Non garantiamo una soglia di accuratezza, risparmi, ricavi o miglioramenti rispetto ai metodi già utilizzati. Le decisioni su acquisti, personale e gestione restano al Cliente, che valuta risultati e contesto prima di agire.</p>
     <h3>Installazione, dati e modelli</h3>
     <p>Possiamo progettare una soluzione interamente locale, anche su hardware contenuto quando adeguato al carico di lavoro. Compatibilità, prestazioni, sicurezza, accessi e costi dell’hardware si verificano prima: non promettiamo che qualsiasi dispositivo o collegamento sia sufficiente. Cloud e assistenza remota si attivano soltanto se concordati. Il Cliente mantiene il controllo dei propri archivi; ruoli, accessi e fine incarico sono descritti nella <Link to="/privacy-policy/#forecasting">sezione AI Forecasting della privacy</Link>.</p>
-    <p>Scegliamo i modelli in base al progetto e possiamo aggiornarli nel tempo. I modelli e i componenti di terzi restano soggetti alle rispettive licenze: la consegna del sistema non trasferisce la loro proprietà al Cliente o a CSD Station. La citazione di Timestral o di Mistral AI non implica affiliazione, certificazione o partnership.</p>
+    <p>Scegliamo i modelli in base al progetto e possiamo aggiornarli nel tempo. I modelli e i componenti di terzi restano soggetti alle rispettive licenze: la consegna del sistema non trasferisce la loro proprietà al Cliente o a CSD Station. L’utilizzo di tecnologie di terzi non implica affiliazione, certificazione o partnership con i rispettivi fornitori.</p>
   </> },
   { id: 'nfc', label: 'Card NFC', body: <>
     <ul>

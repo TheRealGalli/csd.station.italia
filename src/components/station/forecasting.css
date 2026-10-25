@@ -26,3 +26,4 @@
 .fc-forecast-drawing{animation:fc-forecast-loop 9s cubic-bezier(.22,.61,.36,1) infinite}.fc-chart>line:last-of-type,.fc-chart>circle{transition:cx .8s ease,cy .8s ease,x1 .8s ease,x2 .8s ease}.fc-forecast-ticket .fc-ticket-number{font-variant-numeric:tabular-nums}
 @keyframes fc-forecast-loop{0%,5%{clip-path:inset(0 100% 0 0);opacity:.3}35%,92%{clip-path:inset(0 0 0 0);opacity:1}100%{clip-path:inset(0 0 0 0);opacity:.3}}
 @media(prefers-reduced-motion:reduce){.fc-forecast-drawing{animation:none!important;clip-path:none;opacity:1}}
+.fc-case-result .fc-sector-symbol{width:23px;height:23px;flex:none;color:#7b9266;cursor:default}

@@ -56,3 +56,5 @@
 .otto-hero:before{content:'';position:absolute;width:350px;height:350px;max-width:95%;background:radial-gradient(ellipse,#adc8771d,transparent 69%);border-radius:50%;z-index:-1}
 .otto-hero>.otto{scale:1.55}
 @media(max-width:900px){.otto-hero{min-height:360px}.otto-hero>.otto{scale:1.3}}
+/* Scenario selectors show selection, rather than suggesting an external link. */
+.guided-tabs button .guided-selection-mark{opacity:0;flex:none}.guided-tabs button[aria-pressed=true] .guided-selection-mark{opacity:1}

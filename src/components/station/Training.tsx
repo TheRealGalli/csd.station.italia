@@ -74,8 +74,8 @@ export default function Training() {
       <ServiceAnswers mode="training"/>
       <div className="training-contact-layout"><div>
         <div className="training-formats" role="group" aria-label="Modalità di formazione preferita, facoltativa">
-          <button type="button" aria-pressed={format === 'remote'} onClick={() => setFormat(format === 'remote' ? null : 'remote')}><Video size={24}/><strong>Da remoto</strong><span>Sessioni con il team su Google Meet.</span><i>{format === 'remote' ? <Check size={17}/> : <ArrowUpRight size={17}/>}</i></button>
-          <button type="button" aria-pressed={format === 'onsite'} onClick={() => setFormat(format === 'onsite' ? null : 'onsite')}><MapPin size={24}/><strong>In presenza</strong><span>Un consulente presso la tua azienda, su accordo.</span><i>{format === 'onsite' ? <Check size={17}/> : <ArrowUpRight size={17}/>}</i></button>
+          <button type="button" aria-pressed={format === 'remote'} onClick={() => setFormat(format === 'remote' ? null : 'remote')}><Video size={24}/><strong>Da remoto</strong><span>Sessioni con il team su Google Meet.</span><i className="training-selection-mark"><Check size={17} aria-hidden="true"/></i></button>
+          <button type="button" aria-pressed={format === 'onsite'} onClick={() => setFormat(format === 'onsite' ? null : 'onsite')}><MapPin size={24}/><strong>In presenza</strong><span>Un consulente presso la tua azienda, su accordo.</span><i className="training-selection-mark"><Check size={17} aria-hidden="true"/></i></button>
         </div>
         <p className="training-format-note" aria-live="polite">{format ? 'La preferenza sarà inclusa nel messaggio WhatsApp.' : 'Puoi scegliere una modalità oppure valutarla insieme.'}</p>
       </div><div className="training-contact-card">
