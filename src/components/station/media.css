@@ -223,7 +223,8 @@
 .mm-chips{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:22px}
 .mm-chips span{display:inline-flex;align-items:center;gap:6px;padding:7px 11px;border-radius:999px;border:1px solid #c5f47630;background:#c5f4760d;color:#e3edd6;font-size:12px}
 .mm-chips svg{color:#c5f476}
-.mm-ring{height:215px;margin:-6px -24px 0;touch-action:pan-y}
+/* copertine verticali, come le slide che si aprono dal telefono */
+.mm-ring{height:330px;margin:-6px -24px 0;touch-action:pan-y}
 .mm-now{display:flex;align-items:center;justify-content:space-between;gap:14px;margin-top:10px;padding:14px 16px;border-radius:12px;background:#1d2b1b;border:1px solid #c5f47622}
 .mm-now div{display:flex;flex-direction:column;gap:2px;min-width:0}
 .mm-now small{font:10px ui-monospace,monospace;letter-spacing:1px;color:#a8bd94}
@@ -236,6 +237,7 @@
 .mm-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:20px}
 .mm-grid a{display:flex;flex-direction:column;gap:6px;color:#e3edd6;font-size:12px}
 .mm-grid img{width:100%;aspect-ratio:16/9;object-fit:cover;border-radius:8px}
+.mm-slides .mm-grid{grid-template-columns:repeat(3,1fr)}.mm-slides .mm-grid img{aspect-ratio:9/16}
 .mm-overlay{position:fixed;inset:0;z-index:200;display:flex;flex-direction:column;background:#0b0f0a;animation:mm-in .25s ease}
 @keyframes mm-in{from{opacity:0}}
 .mm-overlay-bar{display:flex;align-items:center;gap:10px;padding:10px 12px 10px 16px;padding-top:max(10px,env(safe-area-inset-top));background:#152016;color:#f0f4e9;border-bottom:1px solid #c5f47622}

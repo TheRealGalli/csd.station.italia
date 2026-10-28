@@ -453,7 +453,7 @@ export function MediaMobile({ fallback = false }: { fallback?: boolean }) {
       <h2 id="mm-slides-title">Presentazioni che<br/><em>si sfogliano da sole.</em></h2>
       <p>Non sono file di PowerPoint: sono pagine React interattive. Si presentano dal browser, girano in loop su uno schermo, diventano la demo di un sito o un carosello dentro le tue pagine.</p>
       {fallback ? <div className="mm-grid">{list.map((d, k) => <a key={d.sector} href={d.src} target="_blank" rel="noreferrer"><img src={items[k].src} alt={items[k].alt} loading="lazy"/><span>{d.sector}</span></a>)}</div> : <>
-        <div className="mm-ring"><CircularCarousel items={items} preset="cylinder" intro="rise" cardWidth={236} aspectRatio={16 / 9} gap={16} curve={0} stretch={0} parallax={0} autoplay={deck || film ? 'off' : 'drift'} speed={9} fadeColor="#152016" depthFade={.5} cornerRadius={10} onChange={setActive} onItemClick={(_, k) => { if (k === active) setDeck(list[k]); }}/></div>
+        <div className="mm-ring"><CircularCarousel items={items} preset="cylinder" intro="rise" cardWidth={158} aspectRatio={9 / 16} gap={14} curve={0} stretch={0} parallax={0} autoplay={deck || film ? 'off' : 'drift'} speed={9} fadeColor="#152016" depthFade={.5} cornerRadius={10} onChange={setActive} onItemClick={(_, k) => { if (k === active) setDeck(list[k]); }}/></div>
         <div className="mm-now"><div><small>{String(active + 1).padStart(2, '0')} / {String(list.length).padStart(2, '0')}</small><b>{list[active]?.sector}</b><span>{list[active]?.slides ?? 8} slide · trascina per sfogliare</span></div><button type="button" onClick={() => setDeck(list[active])}>Apri <Presentation size={17}/></button></div>
       </>}
     </section>

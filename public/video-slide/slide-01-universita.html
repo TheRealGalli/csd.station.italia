@@ -28,7 +28,8 @@ header{display:flex;justify-content:space-between;align-items:center;padding:2.6
 header b{font-size:clamp(15px,2vw,22px);font-weight:500}
 header span{font-size:clamp(9px,1vw,12px);letter-spacing:.25em;color:var(--muted)}
 .hdr{display:flex;align-items:center;gap:1.4vw}
-.deck{position:relative;flex:1;min-height:0}
+/* niente fuori dal riquadro: le foto che entrano da un lato non allargano la pagina sul telefono */
+.deck{position:relative;flex:1;min-height:0;overflow:hidden}
 .slide{position:absolute;inset:0;padding:3vh 4.5vw;display:grid;grid-template-columns:1.05fr 1fr;gap:4vw;align-items:center;opacity:0;visibility:hidden;transition:opacity .5s,visibility .5s}
 .slide.on{opacity:1;visibility:visible}
 .slide>div:first-child>*{opacity:0;transform:translateY(18px);transition:opacity .5s,transform .7s cubic-bezier(.2,.8,.2,1)}
@@ -54,6 +55,14 @@ button.act.done::after,button.act:disabled::after{content:none}
 button.act+a.act{position:relative;margin-left:2.4em}
 button.act.done+a.act::after{content:'';position:absolute;left:calc(100% + .7em);top:50%;width:1.25em;height:1.25em;margin-top:-.625em;background:var(--lime);-webkit-mask:var(--nudge) center/contain no-repeat;mask:var(--nudge) center/contain no-repeat;animation:point-at 1.1s ease-in-out infinite;pointer-events:none}
 @keyframes point-at{0%,100%{transform:translateX(0)}50%{transform:translateX(.45em)}}
+/* finché l'azione non è finita, tutta la slide si può cliccare */
+.s2:not([data-done]),.s4:not([data-done]),.s7:not([data-done]),.s8:not([data-done]){cursor:pointer}
+/* schede da girare: la freccia circolare fa un giro ogni tanto e il bordo si accende a turno */
+.flip .front em .spin{display:inline-block;font-style:normal;color:var(--lime);animation:spin-hint 2.6s ease-in-out infinite}
+@keyframes spin-hint{0%,55%{transform:rotate(0)}85%,100%{transform:rotate(360deg)}}
+.s5.on .flip:not(.open) .front{animation:card-call 2.7s ease-in-out infinite}
+.s5.on .flip:nth-child(2):not(.open) .front{animation-delay:.9s}.s5.on .flip:nth-child(3):not(.open) .front{animation-delay:1.8s}
+@keyframes card-call{0%,100%{border-color:var(--line);box-shadow:0 0 0 0 #c5f47600}40%{border-color:#c5f476b0;box-shadow:0 0 0 3px #c5f47626}}
 .hint{display:block;margin-top:1.4vh;font-size:clamp(10px,1vw,12px);color:#7f936d;letter-spacing:.06em}
 .visual{position:relative;height:100%;min-height:0;margin-right:12vw}
 .s1 .visual,.s8 .visual{margin-right:0}
@@ -175,11 +184,12 @@ footer button:disabled{opacity:.3;cursor:default}
 
 /* 4 dato per dato */
 .bars{position:absolute;inset:22% 2% 12%;display:flex;align-items:flex-end;gap:5%}
-.bars div{flex:1;height:100%;display:flex;flex-direction:column;justify-content:flex-end;align-items:center;gap:1vh}
-.bars i{position:relative;display:block;width:100%;border-radius:10px 10px 0 0;border:2px dashed #3c4f2e;border-bottom:0;background:repeating-linear-gradient(135deg,#1b2718 0 8px,#151d13 8px 16px)}
+/* le altezze delle barre sono in percentuale dello spazio tra il numero (sopra) e l'etichetta (sotto): restano proporzionali ai dati */
+.bars div{position:relative;flex:1;height:100%;display:flex;flex-direction:column;justify-content:flex-end;align-items:center;padding:clamp(30px,3.4vw,44px) 0 clamp(22px,2.4vw,30px)}
+.bars i{position:relative;flex:none;display:block;width:100%;border-radius:10px 10px 0 0;border:2px dashed #3c4f2e;border-bottom:0;background:repeating-linear-gradient(135deg,#1b2718 0 8px,#151d13 8px 16px)}
 .bars i:after{content:'';position:absolute;inset:-2px -2px 0;border-radius:10px 10px 0 0;background:linear-gradient(#d9f7a3,#86a356);transform:scaleY(0);transform-origin:bottom;transition:transform .9s cubic-bezier(.3,1.6,.5,1)}
-.bars em{font-style:normal;font-weight:600;font-size:clamp(14px,1.7vw,22px);color:#4d6339;transition:color .3s .4s,transform .5s cubic-bezier(.3,1.8,.5,1) .4s}
-.bars span{font-size:clamp(10px,1.05vw,13px);color:var(--muted)}
+.bars em{position:absolute;left:0;right:0;bottom:calc(100% + 6px);z-index:1;text-align:center;font-style:normal;font-weight:600;font-size:clamp(14px,1.7vw,22px);color:#4d6339;transition:color .3s .4s,transform .5s cubic-bezier(.3,1.8,.5,1) .4s}
+.bars span{position:absolute;left:0;right:0;bottom:0;text-align:center;white-space:nowrap;font-size:clamp(10px,1.05vw,13px);color:var(--muted)}
 .bars div.on i:after{transform:scaleY(1)}.bars div.on em{color:var(--paper);transform:scale(1.15)}
 .bars div.dim i:after{background:linear-gradient(#5d7444,#3c4f2e)}
 .s4 .mano{width:34%;z-index:4;pointer-events:none;transition:left .55s cubic-bezier(.3,1.3,.5,1),top .55s cubic-bezier(.3,1.3,.5,1),opacity .4s;transform-origin:15% 30%}
@@ -350,6 +360,25 @@ footer button{padding:10px 14px;font-size:14px;white-space:nowrap}
 .price{padding:10px 12px;min-width:0;flex:1}.price b{font-size:26px}.price s{font-size:13px}.price span{font-size:10px}.price em{font-size:9px}
 .s8 .act{margin-top:4px}
 .s8 .laureata{right:0;height:100%}
+/* i tasti delle azioni a passi qui non servono: si tocca la slide e Otto dice dove */
+.slide button.act{display:none}
+button.act+a.act{margin-left:0}
+/* dove toccare: un cerchio che pulsa sul punto giusto, finché l'azione non è fatta */
+.s2:not(.cut-done) .visual::after,.s8:not([data-done]) .visual::after,.s7:not([data-done]) .step.on+.step:not(.on)::after{content:'';position:absolute;left:var(--tx,50%);top:var(--ty,50%);width:48px;height:48px;margin:-24px 0 0 -24px;border-radius:50%;border:2px solid var(--lime);box-shadow:0 0 18px #c5f47655;animation:tap-ring 1.7s ease-out infinite;pointer-events:none;z-index:6}
+.s2 .visual{--tx:68%;--ty:40%}.s8 .visual{--tx:64%;--ty:60%}
+.s7 .step{position:relative;--tx:calc(100% - 36px)}
+@keyframes tap-ring{0%{transform:scale(.5);opacity:0}25%{opacity:1}100%{transform:scale(1.25);opacity:0}}
+/* schede in colonna: immagine a sinistra, testo a destra; girate, il testo prende tutta la riga */
+.flips{grid-template-columns:1fr;grid-auto-rows:1fr;gap:8px;perspective:800px}
+.flip>span{padding:8px 14px}
+.flip .front{display:grid;grid-template-columns:72px 1fr;grid-template-rows:auto 1fr auto;column-gap:14px;align-items:center}
+.flip .front img{grid-column:1;grid-row:1/4;height:auto;max-height:100%;max-width:72px;align-self:center;justify-self:center}
+.flip .front small{grid-column:2;grid-row:1;align-self:end}
+.flip .front b{grid-column:2;grid-row:2;font-size:19px}
+.flip .front em{grid-column:2;grid-row:3;margin:0;align-self:start;font-size:10px}
+.flip .front:after{top:50%;right:14px;transform:translateY(-50%);font-size:34px}
+.flip .back{justify-content:center;gap:3px;padding:8px 14px}
+.flip .back b{font-size:14px}.flip .back p{font-size:11.5px;line-height:1.35}
 }
 /* telefoni bassi (o slide aperta nel sito, sotto la barra): testi più compatti; dove la scena ha bisogno di spazio
    la descrizione lascia il posto al grafico, il senso resta nel titolo e in quello che dice Otto */
@@ -385,7 +414,7 @@ footer{padding:6px 14px}footer button{padding:8px 12px}
   <div><span class="label">Il problema / 02</span>
     <h1>80 pagine.<br><em>10 minuti.</em></h1>
     <p>La commissione ha già ascoltato altre trenta tesi. Se le slide sono muri di testo, si perde dopo la seconda.</p>
-    <button class="act" data-do="trim">Sfoltisci la tesi ✂︎</button><span class="hint">Clicca e guarda cosa resta</span></div>
+    <button class="act" data-do="trim">Sfoltisci la tesi ✂︎</button><span class="hint">Tocca la slide e guarda cosa resta</span></div>
   <div class="visual"><img class="cut libri" src="uni/libri.webp" alt="Pila di libri"><div class="counter"><b id="pages">80</b><span>pagine da raccontare</span></div>
     <div class="one"><small>UNA SLIDE · UN'IDEA</small><strong>Il 70% degli studenti arriva al campus senza auto.</strong></div></div>
 </section>
@@ -417,18 +446,18 @@ footer{padding:6px 14px}footer button{padding:8px 12px}
     <p>Il grafico si svela quando lo decidi tu, così l'attenzione resta sul dato di cui stai parlando e non su quelli che vengono dopo.</p>
     <button class="act" data-do="reveal">Mostra il prossimo dato</button><span class="hint" id="revealHint">0 di 4 dati mostrati</span></div>
   <div class="visual"><div class="verdict" id="verdict">Conclusione: 70% usa un'alternativa all'auto</div>
-    <div class="bars" id="bars"><div><em data-v="40%">?</em><i style="height:100%"></i><span>Bus e treno</span></div><div><em data-v="30%">?</em><i style="height:75%"></i><span>Auto</span></div><div><em data-v="20%">?</em><i style="height:50%"></i><span>Bici</span></div><div><em data-v="10%">?</em><i style="height:25%"></i><span>A piedi</span></div></div><img class="cut mano" id="mano" src="uni/mano.webp" alt=""></div>
+    <div class="bars" id="bars"><div><i style="height:100%"><em data-v="40%">?</em></i><span>Bus e treno</span></div><div><i style="height:75%"><em data-v="30%">?</em></i><span>Auto</span></div><div><i style="height:50%"><em data-v="20%">?</em></i><span>Bici</span></div><div><i style="height:25%"><em data-v="10%">?</em></i><span>A piedi</span></div></div><img class="cut mano" id="mano" src="uni/mano.webp" alt=""></div>
 </section>
 
 <section class="slide s5" data-need="flip3">
   <div><span class="label">Per gli studenti / 05</span>
     <h1>Tesi, tesina<br><em>o esame orale.</em></h1>
     <p>Gira le tre schede: per ogni occasione la presentazione lavora in modo diverso.</p>
-    <span class="hint" id="flipHint">Clicca sulle schede · 0 di 3</span></div>
+    <span class="hint" id="flipHint">Tocca le schede · 0 di 3</span></div>
   <div class="visual"><div class="flips">
-    <button class="flip" data-do="flip"><span class="front" data-n="01"><small>LAUREA</small><img src="uni/libri.webp" alt="Libri"><b>Tesi</b><em>Gira la scheda ↻</em></span><span class="back"><b>La commissione segue il filo.</b><p>Domanda, metodo e risultati in sequenza: tu parli, il grafico arriva al momento giusto.</p><span class="art"><span class="steps3"><span>1 · La domanda</span><span>2 · Il metodo</span><span>3 · I risultati</span></span></span></span></button>
-    <button class="flip" data-do="flip"><span class="front" data-n="02"><small>MATURITÀ</small><img src="uni/mappamondo.webp" alt="Mappamondo"><b>Tesina</b><em>Gira la scheda ↻</em></span><span class="back"><b>Le materie si collegano.</b><p>Una mappa che si apre al clic e mostra i collegamenti tra le materie.</p><span class="art"><svg class="map" viewBox="8 0 144 80"><line x1="80" y1="34" x2="28" y2="16"/><line x1="80" y1="34" x2="132" y2="16"/><line x1="80" y1="34" x2="80" y2="58"/><circle class="c" cx="80" cy="34" r="14"/><circle cx="28" cy="16" r="9"/><circle cx="132" cy="16" r="9"/><circle cx="80" cy="58" r="8"/><text x="80" y="37">Tema</text><text x="28" y="34">Storia</text><text x="132" y="34">Scienze</text><text x="80" y="77">Letteratura</text></svg></span></span></button>
-    <button class="flip" data-do="flip"><span class="front" data-n="03"><small>ESAMI</small><img src="uni/microfono.webp" alt="Microfono"><b>Orale</b><em>Gira la scheda ↻</em></span><span class="back"><b>Le slide ti fanno da scaletta.</b><p>Una parola chiave per slide: niente da leggere, solo da raccontare.</p><span class="art"><span class="keys"><span>campus</span><span>70%</span><span>bici</span><span>limiti</span></span><span class="wave"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></span></span></span></button>
+    <button class="flip" data-do="flip"><span class="front" data-n="01"><small>LAUREA</small><img src="uni/libri.webp" alt="Libri"><b>Tesi</b><em>Gira la scheda <i class="spin">↻</i></em></span><span class="back"><b>La commissione segue il filo.</b><p>Domanda, metodo e risultati in sequenza: tu parli, il grafico arriva al momento giusto.</p><span class="art"><span class="steps3"><span>1 · La domanda</span><span>2 · Il metodo</span><span>3 · I risultati</span></span></span></span></button>
+    <button class="flip" data-do="flip"><span class="front" data-n="02"><small>MATURITÀ</small><img src="uni/mappamondo.webp" alt="Mappamondo"><b>Tesina</b><em>Gira la scheda <i class="spin">↻</i></em></span><span class="back"><b>Le materie si collegano.</b><p>Una mappa che si apre al clic e mostra i collegamenti tra le materie.</p><span class="art"><svg class="map" viewBox="8 0 144 80"><line x1="80" y1="34" x2="28" y2="16"/><line x1="80" y1="34" x2="132" y2="16"/><line x1="80" y1="34" x2="80" y2="58"/><circle class="c" cx="80" cy="34" r="14"/><circle cx="28" cy="16" r="9"/><circle cx="132" cy="16" r="9"/><circle cx="80" cy="58" r="8"/><text x="80" y="37">Tema</text><text x="28" y="34">Storia</text><text x="132" y="34">Scienze</text><text x="80" y="77">Letteratura</text></svg></span></span></button>
+    <button class="flip" data-do="flip"><span class="front" data-n="03"><small>ESAMI</small><img src="uni/microfono.webp" alt="Microfono"><b>Orale</b><em>Gira la scheda <i class="spin">↻</i></em></span><span class="back"><b>Le slide ti fanno da scaletta.</b><p>Una parola chiave per slide: niente da leggere, solo da raccontare.</p><span class="art"><span class="keys"><span>campus</span><span>70%</span><span>bici</span><span>limiti</span></span><span class="wave"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></span></span></span></button>
   </div></div>
 </section>
 
@@ -436,7 +465,7 @@ footer{padding:6px 14px}footer button{padding:8px 12px}
   <div><span class="label">Per i professori / 06</span>
     <h1>Lezioni seguite<br><em>fino all'ultima fila.</em></h1>
     <p>Domande a cui la classe risponde, risultati che compaiono sul momento: la lezione diventa una conversazione. Prova tu.</p>
-    <span class="hint">Rispondi alla domanda sullo schermo</span></div>
+    <span class="hint">Tocca una risposta sullo schermo</span></div>
   <div class="visual"><div class="lap"><img class="cut laptop" src="uni/laptop.webp" alt="Laptop">
     <div class="screen" id="screen"><small>DOMANDA PER LA CLASSE</small><b>Come arriva al campus la maggior parte degli studenti?</b>
       <div class="quiz" id="quiz"><button data-do="answer" style="--w:30%"><i></i><span>In auto</span><span>30%</span></button><button data-do="answer" data-right style="--w:40%"><i></i><span>In bus o in treno</span><span>40%</span></button><button data-do="answer" style="--w:20%"><i></i><span>In bici</span><span>20%</span></button></div></div></div></div>
@@ -474,13 +503,13 @@ $('#otto').innerHTML=otto;
 // cosa dice Otto su ogni slide, prima e dopo l'interazione
 const lines=[
   ['Ciao, sono Otto! Premi Avanti e partiamo.','Ciao, sono Otto! Premi Avanti e partiamo.'],
-  ['Ottanta pagine? Proviamo a sfoltire.','Da 80 pagine a 30 slide: c’è tutto, senza muri di testo.'],
+  ['Ottanta pagine? Tocca i libri e sfoltiamo.','Da 80 pagine a 30 slide: c’è tutto, senza muri di testo.'],
   ['Premi “Dopo” e guarda cosa succede alle parole.','Stessa pagina, ma si capisce al primo sguardo.'],
-  ['Un clic, un dato: tocca a te.','Ecco la conclusione che volevi far arrivare.'],
-  ['Gira le schede, una alla volta.','Tre occasioni, tre presentazioni diverse.'],
-  ['Rispondi come farebbe la classe.','Ecco i risultati, in diretta.'],
-  ['Premi “Passo successivo” per scoprire come lavoriamo.','Tre passi, e la presentazione è pronta.'],
-  ['La tua tesi merita slide così. Premi “Festeggia”!','Quando vuoi, scrivimi su WhatsApp.']];
+  ['Tocca il grafico: a ogni tocco, un dato.','Ecco la conclusione che volevi far arrivare.'],
+  ['Tocca le schede e girale, una alla volta.','Tre occasioni, tre presentazioni diverse.'],
+  ['Tocca una risposta, come farebbe la classe.','Ecco i risultati, in diretta.'],
+  ['Tocca la slide: ti mostro come lavoriamo, un passo alla volta.','Tre passi, e la presentazione è pronta.'],
+  ['La tua tesi merita slide così. Tocca la slide e festeggia!','Quando vuoi, scrivimi su WhatsApp.']];
 // dentro il sito il fumetto lo mostra la pagina, fuori dal riquadro; aperta da sola, lo mostra la slide
 const embedded=window.parent!==window;if(embedded)document.body.classList.add('embedded');
 // da telefono in verticale la targhetta di Otto sta dentro la slide anche nel sito
@@ -494,6 +523,9 @@ function go(i){index=Math.max(0,Math.min(slides.length-1,i));slides.forEach((s,k
 $('#prev').onclick=()=>{SFX.swish();go(index-1)};$('#next').onclick=()=>{SFX.swish();go(index+1)};
 window.addEventListener('keydown',e=>{if(e.key==='ArrowRight'){SFX.swish();go(index+1)}if(e.key==='ArrowLeft'){SFX.swish();go(index-1)}});
 const done=s=>{s.dataset.done=1;ready()};
+// le azioni a passi (sfoltisci, prossimo dato, passo successivo, festeggia) partono anche toccando un punto qualsiasi
+// della slide, non solo dal tasto; da telefono il tasto non c'è e Otto dice dove toccare
+$('#deck').addEventListener('click',e=>{if(e.target.closest('button,a,.switch,.share'))return;const s=e.target.closest('.slide.on');const b=s&&s.querySelector('button.act[data-do]');if(!b||b.disabled||b.classList.contains('done')||s.dataset.done)return;b.click()});
 // interazioni
 let revealed=0,flipped=0,step=1;
 document.addEventListener('click',e=>{const b=e.target.closest('[data-do]');if(!b)return;const s=b.closest('.slide'),a=b.dataset.do;
@@ -510,7 +542,7 @@ document.addEventListener('click',e=>{const b=e.target.closest('[data-do]');if(!
     cmp.dataset.busy=1;SFX.click();dropWords();for(let k=0;k<14;k++)SFX.tick(.1+k*.07);SFX.rise(1.05);SFX.pop(1.35);
     setTimeout(()=>{cmp.classList.add('is-after');s.classList.add('cmp-after');$('#cmpHint').textContent='Torna su “Prima” per confrontare';let p=0;const t=setInterval(()=>{p=Math.min(100,p+2.5);$('#donut').style.setProperty('--p',p);$('#donutN').firstChild.textContent=Math.round(p*.7)+'%';if(p===100){clearInterval(t);delete cmp.dataset.busy;done(s)}},18)},1150)}
   if(a==='reveal'){if(revealed<4&&!b.disabled){SFX.click(.48);SFX.pop(.64)}const bars=[...document.querySelectorAll('#bars div')];if(revealed>=bars.length||b.disabled)return;const k=revealed,bar=bars[k],m=$('#mano');revealed++;b.disabled=true;pointAt(k);setTimeout(()=>{m.classList.remove('tap');void m.offsetWidth;m.classList.add('tap')},480);setTimeout(()=>{bar.classList.add('on');const em=bar.querySelector('em');em.textContent=em.dataset.v;$('#revealHint').textContent=revealed+' di 4 dati mostrati';b.disabled=false;if(revealed===bars.length){b.classList.add('done');setTimeout(()=>{bars[1].classList.add('dim');$('#verdict').classList.add('show');m.style.opacity=0;done(s)},700)}},640)}
-  if(a==='flip'&&!b.classList.contains('open')){SFX.flip();b.classList.add('open');flipped++;$('#flipHint').textContent='Clicca sulle schede · '+flipped+' di 3';if(flipped===3)done(s)}
+  if(a==='flip'&&!b.classList.contains('open')){SFX.flip();b.classList.add('open');flipped++;$('#flipHint').textContent='Tocca le schede · '+flipped+' di 3';if(flipped===3)done(s)}
   if(a==='answer'){const q=$('#quiz');if(q.classList.contains('answered'))return;if(b.hasAttribute('data-right'))SFX.right();else{SFX.buzz();SFX.right(.3)}q.classList.add('answered');q.querySelectorAll('button').forEach(x=>x.classList.add(x.hasAttribute('data-right')?'right':(x===b?'wrong':'')||'x'));setTimeout(()=>done(s),700)}
   if(a==='step'){SFX.click();SFX.pop(.1);const st=document.querySelectorAll('#steps .step');if(step<st.length){st[step].classList.add('on');decrypt(st[step]);step++;$('#stepHint').textContent=step+' di 3'}if(step===st.length){b.classList.add('done');done(s)}}
   if(a==='party'){if(b.disabled)return;b.disabled=true;b.classList.add('done');s.classList.add('party');const c=$('#confetti'),W=c.clientWidth,H=c.clientHeight,cols=['#c5f476','#f6f7f2','#9fc35c','#e4c76b','#7b9262'];
