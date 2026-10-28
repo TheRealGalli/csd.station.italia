@@ -283,12 +283,6 @@ html.mm-locked,html.mm-locked body{overflow:hidden}
  .mm-overlay:not(.mm-film) .mm-overlay-bar b{flex:1;font-size:13px}
  .mm-overlay-bar button,.mm-overlay-bar .mv-share{width:34px;height:34px}
 }
-/* nuvoletta: da telefono le slide per ora si aprono solo da computer */
-.mm-slides{position:relative}
-.mm-notice{position:absolute;left:24px;right:24px;top:auto;margin-top:-170px;z-index:5;display:flex;align-items:flex-start;gap:12px;padding:14px 16px;border-radius:14px 14px 14px 4px;border:0;background:#c5f476;color:#1f3a00;text-align:left;font-size:13px;line-height:1.45;box-shadow:0 18px 40px #0008;animation:mm-pop .3s cubic-bezier(.3,1.4,.5,1) both;cursor:pointer}
-.mm-notice b{display:block;font-size:14px;margin-bottom:2px}
-.mm-notice svg{flex:none;margin-top:2px}
-@keyframes mm-pop{from{opacity:0;transform:translateY(10px) scale(.96)}}
 /* video aperto da telefono: il riquadro ha la forma dell'immagine, i comandi stanno sopra di essa, sotto il tasto schermo intero; dietro si vede il sito */
 .mm-film{background:#0b0f0ab8;-webkit-backdrop-filter:blur(12px) saturate(1.1);backdrop-filter:blur(12px) saturate(1.1)}
 .mm-film .mm-overlay-bar{background:#152016e6}

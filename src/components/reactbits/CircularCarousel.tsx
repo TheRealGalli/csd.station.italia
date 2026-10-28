@@ -467,6 +467,11 @@ const CircularCarousel = ({
     wakeRef.current();
   }, [directionSign]);
 
+  // quando l'autoplay torna attivo (per esempio dopo una pausa decisa dalla pagina) il giro riparte da solo
+  useEffect(() => {
+    wakeRef.current();
+  }, [settings.autoplay]);
+
   const incomingRef = useRef(incoming);
   incomingRef.current = incoming;
   const listRef = useRef(list);

@@ -264,7 +264,7 @@ footer button:disabled{opacity:.3;cursor:default}
 .step small{font-size:clamp(10px,1.05vw,13px);color:var(--muted)}
 
 /* 8 offerta */
-.s8 .laureata{right:-4%;bottom:0;height:90%;transform:translateX<mark>(30%)</mark>;opacity:0;transition:transform .9s cubic-bezier(.2,.8,.2,1) .2s,opacity .5s .2s}
+.s8 .laureata{right:-4%;bottom:0;height:90%;transform:translateX(30%);opacity:0;transition:transform .9s cubic-bezier(.2,.8,.2,1) .2s,opacity .5s .2s}
 .s8.on .laureata{transform:none;opacity:1}
 .prices{display:flex;gap:1vw;margin:0 0 2.4vh}
 .price{padding:1.8vh 1.2vw;border:1px solid var(--line);border-radius:12px;background:var(--card);min-width:9em}
@@ -292,6 +292,83 @@ footer button:disabled{opacity:.3;cursor:default}
 .share:hover{background:#c5f4762c;border-color:var(--lime)}
 .share svg{width:1.15em;height:1.15em;color:var(--lime)}
 .share-said{position:absolute;top:calc(100% + 8px);right:0;white-space:nowrap;padding:6px 10px;border-radius:6px;background:var(--lime);color:var(--ink,#172015);font-size:12px;letter-spacing:0}
+
+/* telefono in verticale: una colonna, testo in alto e scena sotto; Otto parla da una targhetta in basso a sinistra,
+   come nelle altre presentazioni (anche dentro il sito, dove su computer il fumetto lo mostra la pagina) */
+@media (orientation:portrait) and (max-width:820px){
+header{padding:12px 16px;gap:12px}
+header b{font-size:17px;white-space:nowrap}
+header span{font-size:8px;letter-spacing:.14em;line-height:1.4}
+.hdr{gap:8px}
+.share{padding:6px 10px;font-size:11px;gap:5px}
+.slide{grid-template-columns:1fr!important;grid-template-rows:auto minmax(0,1fr);align-items:start;gap:10px;padding:14px 18px 78px}
+.label{font-size:10px;letter-spacing:.24em}
+h1{font-size:clamp(27px,8.4vw,40px);margin:8px 0 10px}
+p{font-size:14px;line-height:1.45;margin:0 0 12px}
+.act{font-size:14px;padding:10px 14px}
+.hint{font-size:11px;margin-top:8px}
+.visual{margin-right:0!important;height:100%}
+.slide:not(.s4) .visual{transform:translateY(16px) scale(.98)}
+footer{padding:8px 14px;gap:8px}
+footer button{padding:10px 14px;font-size:14px;white-space:nowrap}
+.dots{gap:4px}.dots i{width:12px}.dots i.on{width:22px}
+.note{padding:0 16px 8px;font-size:10px}
+.embedded .say,.embedded .otto-wrap{display:block}
+.otto-wrap,.otto-wrap.big{left:16px;right:auto;bottom:12px;transform:scale(.3);transform-origin:bottom left;z-index:3}
+.say,.say.show{left:12px;right:12px;bottom:10px;max-width:none;min-height:58px;padding:9px 14px 9px 64px;border-radius:12px 12px 12px 4px;background:#1b2718;border:1px solid #536e3c;color:#dbe7cc;font-size:13px;line-height:1.35;box-shadow:none;opacity:1;transform:none;z-index:2}
+.say:before{content:'OTTO';display:block;margin-bottom:2px;font:600 9px/1.2 ui-monospace,monospace;letter-spacing:.24em;color:var(--lime)}
+/* scene una per una, nello spazio rimasto */
+.s1 .corona{right:4%;height:100%}
+.lode{font-size:20px;padding:8px 10px}
+.mini{width:34%}
+.s2 .libri{left:auto;right:0;height:100%}
+.counter{padding:8px 10px}.counter b{font-size:34px}.counter span{font-size:10px}
+.one{left:4%;right:4%;top:22%;padding:14px 16px}.one small{font-size:9px}.one strong{font-size:18px}
+.s3 .gains{display:none}
+.switch button{padding:8px 16px;font-size:13px}
+.compare{inset:0}
+.compare>div{padding:12px 14px}
+.before{font-size:7px}.before h4{font-size:11px}.before:after{font-size:8px}
+.after .sum,.after .ppl,.after .ppl-t,.after .lead{display:none}
+.hb{gap:5px}.hb>div{gap:1px 8px}.after-row{margin-top:8px}.compare.is-after .after{padding-top:10px!important}
+.after h4{font-size:19px}.after .lead{font-size:11px}.after .from{font-size:8px}
+.hb>div,.legend{font-size:10px}.hb b{font-size:11px}.donut b{font-size:18px!important}.donut .dl{font-size:7px}
+.bars{inset:20% 2% 4%}.bars em{font-size:16px}.bars span{font-size:10px}
+.verdict{right:4%;font-size:12px;padding:8px 10px}
+.s4 .mano{width:28%}
+.flips{inset:0;gap:8px}
+.flip>span{padding:10px 8px}
+.flip .front b{font-size:17px}.flip .front small,.flip .front em{font-size:9px}.flip .front img{height:42%}
+.flip .front:after{font-size:30px}
+.flip .back{padding:10px 8px;gap:6px}.flip .back b{font-size:13px}.flip .back p{font-size:10.5px}
+.flip .back .art{display:none}
+.screen small{font-size:6px}.screen b{font-size:10px;margin:2px 0 5px}
+.quiz{gap:3px}.quiz button{font-size:9px;padding:3px 6px}
+.steps{inset:0;gap:8px}
+.step{gap:10px;padding:10px 12px}.step i{width:30px}.step b{font-size:14px}.step small{font-size:11px}
+.prices{gap:8px;margin-bottom:12px}
+.price{padding:10px 12px;min-width:0;flex:1}.price b{font-size:26px}.price s{font-size:13px}.price span{font-size:10px}.price em{font-size:9px}
+.s8 .act{margin-top:4px}
+.s8 .laureata{right:0;height:100%}
+}
+/* telefoni bassi (o slide aperta nel sito, sotto la barra): testi più compatti; dove la scena ha bisogno di spazio
+   la descrizione lascia il posto al grafico, il senso resta nel titolo e in quello che dice Otto */
+@media (orientation:portrait) and (max-width:820px) and (max-height:700px){
+header{padding:9px 16px}
+.slide{gap:8px;padding:10px 18px 70px}
+h1{font-size:clamp(24px,7.4vw,32px);margin:6px 0 8px}
+p{font-size:13px;margin:0 0 8px}
+.act{padding:8px 12px}
+.hint{margin-top:6px}
+.say,.say.show{min-height:50px;padding:7px 12px 7px 58px;font-size:12px}
+.otto-wrap,.otto-wrap.big{transform:scale(.27);bottom:10px}
+.s3 p,.s7 p{display:none}
+.switch button{padding:6px 14px}
+.after h4{font-size:16px}.hb{gap:3px}.hb>div{font-size:9px}.after .legend{display:none}
+.donut{width:25%}
+.prices{margin-bottom:8px}.price{padding:8px 10px}.price b{font-size:22px}
+footer{padding:6px 14px}footer button{padding:8px 12px}
+}
 </style></head>
 <body>
 <header><b>CSD Station</b><div class="hdr"><span>SLIDE INTERATTIVE / UNIVERSITÀ</span><button class="share" id="share" type="button" aria-label="Condividi: Slide interattive Università"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 15V3m0 0L7.5 7.5M12 3l4.5 4.5M5 12v7a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-7" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>Condividi</button></div></header>
@@ -406,7 +483,9 @@ const lines=[
   ['La tua tesi merita slide così. Premi “Festeggia”!','Quando vuoi, scrivimi su WhatsApp.']];
 // dentro il sito il fumetto lo mostra la pagina, fuori dal riquadro; aperta da sola, lo mostra la slide
 const embedded=window.parent!==window;if(embedded)document.body.classList.add('embedded');
-const say=(t,happy=false)=>{if(embedded){parent.postMessage({csd:'otto',text:t,happy},location.origin);return}const b=$('#say');b.classList.remove('show');setTimeout(()=>{b.textContent=t;b.classList.add('show')},120)};
+// da telefono in verticale la targhetta di Otto sta dentro la slide anche nel sito
+const phone=matchMedia('(orientation:portrait) and (max-width:820px)');
+const say=(t,happy=false)=>{if(embedded){parent.postMessage({csd:'otto',text:t,happy},location.origin);if(!phone.matches)return}const b=$('#say');b.classList.remove('show');setTimeout(()=>{b.textContent=t;b.classList.add('show')},120)};
 // le slide si vendono senza audio: le chiamate restano ma non suonano
 const SFX=new Proxy({},{get:()=>()=>{}});
 const dots=$('#dots');slides.forEach(()=>dots.append(document.createElement('i')));
