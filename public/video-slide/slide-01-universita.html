@@ -486,7 +486,7 @@ footer{padding:6px 14px}footer button{padding:8px 12px}
 <section class="slide s8" data-need="party">
   <div><span class="label">La tua presentazione / 08</span>
     <h1>Pronti per<br><em>il 110 e lode?</em></h1>
-    <div class="prices"><div class="price"><em>Studenti −50%</em><s>49 €</s><b>24,50 €</b><span>15 slide interattive</span></div><div class="price"><em>Studenti −50%</em><s>99 €</s><b>49,50 €</b><span>ogni minuto di video motion</span></div></div>
+    <div class="prices"><div class="price"><em>Studenti −50%</em><s>99 €</s><b>49,50 €</b><span>15 slide interattive</span></div><div class="price"><em>Studenti −50%</em><s>99 €</s><b>49,50 €</b><span>ogni minuto di video motion</span></div></div>
     <button class="act solid" data-do="party">Festeggia 🎉</button> <a class="act" href="https://wa.me/393518628203?text=Ciao%20Carlo!%20Vorrei%20le%20slide%20animate%20per%20la%20mia%20tesi." target="_blank" rel="noopener">Scrivici su WhatsApp</a></div>
   <div class="visual"><img class="cut laureata" src="uni/laureata.webp" alt="Neolaureata con il diploma"></div>
 </section>
@@ -535,7 +535,7 @@ document.addEventListener('click',e=>{const b=e.target.closest('[data-do]');if(!
     for(let k=0;k<16;k++){const p=document.createElement('i');p.className='sheet';p.style.left=(lb.left-vb.left+lb.width*(.25+Math.random()*.4))+'px';p.style.top=(lb.top-vb.top+lb.height*(.1+Math.random()*.5))+'px';v.append(p);if(k%3===0)SFX.paper(k*.055);
       const dx=(Math.random()<.5?-1:1)*(80+Math.random()*260),up=-(120+Math.random()*180),r=(Math.random()-.5)*720;
       p.animate([{transform:'translate(0,0) rotate(0)',opacity:1},{transform:`translate(${dx*.55}px,${up}px) rotate(${r*.5}deg)`,opacity:1,offset:.45},{transform:`translate(${dx}px,${up*.2+260}px) rotate(${r}deg)`,opacity:0}],{duration:1300+Math.random()*500,delay:k*55,easing:'cubic-bezier(.25,.6,.4,1)',fill:'forwards'}).onfinish=()=>p.remove()}
-    SFX.land(2.2);let n=80;const t=setInterval(()=>{n=Math.max(30,n-3);$('#pages').textContent=n;if(n===30){clearInterval(t);$('#pages').textContent='30 slide';$('#pages').nextElementSibling.innerHTML='per 80 pagine · 2 pacchetti da 49 €';s.classList.add('trimmed');done(s)}},60)}
+    SFX.land(2.2);let n=80;const t=setInterval(()=>{n=Math.max(30,n-3);$('#pages').textContent=n;if(n===30){clearInterval(t);$('#pages').textContent='30 slide';$('#pages').nextElementSibling.innerHTML='per 80 pagine · 2 pacchetti da 99 €';s.classList.add('trimmed');done(s)}},60)}
   if(a==='before'||a==='after'){const after=a==='after',cmp=$('#compare');if(after===cmp.classList.contains('is-after')||cmp.dataset.busy)return;s.querySelectorAll('.switch button').forEach(x=>x.setAttribute('aria-pressed',x===b));
     if(!after){SFX.click();resetWords();cmp.classList.remove('is-after');s.classList.remove('cmp-after');$('#cmpHint').textContent='Premi “Dopo”: le parole cadono e restano i dati';return}
     // le parole del paragrafo cadono per gravità, poi la scheda si riempie con i dati

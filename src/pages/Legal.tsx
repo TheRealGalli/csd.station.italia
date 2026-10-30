@@ -9,7 +9,7 @@ import './legal.css';
 export type LegalDoc = 'privacy' | 'termini';
 type Section = { id: string; label: string; body: React.ReactNode };
 
-const UPDATED = '25 ottobre 2026';
+const UPDATED = '30 ottobre 2026';
 const mail = <a href="mailto:carlo@csd-station.it">carlo@csd-station.it</a>;
 
 const Owner = () => <div className="legal-card">
@@ -261,7 +261,7 @@ const termini: Section[] = [
   { id: 'video-slide', label: 'Video & Slide', body: <>
     <h3>Per tutti</h3>
     <ul>
-      <li><strong>Slide interattive:</strong> 49 € ogni pacchetto da 15 slide. <strong>Video motion:</strong> 99 € ogni minuto di contenuto (o frazione). <strong>Video con AI generativa:</strong> indicativamente da 199 € ogni minuto di video; il prezzo finale dipende dalla complessità del progetto ed è indicato nel preventivo.</li>
+      <li><strong>Slide interattive:</strong> 99 € ogni pacchetto da 15 slide. <strong>Video motion:</strong> 99 € ogni minuto di contenuto (o frazione). <strong>Slide + video motion:</strong> 149 € per un pacchetto da 15 slide e un minuto di contenuto.</li>
       <li><strong>Contenuti:</strong> lavoriamo su testi, dati e immagini che ci fornisci; impaginazione, grafica e animazione sono nostre. Un giro di modifiche è incluso.</li>
       <li><strong>Formati:</strong> slide come pagine web interattive (React), da presentare nel browser, far girare in loop su uno schermo o inserire in un sito; su richiesta anche come immagini statiche, senza animazioni né interazioni; video in MP4 Full HD. Ogni acquisto comprende un solo formato, a scelta del Cliente (per esempio 16:9 o 9:16). Si può avere qualsiasi formato, ma ogni formato in più è un nuovo acquisto, al prezzo del servizio.</li>
       <li><strong>Tempi:</strong> indicati alla conferma, in base alla quantità di materiale.</li>
@@ -269,7 +269,7 @@ const termini: Section[] = [
     <h3 id="studenti">Studenti: tesi, tesine ed esami</h3>
     <p>Quando l’acquisto è fatto da uno studente come privato, per un uso personale di studio, si applicano anche queste regole e il Codice del Consumo.</p>
     <ul>
-      <li><strong>Sconto studenti del 50%</strong> sui prezzi di slide e video motion, esclusi i video con AI generativa, per chi è iscritto a un’università o a un istituto AFAM al momento dell’ordine. Basta mostrarci un documento che provi l’iscrizione. Lo sconto è personale, vale per ordini a uso di studio, non si cumula con altre promozioni e non si applica ad acquisti di aziende o enti. Se i requisiti risultano falsi, lo sconto decade e la differenza è dovuta.</li>
+      <li><strong>Sconto studenti del 50%</strong> sui prezzi di slide e video motion per chi è iscritto a un’università o a un istituto AFAM al momento dell’ordine. Basta mostrarci un documento che provi l’iscrizione. Lo sconto è personale, vale per ordini a uso di studio, non si cumula con altre promozioni e non si applica ad acquisti di aziende o enti. Se i requisiti risultano falsi, lo sconto decade e la differenza è dovuta.</li>
       <li><strong>Pagamento</strong> anticipato alla conferma dell’ordine.</li>
       <li><strong>Autore resti tu:</strong> non scriviamo, non riassumiamo e non modifichiamo nel merito tesi o elaborati; diamo forma visiva ai contenuti che ci consegni. Il rispetto delle regole del tuo ateneo e delle indicazioni del relatore, e i diritti sui materiali di terzi che inserisci, restano a tuo carico.</li>
       <li><strong>Nessuna promessa sul voto:</strong> “110 e lode” è un modo di dire. Il voto dipende da te e dalla commissione.</li>

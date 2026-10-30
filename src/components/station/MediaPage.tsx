@@ -7,30 +7,24 @@ import DepthCarouselCustom from '@/components/reactbits/DepthCarouselCustom';
 import { Otto } from './StationExperiences';
 import './media.css';
 
-// Video & Slide: vetrina delle slide interattive (49 € ogni 15), dei video motion (99 € al minuto) e dei video con AI generativa (da 199 € al minuto).
+// Video & Slide: vetrina delle slide interattive (99 € ogni 15), dei video motion (99 € al minuto) e del pacchetto con entrambi (149 €).
 // I materiali arrivano dalla sessione di produzione (Remotion + FFmpeg): basta indicare qui src e poster.
 const whatsapp = (message: string) => `https://wa.me/393518628203?text=${encodeURIComponent(message)}`;
 export const mediaContact = whatsapp('Ciao Carlo! Vorrei informazioni su video motion e slide interattive.');
 function Eyebrow({ children }: { children: React.ReactNode }) { return <div className="station-eyebrow"><span/>{children}</div>; }
 
-type Demo = { n: string; key: string; title: string; note: string; src?: string; poster?: string; start?: number; verticale?: boolean; durata?: string; ai?: boolean };
+type Demo = { n: string; key: string; title: string; note: string; src?: string; poster?: string; start?: number; verticale?: boolean; durata?: string };
 // Video demo da 30 secondi, 1920×1080, con colonna sonora originale composta per ciascuno.
 const videos: Demo[] = [
   { n: '01', key: 'universita', title: 'Università e tesine', note: 'Da una tesi di 80 pagine a 10 minuti chiari, in 30 secondi.', src: '/video-slide/film-universita.mp4', poster: '/video-slide/film-universita.webp', start: 1.6 },
-  { n: '02', key: 'immobili', title: 'Immobili e progetti', note: 'Dal terreno alla casa finita: un progetto raccontato in 30 secondi.', src: '/video-slide/film-casa.mp4', poster: '/video-slide/film-casa.webp' },
-  { n: '03', key: 'veicoli', title: 'Veicoli e colori', note: 'Un’icona, sei colori: uno studio colore in 30 secondi.', src: '/video-slide/film-veicoli.mp4', poster: '/video-slide/film-veicoli.webp', start: 2.5 },
-  { n: '04', key: 'prodotto', title: 'Lancio di un prodotto', note: 'Sette gusti, una linea: CSD Pop raccontata in 30 secondi.', src: '/video-slide/film-prodotto.mp4', poster: '/video-slide/film-prodotto.webp?v=2', start: 1.6 },
-  { n: '05', key: 'report', title: 'Report aziendale', note: 'Ricavi, margine, cassa e consegne: un semestre letto in 30 secondi.', src: '/video-slide/film-report.mp4?v=2', poster: '/video-slide/film-report.webp', start: 2.2 },
-  { n: '06', key: 'cibo', title: 'Menu e locale', note: 'Fritto & Burger: un menù raccontato morso dopo morso, in 30 secondi.', src: '/video-slide/film-cibo.mp4', poster: '/video-slide/film-cibo.webp', start: 1.6 },
+  { n: '02', key: 'gioiellerie', title: 'Gioielli', note: 'Un Datejust in 30 secondi: mezzo giro di lancetta.', src: '/video-slide/film-gioiellerie.mp4', poster: '/video-slide/film-gioiellerie.webp', start: 4.9 },
+  { n: '03', key: 'immobili', title: 'Immobili e progetti', note: 'Dal terreno alla casa finita: un progetto raccontato in 30 secondi.', src: '/video-slide/film-casa.mp4', poster: '/video-slide/film-casa.webp' },
+  { n: '04', key: 'veicoli', title: 'Veicoli e colori', note: 'Un’icona, sei colori: uno studio colore in 30 secondi.', src: '/video-slide/film-veicoli.mp4', poster: '/video-slide/film-veicoli.webp', start: 2.5 },
+  { n: '05', key: 'prodotto', title: 'Lancio di un prodotto', note: 'Sette gusti, una linea: CSD Pop raccontata in 30 secondi.', src: '/video-slide/film-prodotto.mp4', poster: '/video-slide/film-prodotto.webp?v=2', start: 1.6 },
+  { n: '06', key: 'report', title: 'Report aziendale', note: 'Ricavi, margine, cassa e consegne: un semestre letto in 30 secondi.', src: '/video-slide/film-report.mp4?v=2', poster: '/video-slide/film-report.webp', start: 2.2 },
+  { n: '07', key: 'cibo', title: 'Menu e locale', note: 'Fritto & Burger: un menù raccontato morso dopo morso, in 30 secondi.', src: '/video-slide/film-cibo.mp4', poster: '/video-slide/film-cibo.webp', start: 1.6 },
 ];
-// Video con AI generativa, tutti verticali: per i prossimi basta aggiungere src, poster e durata.
-const aiVideos: Demo[] = [
-  { n: '01', key: 'orologio', title: 'Gioielli', note: 'Un orologio che prende forma, pezzo dopo pezzo.', src: '/video-slide/film-ai-orologio.mp4', poster: '/video-slide/film-ai-orologio.webp', start: 11, durata: '0:33', verticale: true, ai: true },
-  { n: '02', key: 'gioiello', title: 'Gioielli', note: 'Un gioiello raccontato con più libertà creativa.', verticale: true, ai: true },
-  { n: '03', key: 'hardware', title: 'Hardware', note: 'Un prodotto tecnico mostrato scena per scena.', verticale: true, ai: true },
-  { n: '04', key: 'moda', title: 'Moda', note: 'Capi e collezioni in movimento.', verticale: true, ai: true },
-];
-const titoloFilm = (v: Demo) => `${v.title} · ${v.ai ? 'Video con AI generativa' : 'Video motion'} CSD Station`;
+const titoloFilm = (v: Demo) => `${v.title} · Video motion CSD Station`;
 
 // Slide interattive vere, una presentazione da 15 slide per settore (file HTML autonomi in /video-slide/).
 type Deck = { sector: string; key?: string; src?: string; slides?: number; bg?: string; vertical?: boolean };
@@ -310,7 +304,7 @@ function OttoRunner({ hit, textRef, boxRef }: { hit: number; textRef: React.RefO
 export default function MediaPage({ children }: { children?: React.ReactNode }) {
   const [open, setOpen] = useState<Demo | null>(null), [peek, setPeek] = useState(1), [fromLink, setFromLink] = useState(false);
   // aperto da un link condiviso: il video giusto si apre da solo
-  useEffect(() => { const key = linkParam('video'), film = [...videos, ...aiVideos].find(v => v.key === key && v.src); if (film) { setFromLink(true); setOpen(film); } }, []);
+  useEffect(() => { const key = linkParam('video'), film = videos.find(v => v.key === key && v.src); if (film) { setFromLink(true); setOpen(film); } }, []);
   useEffect(() => { if (!open) setFromLink(false); }, [open]);
   const chipRef = useRef<HTMLSpanElement>(null), chipText = useRef<HTMLSpanElement>(null);
   const heroVideo = useRef<HTMLVideoElement>(null);
@@ -340,7 +334,7 @@ export default function MediaPage({ children }: { children?: React.ReactNode }) 
       <h1>Le idee si capiscono<br/><span>quando si muovono.</span></h1>
       <p>{mediaIntro}</p>
       <a className="station-button" href="#slide">Guarda gli esempi <ArrowDown size={18}/></a>
-      <div className="nfc-benefits"><span><Check size={15}/> 15 slide a 49 €</span><span><Check size={15}/> Video da 99 € al minuto</span><span className="mh-student"><GraduationCap size={15}/> Studenti universitari: −50%</span></div>
+      <div className="nfc-benefits"><span><Check size={15}/> 15 slide a 99 €</span><span><Check size={15}/> Video da 99 € al minuto</span><span className="mh-student"><GraduationCap size={15}/> Studenti universitari: −50%</span></div>
     </div><div className="media-hero-art">
       <div className="mh-slide" aria-hidden="true"><div className="mh-peek" key={peek}><span className="ms-eyebrow">PROSSIMA · {heroScenes[peek].sector.toUpperCase()}</span><b>{heroScenes[peek].title}</b><PeekVisual kind={heroScenes[peek].kind}/></div></div>
       <div className="mh-video" aria-hidden="true"><video ref={heroVideo} onTimeUpdate={e => setPeek((Math.floor(e.currentTarget.currentTime / 5) + 1) % heroScenes.length)} src="/video-slide/media-motion.mp4" poster="/video-slide/media-motion.jpg" autoPlay muted loop playsInline preload="metadata"/><span className="mh-rec"><i/> MOTION</span></div>
@@ -355,27 +349,22 @@ export default function MediaPage({ children }: { children?: React.ReactNode }) 
     </div></section>
 
     <section className="media-section wrap" id="video">
-      <div className="section-heading"><div><Eyebrow>02 / VIDEO MOTION</Eyebrow><h2>Sei esempi da 30 secondi.<br/><span>Nessuna voce, solo ritmo.</span></h2></div><p>Grafiche animate e dati verosimili. Ogni video ha la sua musica originale, a tempo con le scene.</p></div>
+      <div className="section-heading"><div><Eyebrow>02 / VIDEO MOTION</Eyebrow><h2>Sette esempi da 30 secondi.<br/><span>Nessuna voce, solo ritmo.</span></h2></div><p>Grafiche animate e dati verosimili. Ogni video ha la sua musica originale, a tempo con le scene.</p></div>
       <div className="mv-grid">{videos.map(v => <VideoCard key={v.n} v={v} onOpen={() => setOpen(v)}/>)}</div>
     </section>
 
-    <section className="media-section wrap" id="video-ai">
-      <div className="section-heading"><div><Eyebrow>03 / VIDEO CON AI GENERATIVA</Eyebrow><h2>Scene mai girate.<br/><span>Pronte per il web.</span></h2></div><p>Clip create con l’AI generativa, poi montate con grafica, testi, musica ed effetti sonori. Pensate per il telefono, in verticale. Gli altri esempi arrivano prossimamente.</p></div>
-      <div className="mv-grid verticali">{aiVideos.map(v => <VideoCard key={v.key} v={v} onOpen={() => setOpen(v)}/>)}</div>
-    </section>
-
     <section className="media-section wrap" id="prezzi">
-      <div className="section-heading"><div><Eyebrow>04 / PREZZI</Eyebrow><h2>Tre formati.<br/>Prezzi chiari.</h2></div><p>Si parte dai tuoi contenuti: testi, dati e immagini. Al resto pensiamo noi, dall’idea al file finito.</p></div>
+      <div className="section-heading"><div><Eyebrow>03 / PREZZI</Eyebrow><h2>Tre formati.<br/>Prezzi chiari.</h2></div><p>Si parte dai tuoi contenuti: testi, dati e immagini. Al resto pensiamo noi, dall’idea al file finito.</p></div>
       <div className="mp-grid">
-        <article className="mp-card"><Presentation size={28}/><h3>Slide interattive</h3><div className="price-row"><strong>49 €</strong><span>pacchetto da 15 slide</span></div>
+        <article className="mp-card"><Presentation size={28}/><h3>Slide interattive</h3><div className="price-row"><strong>99 €</strong><span>pacchetto da 15 slide</span></div>
           <ul className="web-points">{['Layout moderni e coerenti', 'Grafici e numeri leggibili', 'Nel browser, in loop su schermo o dentro il tuo sito', 'Full HD, nel formato che preferisci'].map(p => <li key={p}><Check size={14}/>{p}</li>)}</ul>
-          <a className="station-button" href={whatsapp('Ciao Carlo! Mi interessano le slide interattive (49 € per 15 slide).')} target="_blank" rel="noreferrer">Richiedi le slide <ArrowUpRight size={17}/></a></article>
-        <article className="mp-card"><Clapperboard size={28}/><h3>Video motion interattivo</h3><div className="price-row"><strong>99 €</strong><span>ogni minuto di contenuto</span></div>
+          <a className="station-button" href={whatsapp('Ciao Carlo! Mi interessano le slide interattive (99 € per 15 slide).')} target="_blank" rel="noreferrer">Richiedi le slide <ArrowUpRight size={17}/></a></article>
+        <article className="mp-card"><Clapperboard size={28}/><h3>Video motion</h3><div className="price-row"><strong>99 €</strong><span>ogni minuto di contenuto</span></div>
           <ul className="web-points">{['Grafiche, testi e dati animati', 'Musica ed effetti sonori, senza voce fuori campo', 'Full HD, pronto per il web', 'Nel formato che preferisci'].map(p => <li key={p}><Check size={14}/>{p}</li>)}</ul>
-          <a className="station-button" href={whatsapp('Ciao Carlo! Mi interessa un video motion interattivo (99 € al minuto).')} target="_blank" rel="noreferrer">Richiedi un video <ArrowUpRight size={17}/></a></article>
-        <article className="mp-card"><Sparkles size={28}/><h3>Video con AI generativa</h3><div className="price-row"><strong>da 199 €</strong><span>ogni minuto di video, prezzo indicativo in base alla complessità</span></div>
-          <ul className="web-points">{['Grafica, testi e dati animati', 'Musica ed effetti sonori', 'Full HD, pronto per il web', 'Nel formato che preferisci'].map(p => <li key={p}><Check size={14}/>{p}</li>)}</ul>
-          <a className="station-button" href={whatsapp('Ciao Carlo! Mi interessa un video con AI generativa: vorrei un preventivo.')} target="_blank" rel="noreferrer">Chiedi un preventivo <ArrowUpRight size={17}/></a></article>
+          <a className="station-button" href={whatsapp('Ciao Carlo! Mi interessa un video motion (99 € al minuto).')} target="_blank" rel="noreferrer">Richiedi un video <ArrowUpRight size={17}/></a></article>
+        <article className="mp-card"><Sparkles size={28}/><h3>Slide + video motion</h3><div className="price-row"><strong>149 €</strong><span>15 slide e un minuto di video</span></div>
+          <ul className="web-points">{['Il pacchetto da 15 slide', 'Un minuto di video motion', 'Stessi materiali, stessa identità', 'Nel formato che preferisci'].map(p => <li key={p}><Check size={14}/>{p}</li>)}</ul>
+          <a className="station-button" href={whatsapp('Ciao Carlo! Mi interessa il pacchetto slide + video motion (149 €).')} target="_blank" rel="noreferrer">Richiedi il pacchetto <ArrowUpRight size={17}/></a></article>
       </div>
       <a className="mp-student" href="/terms-of-service/#studenti"><GraduationCap size={22}/><span><b>Studenti universitari: 50% di sconto</b> su slide e video motion per tesi, tesine ed esami. Basta un documento che provi l’iscrizione.</span><ArrowUpRight size={17}/></a>
       <p className="catalog-note">Gli esempi sono concept dimostrativi con dati verosimili, non lavori per clienti reali. I marchi citati appartengono ai rispettivi titolari, che non sono affiliati a CSD Station. Pianoforte delle colonne sonore: Salamander Grand Piano di Alexander Holm (<a href="https://creativecommons.org/licenses/by/3.0/" target="_blank" rel="noreferrer">CC BY 3.0</a>).</p>
@@ -419,12 +408,12 @@ function HeroLoop({ hold = false }: { hold?: boolean }) {
 // fallback: è la versione nella pagina prerenderizzata, nascosta da computer: niente caroselli e niente video in riproduzione
 export function MediaMobile({ fallback = false }: { fallback?: boolean }) {
   const Title = fallback ? 'h2' : 'h1';
-  const list = decks.filter(d => d.src), films = videos.filter(v => v.src), aiFilms = aiVideos.filter(v => v.src);
+  const list = decks.filter(d => d.src), films = videos.filter(v => v.src);
   const [active, setActive] = useState(0), [deck, setDeck] = useState<Deck | null>(null), [film, setFilm] = useState<Demo | null>(null), [fromLink, setFromLink] = useState(false);
   // aperto da un link condiviso: da telefono la presentazione o il video si aprono subito a schermo intero
   useEffect(() => {
     if (fallback) return;
-    const d = list.find(x => x.key === linkParam('slide')), v = [...films, ...aiFilms].find(x => x.key === linkParam('video'));
+    const d = list.find(x => x.key === linkParam('slide')), v = films.find(x => x.key === linkParam('video'));
     if (d) { setTimeout(() => document.getElementById('mm-slide')?.scrollIntoView({ block: 'start' }), 400); setDeck(d); } else if (v) { setFromLink(true); setFilm(v); }
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [fallback]);
@@ -461,7 +450,7 @@ export function MediaMobile({ fallback = false }: { fallback?: boolean }) {
       <Title id="mm-title" className="mm-title">Le idee si capiscono<br/><em>quando si muovono.</em></Title>
       <p>{mediaIntro}</p>
       <div className="mm-hero-video" aria-hidden="true">{fallback ? <img src="/video-slide/media-motion.jpg" alt="" loading="lazy"/> : <HeroLoop hold={!!(film || deck)}/>}<span className="mh-rec"><i/> MOTION</span></div>
-      <div className="mm-chips"><span><Check size={14}/> 15 slide a 49 €</span><span><Check size={14}/> Video da 99 € al minuto</span><span><GraduationCap size={14}/> Studenti −50%</span></div>
+      <div className="mm-chips"><span><Check size={14}/> 15 slide a 99 €</span><span><Check size={14}/> Video da 99 € al minuto</span><span><GraduationCap size={14}/> Studenti −50%</span></div>
       <a className="mobile-primary" href={mediaContact} target="_blank" rel="noreferrer">Scrivimi su WhatsApp <ArrowUpRight size={20}/></a>
       <a className="mobile-scroll-link" href="#mm-slide">Sfoglia gli esempi <ArrowDown size={16}/></a>
     </section>
@@ -480,15 +469,8 @@ export function MediaMobile({ fallback = false }: { fallback?: boolean }) {
       <p>Scorri con il dito e tocca il video al centro per guardarlo, con la sua musica originale.</p>
       {fallback ? <div className="mm-grid">{films.map(v => <a key={v.n} href={v.src} target="_blank" rel="noreferrer"><img src={v.poster} alt={v.title} loading="lazy"/><span>{v.title}</span></a>)}</div>
         : <div className="mm-depth"><DepthCarouselCustom items={films.map(v => ({ image: v.poster!, alt: v.title, title: v.title, meta: `${v.n} · 0:30` }))} cardWidth={300} cardHeight={169} radius={12} depth={150} spread={34} tilt={16} visibleCards={2} blur={3} falloff={.28} tint="#0b120a" duration={650} showControls={false} showIndicators onActivate={k => setFilm(films[k])} ariaLabel="Video di esempio"/></div>}
-    </section>
-    <section className="mobile-section mm-videos mm-ai" aria-labelledby="mm-ai-title">
-      <span className="mobile-eyebrow">04 / VIDEO CON AI GENERATIVA</span>
-      <h2 id="mm-ai-title">Scene mai girate.<br/><em>Pronte per il web.</em></h2>
-      <p>Clip create con l’AI generativa, poi montate con grafica, testi, musica ed effetti sonori. Scorri con il dito e tocca il video al centro per guardarlo.</p>
-      {fallback ? <ul className="mm-ai-list">{aiVideos.map(v => <li key={v.key}><Sparkles size={18}/><div><b>{v.title}</b><span>{v.note}</span></div><small>{v.src ? v.durata : 'PROSSIMAMENTE'}</small></li>)}</ul>
-        : <div className="mm-depth mm-depth-verticale"><DepthCarouselCustom items={aiVideos.map(v => ({ image: v.poster ?? '/video-slide/ai-prossimamente.svg', alt: v.title, title: v.title, meta: v.src ? `${v.n} · ${v.durata}` : `${v.n} · In arrivo` }))} cardWidth={210} cardHeight={373} radius={12} depth={150} spread={34} tilt={16} visibleCards={2} blur={3} falloff={.28} tint="#0b120a" duration={650} showControls={false} showIndicators onActivate={k => { if (aiVideos[k].src) setFilm(aiVideos[k]); }} ariaLabel="Video con AI generativa"/></div>}
       <a className="mobile-primary" href={whatsapp('Ciao Carlo! Vorrei slide e video come quelli della pagina Video & Slide.')} target="_blank" rel="noreferrer">Voglio slide e video così <ArrowUpRight size={20}/></a>
-      <p className="mobile-demo-note">Slide da 49 € ogni 15 · video motion da 99 € al minuto · studenti −50% su slide e video motion · video con AI generativa da 199 € al minuto, in base alla complessità</p>
+      <p className="mobile-demo-note">Slide da 99 € ogni 15 · video motion da 99 € al minuto · slide + video motion 149 € · studenti −50% su slide e video motion</p>
     </section>
     {deck && <div className="mm-overlay" role="dialog" aria-modal="true" aria-label={`Slide interattive: ${deck.sector}`}>
       <div className="mm-overlay-bar"><b>{deck.sector}</b><span>{deck.vertical ? 'Gira il telefono per la versione orizzontale' : 'Ruota il telefono per vederla più grande'}</span><ShareLink kind="slide" item={deck.key!} title={`${deck.sector} · Slide interattive CSD Station`}/><button type="button" onClick={() => setDeck(null)} aria-label="Chiudi la presentazione"><X size={20}/></button></div>
