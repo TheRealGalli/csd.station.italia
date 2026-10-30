@@ -3,7 +3,7 @@ export const consultingIntro = 'Consulenza AI e informatica per PMI e profession
 export const nfcIntro = 'Card, plate adesive e stand NFC con QR code per invitare i clienti a lasciare recensioni sul tuo profilo Google Maps. Configurazione e report mensili inclusi.';
 export const trainingIntro = 'Training AI aziendale per PMI e team: un percorso su misura degli strumenti che usate, delle attività quotidiane e degli obiettivi della vostra azienda.';
 export const webIntro = 'Siti moderni, anche con animazioni in movimento, montaggio e clipping video, e contenuti social: caroselli, reel e clip per ristoranti e attività locali. Contenuti pianificati e approvati insieme, a prezzo fisso.';
-export const mediaIntro = 'Slide interattive e video motion per presentare idee, tesi, prodotti e risultati: grafiche animate, dati chiari e Otto a guidare lo sguardo. Slide da 49 € ogni 15, video da 99 € al minuto.';
+export const mediaIntro = 'Slide interattive e video motion per presentare idee, tesi, prodotti e risultati: grafiche animate e dati chiari. Slide da 49 € ogni 15, video da 99 € al minuto.';
 export const consultingFaq = [
   ['A chi è rivolta la consulenza AI e informatica?', 'A PMI, professionisti e attività che vogliono ridurre attività manuali e ripetitive. Si parte dal lavoro reale: richieste clienti, documenti, dati e inventario. CSD Station opera dalla Toscana e segue progetti in tutta Italia.'],
   ['Non ho ancora un sistema digitale. Possiamo partire da zero?', 'Sì. Anche da carta, email e fogli di calcolo. Prima si chiarisce il processo e si organizzano i dati; poi si scelgono i passaggi da automatizzare. Non serve acquistare nuove tecnologie prima di aver capito il bisogno.'],
@@ -32,7 +32,8 @@ export const webFaq = [
 ];
 export const mediaFaq = [
   ['Le slide si possono modificare dopo?', 'Sì: sono pagine React, quindi testi, dati e colori si aggiornano quando serve. Non sono un file di Google Slides o PowerPoint: si presentano dal browser, girano in loop su uno schermo o diventano la demo di un sito. Se ti serve una versione da allegare, si esportano anche come immagini, senza animazioni. Il pacchetto da 49 € comprende 15 slide con layout moderni.'],
-  ['Cosa sono i video motion interattivi?', 'Video animati creati con il codice: titoli, grafici, schermate e Otto che guida lo sguardo, con musica di sottofondo ed effetti sonori sincronizzati. Non c’è voce fuori campo. Il prezzo è di 99 € ogni minuto di contenuto.'],
+  ['Cosa sono i video motion interattivi?', 'Video animati creati con il codice: titoli, grafici e schermate, con musica di sottofondo ed effetti sonori sincronizzati. Non c’è voce fuori campo. Il prezzo è di 99 € ogni minuto di contenuto.'],
+  ['Quanto costa un video con AI generativa?', 'Indicativamente da 199 € ogni minuto di video, in Full HD e pronto per il web, in un solo formato a scelta tra 16:9 e 9:16, con musica, effetti sonori, grafica, testi e dati animati. Il prezzo finale dipende dalla complessità del progetto: generare le scene con l’AI è più costoso e laborioso. Gli esempi arrivano prossimamente.'],
   ['I numeri nei grafici sono reali?', 'Usiamo i tuoi dati quando ce li dai. Negli esempi di questa pagina i dati sono verosimili ma inventati, con un marchio dimostrativo CSD Station.'],
   ['Per chi sono pensati?', 'Per studenti che presentano una tesi o una tesina, ristoranti, negozi che lanciano un prodotto, aziende con un report da raccontare, startup che preparano un pitch, concessionarie e autofficine che spiegano servizi e offerte.'],
 ];

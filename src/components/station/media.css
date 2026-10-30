@@ -84,17 +84,18 @@
 .ms-thumbs button[aria-pressed=true] span{color:#c5f476}
 
 /* prezzi */
-.mp-grid{display:grid;grid-template-columns:1fr 1fr;gap:26px}
-.mp-card{border:1px solid #d4ddc9;border-radius:10px;background:#f8faf3;padding:32px}
+.mp-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:26px}
+.mp-card{display:flex;flex-direction:column;align-items:flex-start;border:1px solid #d4ddc9;border-radius:10px;background:#f8faf3;padding:32px}
 .mp-card>svg{color:#7b9262}
 .mp-card h3{font-size:24px;margin-top:16px}
-.mp-card .web-points{margin:6px 0 26px}
+.mp-card .price-row strong{white-space:nowrap}
+.mp-card .web-points{flex:1;margin:6px 0 26px}
 .mp-card .station-button{width:100%;justify-content:space-between}
 
 /* telefono */
 .media-mobile p{color:#a8bd94;font-size:14px;margin:6px 0 20px}
 .media-mobile-icon{display:grid;place-items:center;height:160px;margin-bottom:22px;border-radius:14px;background:radial-gradient(ellipse at 50% 40%,#2d3e24,#141d13 75%);color:#c5f476}
-@media(max-width:1100px){.mv-grid{grid-template-columns:repeat(2,1fr)}.mh-video{width:360px}.mh-slide{width:250px}}
+@media(max-width:1100px){.mv-grid{grid-template-columns:repeat(2,1fr)}.mp-grid{grid-template-columns:1fr}.mh-video{width:360px}.mh-slide{width:250px}}
 @media(prefers-reduced-motion:reduce){.mh-rec i,.mh-bars i{animation:none}.ms-slide,.ms-slide li,.ms-chart b{transition:none}}
 
 /* slide vere incorporate, con le schede per settore */
@@ -231,6 +232,13 @@
 .mm-now b{font-size:19px;font-weight:600;letter-spacing:-.3px}
 .mm-now span{font-size:12px;color:#a2b78e}
 .mm-now button{display:inline-flex;align-items:center;gap:8px;min-height:44px;padding:0 16px;border-radius:10px;border:0;background:#c5f476;color:#203017;font-size:14px;font-weight:600;cursor:pointer}
+.mm-ai-list{display:grid;gap:10px;margin:0 0 20px;padding:0;list-style:none}
+.mm-ai-list li{display:flex;align-items:center;gap:12px;padding:13px 14px;border-radius:12px;background:#1d2b1b;border:1px solid #c5f47622}
+.mm-ai-list svg{flex:none;color:#c5f476}
+.mm-ai-list div{display:flex;flex:1;flex-direction:column;gap:2px;min-width:0}
+.mm-ai-list b{font-size:16px;font-weight:600}
+.mm-ai-list span{font-size:12px;color:#a2b78e}
+.mm-ai-list small{flex:none;font:9px ui-monospace,monospace;letter-spacing:1px;color:#a8bd94}
 .mm-depth{height:250px;margin:4px -24px 18px}
 .mm-depth .depth-carousel{min-height:250px}
 .mm-depth .depth-carousel__dots{bottom:2px}
