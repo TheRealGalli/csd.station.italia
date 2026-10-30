@@ -365,13 +365,13 @@ export default function MediaPage({ children }: { children?: React.ReactNode }) 
       <div className="section-heading"><div><Eyebrow>04 / PREZZI</Eyebrow><h2>Tre formati.<br/>Prezzi chiari.</h2></div><p>Si parte dai tuoi contenuti: testi, dati e immagini. Al resto pensiamo noi, dall’idea al file finito.</p></div>
       <div className="mp-grid">
         <article className="mp-card"><Presentation size={28}/><h3>Slide interattive</h3><div className="price-row"><strong>49 €</strong><span>pacchetto da 15 slide</span></div>
-          <ul className="web-points">{['Layout moderni e coerenti', 'Grafici e numeri leggibili', 'Nel browser, in loop su schermo o dentro il tuo sito', 'Full HD, in tutti i formati che preferisci'].map(p => <li key={p}><Check size={14}/>{p}</li>)}</ul>
+          <ul className="web-points">{['Layout moderni e coerenti', 'Grafici e numeri leggibili', 'Nel browser, in loop su schermo o dentro il tuo sito', 'Full HD, nel formato che preferisci'].map(p => <li key={p}><Check size={14}/>{p}</li>)}</ul>
           <a className="station-button" href={whatsapp('Ciao Carlo! Mi interessano le slide interattive (49 € per 15 slide).')} target="_blank" rel="noreferrer">Richiedi le slide <ArrowUpRight size={17}/></a></article>
         <article className="mp-card"><Clapperboard size={28}/><h3>Video motion interattivo</h3><div className="price-row"><strong>99 €</strong><span>ogni minuto di contenuto</span></div>
-          <ul className="web-points">{['Grafiche, testi e dati animati', 'Musica ed effetti sonori, senza voce fuori campo', 'Full HD, pronto per il web', 'Tutti i formati che preferisci'].map(p => <li key={p}><Check size={14}/>{p}</li>)}</ul>
+          <ul className="web-points">{['Grafiche, testi e dati animati', 'Musica ed effetti sonori, senza voce fuori campo', 'Full HD, pronto per il web', 'Nel formato che preferisci'].map(p => <li key={p}><Check size={14}/>{p}</li>)}</ul>
           <a className="station-button" href={whatsapp('Ciao Carlo! Mi interessa un video motion interattivo (99 € al minuto).')} target="_blank" rel="noreferrer">Richiedi un video <ArrowUpRight size={17}/></a></article>
         <article className="mp-card"><Sparkles size={28}/><h3>Video con AI generativa</h3><div className="price-row"><strong>da 199 €</strong><span>ogni minuto di video, prezzo indicativo in base alla complessità</span></div>
-          <ul className="web-points">{['Grafica, testi e dati animati', 'Musica ed effetti sonori', 'Full HD, pronto per il web', 'Un solo formato a scelta: 16:9 o 9:16'].map(p => <li key={p}><Check size={14}/>{p}</li>)}</ul>
+          <ul className="web-points">{['Grafica, testi e dati animati', 'Musica ed effetti sonori', 'Full HD, pronto per il web', 'Nel formato che preferisci'].map(p => <li key={p}><Check size={14}/>{p}</li>)}</ul>
           <a className="station-button" href={whatsapp('Ciao Carlo! Mi interessa un video con AI generativa: vorrei un preventivo.')} target="_blank" rel="noreferrer">Chiedi un preventivo <ArrowUpRight size={17}/></a></article>
       </div>
       <a className="mp-student" href="/terms-of-service/#studenti"><GraduationCap size={22}/><span><b>Studenti universitari: 50% di sconto</b> su slide e video motion per tesi, tesine ed esami. Basta un documento che provi l’iscrizione.</span><ArrowUpRight size={17}/></a>

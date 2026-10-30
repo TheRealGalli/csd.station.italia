@@ -261,9 +261,9 @@ const termini: Section[] = [
   { id: 'video-slide', label: 'Video & Slide', body: <>
     <h3>Per tutti</h3>
     <ul>
-      <li><strong>Slide interattive:</strong> 49 € ogni pacchetto da 15 slide. <strong>Video motion:</strong> 99 € ogni minuto di contenuto (o frazione). <strong>Video con AI generativa:</strong> indicativamente da 199 € ogni minuto di video, in un solo formato a scelta tra 16:9 e 9:16; il prezzo finale dipende dalla complessità del progetto ed è indicato nel preventivo.</li>
+      <li><strong>Slide interattive:</strong> 49 € ogni pacchetto da 15 slide. <strong>Video motion:</strong> 99 € ogni minuto di contenuto (o frazione). <strong>Video con AI generativa:</strong> indicativamente da 199 € ogni minuto di video; il prezzo finale dipende dalla complessità del progetto ed è indicato nel preventivo.</li>
       <li><strong>Contenuti:</strong> lavoriamo su testi, dati e immagini che ci fornisci; impaginazione, grafica e animazione sono nostre. Un giro di modifiche è incluso.</li>
-      <li><strong>Formati:</strong> slide come pagine web interattive (React), da presentare nel browser, far girare in loop su uno schermo o inserire in un sito; su richiesta anche come immagini statiche, senza animazioni né interazioni; video in MP4 Full HD; slide e video motion nei formati richiesti.</li>
+      <li><strong>Formati:</strong> slide come pagine web interattive (React), da presentare nel browser, far girare in loop su uno schermo o inserire in un sito; su richiesta anche come immagini statiche, senza animazioni né interazioni; video in MP4 Full HD. Ogni acquisto comprende un solo formato, a scelta del Cliente (per esempio 16:9 o 9:16). Si può avere qualsiasi formato, ma ogni formato in più è un nuovo acquisto, al prezzo del servizio.</li>
       <li><strong>Tempi:</strong> indicati alla conferma, in base alla quantità di materiale.</li>
     </ul>
     <h3 id="studenti">Studenti: tesi, tesine ed esami</h3>
