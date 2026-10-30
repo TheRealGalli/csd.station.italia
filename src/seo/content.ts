@@ -34,7 +34,7 @@ export const mediaFaq = [
   ['Le slide si possono modificare dopo?', 'Sì: sono pagine React, quindi testi, dati e colori si aggiornano quando serve. Non sono un file di Google Slides o PowerPoint: si presentano dal browser, girano in loop su uno schermo o diventano la demo di un sito. Se ti serve una versione da allegare, si esportano anche come immagini, senza animazioni. Il pacchetto da 49 € comprende 15 slide con layout moderni.'],
   ['Cosa sono i video motion interattivi?', 'Video animati creati con il codice: titoli, grafici e schermate, con musica di sottofondo ed effetti sonori sincronizzati. Non c’è voce fuori campo. Il prezzo è di 99 € ogni minuto di contenuto.'],
   ['Quanto costa un video con AI generativa?', 'Indicativamente da 199 € ogni minuto di video, in Full HD e pronto per il web, nel formato che preferisci, con musica, effetti sonori, grafica, testi e dati animati. Il prezzo finale dipende dalla complessità del progetto: generare le scene con l’AI è più costoso e laborioso. Gli esempi arrivano prossimamente.'],
-  ['I numeri nei grafici sono reali?', 'Usiamo i tuoi dati quando ce li dai. Negli esempi di questa pagina i dati sono verosimili ma inventati, con un marchio dimostrativo CSD Station.'],
+  ['I numeri nei grafici sono reali?', 'Usiamo i tuoi dati quando ce li dai. Negli esempi di questa pagina i dati sono verosimili ma inventati: sono concept dimostrativi, non lavori per clienti reali.'],
   ['Per chi sono pensati?', 'Per studenti che presentano una tesi o una tesina, ristoranti, negozi che lanciano un prodotto, aziende con un report da raccontare, startup che preparano un pitch, concessionarie e autofficine che spiegano servizi e offerte.'],
 ];
 
