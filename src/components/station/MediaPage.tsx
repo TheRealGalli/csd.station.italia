@@ -34,6 +34,7 @@ const aiVideos: Demo[] = [
 type Deck = { sector: string; key?: string; src?: string; slides?: number; bg?: string; vertical?: boolean };
 const decks: Deck[] = [
   { sector: 'Università', vertical: true, key: 'universita', src: '/video-slide/slide-01-universita.html', slides: 8, bg: '#101510' },
+  { sector: 'Gioiellerie', vertical: true, key: 'gioiellerie', src: '/video-slide/gioiellerie/index.html', slides: 8, bg: '#070b13' },
   { sector: 'Prodotto', vertical: true, key: 'prodotto', src: '/video-slide/pop/index.html', slides: 8, bg: '#2db7f5' }, { sector: 'Immobili', vertical: true, key: 'immobili', src: '/video-slide/casa/index.html', slides: 6, bg: '#dfd8cd' }, { sector: 'Cibo', vertical: true, key: 'cibo', src: '/video-slide/cibo/index.html', slides: 8, bg: '#201713' }, { sector: 'Report', vertical: true, key: 'report', src: '/video-slide/report/index.html', slides: 8, bg: '#0B0D10' }, { sector: 'Veicoli', vertical: true, key: 'veicoli', src: '/video-slide/veicoli/index.html', slides: 8, bg: '#0b0f0a' },
 ];
 
