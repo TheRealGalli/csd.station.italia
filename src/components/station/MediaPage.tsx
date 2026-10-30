@@ -366,7 +366,7 @@ export default function MediaPage({ children }: { children?: React.ReactNode }) 
           <ul className="web-points">{['Il pacchetto da 15 slide', 'Un minuto di video motion', 'Stessi materiali, stessa identità', 'Nel formato che preferisci'].map(p => <li key={p}><Check size={14}/>{p}</li>)}</ul>
           <a className="station-button" href={whatsapp('Ciao Carlo! Mi interessa il pacchetto slide + video motion (149 €).')} target="_blank" rel="noreferrer">Richiedi il pacchetto <ArrowUpRight size={17}/></a></article>
       </div>
-      <a className="mp-student" href="/terms-of-service/#studenti"><GraduationCap size={22}/><span><b>Studenti universitari: 50% di sconto</b> su slide e video motion per tesi, tesine ed esami. Basta un documento che provi l’iscrizione.</span><ArrowUpRight size={17}/></a>
+      <a className="mp-student" href="/terms-of-service/#studenti"><GraduationCap size={22}/><span><b>Studenti universitari: 50% di sconto</b> su slide, video motion e pacchetto per tesi, tesine ed esami. Basta un documento che provi l’iscrizione.</span><ArrowUpRight size={17}/></a>
       <p className="catalog-note">Gli esempi sono concept dimostrativi con dati verosimili, non lavori per clienti reali. I marchi citati appartengono ai rispettivi titolari, che non sono affiliati a CSD Station. Pianoforte delle colonne sonore: Salamander Grand Piano di Alexander Holm (<a href="https://creativecommons.org/licenses/by/3.0/" target="_blank" rel="noreferrer">CC BY 3.0</a>).</p>
     </section>
 
@@ -470,7 +470,7 @@ export function MediaMobile({ fallback = false }: { fallback?: boolean }) {
       {fallback ? <div className="mm-grid">{films.map(v => <a key={v.n} href={v.src} target="_blank" rel="noreferrer"><img src={v.poster} alt={v.title} loading="lazy"/><span>{v.title}</span></a>)}</div>
         : <div className="mm-depth"><DepthCarouselCustom items={films.map(v => ({ image: v.poster!, alt: v.title, title: v.title, meta: `${v.n} · 0:30` }))} cardWidth={300} cardHeight={169} radius={12} depth={150} spread={34} tilt={16} visibleCards={2} blur={3} falloff={.28} tint="#0b120a" duration={650} showControls={false} showIndicators onActivate={k => setFilm(films[k])} ariaLabel="Video di esempio"/></div>}
       <a className="mobile-primary" href={whatsapp('Ciao Carlo! Vorrei slide e video come quelli della pagina Video & Slide.')} target="_blank" rel="noreferrer">Voglio slide e video così <ArrowUpRight size={20}/></a>
-      <p className="mobile-demo-note">Slide da 99 € ogni 15 · video motion da 99 € al minuto · slide + video motion 149 € · studenti −50% su slide e video motion</p>
+      <p className="mobile-demo-note">Slide da 99 € ogni 15 · video motion da 99 € al minuto · slide + video motion 149 € · studenti −50% su tutti e tre</p>
     </section>
     {deck && <div className="mm-overlay" role="dialog" aria-modal="true" aria-label={`Slide interattive: ${deck.sector}`}>
       <div className="mm-overlay-bar"><b>{deck.sector}</b><span>{deck.vertical ? 'Gira il telefono per la versione orizzontale' : 'Ruota il telefono per vederla più grande'}</span><ShareLink kind="slide" item={deck.key!} title={`${deck.sector} · Slide interattive CSD Station`}/><button type="button" onClick={() => setDeck(null)} aria-label="Chiudi la presentazione"><X size={20}/></button></div>

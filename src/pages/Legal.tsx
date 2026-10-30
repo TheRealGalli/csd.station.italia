@@ -269,7 +269,7 @@ const termini: Section[] = [
     <h3 id="studenti">Studenti: tesi, tesine ed esami</h3>
     <p>Quando l’acquisto è fatto da uno studente come privato, per un uso personale di studio, si applicano anche queste regole e il Codice del Consumo.</p>
     <ul>
-      <li><strong>Sconto studenti del 50%</strong> sui prezzi di slide e video motion per chi è iscritto a un’università o a un istituto AFAM al momento dell’ordine. Basta mostrarci un documento che provi l’iscrizione. Lo sconto è personale, vale per ordini a uso di studio, non si cumula con altre promozioni e non si applica ad acquisti di aziende o enti. Se i requisiti risultano falsi, lo sconto decade e la differenza è dovuta.</li>
+      <li><strong>Sconto studenti del 50%</strong> sui prezzi di slide, video motion e pacchetto slide + video motion per chi è iscritto a un’università o a un istituto AFAM al momento dell’ordine. Basta mostrarci un documento che provi l’iscrizione. Lo sconto è personale, vale per ordini a uso di studio, non si cumula con altre promozioni e non si applica ad acquisti di aziende o enti. Se i requisiti risultano falsi, lo sconto decade e la differenza è dovuta.</li>
       <li><strong>Pagamento</strong> anticipato alla conferma dell’ordine.</li>
       <li><strong>Autore resti tu:</strong> non scriviamo, non riassumiamo e non modifichiamo nel merito tesi o elaborati; diamo forma visiva ai contenuti che ci consegni. Il rispetto delle regole del tuo ateneo e delle indicazioni del relatore, e i diritti sui materiali di terzi che inserisci, restano a tuo carico.</li>
       <li><strong>Nessuna promessa sul voto:</strong> “110 e lode” è un modo di dire. Il voto dipende da te e dalla commissione.</li>
