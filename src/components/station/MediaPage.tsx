@@ -13,7 +13,7 @@ const whatsapp = (message: string) => `https://wa.me/393518628203?text=${encodeU
 export const mediaContact = whatsapp('Ciao Carlo! Vorrei informazioni su video motion e slide interattive.');
 function Eyebrow({ children }: { children: React.ReactNode }) { return <div className="station-eyebrow"><span/>{children}</div>; }
 
-type Demo = { n: string; key: string; title: string; note: string; src?: string; poster?: string; start?: number };
+type Demo = { n: string; key: string; title: string; note: string; src?: string; poster?: string; start?: number; verticale?: boolean; durata?: string; ai?: boolean };
 // Video demo da 30 secondi, 1920×1080, con colonna sonora originale composta per ciascuno.
 const videos: Demo[] = [
   { n: '01', key: 'universita', title: 'Università e tesine', note: 'Da una tesi di 80 pagine a 10 minuti chiari, in 30 secondi.', src: '/video-slide/film-universita.mp4', poster: '/video-slide/film-universita.webp', start: 1.6 },
@@ -23,12 +23,14 @@ const videos: Demo[] = [
   { n: '05', key: 'report', title: 'Report aziendale', note: 'Ricavi, margine, cassa e consegne: un semestre letto in 30 secondi.', src: '/video-slide/film-report.mp4?v=2', poster: '/video-slide/film-report.webp', start: 2.2 },
   { n: '06', key: 'cibo', title: 'Menu e locale', note: 'Fritto & Burger: un menù raccontato morso dopo morso, in 30 secondi.', src: '/video-slide/film-cibo.mp4', poster: '/video-slide/film-cibo.webp', start: 1.6 },
 ];
-// Video con AI generativa: esempi in arrivo, basta aggiungere src e poster.
+// Video con AI generativa, tutti verticali: per i prossimi basta aggiungere src, poster e durata.
 const aiVideos: Demo[] = [
-  { n: '01', key: 'gioiellerie', title: 'Gioiellerie', note: 'Luce, dettagli e atmosfera per raccontare una collezione.' },
-  { n: '02', key: 'hardware', title: 'Hardware', note: 'Un prodotto tecnico mostrato scena per scena.' },
-  { n: '03', key: 'moda', title: 'Moda', note: 'Capi e collezioni in movimento.' },
+  { n: '01', key: 'orologio', title: 'Gioielli', note: 'Un orologio che prende forma, pezzo dopo pezzo.', src: '/video-slide/film-ai-orologio.mp4', poster: '/video-slide/film-ai-orologio.webp', start: 11, durata: '0:33', verticale: true, ai: true },
+  { n: '02', key: 'gioiello', title: 'Gioielli', note: 'Un gioiello raccontato con più libertà creativa.', verticale: true, ai: true },
+  { n: '03', key: 'hardware', title: 'Hardware', note: 'Un prodotto tecnico mostrato scena per scena.', verticale: true, ai: true },
+  { n: '04', key: 'moda', title: 'Moda', note: 'Capi e collezioni in movimento.', verticale: true, ai: true },
 ];
+const titoloFilm = (v: Demo) => `${v.title} · ${v.ai ? 'Video con AI generativa' : 'Video motion'} CSD Station`;
 
 // Slide interattive vere, una presentazione da 15 slide per settore (file HTML autonomi in /video-slide/).
 type Deck = { sector: string; key?: string; src?: string; slides?: number; bg?: string; vertical?: boolean };
@@ -181,13 +183,13 @@ function SlideDeck() {
 }
 
 function VideoCard({ v, onOpen }: { v: Demo; onOpen: () => void }) {
-  return <article className={`mv-card ${v.src ? '' : 'soon'}`}>
+  return <article className={`mv-card${v.src ? '' : ' soon'}${v.verticale ? ' verticale' : ''}`}>
     <button type="button" className="mv-frame" onClick={v.src ? onOpen : undefined} disabled={!v.src} aria-label={v.src ? `Guarda: ${v.title}` : `${v.title}: in arrivo`}
       onMouseEnter={e => { const vid = e.currentTarget.querySelector('video'); if (!vid) return; if (vid.currentTime < (v.start ?? 0)) vid.currentTime = v.start ?? 0; vid.play().catch(() => {}); }} onMouseLeave={e => { const vid = e.currentTarget.querySelector('video'); if (vid) { vid.pause(); vid.currentTime = v.start ?? 0; } }}>
       {v.src ? <video src={v.src} poster={v.poster} muted loop playsInline preload="metadata"/> : <span className="mv-soon"><Sparkles size={30}/><b>PROSSIMAMENTE</b></span>}
       <span className="mv-n">{v.n}</span>
       {v.src && <span className="mv-play"><Play size={22} fill="currentColor"/></span>}
-      {v.src && <span className="mv-dur">0:30 · 1920×1080</span>}
+      {v.src && <span className="mv-dur">{v.durata ?? '0:30'} · {v.verticale ? '1080×1920' : '1920×1080'}</span>}
     </button>
     <h3>{v.title}</h3><p>{v.note}</p>
   </article>;
@@ -308,7 +310,7 @@ function OttoRunner({ hit, textRef, boxRef }: { hit: number; textRef: React.RefO
 export default function MediaPage({ children }: { children?: React.ReactNode }) {
   const [open, setOpen] = useState<Demo | null>(null), [peek, setPeek] = useState(1), [fromLink, setFromLink] = useState(false);
   // aperto da un link condiviso: il video giusto si apre da solo
-  useEffect(() => { const key = linkParam('video'), film = videos.find(v => v.key === key && v.src); if (film) { setFromLink(true); setOpen(film); } }, []);
+  useEffect(() => { const key = linkParam('video'), film = [...videos, ...aiVideos].find(v => v.key === key && v.src); if (film) { setFromLink(true); setOpen(film); } }, []);
   useEffect(() => { if (!open) setFromLink(false); }, [open]);
   const chipRef = useRef<HTMLSpanElement>(null), chipText = useRef<HTMLSpanElement>(null);
   const heroVideo = useRef<HTMLVideoElement>(null);
@@ -358,8 +360,8 @@ export default function MediaPage({ children }: { children?: React.ReactNode }) 
     </section>
 
     <section className="media-section wrap" id="video-ai">
-      <div className="section-heading"><div><Eyebrow>03 / VIDEO CON AI GENERATIVA</Eyebrow><h2>Scene mai girate.<br/><span>Pronte per il web.</span></h2></div><p>Clip create con l’AI generativa, poi montate con grafica, testi, musica ed effetti sonori. Gli esempi arrivano prossimamente.</p></div>
-      <div className="mv-grid">{aiVideos.map(v => <VideoCard key={v.key} v={v} onOpen={() => setOpen(v)}/>)}</div>
+      <div className="section-heading"><div><Eyebrow>03 / VIDEO CON AI GENERATIVA</Eyebrow><h2>Scene mai girate.<br/><span>Pronte per il web.</span></h2></div><p>Clip create con l’AI generativa, poi montate con grafica, testi, musica ed effetti sonori. Pensate per il telefono, in verticale. Gli altri esempi arrivano prossimamente.</p></div>
+      <div className="mv-grid verticali">{aiVideos.map(v => <VideoCard key={v.key} v={v} onOpen={() => setOpen(v)}/>)}</div>
     </section>
 
     <section className="media-section wrap" id="prezzi">
@@ -382,11 +384,11 @@ export default function MediaPage({ children }: { children?: React.ReactNode }) 
     {children}
 
     {open && <div className="mv-lightbox" role="dialog" aria-modal="true" aria-label={open.title} onClick={() => setOpen(null)}>
-      <div className="mv-player" onClick={e => e.stopPropagation()}>
+      <div className={`mv-player${open.verticale ? ' verticale' : ''}`} onClick={e => e.stopPropagation()}>
         <FilmPlayer film={open} fromLink={fromLink}/>
         <button type="button" className="mv-close" onClick={() => setOpen(null)} aria-label="Chiudi"><X size={20}/></button>
         <span className="mv-title">{open.n} · {open.title}</span>
-        <ShareLink kind="video" item={open.key} title={`${open.title} · Video motion CSD Station`} className="mv-share-player"/>
+        <ShareLink kind="video" item={open.key} title={titoloFilm(open)} className="mv-share-player"/>
       </div>
     </div>}
   </>;
@@ -417,12 +419,12 @@ function HeroLoop({ hold = false }: { hold?: boolean }) {
 // fallback: è la versione nella pagina prerenderizzata, nascosta da computer: niente caroselli e niente video in riproduzione
 export function MediaMobile({ fallback = false }: { fallback?: boolean }) {
   const Title = fallback ? 'h2' : 'h1';
-  const list = decks.filter(d => d.src), films = videos.filter(v => v.src);
+  const list = decks.filter(d => d.src), films = videos.filter(v => v.src), aiFilms = aiVideos.filter(v => v.src);
   const [active, setActive] = useState(0), [deck, setDeck] = useState<Deck | null>(null), [film, setFilm] = useState<Demo | null>(null), [fromLink, setFromLink] = useState(false);
   // aperto da un link condiviso: da telefono la presentazione o il video si aprono subito a schermo intero
   useEffect(() => {
     if (fallback) return;
-    const d = list.find(x => x.key === linkParam('slide')), v = films.find(x => x.key === linkParam('video'));
+    const d = list.find(x => x.key === linkParam('slide')), v = [...films, ...aiFilms].find(x => x.key === linkParam('video'));
     if (d) { setTimeout(() => document.getElementById('mm-slide')?.scrollIntoView({ block: 'start' }), 400); setDeck(d); } else if (v) { setFromLink(true); setFilm(v); }
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [fallback]);
@@ -482,8 +484,9 @@ export function MediaMobile({ fallback = false }: { fallback?: boolean }) {
     <section className="mobile-section mm-videos mm-ai" aria-labelledby="mm-ai-title">
       <span className="mobile-eyebrow">04 / VIDEO CON AI GENERATIVA</span>
       <h2 id="mm-ai-title">Scene mai girate.<br/><em>Pronte per il web.</em></h2>
-      <p>Clip create con l’AI generativa, poi montate con grafica, testi, musica ed effetti sonori. Gli esempi arrivano prossimamente.</p>
-      <ul className="mm-ai-list">{aiVideos.map(v => <li key={v.key}><Sparkles size={18}/><div><b>{v.title}</b><span>{v.note}</span></div><small>PROSSIMAMENTE</small></li>)}</ul>
+      <p>Clip create con l’AI generativa, poi montate con grafica, testi, musica ed effetti sonori. Scorri con il dito e tocca il video al centro per guardarlo.</p>
+      {fallback ? <ul className="mm-ai-list">{aiVideos.map(v => <li key={v.key}><Sparkles size={18}/><div><b>{v.title}</b><span>{v.note}</span></div><small>{v.src ? v.durata : 'PROSSIMAMENTE'}</small></li>)}</ul>
+        : <div className="mm-depth mm-depth-verticale"><DepthCarouselCustom items={aiVideos.map(v => ({ image: v.poster ?? '/video-slide/ai-prossimamente.svg', alt: v.title, title: v.title, meta: v.src ? `${v.n} · ${v.durata}` : `${v.n} · In arrivo` }))} cardWidth={210} cardHeight={373} radius={12} depth={150} spread={34} tilt={16} visibleCards={2} blur={3} falloff={.28} tint="#0b120a" duration={650} showControls={false} showIndicators onActivate={k => { if (aiVideos[k].src) setFilm(aiVideos[k]); }} ariaLabel="Video con AI generativa"/></div>}
       <a className="mobile-primary" href={whatsapp('Ciao Carlo! Vorrei slide e video come quelli della pagina Video & Slide.')} target="_blank" rel="noreferrer">Voglio slide e video così <ArrowUpRight size={20}/></a>
       <p className="mobile-demo-note">Slide da 49 € ogni 15 · video motion da 99 € al minuto · studenti −50% su slide e video motion · video con AI generativa da 199 € al minuto, in base alla complessità</p>
     </section>
@@ -491,8 +494,8 @@ export function MediaMobile({ fallback = false }: { fallback?: boolean }) {
       <div className="mm-overlay-bar"><b>{deck.sector}</b><span>{deck.vertical ? 'Gira il telefono per la versione orizzontale' : 'Ruota il telefono per vederla più grande'}</span><ShareLink kind="slide" item={deck.key!} title={`${deck.sector} · Slide interattive CSD Station`}/><button type="button" onClick={() => setDeck(null)} aria-label="Chiudi la presentazione"><X size={20}/></button></div>
       {full ? <iframe ref={frame} className="mm-deck-tall" src={tall ? `${deck.src}?formato=verticale` : deck.src} title={`Slide interattive: ${deck.sector}`} style={deck.bg ? { background: deck.bg } : undefined}/> : <div className="mm-deck-box" ref={box}><div className="mm-deck-fit" style={{ width: 1280 * fit, height: 800 * fit }}><iframe ref={frame} src={deck.src} title={`Slide interattive: ${deck.sector}`} style={{ transform: `scale(${fit})`, ...(deck.bg ? { background: deck.bg } : {}) }}/></div></div>}
     </div>}
-    {film && <div className="mm-overlay mm-film" role="dialog" aria-modal="true" aria-label={film.title}>
-      <div className="mm-overlay-bar"><b>{film.title}</b><span>{film.note}</span><ShareLink kind="video" item={film.key} title={`${film.title} · Video motion CSD Station`}/><button type="button" onClick={() => { setFilm(null); setFromLink(false); }} aria-label="Chiudi il video"><X size={20}/></button></div>
+    {film && <div className={`mm-overlay mm-film${film.verticale ? ' verticale' : ''}`} role="dialog" aria-modal="true" aria-label={film.title}>
+      <div className="mm-overlay-bar"><b>{film.title}</b><span>{film.note}</span><ShareLink kind="video" item={film.key} title={titoloFilm(film)}/><button type="button" onClick={() => { setFilm(null); setFromLink(false); }} aria-label="Chiudi il video"><X size={20}/></button></div>
       <div className="mm-film-box"><FilmPlayer film={film} fromLink={fromLink} fullscreenButton/></div>
     </div>}
   </div>;
