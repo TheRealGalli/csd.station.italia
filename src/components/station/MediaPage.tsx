@@ -378,7 +378,7 @@ export default function MediaPage({ children }: { children?: React.ReactNode }) 
           <a className="station-button" href={whatsapp('Ciao Carlo! Mi interessa un video con AI generativa: vorrei un preventivo.')} target="_blank" rel="noreferrer">Chiedi un preventivo <ArrowUpRight size={17}/></a></article>
       </div>
       <a className="mp-student" href="/terms-of-service/#studenti"><GraduationCap size={22}/><span><b>Studenti universitari: 50% di sconto</b> su slide e video motion per tesi, tesine ed esami. Basta un documento che provi l’iscrizione.</span><ArrowUpRight size={17}/></a>
-      <p className="catalog-note">Gli esempi usano un marchio dimostrativo e dati verosimili, non clienti reali. Pianoforte delle colonne sonore: Salamander Grand Piano di Alexander Holm (<a href="https://creativecommons.org/licenses/by/3.0/" target="_blank" rel="noreferrer">CC BY 3.0</a>).</p>
+      <p className="catalog-note">Gli esempi sono concept dimostrativi con dati verosimili, non lavori per clienti reali. I marchi citati appartengono ai rispettivi titolari, che non sono affiliati a CSD Station. Pianoforte delle colonne sonore: Salamander Grand Piano di Alexander Holm (<a href="https://creativecommons.org/licenses/by/3.0/" target="_blank" rel="noreferrer">CC BY 3.0</a>).</p>
     </section>
 
     {children}
