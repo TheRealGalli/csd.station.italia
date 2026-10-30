@@ -31,7 +31,6 @@
 .mv-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:26px}
 .mv-grid.verticali{grid-template-columns:repeat(4,1fr)}
 .mv-card.verticale .mv-frame{aspect-ratio:9/16}
-.mv-grid:not(.verticali)>.mv-card:last-child:nth-child(3n+1){grid-column:2}
 .mv-frame{position:relative;display:block;width:100%;aspect-ratio:16/9;border:0;padding:0;border-radius:12px;overflow:hidden;background:radial-gradient(ellipse at 50% 40%,#2d3e24,#141d13 75%);cursor:pointer;transition:transform .3s,box-shadow .3s}
 .mv-frame:not(:disabled):hover{transform:translateY(-4px);box-shadow:0 18px 40px #101a1630}
 .mv-frame:disabled{cursor:default}
@@ -99,7 +98,7 @@
 /* telefono */
 .media-mobile p{color:#a8bd94;font-size:14px;margin:6px 0 20px}
 .media-mobile-icon{display:grid;place-items:center;height:160px;margin-bottom:22px;border-radius:14px;background:radial-gradient(ellipse at 50% 40%,#2d3e24,#141d13 75%);color:#c5f476}
-@media(max-width:1100px){.mv-grid,.mv-grid.verticali{grid-template-columns:repeat(2,1fr)}.mv-grid:not(.verticali)>.mv-card:last-child:nth-child(3n+1){grid-column:auto}.mp-grid{grid-template-columns:1fr}.mh-video{width:360px}.mh-slide{width:250px}}
+@media(max-width:1100px){.mv-grid,.mv-grid.verticali{grid-template-columns:repeat(2,1fr)}.mp-grid{grid-template-columns:1fr}.mh-video{width:360px}.mh-slide{width:250px}}
 @media(prefers-reduced-motion:reduce){.mh-rec i,.mh-bars i{animation:none}.ms-slide,.ms-slide li,.ms-chart b{transition:none}}
 
 /* slide vere incorporate, con le schede per settore */

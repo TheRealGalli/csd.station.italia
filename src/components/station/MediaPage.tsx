@@ -16,8 +16,8 @@ function Eyebrow({ children }: { children: React.ReactNode }) { return <div clas
 type Demo = { n: string; key: string; title: string; note: string; src?: string; poster?: string; start?: number; verticale?: boolean; durata?: string };
 // Video demo da 30 secondi, 1920×1080, con colonna sonora originale composta per ciascuno.
 const videos: Demo[] = [
-  { n: '01', key: 'universita', title: 'Università e tesine', note: 'Da una tesi di 80 pagine a 10 minuti chiari, in 30 secondi.', src: '/video-slide/film-universita.mp4', poster: '/video-slide/film-universita.webp', start: 1.6 },
-  { n: '02', key: 'gioiellerie', title: 'Gioielli', note: 'Un Datejust in 30 secondi: mezzo giro di lancetta.', src: '/video-slide/film-gioiellerie.mp4', poster: '/video-slide/film-gioiellerie.webp', start: 4.9 },
+  { n: '01', key: 'universita', title: 'Università e tesine', note: 'Da una tesi di 80 pagine a 10 minuti chiari, in 30 secondi.', src: '/video-slide/film-universita.mp4?v=2', poster: '/video-slide/film-universita.webp', start: 1.6 },
+  { n: '02', key: 'gioiellerie', title: 'Gioielli', note: 'Un Datejust in 30 secondi: mezzo giro di lancetta.', src: '/video-slide/film-gioiellerie.mp4?v=2', poster: '/video-slide/film-gioiellerie.webp', start: 4.9 },
   { n: '03', key: 'immobili', title: 'Immobili e progetti', note: 'Dal terreno alla casa finita: un progetto raccontato in 30 secondi.', src: '/video-slide/film-casa.mp4', poster: '/video-slide/film-casa.webp' },
   { n: '04', key: 'veicoli', title: 'Veicoli e colori', note: 'Un’icona, sei colori: uno studio colore in 30 secondi.', src: '/video-slide/film-veicoli.mp4', poster: '/video-slide/film-veicoli.webp', start: 2.5 },
   { n: '05', key: 'prodotto', title: 'Lancio di un prodotto', note: 'Sette gusti, una linea: CSD Pop raccontata in 30 secondi.', src: '/video-slide/film-prodotto.mp4', poster: '/video-slide/film-prodotto.webp?v=2', start: 1.6 },
