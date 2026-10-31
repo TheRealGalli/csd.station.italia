@@ -1,0 +1,705 @@
+/* Modalità sfida CSD Station — identica in CS Restaurant e CS Notaro (motore in js/game.js). */
+.game-chip{display:inline-flex;align-items:center;gap:6px;height:34px;padding:0 11px 0 6px;border-radius:20px;border:1px solid #d9e6c6;background:#fff;color:#2f4a1d;font-size:12px;font-weight:600;cursor:pointer;transition:border-color .2s,box-shadow .2s,transform .15s;white-space:nowrap}
+.game-chip:hover{border-color:#a9c97c;box-shadow:0 4px 14px #5d7d3522}
+.game-chip.idle{color:#6d7f5c}
+.gch-face{width:24px;height:24px;border-radius:50%;background:#1d2b20;color:#c5f476;display:grid;place-items:center}
+.gch-face .icon{width:15px;height:15px}
+.gch-pts{font-size:14px;font-variant-numeric:tabular-nums;letter-spacing:-.3px;min-width:10px;text-align:right}
+.game-chip small{font-size:10px;color:#8a9a78;font-weight:500;margin-left:-2px}
+.gch-lvl{display:flex;gap:3px;margin-left:3px}
+.gch-lvl i{width:6px;height:6px;border-radius:50%;background:#e1e7d8}
+.gch-lvl i.done{background:#7fb045}.gch-lvl i.on{background:#c5f476;box-shadow:0 0 0 2px #c5f47655}
+.game-chip.bump{animation:game-bump .5s cubic-bezier(.3,1.6,.5,1)}
+.game-chip.bump-bad{animation:game-shake .4s ease}
+@keyframes game-bump{40%{transform:scale(1.14)}}
+@keyframes game-shake{25%{transform:translateX(-3px)}50%{transform:translateX(3px)}75%{transform:translateX(-2px)}}
+.game-float{position:fixed;z-index:120;pointer-events:none;font-weight:800;font-size:22px;letter-spacing:-.5px;color:#4f8a1f;text-shadow:0 2px 0 #fff,0 6px 18px #6f9a3c55}
+.game-float.neg{color:#c4442f;text-shadow:0 2px 0 #fff}
+.game-spark{position:fixed;z-index:119;width:6px;height:6px;border-radius:50%;background:#9fd35a;pointer-events:none}
+
+/* scheda sfida */
+.game-slot{margin:0 0 18px}
+.game-card{position:relative;overflow:hidden;background:linear-gradient(180deg,#fbfdf6,#f3f8ea);border:1px solid #cfe1b5;border-left:4px solid #9fcf5c;border-radius:12px;padding:16px 20px 18px;box-shadow:0 6px 20px #5d7d3514}
+.game-card.l2{border-left-color:#e2b14f}.game-card.l3{border-left-color:#d8432f}
+.game-card.new{animation:game-in .45s cubic-bezier(.2,.8,.3,1) both}
+@keyframes game-in{from{opacity:0;transform:translateY(8px)}}
+.gc-top{display:flex;justify-content:space-between;align-items:center;gap:10px}
+.gc-tag{display:inline-flex;align-items:center;gap:7px;font-size:9.5px;letter-spacing:1.4px;font-weight:700;color:#5d7d35}
+.gc-tag .icon{width:17px;height:17px;color:#3f6a1c}
+.gc-worth{font-size:11px;font-weight:650;color:#5d7d35;background:#e6f2d3;border-radius:10px;padding:3px 9px}
+.gc-timer{height:3px;background:#e6ebde;border-radius:3px;margin:10px 0 0;overflow:hidden}
+.gc-timer i{display:block;height:100%;background:linear-gradient(90deg,#d8432f,#e2b14f);transform-origin:left;animation:game-timer linear forwards}
+@keyframes game-timer{from{transform:scaleX(1)}to{transform:scaleX(0)}}
+.game-card h3{font-size:16px;margin:10px 0 4px;letter-spacing:-.2px}
+.gc-text{font-size:13px;line-height:1.6;color:#46543c;margin:0}
+.gc-sources{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
+.gc-open{display:inline-flex;align-items:center;gap:7px;border:1px dashed #b6cf93;background:#fff;border-radius:9px;padding:8px 11px;font-size:11.5px;color:#4f6b3c;transition:background .15s,border-color .15s}
+.gc-open:hover{background:#f1f8e6;border-color:#7fb045}
+.gc-open .icon{width:14px;height:14px}.gc-open span{color:#7f8f6e}
+.gc-src{flex:1 1 220px;margin:0;background:#fff;border:1px solid #e1e8d6;border-radius:9px;padding:9px 12px}
+.gc-src.row-open{animation:game-in .3s ease both}
+.gc-src small{display:flex;align-items:center;gap:6px;font-size:10px;font-weight:650;letter-spacing:.4px;color:#7f8f6e;text-transform:uppercase}
+.gc-src small .icon{width:12px;height:12px}
+.gc-src p{font-size:12.5px;line-height:1.55;margin:5px 0 0;color:#2f3a29;font-family:ui-monospace,SFMono-Regular,Menlo,monospace}
+.gc-src mark{background:#f6e7a8;color:inherit;border-radius:3px;padding:0 3px}
+.gc-options{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px}
+.gc-options button{border:1px solid #cfd8c3;background:#fff;color:#1d2b20;border-radius:9px;padding:10px 14px;font-size:12.5px;font-weight:600;transition:transform .12s,background .15s}
+/* tutte le risposte hanno lo stesso aspetto: nessun suggerimento visivo. Scuro solo il tasto unico (Conferma) */
+.gc-options button:only-child{background:#1d2b20;color:#eef6e2;border-color:#1d2b20}
+.gc-options button:hover{transform:translateY(-1px);background:#2c3f2e;color:#fff;border-color:#2c3f2e}
+.gc-result{margin-top:14px;padding:12px 14px;border-radius:10px;background:#e6f5d3;display:grid;gap:4px}
+.is-ko .gc-result{background:#fbe8e3}
+.gc-result b{font-size:14px;color:#3f6a1c}.gc-result b.neg{color:#b2412d}
+.gc-result p{font-size:12.5px;line-height:1.55;margin:0;color:#3d4a35}
+.gc-result button,.gc-wait button{justify-self:start;margin-top:6px;display:inline-flex;align-items:center;gap:6px;border:0;background:#1d2b20;color:#c5f476;border-radius:8px;padding:8px 12px;font-size:12px;font-weight:600}
+.gc-result button .icon{width:13px;height:13px}
+.gc-wait{margin-top:14px;padding:11px 14px;border-radius:10px;background:#f4f1e6;display:flex;align-items:center;justify-content:space-between;gap:12px}
+.gc-wait p{font-size:12.5px;margin:0;color:#5d5a4e}.gc-wait button{margin:0}
+.game-teaser{display:flex;align-items:center;gap:12px;padding:11px 14px;border:1px dashed #c2d8a3;border-radius:12px;background:#f7fbf0}
+.gt-face{width:32px;height:32px;border-radius:50%;background:#1d2b20;color:#c5f476;display:grid;place-items:center;flex:none}
+.gt-face .icon{width:19px;height:19px}
+.game-teaser p{flex:1;font-size:12.5px;line-height:1.5;margin:0;color:#46543c}
+.game-teaser button{display:inline-flex;align-items:center;gap:6px;border:0;background:#1d2b20;color:#c5f476;border-radius:8px;padding:8px 12px;font-size:12px;font-weight:600;flex:none}
+.game-teaser button .icon{width:13px;height:13px}
+
+/* livello e menu */
+.game-level,.game-pop{position:fixed;z-index:110;background:#1d2b20;color:#eef4e4;border-radius:14px;box-shadow:0 18px 50px #0b120d55;border:1px solid #33452e}
+.game-level{display:flex;gap:12px;align-items:center;padding:13px 16px;max-width:320px;animation:game-in .4s cubic-bezier(.2,.8,.3,1) both}
+.game-level.out{opacity:0;transform:translateY(-6px);transition:opacity .3s,transform .3s}
+.game-level>span{width:38px;height:38px;border-radius:50%;background:#c5f476;color:#1d2b20;display:grid;place-items:center;flex:none}
+.game-level>span .icon{width:24px;height:24px}
+.game-level b{font-size:15px;color:#c5f476}.game-level p{font-size:12px;line-height:1.45;margin:3px 0 0;color:#cfdcc3}
+.game-pop{width:310px;padding:16px;animation:game-in .25s ease both}
+.game-pop header{display:flex;gap:10px;align-items:center}
+.game-pop header>span{width:34px;height:34px;border-radius:50%;background:#c5f476;color:#1d2b20;display:grid;place-items:center}
+.game-pop header .icon{width:21px;height:21px}
+.game-pop header b{display:block;font-size:14px}.game-pop header small{font-size:11px;color:#a9bb98}
+.game-pop>p{font-size:12px;line-height:1.55;color:#cfdcc3;margin:12px 0}
+.game-pop>p b{color:#c5f476}
+.gp-rules{list-style:none;margin:0 0 12px;padding:0;display:grid;gap:6px}
+.gp-rules li{display:flex;align-items:center;gap:8px;font-size:11.5px;color:#cfdcc3}
+.gp-rules li b{margin-left:auto;color:#eef4e4;font-weight:600}
+.gp-rules i{width:8px;height:8px;border-radius:50%}.gp-rules i.ok{background:#9fd35a}.gp-rules i.mid{background:#e2b14f}.gp-rules i.ko{background:#e0765f}
+.gp-label{display:block;font-size:9px;letter-spacing:1.4px;color:#8fa385;margin:4px 0 6px}
+.gp-item{display:block;width:100%;text-align:left;background:#26372a;border:1px solid #33452e;border-radius:9px;padding:8px 10px;margin-bottom:6px;color:#eef4e4}
+.gp-item:hover{border-color:#c5f476}
+.gp-item b{display:block;font-size:12px}.gp-item small{font-size:10.5px;color:#a9bb98}
+.game-pop footer{display:flex;gap:6px;margin-top:10px}
+.game-pop footer button{flex:1;background:transparent;border:1px solid #3b4d36;color:#cfdcc3;border-radius:8px;padding:7px;font-size:11px}
+.game-pop footer button:hover{border-color:#c5f476;color:#fff}
+@media(max-width:760px){.game-chip small,.gch-lvl{display:none}.gc-options button{flex:1 1 100%}}
+@media(prefers-reduced-motion:reduce){.game-card,.game-level,.game-pop,.gc-src,.game-chip{animation:none!important}}
+.touring .game-slot{display:none}
+.gch-play{font-size:12px;font-weight:650;letter-spacing:.1px;padding-right:2px}
+.gp-start{display:block;width:100%;margin-top:4px;border:0;border-radius:10px;background:#d8432f;color:#fff;font-weight:650;font-size:13px;padding:11px;box-shadow:0 8px 22px #d8432f40}
+.gp-start:hover{background:#e65640}
+.sidebar .nav-item{position:relative}
+.game-dot{position:absolute;left:24px;top:7px;width:8px;height:8px;border-radius:50%;background:#e0452f;box-shadow:0 0 0 2px var(--dark,#151e18);pointer-events:none;animation:game-dot 2.4s ease-in-out 3}
+@keyframes game-dot{50%{box-shadow:0 0 0 2px var(--dark,#151e18),0 0 0 6px #e0452f40}}
+.game-alert{position:relative;display:inline-grid;place-items:center;width:34px;height:34px;margin-left:-4px;border:0;border-radius:9px;background:#d8432f;color:#fff;cursor:pointer;box-shadow:0 6px 16px #d8432f45;transition:transform .15s,background .15s}
+.game-alert:hover{background:#e65640;transform:translateY(-1px)}
+.game-alert b{font-size:17px;font-weight:800;line-height:1}
+.game-alert small{position:absolute;top:-6px;right:-6px;min-width:17px;height:17px;padding:0 4px;border-radius:9px;background:#1d2b20;color:#c5f476;font-size:10px;font-weight:700;display:grid;place-items:center;border:2px solid #fff}
+.game-alert.ring{animation:game-ring 1.1s ease-out 2}
+@keyframes game-ring{0%{box-shadow:0 0 0 0 #d8432f99}100%{box-shadow:0 0 0 12px #d8432f00}}
+.gt-bang{display:inline-grid;place-items:center;width:17px;height:17px;border-radius:4px;background:#d8432f;color:#fff;font-size:11px;vertical-align:1px}
+
+/* missioni: minigiochi dentro l'elemento (l'email) */
+.game-card.mission{margin:14px 0}
+.mg{margin-top:10px}
+.mg-ask{font-size:13px;line-height:1.55;color:#46543c;margin:0 0 10px}
+.mg-tries{color:#b2412d;font-weight:600;margin-left:6px}
+.mg-docs,.mg-sources{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:10px}
+.mg-doc,.mg-form{background:#fff;border:1px solid #e1e8d6;border-radius:10px;padding:8px 10px 10px}
+.mg-doc.official{border-color:#bcd99a;background:#fbfef6}
+.mg-doc-t{display:block;font-size:9.5px;letter-spacing:1.1px;font-weight:700;color:#7f8f6e;text-transform:uppercase;margin:2px 2px 6px}
+.mg-row{display:flex;justify-content:space-between;gap:10px;width:100%;padding:7px 8px;border-radius:7px;border:1px solid transparent;background:transparent;text-align:left;font-size:12.5px}
+.mg-row+.mg-row{border-top-color:#f0f3ea}
+.mg-row.pick{cursor:pointer}.mg-row.pick:hover{background:#f4f9ec;border-color:#cfe1b5}
+.mg-row.miss{background:#fbe8e3;border-color:#efc2b7;animation:game-shake .35s ease}
+.mg-row.hit{background:#fdf3d0;border-color:#ecd28a}
+.mg-k{color:#7f8f6e}.mg-v{font-weight:600;color:#2f3a29;text-align:right}
+.mono,.mg-box{font-family:ui-monospace,SFMono-Regular,Menlo,monospace}
+.mg-form{margin-top:10px}
+.mg-line{display:flex;flex-wrap:wrap;align-items:center;gap:5px}
+.mg-prefix{font-size:13px;color:#5d6b52;margin-right:4px;letter-spacing:.5px}
+.mg-sep{font-size:10px;color:#8e9884;margin:0 3px;text-transform:uppercase;letter-spacing:.8px}
+.mg-box{width:30px;height:38px;border:1.5px solid #cfd8c3;border-radius:7px;text-align:center;font-size:17px;font-weight:700;color:#1d2b20;background:#fbfcf8;text-transform:uppercase;transition:border-color .15s,background .15s}
+.mg-box:focus{outline:none;border-color:#7fb045;background:#fff;box-shadow:0 0 0 3px #c5f47655}
+.mg-box.bad{border-color:#d8432f;background:#fbe8e3;animation:game-shake .35s ease}
+.mg-box.ok{border-color:#8fc251;background:#eef8e0;color:#3f6a1c}
+.mission-flag{display:inline-grid;place-items:center;width:16px;height:16px;border-radius:4px;background:#d8432f;color:#fff;font-size:10.5px;font-weight:800;margin-right:6px;vertical-align:1px}
+.list-item.has-mission{box-shadow:inset 3px 0 0 #d8432f}
+.gp-item.is-mission b:before{content:'!';display:inline-grid;place-items:center;width:14px;height:14px;border-radius:3px;background:#d8432f;color:#fff;font-size:9px;margin-right:6px;vertical-align:1px}
+/* smista la coda */
+.mg-lanes{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px;margin-bottom:8px}
+.mg-lanes span{background:#fff;border:1px solid #e1e8d6;border-radius:8px;padding:6px 8px;font-size:10.5px;color:#7f8f6e;line-height:1.35}
+.mg-lanes b{display:block;font-size:12px;color:#2f3a29}
+.mg-queue{display:grid;gap:6px}
+.mg-qrow{display:flex;align-items:center;justify-content:space-between;gap:10px;background:#fff;border:1px solid #e1e8d6;border-radius:9px;padding:8px 10px}
+.mg-qrow.right{border-color:#a9d27a;background:#f3faea}.mg-qrow.wrong{border-color:#efc2b7;background:#fdf1ee}
+.mg-qtext{font-size:12.5px;color:#2f3a29}
+.mg-chips{display:flex;gap:4px;flex:none}
+.mg-chips button{border:1px solid #d6e2c6;background:#fff;border-radius:14px;padding:4px 9px;font-size:11px;color:#4f6b3c}
+.mg-chips button.on{background:#1d2b20;color:#c5f476;border-color:#1d2b20}
+.mg-chips button.sol{box-shadow:0 0 0 2px #7fb045}
+.gc-options button:disabled{opacity:.45;cursor:not-allowed;transform:none}
+/* correggi la bozza */
+.mg-draft{margin-top:10px;background:#f6fbef;border:1px dashed #b6cf93;border-radius:10px;padding:8px 12px 10px}
+.mg-draft p{font-size:13.5px;line-height:2;margin:0;color:#2f3a29}
+.mg-tok{border:0;border-bottom:2px dotted #9fb88a;background:transparent;padding:0 2px;font:inherit;color:#1d2b20;cursor:pointer;border-radius:3px}
+.mg-tok:hover{background:#eaf4dc}
+.mg-tok.sel{background:#fdf3d0;border-bottom-color:#e2b14f}
+.mg-tok.miss{background:#fbe8e3;border-bottom-color:#d8432f;animation:game-shake .35s ease}
+.mg-tok.fixed{background:#e6f5d3;border-bottom:2px solid #7fb045;color:#3f6a1c}
+/* il conto torna */
+.mg-pad{display:flex;flex-wrap:wrap;gap:12px;align-items:flex-start;margin-top:10px}
+.mg-display{flex:1 1 180px;background:#1d2b20;color:#c5f476;border-radius:10px;padding:14px 16px;font:700 24px ui-monospace,Menlo,monospace;letter-spacing:.5px}
+.mg-display span{opacity:.4}.mg-display.ok{background:#3f6a1c;color:#fff}
+.mg-keys{display:grid;grid-template-columns:repeat(3,52px);gap:6px}
+.mg-keys button{height:40px;border:1px solid #d6e2c6;background:#fff;border-radius:8px;font-size:15px;font-weight:650;color:#1d2b20}
+.mg-keys button:hover{background:#f1f8e6}.mg-keys button.go{background:#d8432f;color:#fff;border-color:#d8432f}
+.mg-cal{margin-top:10px;background:#fff;border:1px solid #e1e8d6;border-radius:10px;padding:8px 10px 10px;max-width:330px}
+.mg-cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:4px}
+.mg-cal-grid i{font-style:normal;font-size:10px;color:#8e9884;text-align:center}
+.mg-cal-grid button{height:32px;border:1px solid #edf0e6;background:#fbfcf8;border-radius:7px;font-size:12px;color:#2f3a29}
+.mg-cal-grid button:hover{background:#eaf4dc;border-color:#b6cf93}
+.mg-cal-grid button.miss{background:#fbe8e3;border-color:#d8432f}.mg-cal-grid button.sol{background:#7fb045;color:#fff;border-color:#7fb045}
+/* al telefono */
+.mg-call{margin-top:10px;padding:0}
+.mg-oops{font-size:11.5px;color:#a5402c;background:#fbe8e3;border-radius:8px;padding:6px 10px;margin:4px 0 8px auto;max-width:85%}
+.mg-replies{flex-direction:column}
+.mg-replies button{text-align:left;font-weight:500}
+@media(max-width:900px){.mg-lanes{grid-template-columns:1fr 1fr}.mg-qrow{flex-direction:column;align-items:flex-start}}
+/* calcolatrice completa: fonti a sinistra, calcolatrice compatta a destra */
+.mg-split{display:grid;grid-template-columns:minmax(0,1fr) 300px;gap:14px;align-items:start;margin-top:10px}
+.mg-split-src .mg-sources{grid-template-columns:1fr;gap:8px}
+.mg-calc{display:grid;gap:8px;background:#fff;border:1px solid #e1e8d6;border-radius:12px;padding:10px}
+.mg-screen{background:#1d2b20;border-radius:9px;padding:8px 12px;min-height:58px;display:flex;flex-direction:column;justify-content:flex-end;align-items:flex-end;gap:2px}
+.mg-screen small{font:500 12px ui-monospace,Menlo,monospace;color:#9fb28f;word-break:break-all;text-align:right}
+.mg-screen b{font:700 22px ui-monospace,Menlo,monospace;color:#c5f476;letter-spacing:.3px}
+.mg-screen b span{opacity:.35}
+.mg-calc.done .mg-screen{background:#3f6a1c}.mg-calc.done .mg-screen b{color:#fff}
+.mg-ckeys{display:grid;grid-template-columns:repeat(4,1fr);gap:5px}
+.mg-ckeys button{height:36px;border:1px solid #d6e2c6;background:#fbfcf8;border-radius:8px;font-size:15px;font-weight:650;color:#1d2b20;transition:background .12s,transform .08s}
+.mg-ckeys button:hover{background:#f1f8e6}.mg-ckeys button:active{transform:scale(.96)}
+.mg-ckeys button.op{background:#eef4e4;color:#3f6a1c}
+.mg-ckeys button.fn{background:#f4f1e6;color:#8a6116}
+.mg-ckeys button.eq{grid-column:1/-1;height:32px;background:#1d2b20;color:#c5f476;border-color:#1d2b20}
+.mg-submit{border:0;border-radius:9px;background:#d8432f;color:#fff;font-weight:650;font-size:13px;padding:11px;box-shadow:0 6px 16px #d8432f40}
+.mg-submit:disabled{opacity:.4;box-shadow:none;cursor:not-allowed}
+.mg-split .mg-cal{margin-top:0;max-width:none}
+@media(max-width:900px){.mg-split{grid-template-columns:1fr}}
+/* scegli la carta */
+.mg-cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:8px;margin-top:10px}
+.mg-card{display:grid;gap:4px;text-align:left;background:#fff;border:1.5px solid #e1e8d6;border-radius:11px;padding:11px 13px;transition:border-color .15s,transform .12s,box-shadow .15s}
+.mg-card:hover:not(:disabled){border-color:#7fb045;transform:translateY(-1px);box-shadow:0 6px 16px #5d7d3518}
+.mg-card small{font-size:10px;letter-spacing:.6px;color:#8e9884;text-transform:uppercase}
+.mg-card b{font-size:13.5px;color:#1d2b20}.mg-card span{font-size:12px;line-height:1.5;color:#5d6b52}
+.mg-card.miss{border-color:#efc2b7;background:#fdf1ee;opacity:.75}.mg-card.sol{border-color:#7fb045;background:#f3faea}
+/* seleziona tutto ciò che vale */
+.mg-multi{display:flex;flex-wrap:wrap;gap:7px;margin-top:10px}
+.mg-multi button{border:1.5px solid #d6e2c6;background:#fff;border-radius:18px;padding:7px 13px;font-size:12.5px;color:#3d4a35}
+.mg-multi button.on{background:#1d2b20;color:#c5f476;border-color:#1d2b20}
+.mg-multi button.sol{box-shadow:0 0 0 2px #7fb045}.mg-multi button.miss{background:#fbe8e3;color:#a5402c;border-color:#efc2b7}
+.mg-qtext small{display:block;font-size:10.5px;color:#8e9884;margin-top:2px;font-family:ui-monospace,Menlo,monospace}
+.mg-chips button.st-no.on,.mg-chips button.st-phish.on{background:#b2412d;border-color:#b2412d;color:#fff}
+.main-studio>.game-slot{margin:18px 26px 4px}
+/* indizio di Otto */
+.gc-hintbar{display:flex;align-items:center;gap:10px;margin-top:10px}
+.gc-hint{display:inline-flex;align-items:center;gap:7px;border:1px dashed #a9c97c;background:#fff;color:#3f6a1c;border-radius:20px;padding:6px 12px;font-size:12px;font-weight:600;transition:background .15s,border-color .15s}
+.gc-hint .icon{width:16px;height:16px}.gc-hint b{color:#b2412d;font-weight:700;margin-left:2px}
+.gc-hint:hover:not(:disabled){background:#f1f8e6;border-color:#7fb045}
+.gc-hint:disabled{opacity:.5;cursor:not-allowed}
+.gc-hintbar small{font-size:11px;color:#8e9884}
+.gc-hintmsg{display:flex;align-items:flex-start;gap:8px;margin:0;background:#1d2b20;color:#eef4e4;border-radius:10px;padding:9px 12px;font-size:12.5px;line-height:1.5;animation:game-in .3s ease both}
+.gc-hintmsg .icon{width:18px;height:18px;color:#c5f476;flex:none}
+.mg-row.hinted,.mg-tok.hinted,.mg-multi button.hinted{box-shadow:0 0 0 2px #e2b14f;background:#fdf6dc}
+.mg-doc.hinted{border-color:#e2b14f;box-shadow:0 0 0 2px #e2b14f55}
+.mg-card.elim,.mg-replies button.elim{opacity:.35;text-decoration:line-through}
+/* bottega di Otto */
+.gch-gift{position:absolute;top:-3px;right:-3px;width:11px;height:11px;border-radius:50%;background:#e2b14f;box-shadow:0 0 0 2px #fff;animation:game-dot 1.6s ease-in-out infinite}
+.game-chip{position:relative}
+.gp-start.shop{background:#1d2b20;border:1px solid #c5f476;color:#c5f476;box-shadow:none;margin-top:10px}
+.otto-shop{position:fixed;top:72px;right:16px;z-index:115;width:min(370px,calc(100vw - 32px));max-height:calc(100vh - 96px);overflow:auto;background:#1d2b20;color:#eef4e4;border:1px solid #33452e;border-radius:16px;padding:16px;box-shadow:0 24px 60px #0b120d66;animation:game-in .3s ease both}
+.otto-shop header{display:flex;align-items:center;gap:10px;margin-bottom:12px}
+.otto-shop header div{flex:1}.otto-shop header b{display:block;font-size:15px}.otto-shop header small{font-size:11.5px;color:#a9bb98}.otto-shop header strong{color:#c5f476}
+.otto-shop .icon-btn{background:transparent;border:1px solid #3b4d36;color:#cfdcc3;border-radius:8px;width:30px;height:30px;font-size:16px}
+.shop-otto{width:40px;height:40px;border-radius:50%;background:#c5f476;color:#1d2b20;display:grid;place-items:center}
+.shop-otto .icon{width:26px;height:26px}
+.shop-list,.shop-gift{display:grid;gap:7px;margin-bottom:12px}
+.shop-item{display:flex;align-items:center;gap:10px;text-align:left;background:#26372a;border:1px solid #33452e;border-radius:11px;padding:10px 12px;color:#eef4e4;transition:border-color .15s,transform .12s}
+.shop-item:hover:not(:disabled){border-color:#c5f476;transform:translateY(-1px)}
+.shop-item:disabled{opacity:.45;cursor:not-allowed}
+.shop-item .icon{width:22px;height:22px;color:#c5f476;flex:none}
+.shop-item span{flex:1}.shop-item b{display:block;font-size:12.5px}.shop-item small{font-size:11px;color:#a9bb98;line-height:1.4}
+.shop-item em{font-style:normal;font-size:12px;font-weight:700;color:#c5f476;white-space:nowrap}
+.shop-item.gift{border-color:#e2b14f;background:#2f3a22}.shop-item.gift em{color:#e2b14f}
+.shop-active{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:10px}.shop-active .gp-label{width:100%}
+.shop-active i{font-style:normal;font-size:11px;background:#c5f47622;color:#c5f476;border-radius:10px;padding:3px 9px}
+.shop-note{font-size:11.5px;line-height:1.5;color:#a9bb98;margin:0}
+/* introduzione al gioco */
+.game-intro{position:fixed;inset:0;z-index:130;display:grid;place-items:center;padding:20px;background:#0b120d66;animation:game-in .25s ease both}
+.gi-card{width:min(440px,100%);background:#173022;color:#eef4e4;border:1px solid #2f4a2c;border-radius:18px;padding:20px 22px 18px;box-shadow:0 30px 80px #0008}
+.gi-top{display:flex;align-items:center;gap:10px}
+.gi-face{width:42px;height:42px;border-radius:50%;background:#c5f476;color:#1d2b20;display:grid;place-items:center}
+.gi-face .icon{width:28px;height:28px}
+.gi-step{flex:1;font-size:10.5px;letter-spacing:1.6px;font-weight:700;color:#c5f476}
+.gi-x{border:0;background:transparent;color:#a9bb98;font-size:20px;line-height:1}
+.gi-card h3{font-size:20px;margin:14px 0 6px;letter-spacing:-.3px}
+.gi-card p{font-size:13.5px;line-height:1.65;color:#cfdcc3;margin:0}
+.gi-card p b{color:#c5f476}
+.gi-foot{display:flex;align-items:center;justify-content:space-between;margin-top:18px}
+.gi-dots{display:flex;gap:5px}.gi-dots i{width:7px;height:7px;border-radius:50%;background:#3b5236}.gi-dots i.on{width:20px;border-radius:4px;background:#c5f476}.gi-dots i.done{background:#7fb045}
+.gi-next{border:0;border-radius:10px;background:#c5f476;color:#173022;font-weight:700;font-size:13px;padding:10px 16px}
+.gi-next:hover{background:#d4fa90}
+.mg-split-src .mg-ask{margin-top:2px;font-size:14px}
+/* passaggio alla missione successiva */
+.gc-nextm{position:relative;overflow:hidden}
+.gc-auto{position:absolute;left:0;bottom:0;height:3px;width:100%;background:#c5f476;transform-origin:left;animation:gc-auto 5s linear forwards;opacity:.8}
+@keyframes gc-auto{from{transform:scaleX(0)}to{transform:scaleX(1)}}
+#main.game-fadeout{opacity:0;transition:opacity .16s ease}
+#main.game-fadein{animation:game-fade-in .28s ease both}
+@keyframes game-fade-in{from{opacity:0;transform:translateY(4px)}}
+.game-float.eco{font-size:13px;font-weight:700;white-space:nowrap;background:#1d2b20;color:#c5f476;border-radius:12px;padding:3px 9px;text-shadow:none}
+/* dati da confrontare in arancione, scelte colorate */
+.mg .mg-n{color:#c2570c;font-weight:750;background:#fff1e3;border-radius:4px;padding:0 3px}
+.mg .mg-doc.official .mg-n{color:#9a3f06}
+.mg .mg-qtext small .mg-n{font-size:11.5px}
+.mg .mg-row.hit .mg-n,.mg .mg-row.miss .mg-n{background:transparent}
+.mg .mg-qtext{font-size:13px}
+.mg .mg-qtext small{font-size:11.5px;color:#5d6b52}
+.mg-chips button.on{background:#1d2b20;color:#c5f476;border-color:#1d2b20}
+.mg-chips button.st-ok.on,.mg-chips button.st-yes.on,.mg-chips button.st-si.on{background:#3f7a1c;border-color:#3f7a1c;color:#fff}
+.mg-chips button.st-few.on{background:#c98a17;border-color:#c98a17;color:#fff}
+.mg-chips button.st-out.on,.mg-chips button.st-no.on,.mg-chips button.st-ko.on,.mg-chips button.st-flag.on,.mg-chips button.st-phish.on{background:#b2412d;border-color:#b2412d;color:#fff}
+.mg-chips button.st-ok,.mg-chips button.st-yes,.mg-chips button.st-si{color:#3f7a1c}
+.mg-chips button.st-few{color:#a06b0c}
+.mg-chips button.st-out,.mg-chips button.st-no,.mg-chips button.st-ko,.mg-chips button.st-flag{color:#b2412d}
+/* Chiedi a Otto diventa la Bottega di Otto in modalità gioco */
+.ask-otto.is-shop{background:#2c4a1f!important;color:#c5f476!important;box-shadow:0 0 0 1px #c5f47666 inset}
+.ask-otto.is-shop .icon{color:#c5f476}
+.ask-otto.has-gift{position:relative}
+.ask-otto.has-gift:after{content:'';position:absolute;top:-3px;right:-3px;width:10px;height:10px;border-radius:50%;background:#e2b14f;box-shadow:0 0 0 2px #fff}
+/* compito dell'ecosistema: si fa con i tasti veri della sezione */
+.game-slot{margin:0 0 16px;display:grid;gap:10px}
+.game-task{display:flex;align-items:center;gap:12px;background:#1d2b20;color:#eef4e4;border-radius:12px;padding:11px 14px;position:relative;overflow:hidden;box-shadow:0 6px 18px #1b2a1222;animation:game-in .35s ease both}
+.gtk-ico{width:34px;height:34px;border-radius:50%;background:#c5f476;color:#1d2b20;display:grid;place-items:center;flex:none}
+.gtk-ico .icon{width:22px;height:22px}
+.gtk-body{flex:1;min-width:0;display:grid;gap:2px}
+.gtk-body small{font-size:9.5px;letter-spacing:1.3px;font-weight:700;color:#c5f476}
+.gtk-body b{font-size:13.5px}
+.gtk-body span{font-size:12.5px;color:#cfdcc3;line-height:1.45}.gtk-body span b{color:#fff;font-size:12.5px}
+.gtk-time{position:absolute;left:0;right:0;bottom:0;height:3px;background:#ffffff14}
+.gtk-time i{display:block;height:100%;background:linear-gradient(90deg,#c5f476,#e2b14f,#d8432f);transform-origin:left;animation:game-timer linear forwards}
+.gp-item.is-task b:before{content:'✓';display:inline-grid;place-items:center;width:14px;height:14px;border-radius:3px;background:#c5f476;color:#1d2b20;font-size:9px;margin-right:6px;vertical-align:1px}
+/* spazi coerenti tra le schede: 16px ovunque (da tablet in su) */
+@media(min-width:761px){
+ .metrics-grid,.quote-layout,.home-live,.sala-layout,.kds-board,.module-side,.home-side,.split,.board,.decisions{gap:16px!important}
+ .workspace-panel{margin-top:16px}
+ .metrics-grid{margin-top:16px}
+ .page-heading+.metrics-grid,.page-heading+.workspace-panel,.page-heading+.game-slot+.metrics-grid,.game-slot+.workspace-panel,.game-slot+.metrics-grid{margin-top:0}
+ .sala-layout,.kds-board{margin-bottom:16px}
+ .quote-layout>.workspace-panel,.module-side>.workspace-panel,.home-side>.workspace-panel,.sala-layout>.workspace-panel,.home-live .workspace-panel{margin-top:0}
+}
+.game-target{position:relative;animation:game-target 1.4s ease-in-out infinite!important;z-index:1}
+@keyframes game-target{0%,100%{box-shadow:0 0 0 0 #d8432f00}50%{box-shadow:0 0 0 4px #d8432f88}}
+input.game-target{outline:3px solid #d8432f;outline-offset:2px}
+/* allegati PDF: fogli bianchi */
+.mg-paper .mg-doc{background:#fff;border:1px solid #d9dccf;border-radius:3px;box-shadow:0 2px 0 #e9ebe2,0 6px 14px #1b2a1214;font-family:Georgia,'Times New Roman',serif;padding:10px 12px 14px}
+.mg-paper .mg-doc-t{font-family:ui-monospace,Menlo,monospace;color:#b2412d;border-bottom:1px solid #eee;padding-bottom:6px;margin-bottom:6px}
+.mg-paper .mg-doc-t:before{content:'PDF ';background:#b2412d;color:#fff;border-radius:2px;padding:0 4px;margin-right:6px}
+.mg-paper .mg-doc.official{background:#fff;border-color:#d9dccf}
+
+/* ——— Nuvolette di Otto: spiegano la prima volta, a tempo fermo ——— */
+.game-coach{position:fixed;inset:0;z-index:990;animation:gco-in .25s ease-out}
+.game-coach.out{opacity:0;transition:opacity .2s}
+@keyframes gco-in{from{opacity:0}}
+.gco-spot{position:fixed;border-radius:12px;box-shadow:0 0 0 9999px #0b140e8c,0 0 0 2px #c5f476,0 0 22px 4px #c5f47660;pointer-events:none;transition:left .25s,top .25s,width .25s,height .25s}
+.gco-bubble{position:fixed;display:flex;gap:12px;align-items:flex-start;background:#173022;color:#fff;border:1px solid #2f4a35;border-radius:14px;padding:15px 16px 13px;box-shadow:0 24px 60px #000a;font-family:Inter,-apple-system,sans-serif;animation:gco-pop .3s cubic-bezier(.2,.9,.3,1.2)}
+@keyframes gco-pop{from{opacity:0;transform:translateY(6px) scale(.96)}}
+.gco-bubble:after{content:'';position:absolute;left:calc(var(--ax,50%) - 7px);width:14px;height:14px;background:#173022;border:1px solid #2f4a35;transform:rotate(45deg)}
+.gco-bubble[data-arrow="top"]:after{top:-8px;border-right:0;border-bottom:0}
+.gco-bubble[data-arrow="bottom"]:after{bottom:-8px;border-left:0;border-top:0}
+.gco-face{width:40px;height:40px;border-radius:12px;background:#c5f476;color:#173022;display:grid;place-items:center;flex:none;animation:gco-hop 1.2s ease-in-out 2}
+.gco-face .icon{width:28px;height:28px}
+@keyframes gco-hop{0%,100%{transform:translateY(0)}35%{transform:translateY(-6px) rotate(-6deg)}}
+.gco-bubble b{display:block;font-size:15px;font-weight:650;letter-spacing:-.2px}
+.gco-bubble p{font-size:13.5px;line-height:1.55;color:#e3ecdb;margin:5px 0 0}
+.gco-bubble p b{display:inline;font-size:inherit;color:#c5f476;font-weight:600}
+.gco-foot{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-top:12px}
+.gco-foot small{display:flex;align-items:center;gap:5px;font-size:11px;color:#9fb593}
+.gco-foot small .icon{width:12px;height:12px}
+.gco-foot button{background:#c5f476;color:#1d2f14;border:0;border-radius:8px;padding:9px 16px;font-size:13px;font-weight:650;cursor:pointer}
+.gco-foot button:hover{background:#d6ff9a}
+.gco-foot button:focus-visible{outline:2px solid #fff;outline-offset:2px}
+/* a tempo fermo le barre del tempo si fermano davvero */
+body.game-paused .gc-timer i,body.game-paused .gtk-time i{animation-play-state:paused}
+/* meno testo: niente etichette di sistema */
+.game-card .gc-tag{font-size:12px;letter-spacing:0;font-weight:650;color:#2f4a1c;text-transform:none}
+.gc-top .gc-hint{margin-left:auto;padding:5px 11px;font-size:11.5px}
+.game-task .gtk-body b{font-size:13.5px}
+@media(prefers-reduced-motion:reduce){.game-coach,.gco-bubble,.gco-face{animation:none!important}}
+/* ——— la cosa arrivata, al suo posto nella sezione ——— */
+[data-anchor]:empty{display:none}
+[data-anchor]>.game-slot{margin:0 0 16px}
+.anchor-pad>.game-slot{margin:14px 16px 4px}
+.review-list>[data-anchor]>.game-slot,.feed>[data-anchor]>.game-slot{margin:0}
+.tp-mission{padding:12px 16px 16px;border-top:1px solid #edf0e6}
+.tp-mission .game-card{box-shadow:none;margin:0}
+.table-bang{position:absolute;top:-9px;left:-9px;width:22px;height:22px;border-radius:7px;background:#d8432f;color:#fff;font:800 13px/22px Inter,sans-serif;text-align:center;font-style:normal;box-shadow:0 4px 10px #d8432f66;animation:game-ring 1.4s ease-in-out infinite}
+.studio-anchor>.game-slot{margin:0 24px 10px;max-height:52vh;overflow:auto}
+.tp-mission .mg-split{grid-template-columns:minmax(0,1fr)}.tp-mission .mg-ask{font-size:13px}
+/* ——— niente scatti: l'ingresso si anima una volta sola ——— */
+.game-task{animation:none}
+.game-task.fresh{animation:game-in .35s ease both}
+.gc-timer.waiting i{animation-play-state:paused!important;opacity:.45}
+/* ——— la chat di Otto di settore ——— */
+.gst-panel{position:fixed;right:24px;bottom:24px;width:min(400px,calc(100vw - 32px));max-height:min(560px,calc(100vh - 120px));display:flex;flex-direction:column;background:#173022;color:#fff;border:1px solid #2f4a35;border-radius:16px;box-shadow:0 30px 80px #000a;font-family:Inter,-apple-system,sans-serif;animation:gco-pop .35s cubic-bezier(.2,.9,.3,1.2)}
+.gst-panel header{display:flex;align-items:center;gap:12px;padding:14px 16px;border-bottom:1px solid #2f4a35}
+.gst-panel header b{display:block;font-size:15px;font-weight:650}
+.gst-panel header small{display:flex;align-items:center;gap:5px;font-size:11px;color:#9fb593;margin-top:2px}
+.gst-panel header small .icon{width:12px;height:12px}
+.gst-msgs{flex:1;overflow-y:auto;padding:14px 16px;display:flex;flex-direction:column;gap:8px}
+.gst-msg{align-self:flex-start;max-width:92%;background:#22402c;border:1px solid #2f5238;border-radius:4px 14px 14px 14px;padding:9px 12px;font-size:13.5px;line-height:1.5;color:#e7efe0;animation:gco-pop .25s ease-out}
+.gst-msg b{color:#c5f476;font-weight:600}
+.gst-msg.typing{display:flex;gap:4px;padding:12px 14px}
+.gst-msg.typing i{width:6px;height:6px;border-radius:50%;background:#c5f476;animation:lu-typing 1s infinite}
+.gst-msg.typing i:nth-child(2){animation-delay:.15s}.gst-msg.typing i:nth-child(3){animation-delay:.3s}
+.gst-panel footer{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:12px 16px;border-top:1px solid #2f4a35}
+.gst-skip{background:none;border:0;color:#9fb593;font-size:12px;cursor:pointer}
+.gst-skip:hover{color:#fff}
+.gst-go{margin-left:auto;background:#c5f476;color:#1d2f14;border:0;border-radius:9px;padding:10px 18px;font-size:13.5px;font-weight:650;cursor:pointer}
+.gst-go:disabled{opacity:.35;cursor:default}
+.gst-go:not(:disabled){animation:gst-ready 1.6s ease-in-out infinite}
+@keyframes gst-ready{50%{box-shadow:0 0 0 6px #c5f47633}}
+@media(prefers-reduced-motion:reduce){.gst-panel,.gst-msg,.gst-go{animation:none!important}}
+/* ——— Cucina in modalità sfida ——— */
+.game-kds .tk-bar{display:block;height:5px;border-radius:3px;background:#eef1e8;overflow:hidden;margin-top:2px}
+.game-kds .tk-bar i{display:block;height:100%;width:100%;transform-origin:left;animation:kds-fill linear forwards}
+.game-kds .tk-bar.cook i{background:linear-gradient(90deg,#b49bd6,#8fc251)}
+.game-kds .tk-bar.wait i,.game-kds .tk-bar.pass i{background:linear-gradient(90deg,#8fc251,#e2b14f 70%,#d8432f)}
+@keyframes kds-fill{from{transform:scaleX(0)}to{transform:scaleX(1)}}
+body.game-paused .game-kds .tk-bar i{animation-play-state:paused}
+.tk-full{font-size:11px;font-weight:650;color:#b2533f}
+.kds-col.hot{background:#fdeeea;border-color:#efb3a5;box-shadow:inset 0 0 0 2px #d8432f55;animation:kds-hot 1.2s ease-in-out infinite}
+@keyframes kds-hot{50%{box-shadow:inset 0 0 0 2px #d8432fcc}}
+.kds-col.hot header b{color:#b2412d}
+.kds-hot{display:flex;align-items:center;gap:6px;margin:0 2px;font-size:11.5px;font-weight:650;color:#b2412d}
+.kds-hot .icon{width:14px;height:14px}
+.sidebar a.kds-alarm{box-shadow:inset 3px 0 0 #d8432f}
+@media(prefers-reduced-motion:reduce){.kds-col.hot{animation:none}}
+/* ——— Notaro: posta in ritardo e adempimenti ——— */
+.new-tag.late-tag{background:#b2412d}
+.hot-banner{background:#fdeeea;border-color:#efb3a5;color:#8a2f1f;animation:kds-hot 1.2s ease-in-out infinite}
+.filings{margin-bottom:16px}
+.filing-list{display:grid;gap:8px;padding:14px 16px}
+.filing{display:flex;align-items:center;gap:14px;background:#fff;border:1px solid #e3e8da;border-left:4px solid #e2c27e;border-radius:10px;padding:10px 14px}
+.filing.fs-doing{border-left-color:#b49bd6}.filing.fs-done{border-left-color:#8fc251;opacity:.7}.filing.fs-expired{border-left-color:#d8432f;opacity:.7}
+.filing.red{background:#fdeeea;border-color:#efb3a5;border-left-color:#d8432f;animation:kds-hot 1.2s ease-in-out infinite}
+.fl-body{flex:1;min-width:0;display:grid;gap:3px}
+.fl-body b{font-size:13px}.fl-body small{font-size:11px;color:#7f8a75}
+.fl-left{font-size:13px;font-weight:650;color:#5d6b52;min-width:44px;text-align:right;font-variant-numeric:tabular-nums}
+.fl-left.hot{color:#b2412d}
+.filing .btn{min-height:34px;padding:7px 12px;font-size:12px}
+/* ——— La storia: capitolo in corso e chat dei capitoli ——— */
+.game-chapter{display:inline-flex;flex-direction:column;align-items:flex-start;gap:0;background:#1d2b20;color:#e8f0df;border:1px solid #2f4029;border-radius:10px;padding:4px 10px;line-height:1.2;max-width:220px;cursor:pointer;text-align:left}
+.game-chapter small{font-size:8.5px;letter-spacing:1px;color:#c5f476;font-weight:700}
+.game-chapter b{font-size:11.5px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:200px}
+.game-chapter i{font-style:normal;font-size:10px;color:#a9bb98}
+.game-chapter:hover{border-color:#c5f476}
+.game-story.no-spot{background:#0b140e8c}
+.gp-chapter{background:#f4f8ec;border:1px solid #dfeacb;border-radius:8px;padding:9px 11px;font-size:12px;line-height:1.5}
+@media(max-width:1180px){.game-chapter i{display:none}}
+/* ——— leggibilità e riconoscibilità ——— */
+.gp-chapter{background:#1d2b20;border-color:#2f4029;color:#fff}
+.gp-chapter b{color:#c5f476}
+.game-chapter{width:178px}
+.game-chapter b{max-width:158px}
+/* quello che è da fare porta lo stesso segno del quadrato rosso: contorno rosso e "!" */
+.game-bang{display:inline-grid;place-items:center;flex:none;width:24px;height:24px;border-radius:7px;background:#d8432f;color:#fff;font:800 14px/1 Inter,-apple-system,sans-serif;box-shadow:0 3px 10px #d8432f55}
+.game-task{border:2px solid #d8432f;box-shadow:0 0 0 3px #d8432f22,0 6px 18px #1b2a1222}
+.game-card.mission:not(.is-ok):not(.is-ko){border:2px solid #d8432f;box-shadow:0 0 0 3px #d8432f1f}
+.game-card .gc-top .game-bang{margin-right:8px}
+.gc-auto{display:none}
+/* ——— Lo schermino del capitolo: stesso effetto retrò dello schermo di Otto, larghezza fissa ——— */
+.game-chapter{position:relative;overflow:hidden;width:178px;flex:none;background:radial-gradient(ellipse at 50% 40%,#183a24 0%,#0e2416 70%,#081709 100%);border:2px solid #c9d6b0;border-radius:12px;box-shadow:inset 0 3px 10px #000a,0 2px 0 #9fb187;font-family:'IBM Plex Mono','SF Mono',ui-monospace,Menlo,monospace;color:#b8f27a;text-shadow:0 0 6px #9be35a99;padding:4px 10px 5px}
+.game-chapter:before{content:'';position:absolute;inset:0;pointer-events:none;background:repeating-linear-gradient(0deg,#00000040 0 1px,transparent 1px 3px)}
+.game-chapter:after{content:'';position:absolute;inset:0;pointer-events:none;background:radial-gradient(ellipse at center,transparent 55%,#0009 100%)}
+.game-chapter small{color:#86c75a;font-size:8.5px;letter-spacing:1.2px}
+.game-chapter b{display:block;width:100%;max-width:none;overflow:hidden;white-space:nowrap;font-size:11.5px;font-weight:600;color:#c8f98e;text-overflow:clip}
+.game-chapter b span{display:inline-block}
+/* titolo lungo: lo schermo resta fermo, il testo scorre */
+.game-chapter b.long span{padding-right:40px;animation:chapter-scroll 9s linear infinite}
+@keyframes chapter-scroll{0%,15%{transform:translateX(0)}85%,100%{transform:translateX(calc(-100% + 154px))}}
+.game-chapter i{color:#9fdc6c;font-size:10px}
+.game-chapter:hover{border-color:#c5f476}
+@media(prefers-reduced-motion:reduce){.game-chapter b.long span{animation:none}.game-chapter b{text-overflow:ellipsis}}
+/* ——— la striscia di ciò che toglie punti, e le voci del menu in rosso ——— */
+.game-pressure{position:fixed;left:50%;top:84px;transform:translateX(-50%);z-index:44;display:flex;align-items:center;gap:10px;max-width:min(760px,calc(100vw - 300px));background:#fdeeea;color:#7a2a1c;border:2px solid #d8432f;border-radius:12px;padding:7px 12px 7px 8px;font-size:12.5px;box-shadow:0 10px 26px #d8432f33;cursor:pointer;animation:kds-hot 1.2s ease-in-out infinite;text-align:left}
+.game-pressure span{flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.game-pressure em{font-style:normal;font-weight:700;display:flex;align-items:center;gap:4px;color:#b2412d}
+.game-pressure em .icon{width:13px;height:13px}
+.sidebar a.nav-alarm{box-shadow:inset 3px 0 0 #d8432f;background:#3a1f1a}
+.sidebar a.nav-alarm.active{background:#fbe5e0;color:#8e2f1f}.sidebar a.nav-alarm.active .icon{color:#8e2f1f}
+.sidebar a.nav-alarm::after{content:'';width:8px;height:8px;border-radius:50%;background:#d8432f;margin-left:auto;box-shadow:0 0 0 0 #d8432f99;animation:lu-live-red 1.4s infinite;flex:none}
+body.touring .game-pressure{display:none}
+/* La Bottega in sfida: stesso schermino a fosfori del capitolo. Barra in alto sempre su una riga. */
+.topbar-actions{flex-wrap:nowrap;white-space:nowrap}
+.ask-otto.is-shop{position:relative;overflow:hidden;height:40px;border-radius:12px!important;padding:0 12px 0 10px;background:radial-gradient(ellipse at 50% 40%,#183a24 0%,#0e2416 70%,#081709 100%)!important;border:2px solid #c9d6b0;box-shadow:inset 0 3px 10px #000a,0 2px 0 #9fb187!important;font-family:'IBM Plex Mono','SF Mono',ui-monospace,Menlo,monospace;font-size:11.5px;font-weight:600;letter-spacing:.3px;color:#c8f98e!important;text-shadow:0 0 6px #9be35a99;text-transform:uppercase}
+.ask-otto.is-shop:before{content:'';position:absolute;inset:0;pointer-events:none;background:repeating-linear-gradient(0deg,#00000040 0 1px,transparent 1px 3px)}
+.ask-otto.is-shop .icon{color:#b8f27a;filter:drop-shadow(0 0 3px #9be35a88)}
+.ask-otto.is-shop:hover{border-color:#c5f476}
+.game-chapter{height:40px;justify-content:center}
+.game-alert{flex:none;margin-left:0;width:40px;height:40px;border-radius:11px}
+@media(max-width:1280px){.ask-otto.is-shop span{display:none}.ask-otto.is-shop{padding:0 10px}.topbar-actions:has(.game-chapter) .search-trigger>span,.topbar-actions:has(.game-chapter) .search-trigger kbd{display:none}}
+/* Schermata finale: tutti i capitoli chiusi */
+.game-finale{position:fixed;inset:0;z-index:1000;display:grid;place-items:center;padding:24px;background:#0c160fcc;backdrop-filter:blur(3px);animation:gf-in .35s ease both}
+.gf-card{position:relative;width:min(540px,100%);background:#fbfcf8;border-radius:22px;padding:30px 34px 26px;text-align:center;box-shadow:0 40px 120px #000b;animation:gf-rise .5s cubic-bezier(.2,.8,.3,1) .1s both}
+.gf-screen{position:relative;overflow:hidden;display:inline-flex;flex-direction:column;gap:2px;padding:9px 22px 10px;background:radial-gradient(ellipse at 50% 40%,#183a24 0%,#0e2416 70%,#081709 100%);border:2px solid #c9d6b0;border-radius:12px;box-shadow:inset 0 3px 10px #000a,0 2px 0 #9fb187;font-family:'IBM Plex Mono','SF Mono',ui-monospace,Menlo,monospace;color:#c8f98e;text-shadow:0 0 6px #9be35a99}
+.gf-screen:before{content:'';position:absolute;inset:0;pointer-events:none;background:repeating-linear-gradient(0deg,#00000040 0 1px,transparent 1px 3px)}
+.gf-screen small{font-size:10px;letter-spacing:2px;color:#86c75a}
+.gf-screen b{font-size:16px;letter-spacing:1px}
+.gf-otto{display:block;margin:16px auto 4px;width:64px;height:64px;color:#2f4a1d}
+.gf-otto .icon{width:64px;height:64px}
+.gf-card h2{font-size:27px;letter-spacing:-.8px;line-height:1.15;margin:8px 0 10px;color:#1d2b20}
+.gf-card p{font-size:13.5px;line-height:1.6;color:#5d6b52;margin:0 auto 20px;max-width:430px}
+.gf-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:22px}
+.gf-stats span{display:flex;flex-direction:column;gap:3px;background:#f1f6e8;border:1px solid #dfe8cf;border-radius:12px;padding:11px 6px}
+.gf-stats b{font-size:22px;font-weight:650;color:#2f4a1d;letter-spacing:-.5px}
+.gf-stats small{font-size:10.5px;color:#7b886b}
+.gf-actions{display:flex;flex-wrap:wrap;justify-content:center;gap:9px}
+.gf-actions button,.gf-actions a{display:inline-flex;align-items:center;gap:6px;border-radius:22px;padding:10px 16px;font-size:13px;font-weight:600;border:1px solid #d9e6c6;background:#fff;color:#2f4a1d;cursor:pointer;text-decoration:none}
+.gf-actions .gf-go{background:#1d2b20;color:#e8f0df;border-color:#1d2b20}
+.gf-actions .gf-wa{background:#d8432f;border-color:#d8432f;color:#fff}
+.gf-actions .icon{width:14px;height:14px}
+@keyframes gf-in{from{opacity:.6}}
+@keyframes gf-rise{from{transform:translateY(18px) scale(.97)}}
+@media(prefers-reduced-motion:reduce){.game-finale,.gf-card{animation:none}}
+body:has(.game-finale) .game-pressure{display:none}
+/* schermino del capitolo alto 40px: numero e avanzamento sulla prima riga, titolo sotto */
+.game-chapter small{display:flex;justify-content:space-between;align-items:baseline;gap:8px;width:100%;line-height:1.25}
+.game-chapter small i{font-size:9px;letter-spacing:.6px;color:#c8f98e;display:inline}
+.game-chapter b{line-height:1.3}
+@media(max-width:1180px){.game-chapter small i{display:inline}}
+/* Fine capitolo: stessa scheda della schermata finale, con il racconto e la barra dei capitoli */
+.game-finale.is-stage .gf-card{width:min(560px,100%);text-align:left}
+.game-finale.is-stage .gf-screen{display:flex;width:100%;align-items:flex-start}
+.gf-bar{display:flex;gap:5px;margin-top:6px;position:relative}
+.gf-bar i{width:22px;height:6px;border-radius:2px;background:#25462d;box-shadow:inset 0 0 0 1px #3d6b45}
+.gf-bar i.on{background:#b8f27a;box-shadow:0 0 6px #9be35a}
+.gf-tale{display:flex;gap:12px;align-items:flex-start;margin:18px 0 16px}
+.gf-face{flex:none;display:grid;place-items:center;width:42px;height:42px;border-radius:12px;background:#1d2b20;color:#c5f476}
+.gf-face .icon{width:26px;height:26px}
+.gf-tale b{display:block;font-size:12px;color:#7b886b;margin-bottom:4px;letter-spacing:.2px}
+.gf-tale p{font-size:13.5px;line-height:1.55;color:#33402c;margin:0 0 4px;max-width:none;text-align:left}
+.game-finale.is-stage .gf-stats{margin-bottom:12px}
+.game-finale.is-stage .gf-stats span{text-align:center}
+.gf-bonus{display:flex;align-items:center;gap:6px;font-size:12.5px;color:#5d6b52;margin:0 0 12px!important}
+.gf-bonus .icon{width:16px;height:16px;color:#2f4a1d}
+.gf-next{display:flex;flex-direction:column;gap:2px;background:#f1f6e8;border:1px dashed #c9d9ae;border-radius:12px;padding:10px 14px;margin:0 0 16px!important}
+.gf-next small{font-size:10px;letter-spacing:1.4px;color:#7b886b;font-weight:600}
+.gf-next b{font-size:15px;color:#1d2b20}
+.game-finale.is-stage .gf-actions{justify-content:flex-end}
+/* hunt: caccia agli errori */
+.mg-count{display:inline-block;margin-left:6px;font-size:11.5px;color:#3f6a1c;background:#eef6e2;border-radius:10px;padding:1px 8px}
+.mg-hunt{background:#fff;border:1px solid #dfe5d4;border-radius:10px;padding:8px 8px 6px;margin:6px 0 8px;display:grid;gap:4px}
+.mg-hrow{display:grid;grid-template-columns:minmax(110px,32%) 1fr;gap:2px 12px;align-items:baseline;text-align:left;border:1px solid transparent;border-radius:7px;padding:6px 8px;background:#fafbf7;cursor:pointer;font-size:12.5px;color:#2d3a26;transition:background .15s,border-color .15s}
+.mg-hrow:hover:not([disabled]){background:#f4f9ec;border-color:#cfe1b5}
+.mg-hrow .mg-k{color:#6d7a60;font-size:11.5px}
+.mg-hrow .mg-why{grid-column:1/-1;font-size:11.5px;color:#a5402c;font-weight:600}
+.mg-hrow .mg-why.ok{color:#6d7a60;font-weight:500}
+.mg-hrow.found{background:#fdeeea;border-color:#e8a596;cursor:default}
+.mg-hrow.found .mg-v{text-decoration:line-through;text-decoration-color:#d8432f}
+.mg-hrow.miss{background:#f3f5ee;color:#8b947f;animation:game-shake .35s ease;cursor:default}
+.mg-hrow.sol{background:#fff6e0;border-color:#ecd28a}
+.mg-hrow.hinted{box-shadow:0 0 0 2px #e2b14f;background:#fdf6dc}
+/* order: in fila */
+.mg-seq{list-style:none;margin:6px 0 8px;padding:0;display:grid;gap:4px}
+.mg-seq li{display:flex;align-items:center;gap:10px;border:1px dashed #d6e0c8;border-radius:9px;padding:6px 10px;font-size:12.5px;color:#9aa38f;background:#fafbf7}
+.mg-seq li b{display:grid;place-items:center;width:20px;height:20px;border-radius:50%;background:#e7eedc;color:#5d6b52;font-size:11px;flex:none}
+.mg-seq li.set{border-style:solid;border-color:#cfe1b5;color:#26331f;background:#f2f8e8}
+.mg-seq li.set b{background:#2f4a1d;color:#c5f476}
+.mg-seq li.sol{border-style:solid;border-color:#ecd28a;color:#5d4a1a;background:#fff6e0}
+.mg-pool{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:8px}
+.mg-pool button{display:flex;flex-direction:column;align-items:flex-start;gap:2px;text-align:left;border:1.5px solid #d6e2c6;background:#fff;border-radius:10px;padding:7px 11px;font-size:12.5px;color:#2d3a26;cursor:pointer;max-width:100%}
+.mg-pool button small{font-size:11px;color:#7b886b}
+.mg-pool button:hover{border-color:#9cc46a;background:#f4f9ec}
+.mg-pool button.miss{border-color:#efc2b7;background:#fbe8e3;animation:game-shake .35s ease}
+.mg-pool button.hinted{box-shadow:0 0 0 2px #e2b14f;background:#fdf6dc}
+.game-finale .gf-next,.game-finale .gf-bonus{max-width:none}
+/* Prestazioni: le pulsazioni continue (ombre) avanzano a scatti morbidi invece che a 60 fotogrammi al secondo.
+   Stesso effetto a vista, ma circa 8 ridisegni per ciclo invece di 70: leggero su Mac, Windows e computer modesti.
+   Queste regole sostituiscono le animazioni omonime definite prima (game.css si carica per ultimo). */
+@keyframes kds-hot{0%,100%{box-shadow:inset 0 0 0 0 #d8432f00;animation-timing-function:steps(4)}50%{box-shadow:inset 0 0 0 2px #d8432fcc;animation-timing-function:steps(4)}}
+@keyframes game-target{0%,100%{box-shadow:0 0 0 0 #d8432f00;animation-timing-function:steps(4)}50%{box-shadow:0 0 0 4px #d8432f88;animation-timing-function:steps(4)}}
+@keyframes gst-ready{0%,100%{box-shadow:0 0 0 0 #c5f47600;animation-timing-function:steps(4)}50%{box-shadow:0 0 0 6px #c5f47633;animation-timing-function:steps(4)}}
+@keyframes lu-live{0%{box-shadow:0 0 0 0 #6fbf3a90;animation-timing-function:steps(6)}70%{box-shadow:0 0 0 7px #6fbf3a00;animation-timing-function:steps(2)}100%{box-shadow:0 0 0 0 #6fbf3a00}}
+@keyframes lu-live-red{0%{box-shadow:0 0 0 0 #d8432f90;animation-timing-function:steps(6)}70%{box-shadow:0 0 0 6px #d8432f00;animation-timing-function:steps(2)}100%{box-shadow:0 0 0 0 #d8432f00}}
+@keyframes pulse{0%,100%{box-shadow:0 0 0 3px #7fbf3a33;animation-timing-function:steps(4)}50%{box-shadow:0 0 0 6px #7fbf3a00;animation-timing-function:steps(4)}}
+/* barra in alto in sfida su schermi stretti (fino a 1180px): la Demo interattiva resta, ma solo con il suo puntino rosso */
+@media(max-width:1180px){.topbar-actions:has(.game-chapter) .demo-btn span{display:none}.topbar-actions:has(.game-chapter) .demo-btn{padding-inline:11px}.topbar-actions:has(.game-chapter){gap:8px}}
+/* la striscia rossa si centra sull'area dei contenuti, non sulla finestra intera (non deve coprire il menu a sinistra) */
+.game-pressure{left:calc(var(--sidebar, 0px) + (100vw - var(--sidebar, 0px)) / 2);max-width:min(760px, calc(100vw - var(--sidebar, 0px) - 48px))}
+@media(max-width:760px){.game-pressure{left:50%;max-width:calc(100vw - 24px)}}
+/* con la striscia rossa visibile, gli avvisi in alto a destra scendono sotto di lei invece di coprirla */
+body:has(.game-pressure) .live-stack{top:136px}
+/* schermi bassi: la scheda finale e di fine capitolo si può scorrere, e resta centrata quando ci sta */
+.game-finale{place-items:normal;overflow-y:auto;overscroll-behavior:contain}
+.game-finale .gf-card{margin:auto}
+/* Bottega: fissi (sempre in vetrina) e temporanei (a caso); la vetrina scorre se è lunga */
+.otto-shop{max-height:calc(100vh - 110px);overflow-y:auto;overscroll-behavior:contain}
+.shop-list.fixed .shop-item{padding-block:9px}
+.shop-list.fixed .shop-item small{font-size:11.5px}
+.shop-item.owned{opacity:.55;cursor:default}
+.shop-item.owned em{color:#c5f476;font-style:normal;text-transform:uppercase;font-size:10.5px;letter-spacing:1px}
+/* ————— Riquadri fissi (panels.js): gli elenchi che crescono si scorrono dentro la loro scheda ————— */
+.fixed-scroll{max-height:440px;overflow:auto;overscroll-behavior:contain;scrollbar-width:thin;scrollbar-color:#cfd8c4 transparent}
+.fixed-scroll.is-live{height:440px}
+.fixed-scroll thead th{position:sticky;top:0;z-index:1;background:var(--surface,#fff);box-shadow:0 1px 0 var(--line,#e3e8da)}
+.fixed-scroll [hidden]{display:none!important}
+.list-pane.fixed-scroll{max-height:620px}.list-pane.fixed-scroll.is-live{height:620px}
+.list-pane.fixed-scroll .filter-tabs{position:sticky;top:0;z-index:2;background:#fff}
+.panel-none{padding:22px 18px;font-size:12.5px;color:#8b947f;text-align:center;margin:0}
+.panel-title:has(.panel-search){gap:12px}
+.panel-search{display:inline-flex;align-items:center;gap:6px;margin-left:auto;border:1px solid var(--line,#e3e8da);border-radius:9px;padding:5px 9px;background:#fff;color:#7b886b}
+.panel-search .icon{width:14px;height:14px;fill:none;stroke:currentColor;stroke-width:2}
+.panel-search input{border:0;outline:0;background:transparent;font:inherit;font-size:12px;width:130px;color:#26331f}
+.panel-search:focus-within{border-color:#9cc46a;box-shadow:0 0 0 3px #c5f47644}
+/* schede affiancate: allineate in alto, mai stirate dal contenuto dell'altra colonna */
+.quote-layout,.sala-layout,.module-workspace,.qr-layout,.split{align-items:start}
+.filter-tabs .panel-search{margin-left:auto}.filter-tabs .panel-search input{width:90px}
+/* Colonne che finiscono pari: in un layout a due colonne la scheda con l'elenco vivo si allunga fino alla fine
+   dell'altra colonna, e l'elenco riempie lo spazio scorrendo dentro. Niente vuoti sotto, niente pagina che cresce. */
+:is(.quote-layout,.sala-layout,.module-workspace,.split):has(.fixed-scroll.is-live){align-items:stretch}
+:is(.quote-layout,.sala-layout,.module-workspace,.split)>:has(>.fixed-scroll.is-live){display:flex;flex-direction:column}
+:is(.quote-layout,.sala-layout,.module-workspace,.split)>*>.fixed-scroll.is-live{flex:1 1 0;height:auto;min-height:340px;max-height:none}
+:is(.quote-layout,.sala-layout,.module-workspace,.split)>.fixed-scroll.is-live{height:auto;min-height:420px;max-height:none}
+/* gli elenchi che si scorrono hanno un fondo appena più scuro: si riconoscono come zone interattive */
+.fixed-scroll.is-live{background:#f6f8f1;box-shadow:inset 0 1px 0 var(--line,#e3e8da)}
+.fixed-scroll.is-live thead th{background:#f6f8f1}
+.list-pane.fixed-scroll.is-live .filter-tabs{background:#f6f8f1}
+/* ————— Impaginazione a colonne pari (tutte le sezioni dei due OS) —————
+   Le schede di una stessa fila finiscono alla stessa altezza: le colonne si stirano fino alla più alta,
+   l'ultima scheda di ogni colonna riempie lo spazio che resta, i telefoni di anteprima tengono la loro forma. */
+:is(.quote-layout,.fid-layout,.app-layout,.home-live,.qr-layout,.home-grid){align-items:stretch}
+:is(.quote-layout,.fid-layout,.app-layout,.home-live,.qr-layout,.home-grid)>:is(.module-side,.home-side,div:not([class*="panel"]):not(:has(.guest-phone,.phone-mock))){display:flex;flex-direction:column;gap:14px;align-content:normal}
+:is(.quote-layout,.fid-layout,.app-layout,.home-live,.qr-layout,.home-grid)>:is(.module-side,.home-side,div:not([class*="panel"]))>:is(.workspace-panel,.feed-panel):last-child{flex:1 1 auto}
+/* se in fondo alla colonna c'è una nota (non una scheda), si allunga l'ultima scheda prima della nota */
+:is(.quote-layout,.fid-layout,.app-layout,.home-live,.qr-layout,.home-grid)>:is(.module-side,.home-side,div:not([class*="panel"])):has(>:last-child:not(.workspace-panel,.feed-panel))>.workspace-panel:nth-last-child(2){flex:1 1 auto}
+:is(.quote-layout,.fid-layout,.app-layout,.home-live,.qr-layout,.home-grid)>:has(.guest-phone,.phone-mock){align-self:start}
+:is(.quote-layout,.fid-layout,.app-layout,.home-live,.qr-layout,.home-grid)>.workspace-panel{display:flex;flex-direction:column}
+/* gli avvisi e i riquadri di Otto in fondo a una colonna non si stirano: si stira la scheda prima */
+
+.fixed-scroll{align-content:start;justify-content:flex-start}
+/* home: il feed riempie lo spazio accanto alla pianta, senza allungare la fila */
+.home-side>.feed-panel{display:flex;flex-direction:column;min-height:0}
+.home-side .fixed-scroll.is-live{flex:1 1 0;height:auto;min-height:200px}
+/* negli elenchi che si scorrono le schede tengono sempre la loro altezza: si scorre, non si schiaccia */
+.fixed-scroll{grid-auto-rows:max-content}
+.fixed-scroll>*{flex-shrink:0;min-height:min-content}
+/* aria tra i numeri in alto (KPI) e le schede sotto, in tutte le sezioni */
+.metrics-grid{margin-bottom:22px}
+.nav-count[hidden]{display:none!important}
+/* ————— Le schede che si scorrono si riconoscono a colpo d'occhio —————
+   Titolo in una fascia più scura sopra l'elenco; passandoci sopra (o usandola) fascia e bordo si accendono di verde.
+   Così ci sono tre tipi di schede: numeri (si leggono), schede con tasti (si usano), elenchi vivi (si scorrono). */
+.workspace-panel:has(>.fixed-scroll.is-live)>.panel-title{background:#e8eddf;border-bottom:1px solid #d6dfc8;transition:background .15s}
+.workspace-panel:has(>.fixed-scroll.is-live){transition:box-shadow .15s,border-color .15s}
+.workspace-panel:has(>.fixed-scroll.is-live:hover),.workspace-panel:has(>.fixed-scroll.is-live:focus-within){border-color:#9cc46a;box-shadow:0 0 0 2px #c5f47655}
+.workspace-panel:has(>.fixed-scroll.is-live:hover)>.panel-title,.workspace-panel:has(>.fixed-scroll.is-live:focus-within)>.panel-title{background:#dcefc2}
+.fixed-scroll.is-live{background:#f3f6ee}
+.fixed-scroll.is-live thead th{background:#f3f6ee}
+/* colonne della cucina e del delivery: intestazione come fascia scura, colonna verde quando ci sei sopra */
+.kds-col>header,.dlv-col>header{position:sticky;top:-12px;z-index:2;margin:-12px -12px 2px;padding:10px 14px;background:#e3e9d8;border-bottom:1px solid #d3dcc4;border-radius:12px 12px 0 0;transition:background .15s}
+.kds-col,.dlv-col{transition:border-color .15s,box-shadow .15s}
+.kds-col:hover,.dlv-col:hover{border-color:#9cc46a;box-shadow:0 0 0 2px #c5f47655}
+.kds-col:hover>header,.dlv-col:hover>header{background:#dcefc2}
+.kds-col.hot>header,.dlv-col.hot>header{background:#f6d9d2}
+/* blocchi con un titolo tra le schede (es. canali e ordini del delivery) */
+.block-head{display:flex;align-items:baseline;gap:12px;margin:6px 2px 12px}
+.block-head h2{font-size:15px;font-weight:600;color:#1d2b20}
+.block-head small{font-size:12px;color:#7b886b}
+.dlv-channels+.block-head,.dlv-channels+[data-anchor]+.block-head{margin-top:24px}
+/* biglietti del delivery dentro la cucina */
+.ticket.dlv-ticket{border-left-color:#7aa7d6;background:#f6f9fd}
+.ticket.dlv-ticket .tk-top{display:flex;align-items:center;gap:6px}
+.ticket.dlv-ticket .tk-top small{margin-left:auto;font-size:10px;letter-spacing:.8px;text-transform:uppercase;color:#5b7fa6}
+.dlv-col>header{top:-10px;margin:-10px -10px 2px}
+.dlv-col{height:440px;min-height:0;overflow:auto;overscroll-behavior:contain;scrollbar-width:thin}
+.dlv-col>*{flex-shrink:0}
+/* ————— Ultima passata di coerenza (19 ottobre) —————
+   Nelle file a più colonne nessuna scheda ha margine sopra: le colonne partono tutte alla stessa altezza. */
+@media(min-width:761px){
+ :is(.qr-layout,.fid-layout,.app-layout,.module-workspace,.split,.duo-row,.home-grid,.lobby-grid,.board,.decisions)>.workspace-panel{margin-top:0}
+ /* la sala: la pianta si allunga fino in fondo al tavolo aperto (e lo spazio in più va alla pianta, non sotto) */
+ .sala-layout{align-items:stretch}
+ .sala-layout>.floor-panel{display:flex;flex-direction:column}
+ .sala-layout>.floor-panel>.floor{flex:1 1 auto}
+ .sala-layout>.table-panel{position:static}
+}
+/* l'ecosistema: nelle schede dei moduli il piede sta sempre in fondo, così le righe finiscono pari */
+.module-card{display:flex;flex-direction:column}
+.module-card>.mini-features{margin-bottom:16px}
+.module-card>.module-card-footer{margin-top:auto}
+/* Scadenziario: gli adempimenti riempiono la larghezza, su due colonne, in un riquadro più basso */
+.filing-list{grid-template-columns:minmax(0,1fr)}
+@media(min-width:761px){.filing-list{grid-template-columns:repeat(2,minmax(0,1fr))}.filings .filing-list.fixed-scroll.is-live{height:236px}}
+/* barra in alto: un titolo lungo si accorcia con i puntini, i tasti restano dentro lo schermo (1024 px) */
+.topbar .breadcrumbs{min-width:0;flex:1 1 auto}
+.topbar .breadcrumbs strong{min-width:0;overflow:hidden;text-overflow:ellipsis}
+.topbar-actions{flex:none}
+/* il dettaglio accanto a un elenco (posta, chiamate, chat): le parti restano della loro altezza, i tasti vanno in fondo */
+.split>.detail-pane{align-content:start}
+@supports(display:flex){.split>.detail-pane{display:flex;flex-direction:column}.split>.detail-pane>.detail-actions:last-child{margin-top:auto}}
+/* una fila a colonne subito dopo una scheda ha la stessa aria di tutte le altre */
+@media(min-width:761px){:is(.workspace-panel,.metrics-grid,.registry-grid,.board,.kds-board,.dlv-board)+:is(.quote-layout,.split,.fid-layout,.app-layout,.qr-layout,.sala-layout,.rule-grid,.flag-grid){margin-top:16px}}
+
+/* Ingresso in sfida: i display LCD escono da una fessura nella barra come un cassetto, poi lo schermo si accende
+   a sfarfallio e una riga di luce attraversa il vetro. "Chiedi a Otto" prima rientra nella fessura, poi riesce come Bottega. */
+.mech-in{animation:mech-rise 1.25s cubic-bezier(.25,1,.4,1) both;transform-origin:50% 100%;will-change:transform,clip-path,filter}
+.mech-swap{animation:mech-swap 1.6s cubic-bezier(.25,1,.4,1) both;transform-origin:50% 100%;will-change:transform,clip-path,filter}
+.mech-in>:not(.mech-scan),.mech-swap>:not(.mech-scan){animation:mech-text 1.25s steps(1,end) both;animation-delay:inherit}
+.mech-swap>:not(.mech-scan){animation-duration:1.6s;animation-name:mech-text-swap}
+.mech-scan{position:absolute;left:-10%;right:-10%;top:-40%;height:40%;pointer-events:none;z-index:2;background:linear-gradient(180deg,transparent,#d8ff9a55 45%,#f3ffd9aa 50%,#d8ff9a55 55%,transparent);mix-blend-mode:screen;animation:mech-scan .55s ease-in both}
+@keyframes mech-rise{
+ 0%{clip-path:inset(100% 0 0 0 round 12px);transform:translateY(70%) scaleY(.55);filter:brightness(.15)}
+ 42%{clip-path:inset(0 0 0 0 round 12px);transform:translateY(-12%) scaleY(1.08);filter:brightness(.2)}
+ 56%{transform:translateY(4%) scaleY(.97)}
+ 66%{transform:none;filter:brightness(.2)}
+ 70%{filter:brightness(1.9)}74%{filter:brightness(.35)}78%{filter:brightness(1.6)}84%{filter:brightness(.7)}
+ 100%{clip-path:inset(0 0 0 0 round 12px);transform:none;filter:none}}
+@keyframes mech-swap{
+ 0%{clip-path:inset(0 0 0 0 round 12px);transform:none;filter:none}
+ 10%{transform:translateY(-6%) scaleY(1.04)}
+ 28%{clip-path:inset(100% 0 0 0 round 12px);transform:translateY(70%) scaleY(.55);filter:brightness(.15)}
+ 34%{clip-path:inset(100% 0 0 0 round 12px);transform:translateY(70%) scaleY(.55)}
+ 56%{clip-path:inset(0 0 0 0 round 12px);transform:translateY(-12%) scaleY(1.08);filter:brightness(.2)}
+ 66%{transform:translateY(4%) scaleY(.97)}
+ 74%{transform:none;filter:brightness(.2)}
+ 77%{filter:brightness(1.9)}80%{filter:brightness(.35)}84%{filter:brightness(1.6)}89%{filter:brightness(.7)}
+ 100%{clip-path:inset(0 0 0 0 round 12px);transform:none;filter:none}}
+@keyframes mech-text{0%,72%{opacity:0}74%{opacity:1}77%{opacity:.15}81%{opacity:1}85%{opacity:.5}88%,100%{opacity:1}}
+@keyframes mech-text-swap{0%,8%{opacity:1}12%,78%{opacity:0}80%{opacity:1}83%{opacity:.15}86%{opacity:1}90%{opacity:.5}93%,100%{opacity:1}}
+@keyframes mech-scan{from{top:-40%}to{top:110%}}
+@media(prefers-reduced-motion:reduce){.mech-in,.mech-swap,.mech-in>*,.mech-swap>*{animation:none}.mech-scan{display:none}}
+/* missione nel pannello del tavolo: compatta, sta al posto della comanda (fonti in righe sottili, tastierino piccolo) */
+.tp-mission{padding:10px 14px 12px;border-top:0;border-bottom:1px solid #edf0e6;background:#fbfcf8}
+.tp-mission .game-card{padding:10px 12px}
+.tp-mission .gc-top{margin-bottom:4px}
+.tp-mission .mg-split{gap:8px;margin-top:6px}
+.tp-mission .mg-ask{margin:0 0 6px;font-size:12.5px;line-height:1.4}
+.tp-mission .mg-sources{gap:5px!important}
+.tp-mission .mg-sources>*{padding:6px 10px!important}
+.tp-mission .mg-sources :is(small,.eyebrow){font-size:9.5px}
+.tp-mission .mg-sources :is(p,div,span){font-size:12px;line-height:1.35}
+.tp-mission .mg-calc{gap:5px;padding:7px;border-radius:10px}
+.tp-mission .mg-screen{min-height:40px;padding:5px 10px}
+.tp-mission .mg-screen b{font-size:18px}
+.tp-mission .mg-screen small{font-size:10.5px}
+.tp-mission .mg-ckeys{gap:4px}
+.tp-mission .mg-ckeys button{height:28px;font-size:13px;border-radius:7px}
+.tp-mission .mg-ckeys button.eq{height:26px}
+.tp-mission .mg-submit{padding:8px;font-size:12.5px}
+.tp-mission .gc-result p{font-size:12.5px}
+.tp-mission .mg-split-src .mg-sources{grid-template-columns:1fr 1fr}

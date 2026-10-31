@@ -1,0 +1,37 @@
+# CSD Station
+
+> Consulenza AI e informatica, prodotti NFC per recensioni Google e training AI aziendali personalizzati per PMI e team. Carlo Galli, dalla Toscana in tutta Italia.
+
+Il contatto iniziale avviene via WhatsApp o email. Consulenza e training sono definiti dopo un confronto su strumenti, attività e obiettivi; non hanno un prezzo standard pubblicato. I training si svolgono da remoto su Google Meet o in presenza su accordo. Per esigenze giuridiche specifiche si valuta il coinvolgimento di professionisti abilitati.
+
+Le card NFC aprono un collegamento: non pubblicano recensioni. I report misurano le aperture, non le recensioni ricevute. Gli esempi interattivi usano dati inventati, non risultati cliente documentati.
+
+## Servizi — contenuti in Markdown
+
+- [Consulenza AI, informatica e automazioni](https://csd-station.it/index.md): processi, strumenti Google, software, hardware e inventario NFC.
+- [Training AI per aziende e PMI](https://csd-station.it/training-ai/index.md): formazione personalizzata per team, utilizzo consapevole e gestione dei dati.
+- [Card, plate e stand NFC](https://csd-station.it/card-nfc/index.md): prodotti per facilitare le recensioni su Google Maps, prezzi e servizio incluso.
+- [Sito & Social](https://csd-station.it/sito-social/index.md): siti web, siti con animazioni, montaggio e clipping video, caroselli e reel social a canone mensile per attività locali.
+- [Video & Slide](https://csd-station.it/video-slide/index.md): slide interattive (99 € ogni 15), video motion (99 € al minuto) e il pacchetto slide + video motion (149 €).
+
+- [Lead — riattivazione contatti](https://csd-station.it/lead/index.md): ricontatto di liste proprie e lecite, compenso sul risultato concordato; nessuna percentuale standard pubblicata.
+
+- [Forecasting AI](https://csd-station.it/forecasting/index.md): previsioni per PMI, anche interamente locali; prova gratuita di 7 giorni dopo verifica di fattibilità e storico, senza obbligo di proseguire. Accuratezza non garantita, confronto con baseline e backtesting ove possibile.
+
+## Pagine web
+
+- [Consulenza](https://csd-station.it/)
+- [Training](https://csd-station.it/training-ai/)
+- [Prodotti NFC](https://csd-station.it/card-nfc/)
+- [Sito & Social](https://csd-station.it/sito-social/)
+- [Video & Slide](https://csd-station.it/video-slide/)
+
+- [Lead](https://csd-station.it/lead/): riattivazione contatti, con presentazioni desktop e mobile.
+
+- [Forecasting AI](https://csd-station.it/forecasting/): dati aziendali, previsioni della domanda e decisioni sotto controllo umano.
+
+## Optional
+
+- [Testo completo dei servizi](https://csd-station.it/llms-full.txt): generato dalle pagine a ogni build.
+- [Privacy](https://csd-station.it/privacy-policy/): dati trattati per ogni servizio; il sito non usa cookie.
+- [Termini](https://csd-station.it/terms-of-service/): condizioni generali e di ogni servizio, sconto studenti universitari del 50% su Video & Slide.
