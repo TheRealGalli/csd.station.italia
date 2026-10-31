@@ -127,7 +127,7 @@ vec3 scena(sampler2D f,sampler2D m,vec2 uv,float sera){
  vec3 c=tinta(f,uv+d,sera);
  if(mp.r>.01){
   float p=uT/46.,a=fract(p),b=fract(p+.5),alto=clamp(1.-uv.y/.36,0.,1.),w=abs(a*2.-1.);
-  vec2 flusso=vec2(-.095*(.32+alto*1.15),.004)*uForza;
+  vec2 flusso=vec2(-.095*(.32+alto*1.15),.004)*uForza*(uInterno>.5?.2:1.);
   vec2 ua=rif(uv+flusso*(a-.5)*2.),ub=rif(uv+flusso*(b-.5)*2.);
   float ma=texture2D(m,ua).r,mb=texture2D(m,ub).r;
   vec3 ca=mix(c,tinta(f,ua,sera),ma*ma),cb=mix(c,tinta(f,ub,sera),mb*mb);
