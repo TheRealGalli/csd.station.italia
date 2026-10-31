@@ -22,7 +22,7 @@ const videos: Demo[] = [
   { n: '04', key: 'veicoli', title: 'Veicoli e colori', note: 'Un’icona, sei colori: uno studio colore in 30 secondi.', src: '/video-slide/film-veicoli.mp4?v=3', poster: '/video-slide/film-veicoli.webp?v=3', start: 4.6 },
   { n: '05', key: 'prodotto', title: 'Lancio di un prodotto', note: 'Sette gusti, una linea: CSD Pop raccontata in 30 secondi.', src: '/video-slide/film-prodotto.mp4', poster: '/video-slide/film-prodotto.webp?v=2', start: 1.6 },
   { n: '06', key: 'report', title: 'Report aziendale', note: 'Ricavi, margine, cassa e consegne: un semestre letto in 30 secondi.', src: '/video-slide/film-report.mp4?v=2', poster: '/video-slide/film-report.webp', start: 2.2 },
-  { n: '07', key: 'cibo', title: 'Menu e locale', note: 'Fritto & Burger: un menù raccontato morso dopo morso, in 30 secondi.', src: '/video-slide/film-cibo.mp4', poster: '/video-slide/film-cibo.webp', start: 1.6 },
+  { n: '07', key: 'cibo', title: 'Menu e locale', note: 'Fritto & Burger: un menù raccontato morso dopo morso, in 30 secondi.', src: '/video-slide/film-cibo.mp4?v=5', poster: '/video-slide/film-cibo.webp?v=5', start: 2.8 },
 ];
 const titoloFilm = (v: Demo) => `${v.title} · Video motion CSD Station`;
 
