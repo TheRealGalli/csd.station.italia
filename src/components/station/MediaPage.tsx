@@ -19,7 +19,7 @@ const videos: Demo[] = [
   { n: '01', key: 'universita', title: 'Università e tesine', note: 'Da una tesi di 80 pagine a 10 minuti chiari, in 30 secondi.', src: '/video-slide/film-universita.mp4?v=3', poster: '/video-slide/film-universita.webp?v=3', start: 4.9 },
   { n: '02', key: 'gioiellerie', title: 'Gioielli', note: 'Un Datejust in 30 secondi: mezzo giro di lancetta.', src: '/video-slide/film-gioiellerie.mp4?v=2', poster: '/video-slide/film-gioiellerie.webp', start: 4.9 },
   { n: '03', key: 'immobili', title: 'Immobili e progetti', note: 'Dal terreno alla casa finita: un progetto raccontato in 30 secondi.', src: '/video-slide/film-casa.mp4', poster: '/video-slide/film-casa.webp' },
-  { n: '04', key: 'veicoli', title: 'Veicoli e colori', note: 'Un’icona, sei colori: uno studio colore in 30 secondi.', src: '/video-slide/film-veicoli.mp4', poster: '/video-slide/film-veicoli.webp', start: 2.5 },
+  { n: '04', key: 'veicoli', title: 'Veicoli e colori', note: 'Un’icona, sei colori: uno studio colore in 30 secondi.', src: '/video-slide/film-veicoli.mp4?v=2', poster: '/video-slide/film-veicoli.webp?v=2', start: 4.6 },
   { n: '05', key: 'prodotto', title: 'Lancio di un prodotto', note: 'Sette gusti, una linea: CSD Pop raccontata in 30 secondi.', src: '/video-slide/film-prodotto.mp4', poster: '/video-slide/film-prodotto.webp?v=2', start: 1.6 },
   { n: '06', key: 'report', title: 'Report aziendale', note: 'Ricavi, margine, cassa e consegne: un semestre letto in 30 secondi.', src: '/video-slide/film-report.mp4?v=2', poster: '/video-slide/film-report.webp', start: 2.2 },
   { n: '07', key: 'cibo', title: 'Menu e locale', note: 'Fritto & Burger: un menù raccontato morso dopo morso, in 30 secondi.', src: '/video-slide/film-cibo.mp4', poster: '/video-slide/film-cibo.webp', start: 1.6 },
@@ -31,7 +31,7 @@ type Deck = { sector: string; key?: string; src?: string; slides?: number; bg?: 
 const decks: Deck[] = [
   { sector: 'Università', vertical: true, key: 'universita', src: '/video-slide/universita/index.html', slides: 8, bg: '#101510' },
   { sector: 'Gioielli', vertical: true, key: 'gioiellerie', src: '/video-slide/gioiellerie/index.html', slides: 8, bg: '#070b13' },
-  { sector: 'Prodotto', vertical: true, key: 'prodotto', src: '/video-slide/pop/index.html', slides: 8, bg: '#2db7f5' }, { sector: 'Immobili', vertical: true, key: 'immobili', src: '/video-slide/casa/index.html', slides: 6, bg: '#dfd8cd' }, { sector: 'Cibo', vertical: true, key: 'cibo', src: '/video-slide/cibo/index.html', slides: 8, bg: '#201713' }, { sector: 'Report', vertical: true, key: 'report', src: '/video-slide/report/index.html', slides: 8, bg: '#0B0D10' }, { sector: 'Veicoli', vertical: true, key: 'veicoli', src: '/video-slide/veicoli/index.html', slides: 8, bg: '#0b0f0a' },
+  { sector: 'Prodotto', vertical: true, key: 'prodotto', src: '/video-slide/pop/index.html', slides: 8, bg: '#2db7f5' }, { sector: 'Immobili', vertical: true, key: 'immobili', src: '/video-slide/casa/index.html', slides: 6, bg: '#dfd8cd' }, { sector: 'Cibo', vertical: true, key: 'cibo', src: '/video-slide/cibo/index.html', slides: 8, bg: '#201713' }, { sector: 'Report', vertical: true, key: 'report', src: '/video-slide/report/index.html', slides: 8, bg: '#0B0D10' }, { sector: 'Veicoli', vertical: true, key: 'veicoli', src: '/video-slide/veicoli/index.html', slides: 8, bg: '#070908' },
 ];
 
 // Link condivisi: ?slide=report porta alla presentazione, ?video=cibo apre il video già pronto
