@@ -18,9 +18,9 @@ type Demo = { n: string; key: string; title: string; note: string; src?: string;
 const videos: Demo[] = [
   { n: '01', key: 'universita', title: 'Università e tesine', note: 'Da una tesi di 80 pagine a 10 minuti chiari, in 30 secondi.', src: '/video-slide/film-universita.mp4?v=5', poster: '/video-slide/film-universita.webp?v=4', start: 4.9 },
   { n: '02', key: 'gioiellerie', title: 'Gioielli', note: 'Un Datejust in 30 secondi: mezzo giro di lancetta.', src: '/video-slide/film-gioiellerie.mp4?v=3', poster: '/video-slide/film-gioiellerie.webp?v=2', start: 4.9 },
-  { n: '03', key: 'immobili', title: 'Immobili e progetti', note: 'Un giorno solo: dall’alba sul terreno alla casa accesa di sera.', src: '/video-slide/film-casa.mp4?v=2', poster: '/video-slide/film-casa.webp?v=2', start: 13.6 },
+  { n: '03', key: 'immobili', title: 'Immobili e progetti', note: 'Un giorno solo: dall’alba sul terreno alla casa accesa di sera.', src: '/video-slide/film-casa.mp4?v=3', poster: '/video-slide/film-casa.webp?v=3', start: 23.4 },
   { n: '04', key: 'veicoli', title: 'Veicoli e colori', note: 'Un’icona, sei colori: uno studio colore in 30 secondi.', src: '/video-slide/film-veicoli.mp4?v=3', poster: '/video-slide/film-veicoli.webp?v=3', start: 4.6 },
-  { n: '05', key: 'prodotto', title: 'Lancio di un prodotto', note: 'Sette gusti, una lattina sola: ogni cambio è un POP.', src: '/video-slide/film-prodotto.mp4?v=2', poster: '/video-slide/film-prodotto.webp?v=3', start: 7.4 },
+  { n: '05', key: 'prodotto', title: 'Lancio di un prodotto', note: 'Sette gusti, una lattina sola: ogni cambio è un POP.', src: '/video-slide/film-prodotto.mp4?v=3', poster: '/video-slide/film-prodotto.webp?v=4', start: 7.4 },
   { n: '06', key: 'report', title: 'Report aziendale', note: 'Ricavi, margine, cassa e consegne: una linea sola, senza tagli.', src: '/video-slide/film-report.mp4?v=5', poster: '/video-slide/film-report.webp?v=2', start: 9.6 },
   { n: '07', key: 'cibo', title: 'Menu e locale', note: 'Fritto & Burger: un menù raccontato morso dopo morso, in 30 secondi.', src: '/video-slide/film-cibo.mp4?v=6', poster: '/video-slide/film-cibo.webp?v=6', start: 2.8 },
 ];
