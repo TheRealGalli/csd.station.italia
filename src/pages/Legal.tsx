@@ -9,7 +9,7 @@ import './legal.css';
 export type LegalDoc = 'privacy' | 'termini';
 type Section = { id: string; label: string; body: React.ReactNode };
 
-const UPDATED = '30 ottobre 2026';
+const UPDATED = '2 novembre 2026';
 const mail = <a href="mailto:carlo@csd-station.it">carlo@csd-station.it</a>;
 
 const Owner = () => <div className="legal-card">
@@ -74,6 +74,19 @@ const privacy: Section[] = [
       <li><strong>Durante lo sviluppo</strong>, se dobbiamo accedere a dati personali del Cliente, agiamo come responsabile del trattamento (art. 28 GDPR) secondo l’Accordo di Servizio, usando dati di prova ogni volta che è possibile.</li>
       <li><strong>Dopo la consegna</strong> il sistema passa interamente al Cliente: non conserviamo accessi e non trattiamo i dati che vi transitano. Il Cliente resta titolare dei propri dati; l’infrastruttura fa capo a Google come fornitore.</li>
       <li><strong>Strumenti di intelligenza artificiale:</strong> scegliamo con il Cliente quali servizi usare e quali dati possono entrarci; non inseriamo dati personali in strumenti AI senza averlo concordato.</li>
+    </ul>
+  </> },
+  { id: 'archivio', label: 'Archivio AI', body: <>
+    <p>Con l’<Link to="/archivio-ai/">Archivio AI</Link> organizziamo i documenti dell’attività del Cliente e li colleghiamo a un sistema di ricerca con intelligenza artificiale, installato sull’hardware concordato. Nel primo contatto descrivi che tipo di documenti hai e dove si trovano: non allegare documenti, fascicoli o dati di clienti, pazienti o dipendenti su WhatsApp. Concordiamo prima un canale adeguato.</p>
+    <ul>
+      <li><strong>Ruoli prima dell’accesso:</strong> i documenti restano del Cliente, che ne è titolare e decide finalità, persone autorizzate e regole di accesso. Se per installare, configurare o assistere il sistema trattiamo dati personali per suo conto, formalizziamo prima l’accordo previsto dall’art. 28 GDPR, con istruzioni, misure di sicurezza, riservatezza e assistenza nella gestione dei diritti.</li>
+      <li><strong>Accesso minimo:</strong> quando possibile lavoriamo su documenti di prova o su un campione concordato. Durante installazione e assistenza accediamo all’archivio solo per quanto necessario, con credenziali dedicate che il Cliente può revocare. Non copiamo l’archivio sui nostri dispositivi senza un accordo specifico.</li>
+      <li><strong>Dati sanitari, giudiziari ed enti pubblici:</strong> gli archivi di studi medici e dentistici, studi legali e notarili e pubbliche amministrazioni possono contenere categorie particolari di dati (art. 9 GDPR) o dati relativi a condanne e reati (art. 10). In questi casi valutiamo prima con il titolare e, se presente, con il DPO basi giuridiche, misure di sicurezza ed eventuale valutazione d’impatto (art. 35). Segreto professionale, regole di settore e norme sulla gestione documentale dell’ente restano in capo al titolare.</li>
+      <li><strong>Configurazione locale:</strong> quando concordata, archivio, indice e modello AI lavorano su hardware nel perimetro del Cliente, senza inviare i documenti a servizi AI esterni. Questa possibilità dipende dall’architettura scelta e non esclude ogni rischio: assistenza remota, backup esterni, servizi cloud e possibili trasferimenti fuori dallo SEE si valutano e si autorizzano prima di attivarli.</li>
+      <li><strong>Uso limitato all’incarico:</strong> non consultiamo i documenti oltre quanto serve al lavoro, non li vendiamo e non li usiamo per addestrare modelli, nostri o di altri clienti.</li>
+      <li><strong>Trascrizioni e contenuti derivati:</strong> trascrizioni di audio e video, testo riconosciuto dalle scansioni, descrizioni e indici sono dati del Cliente come gli originali e seguono le stesse regole di accesso e conservazione. Se le registrazioni riguardano altre persone, il Cliente verifica di poterle conservare e trattare.</li>
+      <li><strong>Conservazione e fine incarico:</strong> l’archivio resta sui sistemi del Cliente per i tempi che stabilisce. A fine installazione o assistenza restituiamo o cancelliamo eventuali copie, campioni e accessi in nostro possesso, secondo l’accordo e salvo obblighi di legge.</li>
+      <li><strong>Decisioni:</strong> il sistema aiuta a ritrovare e riassumere i documenti e ne indica le fonti; non prende decisioni automatizzate sulle persone. Valutazioni professionali, cliniche e amministrative restano alle persone autorizzate.</li>
     </ul>
   </> },
   { id: 'forecasting', label: 'AI Forecasting', body: <>
@@ -167,9 +180,9 @@ const termini: Section[] = [
       <li>Con i clienti aziendali possiamo citare il progetto tra i nostri lavori, salvo opposizione scritta; con i privati solo con il loro consenso.</li>
     </ul>
     <h3>Intelligenza artificiale</h3>
-    <p>Per grafiche, animazioni, montaggi e servizi di previsione usiamo anche strumenti di intelligenza artificiale, sempre con il nostro controllo e la nostra revisione. Non presentiamo come reali prodotti, piatti o ambienti generati dall’AI.</p>
+    <p>Per grafiche, animazioni, montaggi, ricerca nei documenti e servizi di previsione usiamo anche strumenti di intelligenza artificiale, sempre con il nostro controllo e la nostra revisione. Non presentiamo come reali prodotti, piatti o ambienti generati dall’AI.</p>
     <h3>Nessuna garanzia di risultato</h3>
-    <p>Garantiamo un lavoro fatto con cura e conforme a quanto concordato. Non possiamo garantire risultati che dipendono da terzi o dal mercato: follower, visualizzazioni, viralità, vendite, recensioni, accuratezza delle previsioni o, per gli studenti, il voto finale.</p>
+    <p>Garantiamo un lavoro fatto con cura e conforme a quanto concordato. Non possiamo garantire risultati che dipendono da terzi o dal mercato: follower, visualizzazioni, viralità, vendite, recensioni, accuratezza delle previsioni, completezza delle risposte dell’Archivio AI o, per gli studenti, il voto finale.</p>
     <h3>Responsabilità</h3>
     <p>Con i clienti aziendali la nostra responsabilità è limitata all’importo pagato per il servizio interessato ed esclude i danni indiretti, salvo dolo o colpa grave (art. 1229 c.c.). Con i consumatori valgono i limiti consentiti dal Codice del Consumo. Non rispondiamo di interruzioni o modifiche di piattaforme terze (Google, Meta, TikTok, servizi AI) né di cause di forza maggiore.</p>
     <h3>Riservatezza</h3>
@@ -186,6 +199,20 @@ const termini: Section[] = [
       <li><strong>Dopo la garanzia</strong>, o per problemi dovuti a modifiche di piattaforme terze o dell’ambiente del Cliente, l’assistenza è prevista solo con un accordo di manutenzione.</li>
       <li><strong>Uso corretto:</strong> il Cliente usa le soluzioni per scopi leciti e non decompila o rivende componenti che restano nostri, salvo accordo.</li>
     </ul>
+  </> },
+  { id: 'archivio', label: 'Archivio AI', body: <>
+    <h3>Prima guardiamo l’archivio</h3>
+    <p>Il servizio <Link to="/archivio-ai/">Archivio AI</Link> è rivolto ad aziende, professionisti ed enti. Prima del preventivo valutiamo con il Cliente tipi e quantità di documenti, dove si trovano, formati, qualità di scansioni e registrazioni, numero di persone che useranno il sistema e regole di accesso. Perimetro, documenti inclusi, hardware, tempi e prezzo sono descritti nel preventivo o nell’Accordo di Servizio: non c’è un prezzo standard pubblicato.</p>
+    <h3>Cosa realizziamo</h3>
+    <p>Installiamo e configuriamo l’archivio, l’indicizzazione dei contenuti, la ricerca con intelligenza artificiale e i permessi concordati. Riconoscimento del testo nelle scansioni e trascrizione di audio e video sono compresi quando indicati nel preventivo. Digitalizzazione del cartaceo, migrazione da altri sistemi, integrazioni con gestionali, posta o protocollo e formazione degli utenti sono incluse solo se previste espressamente.</p>
+    <h3>Hardware</h3>
+    <p>Possiamo usare l’hardware del Cliente, se adatto, o proporre un computer dedicato. Compatibilità, prestazioni e capacità si verificano prima sui volumi reali: tempi di risposta e quantità di documenti gestibili dipendono dall’hardware e dall’archivio, e non promettiamo che qualsiasi dispositivo sia sufficiente. L’hardware acquistato dal Cliente resta suo ed è coperto dalla garanzia del produttore.</p>
+    <h3>Risposte, fonti e limiti</h3>
+    <p>Il sistema cerca nei documenti indicizzati e ne cita le fonti, ma può non trovare un documento, interpretarlo male o dare risposte incomplete o sbagliate, soprattutto con originali poco leggibili, registrazioni rumorose o file non indicizzati. Le risposte si verificano sugli originali prima di usarle e non sostituiscono il giudizio di un professionista. Non garantiamo che ogni documento venga ritrovato né tempi di ricerca precisi: i tempi mostrati negli esempi del sito sono illustrativi.</p>
+    <h3>Collaudo, assistenza e copie di sicurezza</h3>
+    <p>A fine installazione il Cliente verifica il sistema con domande concordate sui propri documenti. Per i difetti della nostra configurazione vale la garanzia di 90 giorni prevista per la consulenza; aggiornamenti dei modelli, manutenzione e assistenza successivi richiedono un accordo dedicato. Il Cliente resta responsabile delle copie di sicurezza dei propri documenti, salvo che un servizio di backup sia incluso espressamente.</p>
+    <h3>Modelli e software di terzi</h3>
+    <p>Usiamo modelli e componenti di terzi, anche con pesi pubblici, scelti in base al progetto e aggiornabili nel tempo. Restano soggetti alle rispettive licenze: la consegna non ne trasferisce la proprietà al Cliente o a CSD Station e non implica affiliazione o partnership con i fornitori. Ruoli, accessi e fine incarico sono descritti nella <Link to="/privacy-policy/#archivio">sezione Archivio AI della privacy</Link>.</p>
   </> },
   { id: 'forecasting', label: 'AI Forecasting', body: <>
     <h3>Prima verifichiamo i dati</h3>

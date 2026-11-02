@@ -5,7 +5,7 @@ import { htmlToMarkdown } from './seo-markdown.mjs';
 
 const origin = 'https://csd-station.it';
 const read = path => readFile(`dist/${path}`, 'utf8');
-const pages = ['/', '/card-nfc/', '/training-ai/', '/sito-social/', '/video-slide/', '/lead/', '/forecasting/'];
+const pages = ['/', '/card-nfc/', '/training-ai/', '/sito-social/', '/video-slide/', '/lead/', '/archivio-ai/', '/forecasting/'];
 const descriptions = new Set();
 for (const path of pages) {
   const html = await read(`${path.slice(1)}index.html`);
@@ -68,6 +68,7 @@ assert.equal(getServiceMode('/training-ai/'), 'training');
 assert.equal(getServiceMode('/sito-social'), 'web');
 assert.equal(getServiceMode('/lead/'), 'lead');
 assert.equal(getServiceMode('/forecasting/'), 'forecasting');
+assert.equal(getServiceMode('/archivio-ai/'), 'archivio');
 assert.equal(canonicalNavigation('/', '?mode=forecasting', '#forecasting-prova'), '/forecasting/#forecasting-prova');
 assert.equal(canonicalNavigation('/', '?mode=lead', '#lead-contatto'), '/lead/#lead-contatto');
 assert.equal(htmlToMarkdown('<h1>Ciao &amp; benvenuto</h1><div aria-hidden="true"><span>decorazione</span></div><details><summary>Domanda</summary><p>Risposta <strong>utile</strong>.</p></details><button>Avvia</button>'), '## Ciao & benvenuto\n\nDomanda\n\nRisposta utile.');
@@ -80,5 +81,6 @@ assert.ok(!/\b10%|10 %|500 euro|50 euro/.test(await read('lead/index.md')), 'No 
 for (const path of ['terms-of-service/index.html', 'privacy-policy/index.html']) {
   assert.ok((await read(path)).includes('id="lead"'), 'Lead legal section is reachable');
   assert.ok((await read(path)).includes('id="forecasting"'), 'Forecasting legal section is reachable');
+  assert.ok((await read(path)).includes('id="archivio"'), 'Archivio legal section is reachable');
 }
 console.log('SEO verificata: HTML, canonical, metadati, schema, asset, sitemap, trascrizioni, 404 e compatibilità dei vecchi link.');

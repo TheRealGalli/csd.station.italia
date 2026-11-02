@@ -1,6 +1,6 @@
-export type ServiceMode = 'automazioni' | 'nfc' | 'training' | 'web' | 'media' | 'lead' | 'forecasting';
+export type ServiceMode = 'automazioni' | 'nfc' | 'training' | 'web' | 'media' | 'lead' | 'archivio' | 'forecasting';
 export const servicePaths: Record<ServiceMode, string> = {
-  automazioni: '/', nfc: '/card-nfc/', training: '/training-ai/', web: '/sito-social/', media: '/video-slide/', lead: '/lead/', forecasting: '/forecasting/',
+  automazioni: '/', nfc: '/card-nfc/', training: '/training-ai/', web: '/sito-social/', media: '/video-slide/', lead: '/lead/', archivio: '/archivio-ai/', forecasting: '/forecasting/',
 };
 // Demo dei sistemi OS di settore: solo desktop, non ancora rilasciati (noindex).
 export type OsProduct = 'restaurant' | 'notaro';
@@ -17,6 +17,7 @@ export function getServiceMode(pathname: string, search = ''): ServiceMode {
   const path = normalizePath(pathname);
   if (path === servicePaths.forecasting) return 'forecasting';
   if (path === servicePaths.lead) return 'lead';
+  if (path === servicePaths.archivio) return 'archivio';
   if (path === servicePaths.training) return 'training';
   if (path === servicePaths.web) return 'web';
   if (path === servicePaths.media) return 'media';

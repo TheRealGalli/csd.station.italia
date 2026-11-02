@@ -1,10 +1,11 @@
 import { Link } from 'react-router-dom';
-import { ArrowDown, ArrowRight, ArrowUpRight, BarChart3, GraduationCap, Globe, Nfc, Play, Users, Workflow } from 'lucide-react';
+import { ArrowDown, ArrowRight, ArrowUpRight, BarChart3, FolderSearch, GraduationCap, Globe, Nfc, Play, Users, Workflow } from 'lucide-react';
 import { osPaths, servicePaths } from '@/seo/routes';
 import './consulting-solutions.css';
 
 const services = [
   { mode: 'training', icon: GraduationCap, title: 'Training AI', text: 'Porta strumenti e competenze nel lavoro del tuo team.' },
+  { mode: 'archivio', icon: FolderSearch, title: 'Archivio AI', text: 'Ritrova documenti, audio e video con una domanda, in locale.' },
   { mode: 'forecasting', icon: BarChart3, title: 'Forecasting', text: 'Usa i tuoi dati per valutare domanda e scenari futuri.' },
   { mode: 'lead', icon: Users, title: 'Riattivazione lead', text: 'Riprendi il dialogo con i contatti già raccolti.' },
   { mode: 'web', icon: Globe, title: 'Sito & Social', text: 'Dai alla tua attività una presenza online curata.' },

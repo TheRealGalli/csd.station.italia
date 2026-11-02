@@ -16,6 +16,8 @@ Le card NFC aprono un collegamento: non pubblicano recensioni. I report misurano
 
 - [Lead — riattivazione contatti](https://csd-station.it/lead/index.md): ricontatto di liste proprie e lecite, compenso sul risultato concordato; nessuna percentuale standard pubblicata.
 
+- [Archivio AI](https://csd-station.it/archivio-ai/index.md): archivio e memoria aziendale collegati all’AI, interamente in locale sull’hardware del cliente; documenti, scansioni, email, audio e video ritrovati con una domanda, con la fonte. Per studi professionali, studi medici, PMI ed enti pubblici. Nessun prezzo standard pubblicato.
+
 - [Forecasting AI](https://csd-station.it/forecasting/index.md): previsioni per PMI, anche interamente locali; prova gratuita di 7 giorni dopo verifica di fattibilità e storico, senza obbligo di proseguire. Accuratezza non garantita, confronto con baseline e backtesting ove possibile.
 
 ## Pagine web
@@ -27,6 +29,8 @@ Le card NFC aprono un collegamento: non pubblicano recensioni. I report misurano
 - [Video & Slide](https://csd-station.it/video-slide/)
 
 - [Lead](https://csd-station.it/lead/): riattivazione contatti, con presentazioni desktop e mobile.
+
+- [Archivio AI](https://csd-station.it/archivio-ai/): memoria aziendale in locale, ricerca nel contenuto di file e registrazioni, risposte con le fonti.
 
 - [Forecasting AI](https://csd-station.it/forecasting/): dati aziendali, previsioni della domanda e decisioni sotto controllo umano.
 

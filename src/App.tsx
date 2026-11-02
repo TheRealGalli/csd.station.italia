@@ -18,6 +18,7 @@ export const AppContent = () => (
         <Route path="/sito-social/" element={<Index />} />
         <Route path="/video-slide/" element={<Index />} />
         <Route path="/lead/" element={<Index />} />
+        <Route path="/archivio-ai/" element={<Index />} />
         <Route path="/forecasting/" element={<Index />} />
         <Route path="/restaurant-os/" element={<OsDemo product="restaurant" />} />
         <Route path="/notaro-os/" element={<OsDemo product="notaro" />} />
